@@ -19,8 +19,7 @@
     <div class="container nav">
       <div class="brand">DinuuNOVA <span>Physics</span></div>
       <nav class="nav-links">
-        <a href="index.html">Home</a>
-        <a href="subjects/current-electricity/index.html">Current Electricity</a>
+        <a href="index.html" class="active">Home</a>
       </nav>
     </div>
   </header>
@@ -33,15 +32,47 @@
         Organized by main topic and subtopic. Built for students who want quick access
         to formulas without wasting time.
       </p>
-      <div class="actions">
-        <a class="btn btn-primary" href="subjects/current-electricity/index.html">
-          Open Current Electricity
-        </a>
 
+      <div class="actions">
         <button id="installBtn" class="btn btn-install" style="display:none;">
           Install App
         </button>
       </div>
+    </div>
+  </section>
+
+  <section class="section controls-section">
+    <div class="container">
+      <div class="controls-wrap">
+        <div class="search-box">
+          <input
+            type="text"
+            id="subjectSearch"
+            placeholder="Search topics, formulas, or lessons..."
+            aria-label="Search subjects"
+          >
+        </div>
+
+        <div class="filter-box">
+          <select id="categoryFilter" aria-label="Filter by category">
+            <option value="all">All Categories</option>
+            <option value="electricity">Electricity</option>
+            <option value="mechanics">Mechanics</option>
+            <option value="thermal">Thermal Physics</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section pinned-section" id="pinnedSection" style="display:none;">
+    <div class="container">
+      <h2>Pinned Topics</h2>
+      <p class="section-sub">
+        Your saved quick-access subjects will appear here.
+      </p>
+
+      <div class="grid" id="pinnedGrid"></div>
     </div>
   </section>
 
@@ -52,9 +83,14 @@
         Your 11 main physics areas will appear here as clean subject cards.
       </p>
 
-      <div class="grid">
-        <div class="card">
-          <div class="badge">Topic 07</div>
+      <div class="grid" id="subjectGrid">
+        <div class="card subject-card" data-title="Current Electricity" data-category="electricity" data-coming="false">
+          <div class="card-top">
+            <div class="badge">Topic 07</div>
+            <button class="pin-btn" data-subject="Current Electricity" type="button" aria-label="Pin Current Electricity">
+              ☆
+            </button>
+          </div>
           <h3>Current Electricity</h3>
           <p>Basics, current flow, charge, equations, and formula-based revision notes.</p>
           <div class="actions">
@@ -62,14 +98,24 @@
           </div>
         </div>
 
-        <div class="card">
-          <div class="badge">Coming Later</div>
+        <div class="card subject-card" data-title="Mechanics" data-category="mechanics" data-coming="true">
+          <div class="card-top">
+            <div class="badge">Coming Later</div>
+            <button class="pin-btn" data-subject="Mechanics" type="button" aria-label="Pin Mechanics">
+              ☆
+            </button>
+          </div>
           <h3>Mechanics</h3>
           <p>Vectors, kinematics, Newton’s laws, work-energy-power, and more.</p>
         </div>
 
-        <div class="card">
-          <div class="badge">Coming Later</div>
+        <div class="card subject-card" data-title="Thermal Physics" data-category="thermal" data-coming="true">
+          <div class="card-top">
+            <div class="badge">Coming Later</div>
+            <button class="pin-btn" data-subject="Thermal Physics" type="button" aria-label="Pin Thermal Physics">
+              ☆
+            </button>
+          </div>
           <h3>Thermal Physics</h3>
           <p>Formula sheets and quick revision pages for thermal concepts.</p>
         </div>
@@ -114,9 +160,7 @@
         if (!deferredPrompt) return;
 
         deferredPrompt.prompt();
-
-        const choiceResult = await deferredPrompt.userChoice;
-        console.log("Install choice:", choiceResult.outcome);
+        await deferredPrompt.userChoice;
 
         deferredPrompt = null;
         installBtn.style.display = "none";
@@ -129,6 +173,182 @@
         installBtn.style.display = "none";
       }
     });
+
+    const searchInput = document.getElementById("subjectSearch");
+    const categoryFilter = document.getElementById("categoryFilter");
+    const subjectCards = Array.from(document.querySelectorAll(".subject-card"));
+    const pinButtons = Array.from(document.querySelectorAll(".pin-btn"));
+    const pinnedSection = document.getElementById("pinnedSection");
+    const pinnedGrid = document.getElementById("pinnedGrid");
+
+    const SUBJECTS = {
+      "Current Electricity": {
+        title: "Current Electricity",
+        badge: "Topic 07",
+        description: "Basics, current flow, charge, equations, and formula-based revision notes.",
+        link: "subjects/current-electricity/index.html",
+        openable: true
+      },
+      "Mechanics": {
+        title: "Mechanics",
+        badge: "Coming Later",
+        description: "Vectors, kinematics, Newton’s laws, work-energy-power, and more.",
+        link: "#",
+        openable: false
+      },
+      "Thermal Physics": {
+        title: "Thermal Physics",
+        badge: "Coming Later",
+        description: "Formula sheets and quick revision pages for thermal concepts.",
+        link: "#",
+        openable: false
+      }
+    };
+
+    function getPinnedSubjects() {
+      try {
+        return JSON.parse(localStorage.getItem("dnPhysicsPinnedSubjects")) || [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function savePinnedSubjects(items) {
+      localStorage.setItem("dnPhysicsPinnedSubjects", JSON.stringify(items));
+    }
+
+    function togglePin(subjectName) {
+      const pinned = getPinnedSubjects();
+      const exists = pinned.includes(subjectName);
+
+      let updated;
+      if (exists) {
+        updated = pinned.filter(name => name !== subjectName);
+      } else {
+        updated = [...pinned, subjectName];
+      }
+
+      savePinnedSubjects(updated);
+      updatePinButtons();
+      renderPinnedSubjects();
+    }
+
+    function updatePinButtons() {
+      const pinned = getPinnedSubjects();
+
+      pinButtons.forEach(button => {
+        const subjectName = button.dataset.subject;
+        const isPinned = pinned.includes(subjectName);
+
+        button.textContent = isPinned ? "★" : "☆";
+        button.classList.toggle("pinned", isPinned);
+        button.setAttribute(
+          "aria-label",
+          isPinned ? `Unpin ${subjectName}` : `Pin ${subjectName}`
+        );
+        button.title = isPinned ? "Unpin topic" : "Pin topic";
+      });
+    }
+
+    function createPinnedCard(subject) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "card";
+
+      const top = document.createElement("div");
+      top.className = "card-top";
+
+      const badge = document.createElement("div");
+      badge.className = "badge";
+      badge.textContent = subject.badge;
+
+      const pinBtn = document.createElement("button");
+      pinBtn.className = "pin-btn pinned";
+      pinBtn.type = "button";
+      pinBtn.textContent = "★";
+      pinBtn.dataset.subject = subject.title;
+      pinBtn.setAttribute("aria-label", `Unpin ${subject.title}`);
+      pinBtn.title = "Unpin topic";
+      pinBtn.addEventListener("click", () => togglePin(subject.title));
+
+      top.appendChild(badge);
+      top.appendChild(pinBtn);
+
+      const title = document.createElement("h3");
+      title.textContent = subject.title;
+
+      const desc = document.createElement("p");
+      desc.textContent = subject.description;
+
+      wrapper.appendChild(top);
+      wrapper.appendChild(title);
+      wrapper.appendChild(desc);
+
+      if (subject.openable) {
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        const link = document.createElement("a");
+        link.className = "btn";
+        link.href = subject.link;
+        link.textContent = "Open Subject";
+
+        actions.appendChild(link);
+        wrapper.appendChild(actions);
+      }
+
+      return wrapper;
+    }
+
+    function renderPinnedSubjects() {
+      const pinned = getPinnedSubjects();
+      pinnedGrid.innerHTML = "";
+
+      if (pinned.length === 0) {
+        pinnedSection.style.display = "none";
+        return;
+      }
+
+      pinned.forEach(name => {
+        const subject = SUBJECTS[name];
+        if (subject) {
+          pinnedGrid.appendChild(createPinnedCard(subject));
+        }
+      });
+
+      pinnedSection.style.display = "block";
+    }
+
+    function filterSubjects() {
+      const searchValue = searchInput.value.trim().toLowerCase();
+      const selectedCategory = categoryFilter.value;
+
+      subjectCards.forEach(card => {
+        const title = card.dataset.title.toLowerCase();
+        const category = card.dataset.category.toLowerCase();
+        const description = card.querySelector("p").textContent.toLowerCase();
+
+        const matchesSearch =
+          title.includes(searchValue) || description.includes(searchValue);
+
+        const matchesCategory =
+          selectedCategory === "all" || category === selectedCategory;
+
+        card.style.display = matchesSearch && matchesCategory ? "" : "none";
+      });
+    }
+
+    pinButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        togglePin(button.dataset.subject);
+      });
+    });
+
+    searchInput.addEventListener("input", filterSubjects);
+    categoryFilter.addEventListener("change", filterSubjects);
+
+    updatePinButtons();
+    renderPinnedSubjects();
+    filterSubjects();
   </script>
 
 </body>
