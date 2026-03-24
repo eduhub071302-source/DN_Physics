@@ -32,19 +32,31 @@
         <div class="badge">PDF Note</div>
         <h2>Basics Formula Sheet</h2>
         <p>
-          Open the PDF in the website viewer or download it directly.
+          View, download, or share this formula sheet.
         </p>
 
         <div class="actions">
-          <a class="btn" href="basics-view.html">📖 View in Website</a>
+          <a class="btn" href="viewer.html?file=basics-formulas.pdf&title=Basics%20Formula%20Sheet">
+            📖 View PDF
+          </a>
 
           <a class="btn btn-primary" href="../../pdfs/current-electricity/basics-formulas.pdf" download>
             ⬇ Download PDF
           </a>
+
+          <button class="btn" type="button" onclick="sharePdf()">
+            📤 Share PDF
+          </button>
+        </div>
+
+        <div class="actions" style="margin-top: 12px;">
+          <a class="btn" id="waShare" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+          <a class="btn" id="tgShare" target="_blank" rel="noopener noreferrer">Telegram</a>
+          <a class="btn" id="mailShare">Email</a>
         </div>
 
         <p style="margin-top:16px; color: var(--muted); font-size: 0.95rem;">
-          If your phone does not preview PDFs properly, use <strong>Download PDF</strong>.
+          If preview is slow on your phone, use <strong>Download PDF</strong>.
         </p>
       </div>
     </div>
@@ -55,6 +67,44 @@
       © 2026 DinuuNOVA Physics
     </div>
   </footer>
+
+  <script>
+    const pdfUrl = "https://eduhub071302-source.github.io/DN_Physics/pdfs/current-electricity/basics-formulas.pdf";
+    const shareText = "Basics Formula Sheet - DinuuNOVA Physics";
+    const pageUrl = "https://eduhub071302-source.github.io/DN_Physics/topics/current-electricity/basics.html";
+
+    document.getElementById("waShare").href =
+      "https://wa.me/?text=" + encodeURIComponent(shareText + " " + pdfUrl);
+
+    document.getElementById("tgShare").href =
+      "https://t.me/share/url?url=" + encodeURIComponent(pdfUrl) +
+      "&text=" + encodeURIComponent(shareText);
+
+    document.getElementById("mailShare").href =
+      "mailto:?subject=" + encodeURIComponent(shareText) +
+      "&body=" + encodeURIComponent("View or download the PDF here:\n\n" + pdfUrl + "\n\nPage link:\n" + pageUrl);
+
+    async function sharePdf() {
+      const shareData = {
+        title: shareText,
+        text: "View or download this PDF:",
+        url: pdfUrl
+      };
+
+      if (navigator.share) {
+        try {
+          await navigator.share(shareData);
+        } catch (e) {}
+      } else {
+        try {
+          await navigator.clipboard.writeText(pdfUrl);
+          alert("PDF link copied. Now you can paste it into WhatsApp, Telegram, or Email.");
+        } catch (e) {
+          alert("Copy this PDF link manually:\n" + pdfUrl);
+        }
+      }
+    }
+  </script>
 
 </body>
 </html>
