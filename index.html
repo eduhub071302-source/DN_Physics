@@ -157,7 +157,7 @@
     function getSubjectDescription(subjectSlug) {
       const descriptions = {
         "units": "Measurement units, conversions, and basic formula revision notes.",
-        "current-electricity": "Basics, current flow, charge, equations, and formula-based revision notes.",
+        "current-electricity": "Basics, current flow, charge, equations, and circuit-based revision notes.",
         "mechanics": "Vectors, kinematics, Newton’s laws, work-energy-power, and more.",
         "thermal-physics": "Formula sheets and quick revision pages for thermal concepts."
       };
@@ -166,14 +166,7 @@
     }
 
     function getSubjectCategory(subjectSlug) {
-      const categories = {
-        "units": "fundamentals",
-        "current-electricity": "electricity",
-        "mechanics": "mechanics",
-        "thermal-physics": "thermal"
-      };
-
-      return categories[subjectSlug] || "general";
+      return subjectSlug || "general";
     }
 
     function getBadgeText(index) {
@@ -370,7 +363,7 @@
         if (!res.ok) throw new Error("Failed to load catalog");
 
         const items = await res.json();
-        const uniqueSubjects = [...new Set(items.map(item => item.subject))];
+        const uniqueSubjects = [...new Set(items.map(item => item.subject).filter(Boolean))];
 
         if (!uniqueSubjects.length) {
           subjectGrid.innerHTML = `<div class="empty-state">No subjects found.</div>`;
@@ -400,7 +393,7 @@
               class="card subject-card"
               data-title="${subjectName}"
               data-category="${category}"
-              data-keywords="${subjectName.toLowerCase()} ${subjectSlug.replace(/-/g, ' ')} physics formulas revision notes"
+              data-keywords="${subjectName.toLowerCase()} ${subjectSlug.replace(/-/g, " ")} physics formulas revision notes"
             >
               <div class="card-top">
                 <div class="badge">${badge}</div>
