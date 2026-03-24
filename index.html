@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DinuuNOVA Physics</title>
 
-  <link rel="manifest" href="/DN_Physics/manifest.json">
-  <meta name="theme-color" content="#4ea1ff">
-  <link rel="apple-touch-icon" href="/DN_Physics/icon-192.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="/DN_Physics/manifest.json" />
+  <meta name="theme-color" content="#4ea1ff" />
+  <link rel="apple-touch-icon" href="/DN_Physics/icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
@@ -48,17 +48,14 @@
           <input
             type="text"
             id="subjectSearch"
-            placeholder="Search topics, formulas, or lessons..."
+            placeholder="Search subjects..."
             aria-label="Search subjects"
-          >
+          />
         </div>
 
         <div class="filter-box">
           <select id="categoryFilter" aria-label="Filter by category">
-            <option value="all">All Categories</option>
-            <option value="electricity">Electricity</option>
-            <option value="mechanics">Mechanics</option>
-            <option value="thermal">Thermal Physics</option>
+            <option value="all">All Subjects</option>
           </select>
         </div>
       </div>
@@ -80,63 +77,11 @@
     <div class="container">
       <h2>Main Topics</h2>
       <p class="section-sub">
-        Your 11 main physics areas will appear here as clean subject cards.
+        Subjects available in your digital physics note system.
       </p>
 
       <div class="grid" id="subjectGrid">
-        <div
-          class="card subject-card"
-          data-title="Current Electricity"
-          data-category="electricity"
-          data-keywords="current electricity electric current charge q it q=it ampere amperes ohm resistance resistors voltage volt current flow circuit circuits cells battery batteries emf potential difference series parallel kirchhoff"
-          data-coming="false"
-        >
-          <div class="card-top">
-            <div class="badge">Topic 07</div>
-            <button class="pin-btn" data-subject="Current Electricity" type="button" aria-label="Pin Current Electricity">
-              ☆
-            </button>
-          </div>
-          <h3>Current Electricity</h3>
-          <p>Basics, current flow, charge, equations, and formula-based revision notes.</p>
-          <div class="actions">
-            <a class="btn" href="subjects/current-electricity/index.html">Open Subject</a>
-          </div>
-        </div>
-
-        <div
-          class="card subject-card"
-          data-title="Mechanics"
-          data-category="mechanics"
-          data-keywords="mechanics motion kinematics vectors vector newton force forces energy power work momentum circular motion rotation rotational motion torque gravity acceleration velocity displacement suvats suvat equilibrium center of gravity"
-          data-coming="true"
-        >
-          <div class="card-top">
-            <div class="badge">Coming Later</div>
-            <button class="pin-btn" data-subject="Mechanics" type="button" aria-label="Pin Mechanics">
-              ☆
-            </button>
-          </div>
-          <h3>Mechanics</h3>
-          <p>Vectors, kinematics, Newton’s laws, work-energy-power, and more.</p>
-        </div>
-
-        <div
-          class="card subject-card"
-          data-title="Thermal Physics"
-          data-category="thermal"
-          data-keywords="thermal physics heat temperature gas law pressure boyle charles pressure law thermodynamics kinetic theory thermal expansion ideal gas kelvin celsius internal energy"
-          data-coming="true"
-        >
-          <div class="card-top">
-            <div class="badge">Coming Later</div>
-            <button class="pin-btn" data-subject="Thermal Physics" type="button" aria-label="Pin Thermal Physics">
-              ☆
-            </button>
-          </div>
-          <h3>Thermal Physics</h3>
-          <p>Formula sheets and quick revision pages for thermal concepts.</p>
-        </div>
+        <div class="empty-state">Loading subjects...</div>
       </div>
     </div>
   </section>
@@ -194,34 +139,46 @@
 
     const searchInput = document.getElementById("subjectSearch");
     const categoryFilter = document.getElementById("categoryFilter");
-    const subjectCards = Array.from(document.querySelectorAll(".subject-card"));
-    const pinButtons = Array.from(document.querySelectorAll(".pin-btn"));
     const pinnedSection = document.getElementById("pinnedSection");
     const pinnedGrid = document.getElementById("pinnedGrid");
+    const subjectGrid = document.getElementById("subjectGrid");
 
-    const SUBJECTS = {
-      "Current Electricity": {
-        title: "Current Electricity",
-        badge: "Topic 07",
-        description: "Basics, current flow, charge, equations, and formula-based revision notes.",
-        link: "subjects/current-electricity/index.html",
-        openable: true
-      },
-      "Mechanics": {
-        title: "Mechanics",
-        badge: "Coming Later",
-        description: "Vectors, kinematics, Newton’s laws, work-energy-power, and more.",
-        link: "#",
-        openable: false
-      },
-      "Thermal Physics": {
-        title: "Thermal Physics",
-        badge: "Coming Later",
-        description: "Formula sheets and quick revision pages for thermal concepts.",
-        link: "#",
-        openable: false
-      }
-    };
+    let SUBJECTS = {};
+    let subjectCards = [];
+    let pinButtons = [];
+
+    function prettifySubject(name) {
+      return (name || "")
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, c => c.toUpperCase())
+        .trim();
+    }
+
+    function getSubjectDescription(subjectSlug) {
+      const descriptions = {
+        "units": "Measurement units, conversions, and basic formula revision notes.",
+        "current-electricity": "Basics, current flow, charge, equations, and formula-based revision notes.",
+        "mechanics": "Vectors, kinematics, Newton’s laws, work-energy-power, and more.",
+        "thermal-physics": "Formula sheets and quick revision pages for thermal concepts."
+      };
+
+      return descriptions[subjectSlug] || "Explore formula notes and quick revision sheets.";
+    }
+
+    function getSubjectCategory(subjectSlug) {
+      const categories = {
+        "units": "fundamentals",
+        "current-electricity": "electricity",
+        "mechanics": "mechanics",
+        "thermal-physics": "thermal"
+      };
+
+      return categories[subjectSlug] || "general";
+    }
+
+    function getBadgeText(index) {
+      return `Topic ${String(index + 1).padStart(2, "0")}`;
+    }
 
     function getPinnedSubjects() {
       try {
@@ -239,12 +196,9 @@
       const pinned = getPinnedSubjects();
       const exists = pinned.includes(subjectName);
 
-      let updated;
-      if (exists) {
-        updated = pinned.filter(name => name !== subjectName);
-      } else {
-        updated = [...pinned, subjectName];
-      }
+      const updated = exists
+        ? pinned.filter(name => name !== subjectName)
+        : [...pinned, subjectName];
 
       savePinnedSubjects(updated);
       updatePinButtons();
@@ -301,18 +255,16 @@
       wrapper.appendChild(title);
       wrapper.appendChild(desc);
 
-      if (subject.openable) {
-        const actions = document.createElement("div");
-        actions.className = "actions";
+      const actions = document.createElement("div");
+      actions.className = "actions";
 
-        const link = document.createElement("a");
-        link.className = "btn";
-        link.href = subject.link;
-        link.textContent = "Open Subject";
+      const link = document.createElement("a");
+      link.className = "btn";
+      link.href = subject.link;
+      link.textContent = "Open Subject";
 
-        actions.appendChild(link);
-        wrapper.appendChild(actions);
-      }
+      actions.appendChild(link);
+      wrapper.appendChild(actions);
 
       return wrapper;
     }
@@ -337,7 +289,7 @@
     }
 
     function levenshtein(a, b) {
-      const matrix = Array.from({ length: b.length + 1 }, (_, i) =>
+      const matrix = Array.from({ length: b.length + 1 }, () =>
         Array(a.length + 1).fill(0)
       );
 
@@ -397,18 +349,93 @@
       });
     }
 
-    pinButtons.forEach(button => {
-      button.addEventListener("click", () => {
-        togglePin(button.dataset.subject);
+    function rebuildPinsAndFilters() {
+      pinButtons = Array.from(document.querySelectorAll(".pin-btn"));
+      subjectCards = Array.from(document.querySelectorAll(".subject-card"));
+
+      pinButtons.forEach(button => {
+        button.addEventListener("click", () => {
+          togglePin(button.dataset.subject);
+        });
       });
-    });
+
+      updatePinButtons();
+      renderPinnedSubjects();
+      filterSubjects();
+    }
+
+    async function loadSubjectsFromCatalog() {
+      try {
+        const res = await fetch("/DN_Physics/pdfs/catalog.json");
+        if (!res.ok) throw new Error("Failed to load catalog");
+
+        const items = await res.json();
+        const uniqueSubjects = [...new Set(items.map(item => item.subject))];
+
+        if (!uniqueSubjects.length) {
+          subjectGrid.innerHTML = `<div class="empty-state">No subjects found.</div>`;
+          return;
+        }
+
+        SUBJECTS = {};
+        categoryFilter.innerHTML = `<option value="all">All Subjects</option>`;
+
+        subjectGrid.innerHTML = uniqueSubjects.map((subjectSlug, index) => {
+          const subjectName = prettifySubject(subjectSlug);
+          const category = getSubjectCategory(subjectSlug);
+          const description = getSubjectDescription(subjectSlug);
+          const badge = getBadgeText(index);
+          const link = `subjects/${subjectSlug}/index.html`;
+
+          SUBJECTS[subjectName] = {
+            title: subjectName,
+            badge: badge,
+            description: description,
+            link: link,
+            openable: true
+          };
+
+          return `
+            <div
+              class="card subject-card"
+              data-title="${subjectName}"
+              data-category="${category}"
+              data-keywords="${subjectName.toLowerCase()} ${subjectSlug.replace(/-/g, ' ')} physics formulas revision notes"
+            >
+              <div class="card-top">
+                <div class="badge">${badge}</div>
+                <button class="pin-btn" data-subject="${subjectName}" type="button" aria-label="Pin ${subjectName}">
+                  ☆
+                </button>
+              </div>
+              <h3>${subjectName}</h3>
+              <p>${description}</p>
+              <div class="actions">
+                <a class="btn" href="${link}">Open Subject</a>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        const usedCategories = [...new Set(uniqueSubjects.map(getSubjectCategory))];
+        usedCategories.forEach(category => {
+          const option = document.createElement("option");
+          option.value = category;
+          option.textContent = prettifySubject(category);
+          categoryFilter.appendChild(option);
+        });
+
+        rebuildPinsAndFilters();
+      } catch (error) {
+        console.error(error);
+        subjectGrid.innerHTML = `<div class="empty-state">Could not load subjects.</div>`;
+      }
+    }
 
     searchInput.addEventListener("input", filterSubjects);
     categoryFilter.addEventListener("change", filterSubjects);
 
-    updatePinButtons();
-    renderPinnedSubjects();
-    filterSubjects();
+    loadSubjectsFromCatalog();
   </script>
 
 </body>
