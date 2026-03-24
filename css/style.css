@@ -173,6 +173,19 @@ header {
   transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 
+.filter-box select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 44px;
+  cursor: pointer;
+}
+
+.filter-box select option {
+  background: #0f1728;
+  color: #e8eefc;
+}
+
 .search-box input::placeholder {
   color: var(--muted);
 }
