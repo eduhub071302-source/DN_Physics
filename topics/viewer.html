@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PDF Viewer | DinuuNOVA Physics</title>
-  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="/DN_Physics/css/style.css">
   <style>
     .viewer-wrap {
       padding: 28px 0 40px;
@@ -87,9 +87,9 @@
     <div class="container nav">
       <div class="brand">DinuuNOVA <span>Physics</span></div>
       <nav class="nav-links">
-        <a href="../index.html">Home</a>
-        <a id="subjectLink" href="../subjects/current-electricity/index.html">Subject</a>
-        <a id="backLink" href="../index.html">Back</a>
+        <a href="/DN_Physics/index.html">Home</a>
+        <a id="subjectLink" href="/DN_Physics/subjects/current-electricity/index.html">Subject</a>
+        <a id="backLink" href="/DN_Physics/index.html">Back</a>
       </nav>
     </div>
   </header>
@@ -100,7 +100,7 @@
         <h1 class="viewer-title" id="viewerTitle">PDF Viewer</h1>
 
         <div class="actions">
-          <a class="btn" id="backBtn" href="../index.html">← Back</a>
+          <a class="btn" id="backBtn" href="/DN_Physics/index.html">← Back</a>
           <a class="btn btn-primary" id="downloadBtn" download>⬇ Download PDF</a>
           <button class="btn" type="button" onclick="shareCurrentPdf()">📤 Share PDF</button>
         </div>
@@ -141,9 +141,9 @@
     const subject = params.get("subject") || "current-electricity";
     const file = params.get("file") || "basics-formulas.pdf";
     const title = params.get("title") || "PDF Viewer";
-    const back = params.get("back") || `../subjects/${subject}/index.html`;
+    const back = params.get("back") || `/DN_Physics/subjects/${subject}/index.html`;
 
-    const pdfUrl = `../pdfs/${subject}/${file}`;
+    const pdfUrl = `/DN_Physics/pdfs/${subject}/${file}`;
     const absolutePdfUrl = `https://eduhub071302-source.github.io/DN_Physics/pdfs/${subject}/${file}`;
 
     const subjectTitle = subject
@@ -156,7 +156,7 @@
     document.getElementById("downloadBtn").href = pdfUrl;
 
     document.getElementById("subjectLink").textContent = subjectTitle;
-    document.getElementById("subjectLink").href = `../subjects/${subject}/index.html`;
+    document.getElementById("subjectLink").href = `/DN_Physics/subjects/${subject}/index.html`;
 
     document.getElementById("backLink").href = back;
     document.getElementById("backBtn").href = back;
