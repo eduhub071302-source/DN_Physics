@@ -37,6 +37,10 @@
         <button id="installBtn" class="btn btn-install" style="display:none;">
           Install App
         </button>
+
+        <button id="refreshBtn" class="btn" type="button">
+          🔄 Refresh
+        </button>
       </div>
     </div>
   </section>
@@ -95,6 +99,7 @@
   <script>
     let deferredPrompt;
     const installBtn = document.getElementById("installBtn");
+    const refreshBtn = document.getElementById("refreshBtn");
 
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
@@ -136,6 +141,28 @@
         installBtn.style.display = "none";
       }
     });
+
+    if (refreshBtn) {
+      refreshBtn.addEventListener("click", async () => {
+        try {
+          if ("caches" in window) {
+            const cacheNames = await caches.keys();
+            await Promise.all(cacheNames.map((name) => caches.delete(name)));
+          }
+
+          if ("serviceWorker" in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (const registration of registrations) {
+              registration.update();
+            }
+          }
+        } catch (error) {
+          console.log("Refresh cleanup warning:", error);
+        }
+
+        window.location.reload();
+      });
+    }
 
     const searchInput = document.getElementById("subjectSearch");
     const categoryFilter = document.getElementById("categoryFilter");
