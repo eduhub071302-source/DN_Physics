@@ -1,12 +1,16 @@
 {
+  "id": "/DN_Physics/",
   "name": "DN Physics",
   "short_name": "DN Physics",
-  "start_url": "/DN_Physics/",
+  "description": "A/L Physics digital notes and formula viewer by DinuuNOVA.",
+  "start_url": "/DN_Physics/index.html",
   "scope": "/DN_Physics/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#0b1220",
   "theme_color": "#4ea1ff",
   "orientation": "portrait-primary",
+
   "icons": [
     {
       "src": "/DN_Physics/icon-192.png",
@@ -17,6 +21,21 @@
       "src": "/DN_Physics/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
+    }
+  ],
+
+  "shortcuts": [
+    {
+      "name": "All Notes",
+      "url": "/DN_Physics/topics/viewer.html"
+    },
+    {
+      "name": "Units",
+      "url": "/DN_Physics/subjects/units/index.html"
+    },
+    {
+      "name": "Current Electricity",
+      "url": "/DN_Physics/subjects/current-electricity/index.html"
     }
   ]
 }
