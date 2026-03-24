@@ -5,16 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DinuuNOVA Physics</title>
 
-  <!-- ✅ PWA Manifest -->
   <link rel="manifest" href="/DN_Physics/manifest.json">
   <meta name="theme-color" content="#4ea1ff">
-
-  <!-- ✅ iPhone Support -->
   <link rel="apple-touch-icon" href="/DN_Physics/icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-  <!-- CSS -->
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -41,6 +37,10 @@
         <a class="btn btn-primary" href="subjects/current-electricity/index.html">
           Open Current Electricity
         </a>
+
+        <button id="installBtn" class="btn btn-install" style="display:none;">
+          Install App
+        </button>
       </div>
     </div>
   </section>
@@ -83,8 +83,10 @@
     </div>
   </footer>
 
-  <!-- ✅ SERVICE WORKER REGISTER (Step 6) -->
   <script>
+    let deferredPrompt;
+    const installBtn = document.getElementById("installBtn");
+
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker
@@ -97,6 +99,36 @@
           });
       });
     }
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+
+      if (installBtn) {
+        installBtn.style.display = "inline-flex";
+      }
+    });
+
+    if (installBtn) {
+      installBtn.addEventListener("click", async () => {
+        if (!deferredPrompt) return;
+
+        deferredPrompt.prompt();
+
+        const choiceResult = await deferredPrompt.userChoice;
+        console.log("Install choice:", choiceResult.outcome);
+
+        deferredPrompt = null;
+        installBtn.style.display = "none";
+      });
+    }
+
+    window.addEventListener("appinstalled", () => {
+      console.log("✅ PWA installed");
+      if (installBtn) {
+        installBtn.style.display = "none";
+      }
+    });
   </script>
 
 </body>
