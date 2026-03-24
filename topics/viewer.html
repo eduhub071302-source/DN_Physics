@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Viewer | DinuuNOVA Physics</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .viewer-wrap {
+      padding: 28px 0 40px;
+    }
+
+    .viewer-topbar {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .viewer-title {
+      margin: 0;
+      font-size: 1.55rem;
+      letter-spacing: -0.02em;
+    }
+
+    .pdf-shell {
+      background: linear-gradient(180deg, rgba(17, 26, 43, 0.96), rgba(12, 18, 31, 0.96));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 14px;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    .pdf-toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .pdf-toolbar-text {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    #pdfViewer {
+      width: 100%;
+      min-height: 70vh;
+      background: #0a1322;
+      border-radius: 18px;
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .pdf-page {
+      display: block;
+      margin: 0 auto 18px;
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.3);
+      background: white;
+    }
+
+    .helper {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .loading {
+      color: var(--muted);
+      text-align: center;
+      padding: 30px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container nav">
+      <div class="brand">DinuuNOVA <span>Physics</span></div>
+      <nav class="nav-links">
+        <a href="../index.html">Home</a>
+        <a id="subjectLink" href="../subjects/current-electricity/index.html">Subject</a>
+        <a id="backLink" href="../index.html">Back</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="viewer-wrap">
+    <div class="container">
+      <div class="viewer-topbar">
+        <h1 class="viewer-title" id="viewerTitle">PDF Viewer</h1>
+
+        <div class="actions">
+          <a class="btn" id="backBtn" href="../index.html">← Back</a>
+          <a class="btn btn-primary" id="downloadBtn" download>⬇ Download PDF</a>
+          <button class="btn" type="button" onclick="shareCurrentPdf()">📤 Share PDF</button>
+        </div>
+      </div>
+
+      <div class="pdf-shell">
+        <div class="pdf-toolbar">
+          <div class="pdf-toolbar-text" id="fileLabel">Loading file...</div>
+          <div class="pdf-toolbar-text">Best for phone and PC viewing.</div>
+        </div>
+
+        <div id="pdfViewer">
+          <div class="loading">Loading PDF...</div>
+        </div>
+      </div>
+
+      <p class="helper">
+        If the preview fails or is slow on your device, use <strong>Download PDF</strong>.
+      </p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      © 2026 DinuuNOVA Physics
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
+  <script type="module">
+    import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";
+
+    const params = new URLSearchParams(window.location.search);
+
+    const subject = params.get("subject") || "current-electricity";
+    const file = params.get("file") || "basics-formulas.pdf";
+    const title = params.get("title") || "PDF Viewer";
+    const back = params.get("back") || `../subjects/${subject}/index.html`;
+
+    const pdfUrl = `../pdfs/${subject}/${file}`;
+    const absolutePdfUrl = `https://eduhub071302-source.github.io/DN_Physics/pdfs/${subject}/${file}`;
+
+    const subjectTitle = subject
+      .split("-")
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+
+    document.getElementById("viewerTitle").textContent = decodeURIComponent(title);
+    document.getElementById("fileLabel").textContent = `File: ${file}`;
+    document.getElementById("downloadBtn").href = pdfUrl;
+
+    document.getElementById("subjectLink").textContent = subjectTitle;
+    document.getElementById("subjectLink").href = `../subjects/${subject}/index.html`;
+
+    document.getElementById("backLink").href = back;
+    document.getElementById("backBtn").href = back;
+
+    const container = document.getElementById("pdfViewer");
+    container.innerHTML = '<div class="loading">Loading PDF...</div>';
+
+    async function renderPdf() {
+      try {
+        const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+        container.innerHTML = "";
+
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          const page = await pdf.getPage(pageNum);
+          const viewport = page.getViewport({ scale: 1.5 });
+
+          const canvas = document.createElement("canvas");
+          const context = canvas.getContext("2d");
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          canvas.className = "pdf-page";
+
+          await page.render({
+            canvasContext: context,
+            viewport: viewport
+          }).promise;
+
+          container.appendChild(canvas);
+        }
+      } catch (error) {
+        container.innerHTML = `
+          <div class="loading">
+            Preview failed on this device.<br><br>
+            Please use <strong>Download PDF</strong>.
+          </div>
+        `;
+      }
+    }
+
+    renderPdf();
+
+    window.shareCurrentPdf = async function () {
+      const shareData = {
+        title: decodeURIComponent(title),
+        text: "View or download this PDF:",
+        url: absolutePdfUrl
+      };
+
+      if (navigator.share) {
+        try {
+          await navigator.share(shareData);
+        } catch (e) {}
+      } else {
+        try {
+          await navigator.clipboard.writeText(absolutePdfUrl);
+          alert("PDF link copied. Now you can paste it into WhatsApp, Telegram, or Email.");
+        } catch (e) {
+          alert("Copy this PDF link manually:\n" + absolutePdfUrl);
+        }
+      }
+    };
+  </script>
+
+</body>
+</html>
