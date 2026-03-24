@@ -4,6 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DinuuNOVA Physics</title>
+
+  <!-- ✅ PWA Manifest -->
+  <link rel="manifest" href="/DN_Physics/manifest.json">
+  <meta name="theme-color" content="#4ea1ff">
+
+  <!-- ✅ iPhone Support -->
+  <link rel="apple-touch-icon" href="/DN_Physics/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <!-- CSS -->
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -27,7 +38,9 @@
         to formulas without wasting time.
       </p>
       <div class="actions">
-        <a class="btn btn-primary" href="subjects/current-electricity/index.html">Open Current Electricity</a>
+        <a class="btn btn-primary" href="subjects/current-electricity/index.html">
+          Open Current Electricity
+        </a>
       </div>
     </div>
   </section>
@@ -35,7 +48,9 @@
   <section class="section">
     <div class="container">
       <h2>Main Topics</h2>
-      <p class="section-sub">Your 11 main physics areas will appear here as clean subject cards.</p>
+      <p class="section-sub">
+        Your 11 main physics areas will appear here as clean subject cards.
+      </p>
 
       <div class="grid">
         <div class="card">
@@ -67,6 +82,22 @@
       © 2026 DinuuNOVA Physics · WhatsApp: 0716267361 · Email: eduhub071302@gmail.com
     </div>
   </footer>
+
+  <!-- ✅ SERVICE WORKER REGISTER (Step 6) -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .register("/DN_Physics/service-worker.js")
+          .then((registration) => {
+            console.log("✅ Service Worker registered:", registration.scope);
+          })
+          .catch((error) => {
+            console.log("❌ Service Worker failed:", error);
+          });
+      });
+    }
+  </script>
 
 </body>
 </html>
