@@ -10,7 +10,7 @@
   --accent-2: #7cc4ff;
   --accent-soft: rgba(78, 161, 255, 0.12);
   --line: #24314f;
-  --line-soft: rgba(255,255,255,0.08);
+  --line-soft: rgba(255, 255, 255, 0.08);
   --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
   --shadow-soft: 0 10px 26px rgba(0, 0, 0, 0.22);
   --radius-lg: 24px;
@@ -91,6 +91,20 @@ header {
 
 .hero {
   padding: 76px 0 46px;
+  position: relative;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(600px, 90vw);
+  height: min(600px, 90vw);
+  background: radial-gradient(circle, rgba(78, 161, 255, 0.15), transparent 60%);
+  z-index: -1;
+  pointer-events: none;
 }
 
 .hero h1 {
@@ -137,9 +151,9 @@ header {
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(124, 196, 255, 0.24);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.38);
+  transform: translateY(-4px) scale(1.01);
+  border-color: rgba(124, 196, 255, 0.28);
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.45);
 }
 
 .card h3 {
@@ -177,13 +191,17 @@ header {
   background: var(--panel-2);
   color: var(--text);
   transition: 0.18s ease;
-  min-height: 44px;
+  min-height: 48px;
 }
 
 .btn:hover {
   border-color: var(--accent);
   color: var(--accent-2);
   transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: scale(0.97);
 }
 
 .btn-primary {
@@ -197,10 +215,42 @@ header {
   filter: brightness(1.03);
 }
 
+/* INSTALL BUTTON (PWA) */
+.btn-install {
+  border: 1px solid var(--accent);
+  background: rgba(78, 161, 255, 0.08);
+  color: var(--accent-2);
+  font-weight: 700;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-install:hover {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #04101f;
+  border-color: transparent;
+  box-shadow: 0 10px 26px rgba(78, 161, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+.btn-install::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  opacity: 0;
+  transition: 0.4s;
+}
+
+.btn-install:hover::before {
+  opacity: 1;
+}
+
 .actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
+  margin-top: 18px;
 }
 
 .page-title {
@@ -317,7 +367,7 @@ header {
   display: inline-block;
   padding: 2px 8px;
   border-radius: 999px;
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--line-soft);
   font-size: 0.9rem;
 }
@@ -372,6 +422,11 @@ header {
   .actions {
     flex-direction: column;
   }
+
+  .pdf-frame {
+    height: 65vh;
+  }
+}
 
   .pdf-frame {
     height: 65vh;
