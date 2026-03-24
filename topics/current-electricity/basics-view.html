@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View PDF | Basics</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <style>
+    .viewer-wrap {
+      padding: 24px 0 40px;
+    }
+
+    .viewer-topbar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .viewer-title {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    .pdf-frame {
+      width: 100%;
+      height: 85vh;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      background: #0a1322;
+    }
+
+    .helper {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 700px) {
+      .pdf-frame {
+        height: 70vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container nav">
+      <div class="brand">DinuuNOVA <span>Physics</span></div>
+      <nav class="nav-links">
+        <a href="../../index.html">Home</a>
+        <a href="../../subjects/current-electricity/index.html">Current Electricity</a>
+        <a href="basics.html">Basics</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="viewer-wrap">
+    <div class="container">
+      <div class="viewer-topbar">
+        <h1 class="viewer-title">Basics Formula Sheet</h1>
+
+        <div class="actions">
+          <a class="btn" href="basics.html">← Back to Basics</a>
+          <a class="btn btn-primary" href="../../pdfs/current-electricity/basics-formulas.pdf" download>
+            ⬇ Download PDF
+          </a>
+        </div>
+      </div>
+
+      <iframe
+        class="pdf-frame"
+        src="../../pdfs/current-electricity/basics-formulas.pdf">
+      </iframe>
+
+      <p class="helper">
+        If the PDF does not appear on your phone, use <strong>Download PDF</strong>.
+      </p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      © 2026 DinuuNOVA Physics
+    </div>
+  </footer>
+
+</body>
+</html>
