@@ -1,0 +1,16 @@
+[
+  {
+    "title": "Basics Formulas",
+    "subject": "units",
+    "file": "basics-formulas.pdf",
+    "topicPage": "/DN_Physics/topics/units/basics.html",
+    "subjectPage": "/DN_Physics/subjects/units/index.html"
+  },
+  {
+    "title": "Basics Formulas",
+    "subject": "current-electricity",
+    "file": "basics-formulas.pdf",
+    "topicPage": "/DN_Physics/topics/current-electricity/basics.html",
+    "subjectPage": "/DN_Physics/subjects/current-electricity/index.html"
+  }
+]
