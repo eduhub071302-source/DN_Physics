@@ -1,6 +1,5 @@
 const CACHE_NAME = "dn-physics-v17";
 
-/* Files to preload (core app shell only) */
 const CORE_FILES = [
   "/DN_Physics/",
   "/DN_Physics/index.html",
@@ -13,17 +12,13 @@ const CORE_FILES = [
   "/DN_Physics/pdfs/catalog.json"
 ];
 
-/* Install */
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(CORE_FILES);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_FILES))
   );
   self.skipWaiting();
 });
 
-/* Activate */
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
@@ -39,16 +34,13 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-/* Fetch */
 self.addEventListener("fetch", (event) => {
   const request = event.request;
+  const url = new URL(request.url);
 
   if (request.method !== "GET") return;
 
-  const url = new URL(request.url);
-  const accept = request.headers.get("accept") || "";
-
-  const isHTML = accept.includes("text/html");
+  const isNavigate = request.mode === "navigate";
   const isJSON = url.pathname.endsWith(".json");
   const isPDF = url.pathname.endsWith(".pdf");
   const isCSS = url.pathname.endsWith(".css");
@@ -62,8 +54,7 @@ self.addEventListener("fetch", (event) => {
     url.pathname.endsWith(".gif") ||
     url.pathname.endsWith(".ico");
 
-  /* HTML + JSON = network first */
-  if (isHTML || isJSON) {
+  if (isNavigate) {
     event.respondWith(
       fetch(request)
         .then((networkResponse) => {
@@ -72,13 +63,11 @@ self.addEventListener("fetch", (event) => {
           return networkResponse;
         })
         .catch(async () => {
-          const cached = await caches.match(request);
-          if (cached) return cached;
+          const cachedPage = await caches.match(request);
+          if (cachedPage) return cachedPage;
 
-          if (isHTML) {
-            const offlinePage = await caches.match("/DN_Physics/offline.html");
-            if (offlinePage) return offlinePage;
-          }
+          const offlinePage = await caches.match("/DN_Physics/offline.html");
+          if (offlinePage) return offlinePage;
 
           return new Response("Offline", {
             status: 503,
@@ -89,7 +78,19 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  /* PDFs = cache first */
+  if (isJSON) {
+    event.respondWith(
+      fetch(request)
+        .then((networkResponse) => {
+          const clone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          return networkResponse;
+        })
+        .catch(() => caches.match(request))
+    );
+    return;
+  }
+
   if (isPDF) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
@@ -107,9 +108,7 @@ self.addEventListener("fetch", (event) => {
               {
                 status: 503,
                 statusText: "Offline PDF Not Cached",
-                headers: {
-                  "Content-Type": "text/plain"
-                }
+                headers: { "Content-Type": "text/plain" }
               }
             );
           });
@@ -118,7 +117,6 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  /* CSS / JS / Images = cache first */
   if (isCSS || isJS || isImage) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
@@ -135,7 +133,6 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  /* Default */
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       return (
