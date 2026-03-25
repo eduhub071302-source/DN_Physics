@@ -11,14 +11,24 @@
     <div class="container">
       <a id="backToSubtopic" class="back-link" href="/DN_Physics/pp-quiz/index.html">← Back</a>
       <h1 id="quizTitle">Quiz</h1>
-      <p>Quiz page coming next</p>
+      <p id="quizSubtitle">Question viewer</p>
     </div>
   </header>
 
-  <main class="container" style="padding: 28px 0 40px;">
-    <div class="topic-card">
-      <h2>Phase 1 Complete</h2>
-      <p>This quiz page is connected correctly.</p>
+  <main class="container quiz-page">
+    <div class="quiz-view-card">
+      <div class="quiz-top-row">
+        <div id="questionCounter" class="quiz-counter">Question 1 of 1</div>
+      </div>
+
+      <div class="quiz-image-wrap">
+        <img id="questionImage" class="quiz-image" src="" alt="Question image" />
+      </div>
+
+      <div class="quiz-nav">
+        <button id="prevBtn" class="btn" type="button">← Previous</button>
+        <button id="nextBtn" class="btn btn-primary" type="button">Next →</button>
+      </div>
     </div>
   </main>
 
