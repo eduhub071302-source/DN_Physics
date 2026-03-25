@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
   const topic = params.get("topic");
   const subtopic = params.get("subtopic");
@@ -75,48 +75,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return null;
   }
 
-  const quizConfig = {
-    units: {
-      "unit-dimensions": {
-        totalQuestions: 32,
-        answers: {
-          1: [2],
-          2: [3],
-          3: [2],
-          4: [1],
-          5: [2],
-          6: [4],
-          7: [3],
-          8: [2],
-          9: [5],
-          10: [4],
-          11: [2],
-          12: [5],
-          13: [2],
-          14: [3],
-          15: [1],
-          16: [2],
-          17: [3, 4],
-          18: [4],
-          19: [5],
-          20: [4],
-          21: [3],
-          22: [4],
-          23: [5],
-          24: [3],
-          25: [4],
-          26: [1],
-          27: [1],
-          28: [2],
-          29: [5],
-          30: [3],
-          31: [1],
-          32: [1]
-        }
-      }
-    }
-  };
-
   let currentQuestion = 1;
   let totalQuestions = 1;
   let answerKey = {};
@@ -130,13 +88,30 @@ document.addEventListener("DOMContentLoaded", () => {
   let pinchStartDistance = 0;
   let modalScale = 1;
 
-  if (topic && subtopic && quizConfig[topic] && quizConfig[topic][subtopic]) {
-    totalQuestions = quizConfig[topic][subtopic].totalQuestions;
-    answerKey = quizConfig[topic][subtopic].answers;
+  async function loadQuizData() {
+    const jsonPath = `/DN_Physics/pp-quiz/data/${topic}/${subtopic}/${setName}.json`;
+
+    try {
+      const response = await fetch(jsonPath);
+      if (!response.ok) {
+        throw new Error(`Failed to load quiz JSON: ${jsonPath}`);
+      }
+
+      const data = await response.json();
+      totalQuestions = data.totalQuestions || 1;
+      answerKey = data.answers || {};
+      quizTitle.textContent = `${makeNiceTitle(subtopic)} - ${data.title || makeNiceTitle(setName)}`;
+      quizSubtitle.textContent = `${makeNiceTitle(topic)} / ${makeNiceTitle(subtopic)}`;
+    } catch (error) {
+      console.error(error);
+      quizTitle.textContent = "Quiz Not Found";
+      quizSubtitle.textContent = "Could not load quiz data.";
+      return false;
+    }
+
+    return true;
   }
 
-  quizTitle.textContent = `${makeNiceTitle(subtopic)} - ${makeNiceTitle(setName)}`;
-  quizSubtitle.textContent = `${makeNiceTitle(topic)} / ${makeNiceTitle(subtopic)}`;
   backToSubtopic.href = `/DN_Physics/pp-quiz/subtopic.html?topic=${encodeURIComponent(topic || "")}&subtopic=${encodeURIComponent(subtopic || "")}`;
 
   function getImagePath(questionNumber) {
@@ -150,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function loadAttemptData() {
     try {
       return JSON.parse(localStorage.getItem(getStorageKey())) || null;
-    } catch (error) {
+    } catch {
       return null;
     }
   }
@@ -209,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const questionNumber = getCurrentQuestionNumber();
     const selected = userAnswers[questionNumber];
-    const validAnswers = answerKey[questionNumber] || [];
+    const validAnswers = answerKey[String(questionNumber)] || [];
 
     if (!reviewMode) {
       answerButtons.forEach((button) => {
@@ -399,7 +374,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     for (const questionNumber of questionList) {
       const userAnswer = userAnswers[questionNumber];
-      const validAnswers = answerKey[questionNumber] || [];
+      const validAnswers = answerKey[String(questionNumber)] || [];
 
       if (!userAnswer) {
         unanswered++;
@@ -518,50 +493,41 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target === imageModal) closeModal();
   });
 
-  modalImage.addEventListener(
-    "wheel",
-    (e) => {
-      e.preventDefault();
-      modalScale += e.deltaY < 0 ? 0.15 : -0.15;
-      applyModalScale();
-    },
-    { passive: false }
-  );
+  modalImage.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    modalScale += e.deltaY < 0 ? 0.15 : -0.15;
+    applyModalScale();
+  }, { passive: false });
 
-  imageModalViewport.addEventListener(
-    "touchstart",
-    (e) => {
-      if (e.touches.length === 2) {
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touches[1].clientY;
-        pinchStartDistance = Math.hypot(dx, dy);
+  imageModalViewport.addEventListener("touchstart", (e) => {
+    if (e.touches.length === 2) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      pinchStartDistance = Math.hypot(dx, dy);
+    }
+  }, { passive: true });
+
+  imageModalViewport.addEventListener("touchmove", (e) => {
+    if (e.touches.length === 2) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const currentDistance = Math.hypot(dx, dy);
+
+      if (pinchStartDistance) {
+        const ratio = currentDistance / pinchStartDistance;
+        modalScale *= ratio;
+        pinchStartDistance = currentDistance;
+        applyModalScale();
       }
-    },
-    { passive: true }
-  );
-
-  imageModalViewport.addEventListener(
-    "touchmove",
-    (e) => {
-      if (e.touches.length === 2) {
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touches[1].clientY;
-        const currentDistance = Math.hypot(dx, dy);
-
-        if (pinchStartDistance) {
-          const ratio = currentDistance / pinchStartDistance;
-          modalScale *= ratio;
-          pinchStartDistance = currentDistance;
-          applyModalScale();
-        }
-      }
-    },
-    { passive: true }
-  );
+    }
+  }, { passive: true });
 
   imageModalViewport.addEventListener("touchend", () => {
     pinchStartDistance = 0;
   });
+
+  const loaded = await loadQuizData();
+  if (!loaded) return;
 
   renderAttemptInfo();
   updateQuestionView();
