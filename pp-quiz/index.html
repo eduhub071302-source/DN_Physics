@@ -7,18 +7,47 @@
   <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css" />
 </head>
 <body>
-  <header class="quiz-header">
-    <div class="container">
-      <a class="back-link" href="/DN_Physics/index.html">← Back to Home</a>
-      <h1>PP Quiz</h1>
-      <p>Select a topic</p>
+
+<header class="quiz-header">
+  <div class="container">
+    <a class="back-link" href="/DN_Physics/index.html">← Back to Home</a>
+    <h1>PP Quiz</h1>
+    <p>Select a topic</p>
+  </div>
+</header>
+
+<main class="container">
+  <section id="topicsGrid" class="topics-grid"></section>
+</main>
+
+<!-- 🎧 GLOBAL MUSIC PLAYER -->
+<audio id="bgMusic" loop></audio>
+
+<div id="musicPlayerFloating" class="music-floating">
+  <button id="musicToggleBtn" class="music-float-btn">🎧</button>
+
+  <div id="musicPanel" class="music-panel">
+    <div class="music-header">Focus Music</div>
+
+    <div class="music-row">
+      <select id="trackSelect"></select>
     </div>
-  </header>
 
-  <main class="container">
-    <section id="topicsGrid" class="topics-grid"></section>
-  </main>
+    <div class="music-row">
+      <button id="playPauseBtn">▶ Play</button>
+      <button id="stopMusicBtn">⏹ Stop</button>
+    </div>
 
-  <script src="/DN_Physics/pp-quiz/js/quiz-home.js"></script>
+    <div class="music-row">
+      <input id="volumeSlider" type="range" min="0" max="1" step="0.01" />
+    </div>
+
+    <div id="currentTrackLabel" class="music-label"></div>
+  </div>
+</div>
+
+<script src="/DN_Physics/js/music-player.js"></script>
+<script src="/DN_Physics/pp-quiz/js/quiz-home.js"></script>
+
 </body>
 </html>
