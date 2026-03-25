@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="css/style.css" />
 
   <style>
-    /* NEW: premium floating music player */
+    /* KEPT: premium floating music player */
     .music-player-wrap {
       position: fixed;
       bottom: 20px;
@@ -228,7 +228,7 @@
     </div>
   </footer>
 
-  <!-- NEW: Music player -->
+  <!-- MUSIC PLAYER -->
   <div class="music-player-wrap">
     <button id="musicToggleBtn" class="btn" type="button">🎧 Focus</button>
 
@@ -236,12 +236,7 @@
       <div class="music-panel-title">Focus Mode 🎧</div>
 
       <label for="trackSelect" class="music-label">Select Track</label>
-      <select id="trackSelect" class="music-select">
-        <option value="0">Calm Piano</option>
-        <option value="1">Deep Piano</option>
-        <option value="2">Rain Focus</option>
-        <option value="3">Ambient Space</option>
-      </select>
+      <select id="trackSelect" class="music-select"></select>
 
       <div class="music-controls">
         <button id="playPauseBtn" class="btn btn-primary" type="button">▶ Play</button>
@@ -716,212 +711,8 @@
     categoryFilter.addEventListener("change", filterSubjects);
 
     loadSubjectsFromCatalog();
-
-    /* ================= MUSIC SYSTEM (NEW ADDITION ONLY) ================= */
-
-    const tracks = [
-      {
-        name: "Calm Piano",
-        file: "/DN_Physics/audio/focus-piano-1.mp3"
-      },
-      {
-        name: "Deep Piano",
-        file: "/DN_Physics/audio/focus-piano-2.mp3"
-      },
-      {
-        name: "Rain Focus",
-        file: "/DN_Physics/audio/focus-rain-1.mp3"
-      },
-      {
-        name: "Ambient Space",
-        file: "/DN_Physics/audio/focus-ambient-1.mp3"
-      }
-    ];
-
-    const bgMusic = document.getElementById("bgMusic");
-    const musicToggleBtn = document.getElementById("musicToggleBtn");
-    const musicPanel = document.getElementById("musicPanel");
-    const trackSelect = document.getElementById("trackSelect");
-    const playPauseBtn = document.getElementById("playPauseBtn");
-    const stopMusicBtn = document.getElementById("stopMusicBtn");
-    const volumeSlider = document.getElementById("volumeSlider");
-    const currentTrackLabel = document.getElementById("currentTrackLabel");
-
-    let isMusicPlaying = false;
-    let currentTrackIndex = 0;
-    let fadeInterval = null;
-    let wasPlayingBeforeHidden = false;
-
-    function loadMusicSettings() {
-      const savedTrack = localStorage.getItem("dnPhysicsTrackIndex");
-      const savedVolume = localStorage.getItem("dnPhysicsMusicVolume");
-      const savedPlaying = localStorage.getItem("dnPhysicsMusicPlaying");
-
-      if (savedTrack !== null) {
-        currentTrackIndex = Number(savedTrack);
-        trackSelect.value = String(currentTrackIndex);
-      }
-
-      if (savedVolume !== null) {
-        volumeSlider.value = savedVolume;
-        bgMusic.volume = Number(savedVolume);
-      } else {
-        bgMusic.volume = 0.35;
-      }
-
-      updateTrackUI();
-
-      if (savedPlaying === "true") {
-        startTrack(currentTrackIndex);
-      }
-    }
-
-    function saveMusicSettings() {
-      localStorage.setItem("dnPhysicsTrackIndex", String(currentTrackIndex));
-      localStorage.setItem("dnPhysicsMusicVolume", String(volumeSlider.value));
-      localStorage.setItem("dnPhysicsMusicPlaying", String(isMusicPlaying));
-    }
-
-    function updateTrackUI() {
-      currentTrackLabel.textContent = `Current: ${tracks[currentTrackIndex].name}`;
-      playPauseBtn.textContent = isMusicPlaying ? "⏸ Pause" : "▶ Play";
-    }
-
-    function clearFadeInterval() {
-      if (fadeInterval) {
-        clearInterval(fadeInterval);
-        fadeInterval = null;
-      }
-    }
-
-    function fadeInMusic(targetVolume = Number(volumeSlider.value), duration = 600) {
-      clearFadeInterval();
-      const steps = 20;
-      const stepTime = duration / steps;
-      const increment = targetVolume / steps;
-
-      bgMusic.volume = 0;
-      fadeInterval = setInterval(() => {
-        if (bgMusic.volume + increment >= targetVolume) {
-          bgMusic.volume = targetVolume;
-          clearFadeInterval();
-        } else {
-          bgMusic.volume += increment;
-        }
-      }, stepTime);
-    }
-
-    function fadeOutMusic(duration = 500) {
-      return new Promise((resolve) => {
-        clearFadeInterval();
-        const steps = 20;
-        const stepTime = duration / steps;
-        const decrement = bgMusic.volume / steps;
-
-        fadeInterval = setInterval(() => {
-          if (bgMusic.volume - decrement <= 0.01) {
-            bgMusic.volume = 0;
-            bgMusic.pause();
-            clearFadeInterval();
-            resolve();
-          } else {
-            bgMusic.volume -= decrement;
-          }
-        }, stepTime);
-      });
-    }
-
-    async function startTrack(index) {
-      currentTrackIndex = index;
-      bgMusic.src = tracks[currentTrackIndex].file;
-
-      try {
-        await bgMusic.play();
-        isMusicPlaying = true;
-        fadeInMusic(Number(volumeSlider.value));
-      } catch (error) {
-        console.log("Music play failed:", error);
-        isMusicPlaying = false;
-      }
-
-      updateTrackUI();
-      saveMusicSettings();
-    }
-
-    async function pauseTrack() {
-      await fadeOutMusic();
-      isMusicPlaying = false;
-      bgMusic.volume = Number(volumeSlider.value);
-      updateTrackUI();
-      saveMusicSettings();
-    }
-
-    async function stopTrack() {
-      await fadeOutMusic();
-      bgMusic.currentTime = 0;
-      isMusicPlaying = false;
-      bgMusic.volume = Number(volumeSlider.value);
-      updateTrackUI();
-      saveMusicSettings();
-    }
-
-    if (musicToggleBtn) {
-      musicToggleBtn.addEventListener("click", () => {
-        musicPanel.classList.toggle("show");
-      });
-    }
-
-    if (trackSelect) {
-      trackSelect.addEventListener("change", async () => {
-        currentTrackIndex = Number(trackSelect.value);
-
-        if (isMusicPlaying) {
-          await startTrack(currentTrackIndex);
-        } else {
-          updateTrackUI();
-          saveMusicSettings();
-        }
-      });
-    }
-
-    if (playPauseBtn) {
-      playPauseBtn.addEventListener("click", async () => {
-        if (!isMusicPlaying) {
-          await startTrack(currentTrackIndex);
-        } else {
-          await pauseTrack();
-        }
-      });
-    }
-
-    if (stopMusicBtn) {
-      stopMusicBtn.addEventListener("click", async () => {
-        await stopTrack();
-      });
-    }
-
-    if (volumeSlider) {
-      volumeSlider.addEventListener("input", () => {
-        bgMusic.volume = Number(volumeSlider.value);
-        saveMusicSettings();
-      });
-    }
-
-    document.addEventListener("visibilitychange", async () => {
-      if (document.hidden) {
-        wasPlayingBeforeHidden = isMusicPlaying;
-        if (isMusicPlaying) {
-          await pauseTrack();
-        }
-      } else {
-        if (wasPlayingBeforeHidden) {
-          await startTrack(currentTrackIndex);
-        }
-      }
-    });
-
-    loadMusicSettings();
   </script>
 
+  <script src="/DN_Physics/js/music-player.js"></script>
 </body>
 </html>
