@@ -6,37 +6,64 @@
   <title>Offline | DinuuNOVA Physics</title>
   <link rel="stylesheet" href="/DN_Physics/css/style.css" />
   <style>
-    .offline-wrap {
+    .offline-page {
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 24px;
+      background:
+        radial-gradient(circle at top, rgba(78, 161, 255, 0.10), transparent 28%),
+        linear-gradient(180deg, #09101c 0%, #0d1524 100%);
     }
 
     .offline-card {
-      width: min(100%, 520px);
+      width: min(100%, 560px);
       background: linear-gradient(180deg, rgba(17, 26, 43, 0.96), rgba(12, 18, 31, 0.96));
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 24px;
-      padding: 28px;
-      box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+      padding: 28px 24px;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
       text-align: center;
     }
 
     .offline-icon {
-      font-size: 3rem;
-      margin-bottom: 10px;
+      width: 84px;
+      height: 84px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #04101f;
+      box-shadow: 0 10px 30px rgba(78, 161, 255, 0.28);
     }
 
-    .offline-card h1 {
+    .offline-title {
       margin: 0 0 10px;
-      font-size: 1.8rem;
+      font-size: clamp(1.7rem, 4vw, 2.2rem);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
     }
 
-    .offline-card p {
-      margin: 0 0 18px;
+    .offline-text {
+      margin: 0 0 14px;
       color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.65;
+    }
+
+    .offline-tip {
+      margin: 18px 0 0;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(78, 161, 255, 0.08);
+      border: 1px solid rgba(124, 196, 255, 0.18);
+      color: var(--text);
+      font-size: 0.96rem;
+      line-height: 1.6;
     }
 
     .offline-actions {
@@ -44,29 +71,40 @@
       gap: 12px;
       justify-content: center;
       flex-wrap: wrap;
-      margin-top: 18px;
+      margin-top: 22px;
+    }
+
+    @media (max-width: 600px) {
+      .offline-card {
+        padding: 22px 18px;
+        border-radius: 20px;
+      }
     }
   </style>
 </head>
 <body>
-
-  <div class="offline-wrap">
+  <div class="offline-page">
     <div class="offline-card">
       <div class="offline-icon">📡</div>
-      <h1>You are offline</h1>
-      <p>
-        The app could not be opened because there is no internet connection right now.
-      </p>
-      <p>
-        After opening the app once with internet, some pages and PDFs can work offline.
+      <h1 class="offline-title">You are offline</h1>
+
+      <p class="offline-text">
+        The app cannot load new content right now because your internet is turned off or unavailable.
       </p>
 
+      <p class="offline-text">
+        Some pages and PDFs may still work only if they were opened earlier while connected to the internet.
+      </p>
+
+      <div class="offline-tip">
+        After turning on the internet, press the <strong>Refresh</strong> button.
+      </div>
+
       <div class="offline-actions">
-        <button class="btn btn-primary" onclick="location.reload()">Try Again</button>
+        <button class="btn btn-primary" type="button" onclick="location.reload()">🔄 Refresh</button>
         <a class="btn" href="/DN_Physics/index.html">Go Home</a>
       </div>
     </div>
   </div>
-
 </body>
 </html>
