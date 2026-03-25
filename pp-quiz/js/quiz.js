@@ -20,7 +20,14 @@ const attemptInfo = document.getElementById("attemptInfo");
 const reviewNote = document.getElementById("reviewNote");
 const postResultActions = document.getElementById("postResultActions");
 const retryQuizBtn = document.getElementById("retryQuizBtn");
+const retryWrongBtn = document.getElementById("retryWrongBtn");
 const wrongOnlyBtn = document.getElementById("wrongOnlyBtn");
+const zoomBtn = document.getElementById("zoomBtn");
+const imageModal = document.getElementById("imageModal");
+const modalImage = document.getElementById("modalImage");
+const closeImageModal = document.getElementById("closeImageModal");
+const zoomWrap = document.getElementById("zoomWrap");
+const imageModalViewport = document.getElementById("imageModalViewport");
 
 function makeNiceTitle(slug) {
   return (slug || "")
@@ -29,43 +36,23 @@ function makeNiceTitle(slug) {
     .join(" ");
 }
 
+function getBadgeData(percentage) {
+  const value = Number(percentage) || 0;
+  if (value >= 90) return { label: "Gold 🥇", className: "badge-gold" };
+  if (value >= 75) return { label: "Silver 🥈", className: "badge-silver" };
+  if (value >= 50) return { label: "Bronze 🥉", className: "badge-bronze" };
+  return { label: "None", className: "badge-none" };
+}
+
 const quizConfig = {
   units: {
     "unit-dimensions": {
       totalQuestions: 32,
       answers: {
-        1: [2],
-        2: [3],
-        3: [2],
-        4: [1],
-        5: [2],
-        6: [4],
-        7: [3],
-        8: [2],
-        9: [5],
-        10: [4],
-        11: [2],
-        12: [5],
-        13: [2],
-        14: [3],
-        15: [1],
-        16: [2],
-        17: [3, 4],
-        18: [4],
-        19: [5],
-        20: [4],
-        21: [3],
-        22: [4],
-        23: [5],
-        24: [3],
-        25: [4],
-        26: [1],
-        27: [1],
-        28: [2],
-        29: [5],
-        30: [3],
-        31: [1],
-        32: [1]
+        1: [2], 2: [3], 3: [2], 4: [1], 5: [2], 6: [4], 7: [3], 8: [2],
+        9: [5], 10: [4], 11: [2], 12: [5], 13: [2], 14: [3], 15: [1], 16: [2],
+        17: [3, 4], 18: [4], 19: [5], 20: [4], 21: [3], 22: [4], 23: [5], 24: [3],
+        25: [4], 26: [1], 27: [1], 28: [2], 29: [5], 30: [3], 31: [1], 32: [1]
       }
     }
   }
@@ -78,6 +65,12 @@ let userAnswers = {};
 let reviewMode = false;
 let wrongQuestionsGlobal = [];
 let wrongQuestionPointer = 0;
+let practiceWrongOnlyMode = false;
+let practiceWrongQuestions = [];
+let practiceWrongIndexMap = [];
+let currentDisplayIndex = 1;
+let pinchStartDistance = 0;
+let modalScale = 1;
 
 if (topic && subtopic && quizConfig[topic] && quizConfig[topic][subtopic]) {
   totalQuestions = quizConfig[topic][subtopic].totalQuestions;
@@ -110,25 +103,39 @@ function saveAttemptData(data) {
 
 function renderAttemptInfo() {
   const saved = loadAttemptData();
-
   if (!saved) {
     attemptInfo.innerHTML = `
       <div><strong>Last Score:</strong> No previous attempt</div>
       <div><strong>Best Score:</strong> No previous attempt</div>
       <div><strong>Attempts:</strong> 0</div>
+      <div><strong>Badge:</strong> None</div>
     `;
     return;
   }
+
+  const badge = getBadgeData(saved.bestPercentage);
 
   attemptInfo.innerHTML = `
     <div><strong>Last Score:</strong> ${saved.lastCorrect} / ${saved.lastAnswered} (${saved.lastPercentage}%)</div>
     <div><strong>Best Score:</strong> ${saved.bestCorrect} / ${saved.bestAnswered} (${saved.bestPercentage}%)</div>
     <div><strong>Attempts:</strong> ${saved.attempts}</div>
+    <div><strong>Badge:</strong> <span class="${badge.className}">${badge.label}</span></div>
   `;
 }
 
 function getAnsweredCount() {
   return Object.keys(userAnswers).length;
+}
+
+function getCurrentQuestionNumber() {
+  if (practiceWrongOnlyMode) {
+    return practiceWrongQuestions[currentDisplayIndex - 1];
+  }
+  return currentQuestion;
+}
+
+function getCurrentTotalCount() {
+  return practiceWrongOnlyMode ? practiceWrongQuestions.length : totalQuestions;
 }
 
 function clearReviewClasses() {
@@ -140,8 +147,9 @@ function clearReviewClasses() {
 function updateAnswerButtons() {
   clearReviewClasses();
 
-  const selected = userAnswers[currentQuestion];
-  const validAnswers = answerKey[currentQuestion] || [];
+  const questionNumber = getCurrentQuestionNumber();
+  const selected = userAnswers[questionNumber];
+  const validAnswers = answerKey[questionNumber] || [];
 
   if (!reviewMode) {
     answerButtons.forEach((button) => {
@@ -168,21 +176,29 @@ function updateAnswerButtons() {
 
 function updateSubmitVisibility() {
   const answeredCount = getAnsweredCount();
-  answeredCounter.textContent = `Answered: ${answeredCount} / ${totalQuestions}`;
+  const currentTotal = getCurrentTotalCount();
+  answeredCounter.textContent = `Answered: ${answeredCount} / ${currentTotal}`;
 
   submitQuizBtn.style.display =
-    answeredCount === totalQuestions && !reviewMode ? "inline-flex" : "none";
+    answeredCount === currentTotal && !reviewMode && !practiceWrongOnlyMode
+      ? "inline-flex"
+      : "none";
 
   finishQuizBtn.disabled = reviewMode;
 }
 
 function updateQuestionView() {
-  questionCounter.textContent = `Question ${currentQuestion} of ${totalQuestions}`;
-  questionImage.src = getImagePath(currentQuestion);
-  questionImage.alt = `${makeNiceTitle(subtopic)} question ${currentQuestion}`;
+  const questionNumber = getCurrentQuestionNumber();
+  const totalCount = getCurrentTotalCount();
+  const shownIndex = practiceWrongOnlyMode ? currentDisplayIndex : currentQuestion;
 
-  prevBtn.disabled = currentQuestion === 1;
-  nextBtn.disabled = currentQuestion === totalQuestions;
+  questionCounter.textContent = `Question ${shownIndex} of ${totalCount}`;
+  questionImage.src = getImagePath(questionNumber);
+  questionImage.alt = `${makeNiceTitle(subtopic)} question ${questionNumber}`;
+  modalImage.src = questionImage.src;
+
+  prevBtn.disabled = shownIndex === 1;
+  nextBtn.disabled = shownIndex === totalCount;
 
   updateAnswerButtons();
   updateSubmitVisibility();
@@ -190,15 +206,40 @@ function updateQuestionView() {
 
 function resetCurrentQuizState() {
   currentQuestion = 1;
+  currentDisplayIndex = 1;
   userAnswers = {};
   reviewMode = false;
   wrongQuestionsGlobal = [];
   wrongQuestionPointer = 0;
+  practiceWrongOnlyMode = false;
+  practiceWrongQuestions = [];
+  practiceWrongIndexMap = [];
 
   reviewNote.style.display = "none";
   resultCard.style.display = "none";
   postResultActions.style.display = "none";
   wrongOnlyBtn.style.display = "none";
+  retryWrongBtn.style.display = "none";
+
+  updateQuestionView();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function startWrongOnlyPractice() {
+  if (!wrongQuestionsGlobal.length) return;
+
+  practiceWrongOnlyMode = true;
+  practiceWrongQuestions = [...wrongQuestionsGlobal];
+  practiceWrongIndexMap = [...wrongQuestionsGlobal];
+  currentDisplayIndex = 1;
+  userAnswers = {};
+  reviewMode = false;
+
+  reviewNote.style.display = "none";
+  resultCard.style.display = "none";
+  postResultActions.style.display = "none";
+  wrongOnlyBtn.style.display = "none";
+  retryWrongBtn.style.display = "none";
 
   updateQuestionView();
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -228,10 +269,12 @@ function finalizeAttempt(correct, wrong, unanswered, answeredQuestions, wrongQue
   const modeText =
     mode === "full"
       ? "Calculated from all answered questions after full submit."
+      : mode === "wrong-only"
+      ? "Calculated from wrong-question practice only."
       : "Calculated only from answered questions after finishing now.";
 
   resultSummary.innerHTML = `
-    <div><strong>Total Questions:</strong> ${totalQuestions}</div>
+    <div><strong>Total Questions:</strong> ${getCurrentTotalCount()}</div>
     <div><strong>Answered Questions:</strong> ${answeredQuestions}</div>
     <div><strong>Correct:</strong> ${correct}</div>
     <div><strong>Wrong:</strong> ${wrong}</div>
@@ -251,6 +294,7 @@ function finalizeAttempt(correct, wrong, unanswered, answeredQuestions, wrongQue
   postResultActions.style.display = "flex";
   retryQuizBtn.style.display = "inline-flex";
   wrongOnlyBtn.style.display = wrongQuestionsGlobal.length > 0 ? "inline-flex" : "none";
+  retryWrongBtn.style.display = wrongQuestions.length > 0 ? "inline-flex" : "none";
 
   updateQuestionView();
   resultCard.scrollIntoView({ behavior: "smooth" });
@@ -263,9 +307,13 @@ function showResult(mode) {
   let wrongQuestions = [];
   let answeredQuestions = 0;
 
-  for (let i = 1; i <= totalQuestions; i++) {
-    const userAnswer = userAnswers[i];
-    const validAnswers = answerKey[i] || [];
+  const questionList = practiceWrongOnlyMode
+    ? practiceWrongQuestions
+    : Array.from({ length: totalQuestions }, (_, i) => i + 1);
+
+  for (const questionNumber of questionList) {
+    const userAnswer = userAnswers[questionNumber];
+    const validAnswers = answerKey[questionNumber] || [];
 
     if (!userAnswer) {
       unanswered++;
@@ -278,7 +326,7 @@ function showResult(mode) {
       correct++;
     } else {
       wrong++;
-      wrongQuestions.push(i);
+      wrongQuestions.push(questionNumber);
     }
   }
 
@@ -288,13 +336,23 @@ function showResult(mode) {
 answerButtons.forEach((button) => {
   button.addEventListener("click", () => {
     if (reviewMode) return;
-    userAnswers[currentQuestion] = Number(button.dataset.answer);
+    const questionNumber = getCurrentQuestionNumber();
+    userAnswers[questionNumber] = Number(button.dataset.answer);
     updateAnswerButtons();
     updateSubmitVisibility();
   });
 });
 
 prevBtn.addEventListener("click", () => {
+  if (practiceWrongOnlyMode) {
+    if (currentDisplayIndex > 1) {
+      currentDisplayIndex--;
+      updateQuestionView();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    return;
+  }
+
   if (currentQuestion > 1) {
     currentQuestion--;
     updateQuestionView();
@@ -303,6 +361,15 @@ prevBtn.addEventListener("click", () => {
 });
 
 nextBtn.addEventListener("click", () => {
+  if (practiceWrongOnlyMode) {
+    if (currentDisplayIndex < practiceWrongQuestions.length) {
+      currentDisplayIndex++;
+      updateQuestionView();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    return;
+  }
+
   if (currentQuestion < totalQuestions) {
     currentQuestion++;
     updateQuestionView();
@@ -311,11 +378,13 @@ nextBtn.addEventListener("click", () => {
 });
 
 retryQuizBtn.addEventListener("click", resetCurrentQuizState);
+retryWrongBtn.addEventListener("click", startWrongOnlyPractice);
 
 wrongOnlyBtn.addEventListener("click", () => {
   if (!wrongQuestionsGlobal.length) return;
 
   currentQuestion = wrongQuestionsGlobal[wrongQuestionPointer];
+  practiceWrongOnlyMode = false;
   updateQuestionView();
   window.scrollTo({ top: 0, behavior: "smooth" });
 
@@ -326,10 +395,73 @@ wrongOnlyBtn.addEventListener("click", () => {
 });
 
 submitQuizBtn.addEventListener("click", () => showResult("full"));
-finishQuizBtn.addEventListener("click", () => showResult("partial"));
+finishQuizBtn.addEventListener("click", () => showResult(practiceWrongOnlyMode ? "wrong-only" : "partial"));
 
 questionImage.addEventListener("error", () => {
   questionImage.alt = "Question image not found";
+});
+
+/* Zoom */
+function openImageModal() {
+  modalImage.src = questionImage.src;
+  modalScale = 1;
+  modalImage.style.transform = `scale(${modalScale})`;
+  imageModal.style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal() {
+  imageModal.style.display = "none";
+  document.body.style.overflow = "";
+  modalScale = 1;
+  modalImage.style.transform = `scale(${modalScale})`;
+}
+
+function applyModalScale() {
+  if (modalScale < 1) modalScale = 1;
+  if (modalScale > 4) modalScale = 4;
+  modalImage.style.transform = `scale(${modalScale})`;
+}
+
+zoomBtn.addEventListener("click", openImageModal);
+questionImage.addEventListener("click", openImageModal);
+closeImageModal.addEventListener("click", closeModal);
+
+imageModal.addEventListener("click", (e) => {
+  if (e.target === imageModal) closeModal();
+});
+
+modalImage.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  modalScale += e.deltaY < 0 ? 0.15 : -0.15;
+  applyModalScale();
+}, { passive: false });
+
+imageModalViewport.addEventListener("touchstart", (e) => {
+  if (e.touches.length === 2) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    pinchStartDistance = Math.hypot(dx, dy);
+  }
+}, { passive: true });
+
+imageModalViewport.addEventListener("touchmove", (e) => {
+  if (e.touches.length === 2) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const currentDistance = Math.hypot(dx, dy);
+
+    if (pinchStartDistance) {
+      const ratio = currentDistance / pinchStartDistance;
+      modalScale *= ratio;
+      pinchStartDistance = currentDistance;
+      applyModalScale();
+    }
+  }
+}, { passive: true });
+
+imageModalViewport.addEventListener("touchend", () => {
+  pinchStartDistance = 0;
 });
 
 renderAttemptInfo();
