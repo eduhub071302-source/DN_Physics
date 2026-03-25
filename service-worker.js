@@ -1,4 +1,4 @@
-const CACHE_NAME = "dn-physics-v13";
+const CACHE_NAME = "dn-physics-v14";
 
 /* Files to preload (core app shell only) */
 const CORE_FILES = [
@@ -8,7 +8,8 @@ const CORE_FILES = [
   "/DN_Physics/icon-192.png",
   "/DN_Physics/icon-512.png",
   "/DN_Physics/css/style.css",
-  "/DN_Physics/topics/viewer.html"
+  "/DN_Physics/topics/viewer.html",
+  "/DN_Physics/pdfs/catalog.json"
 ];
 
 /* Install */
@@ -47,6 +48,17 @@ self.addEventListener("fetch", (event) => {
 
   const isHTML = request.headers.get("accept")?.includes("text/html");
   const isJSON = url.pathname.endsWith(".json");
+  const isPDF = url.pathname.endsWith(".pdf");
+  const isCSS = url.pathname.endsWith(".css");
+  const isJS = url.pathname.endsWith(".js");
+  const isImage =
+    url.pathname.endsWith(".png") ||
+    url.pathname.endsWith(".jpg") ||
+    url.pathname.endsWith(".jpeg") ||
+    url.pathname.endsWith(".webp") ||
+    url.pathname.endsWith(".svg") ||
+    url.pathname.endsWith(".gif") ||
+    url.pathname.endsWith(".ico");
 
   /* ===== NETWORK FIRST for HTML + JSON ===== */
   if (isHTML || isJSON) {
@@ -62,7 +74,55 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  /* ===== CACHE FIRST for static assets ===== */
+  /* ===== CACHE FIRST for PDFs (save after first open for offline use) ===== */
+  if (isPDF) {
+    event.respondWith(
+      caches.match(request).then((cachedResponse) => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+        return fetch(request)
+          .then((networkResponse) => {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+            return networkResponse;
+          })
+          .catch(() => {
+            return new Response(
+              "PDF is not available offline yet. Please open it once with internet first.",
+              {
+                status: 503,
+                statusText: "Offline PDF Not Cached",
+                headers: {
+                  "Content-Type": "text/plain"
+                }
+              }
+            );
+          });
+      })
+    );
+    return;
+  }
+
+  /* ===== CACHE FIRST for CSS / JS / Images ===== */
+  if (isCSS || isJS || isImage) {
+    event.respondWith(
+      caches.match(request).then((cachedResponse) => {
+        return (
+          cachedResponse ||
+          fetch(request).then((networkResponse) => {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+            return networkResponse;
+          })
+        );
+      })
+    );
+    return;
+  }
+
+  /* ===== DEFAULT: CACHE FIRST for other static assets ===== */
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       return (
