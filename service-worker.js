@@ -4,6 +4,7 @@ const CACHE_NAME = "dn-physics-v15";
 const CORE_FILES = [
   "/DN_Physics/",
   "/DN_Physics/index.html",
+  "/DN_Physics/offline.html",
   "/DN_Physics/manifest.json",
   "/DN_Physics/icon-192.png",
   "/DN_Physics/icon-512.png",
@@ -45,8 +46,9 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
 
   const url = new URL(request.url);
+  const accept = request.headers.get("accept") || "";
 
-  const isHTML = request.headers.get("accept")?.includes("text/html");
+  const isHTML = accept.includes("text/html");
   const isJSON = url.pathname.endsWith(".json");
   const isPDF = url.pathname.endsWith(".pdf");
   const isCSS = url.pathname.endsWith(".css");
@@ -69,18 +71,29 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           return networkResponse;
         })
-        .catch(() => caches.match(request))
+        .catch(async () => {
+          const cached = await caches.match(request);
+          if (cached) return cached;
+
+          if (isHTML) {
+            const offlinePage = await caches.match("/DN_Physics/offline.html");
+            if (offlinePage) return offlinePage;
+          }
+
+          return new Response("Offline", {
+            status: 503,
+            statusText: "Offline"
+          });
+        })
     );
     return;
   }
 
-  /* ===== CACHE FIRST for PDFs (save after first open for offline use) ===== */
+  /* ===== CACHE FIRST for PDFs ===== */
   if (isPDF) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
+        if (cachedResponse) return cachedResponse;
 
         return fetch(request)
           .then((networkResponse) => {
@@ -90,7 +103,7 @@ self.addEventListener("fetch", (event) => {
           })
           .catch(() => {
             return new Response(
-              "PDF is not available offline yet. Please open it once with internet first.",
+              "You are offline, and this PDF was not saved before. Please open it once with internet first.",
               {
                 status: 503,
                 statusText: "Offline PDF Not Cached",
@@ -122,7 +135,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  /* ===== DEFAULT: CACHE FIRST for other static assets ===== */
+  /* ===== DEFAULT ===== */
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       return (
