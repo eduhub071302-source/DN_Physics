@@ -7,10 +7,12 @@ const quizTitle = document.getElementById("quizTitle");
 const quizSubtitle = document.getElementById("quizSubtitle");
 const backToSubtopic = document.getElementById("backToSubtopic");
 const questionCounter = document.getElementById("questionCounter");
+const answeredCounter = document.getElementById("answeredCounter");
 const questionImage = document.getElementById("questionImage");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 const submitQuizBtn = document.getElementById("submitQuizBtn");
+const finishQuizBtn = document.getElementById("finishQuizBtn");
 const resultCard = document.getElementById("resultCard");
 const resultSummary = document.getElementById("resultSummary");
 const answerButtons = Array.from(document.querySelectorAll(".answer-btn"));
@@ -88,6 +90,10 @@ function getImagePath(questionNumber) {
   return `/DN_Physics/pp-quiz/images/${topic}/${subtopic}/q${questionNumber}.jpg`;
 }
 
+function getAnsweredCount() {
+  return Object.keys(userAnswers).length;
+}
+
 function updateAnswerButtons() {
   const selected = userAnswers[currentQuestion];
 
@@ -95,6 +101,17 @@ function updateAnswerButtons() {
     const buttonValue = Number(button.dataset.answer);
     button.classList.toggle("selected", buttonValue === selected);
   });
+}
+
+function updateSubmitVisibility() {
+  const answeredCount = getAnsweredCount();
+  answeredCounter.textContent = `Answered: ${answeredCount} / ${totalQuestions}`;
+
+  if (answeredCount === totalQuestions) {
+    submitQuizBtn.style.display = "inline-flex";
+  } else {
+    submitQuizBtn.style.display = "none";
+  }
 }
 
 function updateQuestionView() {
@@ -106,6 +123,7 @@ function updateQuestionView() {
   nextBtn.disabled = currentQuestion === totalQuestions;
 
   updateAnswerButtons();
+  updateSubmitVisibility();
 }
 
 answerButtons.forEach((button) => {
@@ -113,6 +131,7 @@ answerButtons.forEach((button) => {
     const selectedAnswer = Number(button.dataset.answer);
     userAnswers[currentQuestion] = selectedAnswer;
     updateAnswerButtons();
+    updateSubmitVisibility();
   });
 });
 
@@ -132,11 +151,12 @@ nextBtn.addEventListener("click", () => {
   }
 });
 
-submitQuizBtn.addEventListener("click", () => {
+function showResult(mode) {
   let correct = 0;
   let wrong = 0;
   let unanswered = 0;
   let wrongQuestions = [];
+  let answeredQuestions = 0;
 
   for (let i = 1; i <= totalQuestions; i++) {
     const userAnswer = userAnswers[i];
@@ -144,7 +164,12 @@ submitQuizBtn.addEventListener("click", () => {
 
     if (!userAnswer) {
       unanswered++;
-    } else if (validAnswers.includes(userAnswer)) {
+      continue;
+    }
+
+    answeredQuestions++;
+
+    if (validAnswers.includes(userAnswer)) {
       correct++;
     } else {
       wrong++;
@@ -152,20 +177,36 @@ submitQuizBtn.addEventListener("click", () => {
     }
   }
 
-  const scorePercent = ((correct / totalQuestions) * 100).toFixed(1);
+  const percentageBase = answeredQuestions > 0 ? answeredQuestions : 1;
+  const scorePercent = ((correct / percentageBase) * 100).toFixed(1);
+
+  const modeText =
+    mode === "full"
+      ? "Calculated from all questions."
+      : "Calculated only from answered questions.";
 
   resultSummary.innerHTML = `
     <div><strong>Total Questions:</strong> ${totalQuestions}</div>
+    <div><strong>Answered Questions:</strong> ${answeredQuestions}</div>
     <div><strong>Correct:</strong> ${correct}</div>
     <div><strong>Wrong:</strong> ${wrong}</div>
     <div><strong>Unanswered:</strong> ${unanswered}</div>
-    <div><strong>Score:</strong> ${correct} / ${totalQuestions}</div>
-    <div><strong>Percentage:</strong> ${scorePercent}%</div>
+    <div><strong>Score:</strong> ${correct} / ${answeredQuestions > 0 ? answeredQuestions : 0}</div>
+    <div><strong>Percentage:</strong> ${answeredQuestions > 0 ? scorePercent : "0.0"}%</div>
     <div><strong>Wrong Question Numbers:</strong> ${wrongQuestions.length ? wrongQuestions.join(", ") : "None"}</div>
+    <div><strong>Result Mode:</strong> ${modeText}</div>
   `;
 
   resultCard.style.display = "block";
   resultCard.scrollIntoView({ behavior: "smooth" });
+}
+
+submitQuizBtn.addEventListener("click", () => {
+  showResult("full");
+});
+
+finishQuizBtn.addEventListener("click", () => {
+  showResult("partial");
 });
 
 questionImage.addEventListener("error", () => {
