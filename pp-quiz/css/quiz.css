@@ -93,12 +93,18 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   margin-bottom: 16px;
+  flex-wrap: wrap;
 }
 
 .quiz-counter {
   color: #a8b3cf;
   font-size: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #24314f;
+  border-radius: 999px;
+  padding: 8px 14px;
 }
 
 .quiz-image-wrap {
@@ -121,15 +127,78 @@ body {
   border-radius: 12px;
 }
 
+.answer-section {
+  margin-top: 22px;
+}
+
+.answer-title {
+  margin: 0 0 14px;
+  font-size: 18px;
+}
+
+.answer-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+}
+
+.answer-btn {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  border: 2px solid #2a3a5f;
+  background: linear-gradient(180deg, #17233a, #101a2d);
+  color: #e8eefc;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+}
+
+.answer-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+  border-color: #4ea1ff;
+}
+
+.answer-btn.selected {
+  background: linear-gradient(180deg, #4ea1ff, #2f82e6);
+  color: #08121c;
+  border-color: #8fd0ff;
+  box-shadow: 0 0 0 4px rgba(78, 161, 255, 0.20), 0 12px 22px rgba(0, 0, 0, 0.28);
+  transform: scale(1.06);
+}
+
 .quiz-nav {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 18px;
+  margin-top: 22px;
 }
 
 .quiz-nav .btn {
   min-width: 140px;
+}
+
+.submit-wrap {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.submit-wrap .btn {
+  flex: 1;
+}
+
+.result-card {
+  margin-top: 20px;
+}
+
+.result-summary {
+  margin-top: 14px;
+  line-height: 1.9;
+  color: #e8eefc;
 }
 
 .btn {
@@ -146,7 +215,7 @@ body {
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.18s ease, border-color 0.18s ease, opacity 0.18s ease;
+  transition: transform 0.18s ease, border-color 0.18s ease, opacity 0.18s ease, background 0.18s ease;
 }
 
 .btn:hover {
@@ -179,6 +248,12 @@ body {
     padding: 14px;
   }
 
+  .answer-btn {
+    width: 56px;
+    height: 56px;
+    font-size: 18px;
+  }
+
   .quiz-nav {
     flex-direction: column;
   }
@@ -186,5 +261,9 @@ body {
   .quiz-nav .btn {
     width: 100%;
     min-width: unset;
+  }
+
+  .submit-wrap {
+    flex-direction: column;
   }
 }
