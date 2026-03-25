@@ -76,7 +76,7 @@
 
         grid.innerHTML = subjectItems.map((item, index) => {
           const topicTitle = item.title || prettifyTopicName(item.file);
-          const topicPage = item.topicPage || buildTopicPage(item.subject, item.file);
+          const topicPage = `../../topics/topic.html?subject=${encodeURIComponent(item.subject)}&file=${encodeURIComponent(item.file)}&title=${encodeURIComponent(topicTitle)}`;
 
           return `
             <div class="card">
