@@ -12,6 +12,93 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
   <link rel="stylesheet" href="css/style.css" />
+
+  <style>
+    /* NEW: premium floating music player */
+    .music-player-wrap {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 2600;
+    }
+
+    .music-panel {
+      display: none;
+      margin-top: 10px;
+      width: 290px;
+      background: linear-gradient(180deg, rgba(17, 26, 43, 0.98), rgba(12, 18, 31, 0.98));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+    }
+
+    .music-panel.show {
+      display: block;
+    }
+
+    .music-panel-title {
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .music-label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .music-select {
+      width: 100%;
+      margin-bottom: 12px;
+      min-height: 46px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line-soft);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      outline: none;
+    }
+
+    .music-select option {
+      background: #0f1728;
+      color: #e8eefc;
+    }
+
+    .music-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .music-controls .btn {
+      flex: 1;
+    }
+
+    .volume-slider {
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    .music-track-label {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 768px) {
+      .music-player-wrap {
+        right: 14px;
+        bottom: 14px;
+      }
+
+      .music-panel {
+        width: min(88vw, 300px);
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -140,6 +227,35 @@
       © 2026 DinuuNOVA Physics · Email: eduhub071302@gmail.com
     </div>
   </footer>
+
+  <!-- NEW: Music player -->
+  <div class="music-player-wrap">
+    <button id="musicToggleBtn" class="btn" type="button">🎧 Focus</button>
+
+    <div id="musicPanel" class="music-panel">
+      <div class="music-panel-title">Focus Mode 🎧</div>
+
+      <label for="trackSelect" class="music-label">Select Track</label>
+      <select id="trackSelect" class="music-select">
+        <option value="0">Calm Piano</option>
+        <option value="1">Deep Piano</option>
+        <option value="2">Rain Focus</option>
+        <option value="3">Ambient Space</option>
+      </select>
+
+      <div class="music-controls">
+        <button id="playPauseBtn" class="btn btn-primary" type="button">▶ Play</button>
+        <button id="stopMusicBtn" class="btn" type="button">■ Stop</button>
+      </div>
+
+      <label for="volumeSlider" class="music-label">Volume 🔊</label>
+      <input id="volumeSlider" class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.35" />
+
+      <div id="currentTrackLabel" class="music-track-label">Current: None</div>
+    </div>
+  </div>
+
+  <audio id="bgMusic" loop></audio>
 
   <script>
     let deferredPrompt;
@@ -600,6 +716,211 @@
     categoryFilter.addEventListener("change", filterSubjects);
 
     loadSubjectsFromCatalog();
+
+    /* ================= MUSIC SYSTEM (NEW ADDITION ONLY) ================= */
+
+    const tracks = [
+      {
+        name: "Calm Piano",
+        file: "/DN_Physics/audio/focus-piano-1.mp3"
+      },
+      {
+        name: "Deep Piano",
+        file: "/DN_Physics/audio/focus-piano-2.mp3"
+      },
+      {
+        name: "Rain Focus",
+        file: "/DN_Physics/audio/focus-rain-1.mp3"
+      },
+      {
+        name: "Ambient Space",
+        file: "/DN_Physics/audio/focus-ambient-1.mp3"
+      }
+    ];
+
+    const bgMusic = document.getElementById("bgMusic");
+    const musicToggleBtn = document.getElementById("musicToggleBtn");
+    const musicPanel = document.getElementById("musicPanel");
+    const trackSelect = document.getElementById("trackSelect");
+    const playPauseBtn = document.getElementById("playPauseBtn");
+    const stopMusicBtn = document.getElementById("stopMusicBtn");
+    const volumeSlider = document.getElementById("volumeSlider");
+    const currentTrackLabel = document.getElementById("currentTrackLabel");
+
+    let isMusicPlaying = false;
+    let currentTrackIndex = 0;
+    let fadeInterval = null;
+    let wasPlayingBeforeHidden = false;
+
+    function loadMusicSettings() {
+      const savedTrack = localStorage.getItem("dnPhysicsTrackIndex");
+      const savedVolume = localStorage.getItem("dnPhysicsMusicVolume");
+      const savedPlaying = localStorage.getItem("dnPhysicsMusicPlaying");
+
+      if (savedTrack !== null) {
+        currentTrackIndex = Number(savedTrack);
+        trackSelect.value = String(currentTrackIndex);
+      }
+
+      if (savedVolume !== null) {
+        volumeSlider.value = savedVolume;
+        bgMusic.volume = Number(savedVolume);
+      } else {
+        bgMusic.volume = 0.35;
+      }
+
+      updateTrackUI();
+
+      if (savedPlaying === "true") {
+        startTrack(currentTrackIndex);
+      }
+    }
+
+    function saveMusicSettings() {
+      localStorage.setItem("dnPhysicsTrackIndex", String(currentTrackIndex));
+      localStorage.setItem("dnPhysicsMusicVolume", String(volumeSlider.value));
+      localStorage.setItem("dnPhysicsMusicPlaying", String(isMusicPlaying));
+    }
+
+    function updateTrackUI() {
+      currentTrackLabel.textContent = `Current: ${tracks[currentTrackIndex].name}`;
+      playPauseBtn.textContent = isMusicPlaying ? "⏸ Pause" : "▶ Play";
+    }
+
+    function clearFadeInterval() {
+      if (fadeInterval) {
+        clearInterval(fadeInterval);
+        fadeInterval = null;
+      }
+    }
+
+    function fadeInMusic(targetVolume = Number(volumeSlider.value), duration = 600) {
+      clearFadeInterval();
+      const steps = 20;
+      const stepTime = duration / steps;
+      const increment = targetVolume / steps;
+
+      bgMusic.volume = 0;
+      fadeInterval = setInterval(() => {
+        if (bgMusic.volume + increment >= targetVolume) {
+          bgMusic.volume = targetVolume;
+          clearFadeInterval();
+        } else {
+          bgMusic.volume += increment;
+        }
+      }, stepTime);
+    }
+
+    function fadeOutMusic(duration = 500) {
+      return new Promise((resolve) => {
+        clearFadeInterval();
+        const steps = 20;
+        const stepTime = duration / steps;
+        const decrement = bgMusic.volume / steps;
+
+        fadeInterval = setInterval(() => {
+          if (bgMusic.volume - decrement <= 0.01) {
+            bgMusic.volume = 0;
+            bgMusic.pause();
+            clearFadeInterval();
+            resolve();
+          } else {
+            bgMusic.volume -= decrement;
+          }
+        }, stepTime);
+      });
+    }
+
+    async function startTrack(index) {
+      currentTrackIndex = index;
+      bgMusic.src = tracks[currentTrackIndex].file;
+
+      try {
+        await bgMusic.play();
+        isMusicPlaying = true;
+        fadeInMusic(Number(volumeSlider.value));
+      } catch (error) {
+        console.log("Music play failed:", error);
+        isMusicPlaying = false;
+      }
+
+      updateTrackUI();
+      saveMusicSettings();
+    }
+
+    async function pauseTrack() {
+      await fadeOutMusic();
+      isMusicPlaying = false;
+      bgMusic.volume = Number(volumeSlider.value);
+      updateTrackUI();
+      saveMusicSettings();
+    }
+
+    async function stopTrack() {
+      await fadeOutMusic();
+      bgMusic.currentTime = 0;
+      isMusicPlaying = false;
+      bgMusic.volume = Number(volumeSlider.value);
+      updateTrackUI();
+      saveMusicSettings();
+    }
+
+    if (musicToggleBtn) {
+      musicToggleBtn.addEventListener("click", () => {
+        musicPanel.classList.toggle("show");
+      });
+    }
+
+    if (trackSelect) {
+      trackSelect.addEventListener("change", async () => {
+        currentTrackIndex = Number(trackSelect.value);
+
+        if (isMusicPlaying) {
+          await startTrack(currentTrackIndex);
+        } else {
+          updateTrackUI();
+          saveMusicSettings();
+        }
+      });
+    }
+
+    if (playPauseBtn) {
+      playPauseBtn.addEventListener("click", async () => {
+        if (!isMusicPlaying) {
+          await startTrack(currentTrackIndex);
+        } else {
+          await pauseTrack();
+        }
+      });
+    }
+
+    if (stopMusicBtn) {
+      stopMusicBtn.addEventListener("click", async () => {
+        await stopTrack();
+      });
+    }
+
+    if (volumeSlider) {
+      volumeSlider.addEventListener("input", () => {
+        bgMusic.volume = Number(volumeSlider.value);
+        saveMusicSettings();
+      });
+    }
+
+    document.addEventListener("visibilitychange", async () => {
+      if (document.hidden) {
+        wasPlayingBeforeHidden = isMusicPlaying;
+        if (isMusicPlaying) {
+          await pauseTrack();
+        }
+      } else {
+        if (wasPlayingBeforeHidden) {
+          await startTrack(currentTrackIndex);
+        }
+      }
+    });
+
+    loadMusicSettings();
   </script>
 
 </body>
