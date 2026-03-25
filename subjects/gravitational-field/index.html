@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gravitational Field | DinuuNOVA Physics</title>
+  <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+
+  <header>
+    <div class="container nav">
+      <div class="brand">DinuuNOVA <span>Physics</span></div>
+      <nav class="nav-links">
+        <a href="../../index.html">Home</a>
+        <a href="index.html" class="active">Gravitational Field</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="page-title">
+    <div class="container">
+      <a class="back-link" href="../../index.html">← Back to Home</a>
+      <h1 id="subjectTitle">Gravitational Field</h1>
+      <p id="subjectDesc">Choose a subtopic to view formula notes.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="grid" id="subjectGrid">
+        <div class="empty-state">Loading subtopics...</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      © 2026 DinuuNOVA Physics
+    </div>
+  </footer>
+
+  <script>
+    const grid = document.getElementById("subjectGrid");
+
+    function prettifyTopicName(fileName) {
+      return (fileName || "")
+        .replace(/\.pdf$/i, "")
+        .replace(/-formulas$/i, "")
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, c => c.toUpperCase())
+        .trim() || "Untitled";
+    }
+
+    function buildTopicPage(subject, file) {
+      const base = file.replace(/-formulas\.pdf$/i, "").replace(/\.pdf$/i, "");
+      return `../../topics/${subject}/${base}.html`;
+    }
+
+    async function loadSubjectCards() {
+      try {
+        const pathParts = window.location.pathname.split("/").filter(Boolean);
+        const subjectsIndex = pathParts.indexOf("subjects");
+        const currentSubject = subjectsIndex !== -1 ? pathParts[subjectsIndex + 1] : "";
+
+        const res = await fetch("/DN_Physics/pdfs/catalog.json");
+        if (!res.ok) throw new Error("Could not load catalog.json");
+
+        const items = await res.json();
+        const subjectItems = items.filter(item => item.subject === currentSubject);
+
+        if (!subjectItems.length) {
+          grid.innerHTML = `<div class="empty-state">No subtopics found for this subject yet.</div>`;
+          return;
+        }
+
+        grid.innerHTML = subjectItems.map((item, index) => {
+          const topicTitle = item.title || prettifyTopicName(item.file);
+          const topicPage = item.topicPage || buildTopicPage(item.subject, item.file);
+
+          return `
+            <div class="card">
+              <div class="badge">Subtopic ${String(index + 1).padStart(2, "0")}</div>
+              <h3>${topicTitle}</h3>
+              <p>Core formulas and revision notes for ${topicTitle.toLowerCase()}.</p>
+              <div class="actions">
+                <a class="btn" href="${topicPage}">Open ${topicTitle}</a>
+                <a class="btn btn-primary" href="../../topics/viewer.html?pdf=${encodeURIComponent(`/DN_Physics/pdfs/${item.subject}/${item.file}`)}&title=${encodeURIComponent(topicTitle)}&back=${encodeURIComponent(window.location.pathname)}&subjectName=${encodeURIComponent(document.getElementById('subjectTitle').textContent)}">
+                  View PDF
+                </a>
+              </div>
+            </div>
+          `;
+        }).join("");
+      } catch (error) {
+        grid.innerHTML = `<div class="empty-state">Could not load subtopics.</div>`;
+      }
+    }
