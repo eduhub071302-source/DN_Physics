@@ -25,10 +25,32 @@
         <img id="questionImage" class="quiz-image" src="" alt="Question image" />
       </div>
 
+      <div class="answer-section">
+        <h3 class="answer-title">Choose Your Answer</h3>
+        <div class="answer-grid">
+          <button class="answer-btn" data-answer="1" type="button">1</button>
+          <button class="answer-btn" data-answer="2" type="button">2</button>
+          <button class="answer-btn" data-answer="3" type="button">3</button>
+          <button class="answer-btn" data-answer="4" type="button">4</button>
+          <button class="answer-btn" data-answer="5" type="button">5</button>
+        </div>
+      </div>
+
       <div class="quiz-nav">
         <button id="prevBtn" class="btn" type="button">← Previous</button>
         <button id="nextBtn" class="btn btn-primary" type="button">Next →</button>
       </div>
+
+      <div class="submit-wrap">
+        <button id="submitQuizBtn" class="btn btn-primary submit-btn" type="button">
+          Submit Quiz
+        </button>
+      </div>
+    </div>
+
+    <div id="resultCard" class="quiz-view-card result-card" style="display:none;">
+      <h2>Quiz Result</h2>
+      <div id="resultSummary" class="result-summary"></div>
     </div>
   </main>
 
