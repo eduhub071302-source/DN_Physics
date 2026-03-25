@@ -124,18 +124,32 @@
       display: none !important;
     }
 
-    /* NEW: top-right nav wrapper */
     .topbar-right {
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    /* NEW: refresh button in nav */
     .refresh-top-btn {
       padding: 6px 10px;
       min-height: auto;
       line-height: 1;
+    }
+
+    .offline-banner {
+      display: none;
+      background: #7a1f1f;
+      color: white;
+      text-align: center;
+      padding: 10px 14px;
+      font-weight: 700;
+      position: sticky;
+      top: 0;
+      z-index: 2000;
+    }
+
+    .offline-banner.show {
+      display: block;
     }
 
     @media (max-width: 768px) {
@@ -166,6 +180,11 @@
 </head>
 <body>
 
+  <!-- OFFLINE BANNER -->
+  <div id="offlineBanner" class="offline-banner">
+    You are offline. Some PDFs may not load unless they were opened before.
+  </div>
+
   <header>
     <div class="container nav">
       <div class="brand">DinuuNOVA <span>Physics</span></div>
@@ -177,8 +196,7 @@
           <a id="backLink" href="/DN_Physics/index.html">Back</a>
         </nav>
 
-        <!-- NEW: always-visible refresh button -->
-        <button id="refreshBtn" class="btn refresh-top-btn" type="button" title="Refresh page">
+        <button id="refreshBtn" class="btn refresh-top-btn" type="button" title="Refresh app">
           🔄
         </button>
       </div>
@@ -222,7 +240,7 @@
         </div>
 
         <p class="helper">
-          If the preview cannot load, check your internet connection first, then try <strong>Open PDF</strong>, <strong>Download PDF</strong>, or use the refresh button.
+          If the PDF does not load, check your internet connection first. If you are offline and the PDF was not opened before, preview may not work. PDFs can work offline after they have been opened once with internet. You can also try <strong>Open PDF</strong>, <strong>Download PDF</strong>, or the <strong>🔄 Refresh</strong> button.
         </p>
       </div>
 
@@ -241,6 +259,7 @@
       "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";
 
     const params = new URLSearchParams(window.location.search);
+
     const DEFAULT_SITE = "https://eduhub071302-source.github.io";
     const SITE_BASE = `${DEFAULT_SITE}/DN_Physics`;
 
@@ -299,6 +318,7 @@
     const libraryGrid = document.getElementById("libraryGrid");
     const viewerActions = document.getElementById("viewerActions");
     const refreshBtn = document.getElementById("refreshBtn");
+    const offlineBanner = document.getElementById("offlineBanner");
 
     let pdfUrl = "";
     let absolutePdfUrl = "";
@@ -308,7 +328,15 @@
     let backUrl = "/DN_Physics/index.html";
     let shareTitle = "PDF Viewer";
 
-    /* NEW: refresh handler for this page */
+    function updateOfflineBanner() {
+      if (!offlineBanner) return;
+      offlineBanner.classList.toggle("show", !navigator.onLine);
+    }
+
+    window.addEventListener("online", updateOfflineBanner);
+    window.addEventListener("offline", updateOfflineBanner);
+    updateOfflineBanner();
+
     async function performViewerRefresh() {
       try {
         if ("caches" in window) {
@@ -367,10 +395,17 @@
           </div>
         `).join("");
       } catch (error) {
+        const isOffline = !navigator.onLine;
+
         libraryGrid.innerHTML = `
           <div class="loading">
-            Could not load catalog.json.<br><br>
-            Please check your internet connection and try the refresh button.
+            ${
+              isOffline
+                ? `You are offline, so the PDF list cannot be updated right now.<br><br>
+                   Please connect to the internet and refresh the page.`
+                : `Could not load catalog.json right now.<br><br>
+                   Please check your internet and try again.`
+            }
           </div>
         `;
       }
@@ -412,17 +447,21 @@
           <div class="loading">
             ${
               isOffline
-                ? `You are currently offline, so the PDF preview cannot be loaded.<br><br>
-                   Please connect to the internet, then refresh the app or page.`
-                : `PDF preview could not be loaded.<br><br>
-                   This may happen because the internet is weak, the PDF is not cached yet,
-                   or your device cannot preview it here.`
+                ? `You are offline, and this PDF could not be loaded.<br><br>
+                   This usually means the PDF was not saved offline before.`
+                : `This PDF could not be loaded right now.<br><br>
+                   This may be due to weak internet, the PDF not being cached yet,
+                   or preview not working properly on this device.`
             }
+            <br><br>
+            To use PDFs offline:
+            <br>• open them once while connected to the internet
+            <br>• then they can be available offline later
             <br><br>
             You can also try:
             <br>• <strong>Open PDF</strong>
             <br>• <strong>Download PDF</strong>
-            <br>• or press the <strong>🔄 Refresh</strong> button above.
+            <br>• <strong>Refresh</strong> 🔄
           </div>
         `;
       }
