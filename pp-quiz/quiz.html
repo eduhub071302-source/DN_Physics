@@ -16,6 +16,15 @@
   </header>
 
   <main class="container quiz-page">
+    <div id="attemptInfoCard" class="quiz-view-card attempt-info-card">
+      <h2>Your Progress</h2>
+      <div id="attemptInfo" class="result-summary">
+        <div><strong>Last Score:</strong> No previous attempt</div>
+        <div><strong>Best Score:</strong> No previous attempt</div>
+        <div><strong>Attempts:</strong> 0</div>
+      </div>
+    </div>
+
     <div class="quiz-view-card">
       <div class="quiz-top-row">
         <div id="questionCounter" class="quiz-counter">Question 1 of 1</div>
@@ -35,6 +44,10 @@
           <button class="answer-btn" data-answer="4" type="button">4</button>
           <button class="answer-btn" data-answer="5" type="button">5</button>
         </div>
+      </div>
+
+      <div id="reviewNote" class="review-note" style="display:none;">
+        Review mode: red = your wrong answer, green = correct answer.
       </div>
 
       <div class="quiz-nav">
