@@ -16,6 +16,8 @@ const finishQuizBtn = document.getElementById("finishQuizBtn");
 const resultCard = document.getElementById("resultCard");
 const resultSummary = document.getElementById("resultSummary");
 const answerButtons = Array.from(document.querySelectorAll(".answer-btn"));
+const attemptInfo = document.getElementById("attemptInfo");
+const reviewNote = document.getElementById("reviewNote");
 
 function makeNiceTitle(slug) {
   return (slug || "")
@@ -70,6 +72,7 @@ let currentQuestion = 1;
 let totalQuestions = 1;
 let answerKey = {};
 let userAnswers = {};
+let reviewMode = false;
 
 if (
   topic &&
@@ -90,16 +93,77 @@ function getImagePath(questionNumber) {
   return `/DN_Physics/pp-quiz/images/${topic}/${subtopic}/q${questionNumber}.jpg`;
 }
 
+function getStorageKey() {
+  return `dnphysics_ppquiz_${topic}_${subtopic}_${setName}`;
+}
+
+function loadAttemptData() {
+  try {
+    return JSON.parse(localStorage.getItem(getStorageKey())) || null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function saveAttemptData(data) {
+  localStorage.setItem(getStorageKey(), JSON.stringify(data));
+}
+
+function renderAttemptInfo() {
+  const saved = loadAttemptData();
+
+  if (!saved) {
+    attemptInfo.innerHTML = `
+      <div><strong>Last Score:</strong> No previous attempt</div>
+      <div><strong>Best Score:</strong> No previous attempt</div>
+      <div><strong>Attempts:</strong> 0</div>
+    `;
+    return;
+  }
+
+  attemptInfo.innerHTML = `
+    <div><strong>Last Score:</strong> ${saved.lastCorrect} / ${saved.lastAnswered} (${saved.lastPercentage}%)</div>
+    <div><strong>Best Score:</strong> ${saved.bestCorrect} / ${saved.bestAnswered} (${saved.bestPercentage}%)</div>
+    <div><strong>Attempts:</strong> ${saved.attempts}</div>
+  `;
+}
+
 function getAnsweredCount() {
   return Object.keys(userAnswers).length;
 }
 
+function clearReviewClasses() {
+  answerButtons.forEach((button) => {
+    button.classList.remove("selected", "correct-answer", "wrong-answer", "review-dim");
+  });
+}
+
 function updateAnswerButtons() {
+  clearReviewClasses();
+
   const selected = userAnswers[currentQuestion];
+  const validAnswers = answerKey[currentQuestion] || [];
+
+  if (!reviewMode) {
+    answerButtons.forEach((button) => {
+      const buttonValue = Number(button.dataset.answer);
+      button.classList.toggle("selected", buttonValue === selected);
+    });
+    return;
+  }
 
   answerButtons.forEach((button) => {
     const buttonValue = Number(button.dataset.answer);
-    button.classList.toggle("selected", buttonValue === selected);
+    const isSelected = buttonValue === selected;
+    const isCorrect = validAnswers.includes(buttonValue);
+
+    if (isCorrect) {
+      button.classList.add("correct-answer");
+    } else if (isSelected && !isCorrect) {
+      button.classList.add("wrong-answer");
+    } else {
+      button.classList.add("review-dim");
+    }
   });
 }
 
@@ -107,11 +171,13 @@ function updateSubmitVisibility() {
   const answeredCount = getAnsweredCount();
   answeredCounter.textContent = `Answered: ${answeredCount} / ${totalQuestions}`;
 
-  if (answeredCount === totalQuestions) {
+  if (answeredCount === totalQuestions && !reviewMode) {
     submitQuizBtn.style.display = "inline-flex";
   } else {
     submitQuizBtn.style.display = "none";
   }
+
+  finishQuizBtn.disabled = reviewMode;
 }
 
 function updateQuestionView() {
@@ -128,6 +194,8 @@ function updateQuestionView() {
 
 answerButtons.forEach((button) => {
   button.addEventListener("click", () => {
+    if (reviewMode) return;
+
     const selectedAnswer = Number(button.dataset.answer);
     userAnswers[currentQuestion] = selectedAnswer;
     updateAnswerButtons();
@@ -150,6 +218,53 @@ nextBtn.addEventListener("click", () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 });
+
+function finalizeAttempt(correct, wrong, unanswered, answeredQuestions, wrongQuestions, mode) {
+  const percentageBase = answeredQuestions > 0 ? answeredQuestions : 1;
+  const scorePercent = ((correct / percentageBase) * 100).toFixed(1);
+
+  const previous = loadAttemptData();
+  const previousBestPercentage = previous ? Number(previous.bestPercentage) : -1;
+
+  const bestShouldUpdate = Number(scorePercent) > previousBestPercentage;
+
+  const newData = {
+    lastCorrect: correct,
+    lastAnswered: answeredQuestions,
+    lastPercentage: scorePercent,
+    bestCorrect: bestShouldUpdate ? correct : previous?.bestCorrect ?? correct,
+    bestAnswered: bestShouldUpdate ? answeredQuestions : previous?.bestAnswered ?? answeredQuestions,
+    bestPercentage: bestShouldUpdate ? scorePercent : previous?.bestPercentage ?? scorePercent,
+    attempts: (previous?.attempts || 0) + 1
+  };
+
+  saveAttemptData(newData);
+  renderAttemptInfo();
+
+  const modeText =
+    mode === "full"
+      ? "Calculated from all answered questions after full submit."
+      : "Calculated only from answered questions after finishing now.";
+
+  resultSummary.innerHTML = `
+    <div><strong>Total Questions:</strong> ${totalQuestions}</div>
+    <div><strong>Answered Questions:</strong> ${answeredQuestions}</div>
+    <div><strong>Correct:</strong> ${correct}</div>
+    <div><strong>Wrong:</strong> ${wrong}</div>
+    <div><strong>Unanswered:</strong> ${unanswered}</div>
+    <div><strong>Score:</strong> ${correct} / ${answeredQuestions > 0 ? answeredQuestions : 0}</div>
+    <div><strong>Percentage:</strong> ${answeredQuestions > 0 ? scorePercent : "0.0"}%</div>
+    <div><strong>Wrong Question Numbers:</strong> ${wrongQuestions.length ? wrongQuestions.join(", ") : "None"}</div>
+    <div><strong>Result Mode:</strong> ${modeText}</div>
+  `;
+
+  reviewMode = true;
+  reviewNote.style.display = "block";
+  resultCard.style.display = "block";
+
+  updateQuestionView();
+  resultCard.scrollIntoView({ behavior: "smooth" });
+}
 
 function showResult(mode) {
   let correct = 0;
@@ -177,28 +292,7 @@ function showResult(mode) {
     }
   }
 
-  const percentageBase = answeredQuestions > 0 ? answeredQuestions : 1;
-  const scorePercent = ((correct / percentageBase) * 100).toFixed(1);
-
-  const modeText =
-    mode === "full"
-      ? "Calculated from all questions."
-      : "Calculated only from answered questions.";
-
-  resultSummary.innerHTML = `
-    <div><strong>Total Questions:</strong> ${totalQuestions}</div>
-    <div><strong>Answered Questions:</strong> ${answeredQuestions}</div>
-    <div><strong>Correct:</strong> ${correct}</div>
-    <div><strong>Wrong:</strong> ${wrong}</div>
-    <div><strong>Unanswered:</strong> ${unanswered}</div>
-    <div><strong>Score:</strong> ${correct} / ${answeredQuestions > 0 ? answeredQuestions : 0}</div>
-    <div><strong>Percentage:</strong> ${answeredQuestions > 0 ? scorePercent : "0.0"}%</div>
-    <div><strong>Wrong Question Numbers:</strong> ${wrongQuestions.length ? wrongQuestions.join(", ") : "None"}</div>
-    <div><strong>Result Mode:</strong> ${modeText}</div>
-  `;
-
-  resultCard.style.display = "block";
-  resultCard.scrollIntoView({ behavior: "smooth" });
+  finalizeAttempt(correct, wrong, unanswered, answeredQuestions, wrongQuestions, mode);
 }
 
 submitQuizBtn.addEventListener("click", () => {
@@ -213,4 +307,5 @@ questionImage.addEventListener("error", () => {
   questionImage.alt = "Question image not found";
 });
 
+renderAttemptInfo();
 updateQuestionView();
