@@ -124,6 +124,20 @@
       display: none !important;
     }
 
+    /* NEW: top-right nav wrapper */
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* NEW: refresh button in nav */
+    .refresh-top-btn {
+      padding: 6px 10px;
+      min-height: auto;
+      line-height: 1;
+    }
+
     @media (max-width: 768px) {
       .viewer-wrap {
         padding: 22px 0 34px;
@@ -142,6 +156,11 @@
         border-radius: 18px;
         padding: 12px;
       }
+
+      .topbar-right {
+        width: 100%;
+        justify-content: space-between;
+      }
     }
   </style>
 </head>
@@ -150,11 +169,19 @@
   <header>
     <div class="container nav">
       <div class="brand">DinuuNOVA <span>Physics</span></div>
-      <nav class="nav-links">
-        <a href="/DN_Physics/index.html">Home</a>
-        <a id="subjectLink" href="/DN_Physics/index.html">Subject</a>
-        <a id="backLink" href="/DN_Physics/index.html">Back</a>
-      </nav>
+
+      <div class="topbar-right">
+        <nav class="nav-links">
+          <a href="/DN_Physics/index.html">Home</a>
+          <a id="subjectLink" href="/DN_Physics/index.html">Subject</a>
+          <a id="backLink" href="/DN_Physics/index.html">Back</a>
+        </nav>
+
+        <!-- NEW: always-visible refresh button -->
+        <button id="refreshBtn" class="btn refresh-top-btn" type="button" title="Refresh page">
+          🔄
+        </button>
+      </div>
     </div>
   </header>
 
@@ -195,7 +222,7 @@
         </div>
 
         <p class="helper">
-          If the preview fails or is slow on your device, use <strong>Open PDF</strong> or <strong>Download PDF</strong>.
+          If the preview cannot load, check your internet connection first, then try <strong>Open PDF</strong>, <strong>Download PDF</strong>, or use the refresh button.
         </p>
       </div>
 
@@ -271,6 +298,7 @@
     const viewerSection = document.getElementById("viewerSection");
     const libraryGrid = document.getElementById("libraryGrid");
     const viewerActions = document.getElementById("viewerActions");
+    const refreshBtn = document.getElementById("refreshBtn");
 
     let pdfUrl = "";
     let absolutePdfUrl = "";
@@ -279,6 +307,33 @@
     let subjectDisplayName = "Subject";
     let backUrl = "/DN_Physics/index.html";
     let shareTitle = "PDF Viewer";
+
+    /* NEW: refresh handler for this page */
+    async function performViewerRefresh() {
+      try {
+        if ("caches" in window) {
+          const cacheNames = await caches.keys();
+          await Promise.all(cacheNames.map((name) => caches.delete(name)));
+        }
+
+        if ("serviceWorker" in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (const registration of registrations) {
+            await registration.update();
+          }
+        }
+      } catch (error) {
+        console.log("Viewer refresh warning:", error);
+      }
+
+      window.location.reload();
+    }
+
+    if (refreshBtn) {
+      refreshBtn.addEventListener("click", async () => {
+        await performViewerRefresh();
+      });
+    }
 
     async function showLibrary() {
       viewerTitleEl.textContent = "All PDFs";
@@ -312,7 +367,12 @@
           </div>
         `).join("");
       } catch (error) {
-        libraryGrid.innerHTML = '<div class="loading">Could not load catalog.json</div>';
+        libraryGrid.innerHTML = `
+          <div class="loading">
+            Could not load catalog.json.<br><br>
+            Please check your internet connection and try the refresh button.
+          </div>
+        `;
       }
     }
 
@@ -346,10 +406,23 @@
           container.appendChild(canvas);
         }
       } catch (error) {
+        const isOffline = !navigator.onLine;
+
         container.innerHTML = `
           <div class="loading">
-            Preview failed on this device.<br><br>
-            Please use <strong>Open PDF</strong> or <strong>Download PDF</strong>.
+            ${
+              isOffline
+                ? `You are currently offline, so the PDF preview cannot be loaded.<br><br>
+                   Please connect to the internet, then refresh the app or page.`
+                : `PDF preview could not be loaded.<br><br>
+                   This may happen because the internet is weak, the PDF is not cached yet,
+                   or your device cannot preview it here.`
+            }
+            <br><br>
+            You can also try:
+            <br>• <strong>Open PDF</strong>
+            <br>• <strong>Download PDF</strong>
+            <br>• or press the <strong>🔄 Refresh</strong> button above.
           </div>
         `;
       }
