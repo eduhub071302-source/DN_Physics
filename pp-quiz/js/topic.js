@@ -139,6 +139,23 @@ const topicSlug = params.get("topic");
 const topicTitle = document.getElementById("topicTitle");
 const subtopicsGrid = document.getElementById("subtopicsGrid");
 
+function getBadgeData(percentage) {
+  const value = Number(percentage) || 0;
+  if (value >= 90) return { label: "Gold 🥇", className: "badge-gold" };
+  if (value >= 75) return { label: "Silver 🥈", className: "badge-silver" };
+  if (value >= 50) return { label: "Bronze 🥉", className: "badge-bronze" };
+  return { label: "None", className: "badge-none" };
+}
+
+function getSavedStats(topic, subtopic, setName = "set-1") {
+  const key = `dnphysics_ppquiz_${topic}_${subtopic}_${setName}`;
+  try {
+    return JSON.parse(localStorage.getItem(key)) || null;
+  } catch {
+    return null;
+  }
+}
+
 if (!topicSlug || !topicData[topicSlug]) {
   topicTitle.textContent = "Topic Not Found";
   subtopicsGrid.innerHTML = `<p>Invalid topic selected.</p>`;
@@ -147,12 +164,22 @@ if (!topicSlug || !topicData[topicSlug]) {
   topicTitle.textContent = currentTopic.title;
 
   currentTopic.subtopics.forEach((subtopic) => {
+    const stats = getSavedStats(topicSlug, subtopic.slug);
+    const bestPercentage = stats ? stats.bestPercentage : null;
+    const attempts = stats ? stats.attempts : 0;
+    const badge = getBadgeData(bestPercentage);
+
     const card = document.createElement("a");
     card.className = "topic-card";
     card.href = `/DN_Physics/pp-quiz/subtopic.html?topic=${encodeURIComponent(topicSlug)}&subtopic=${encodeURIComponent(subtopic.slug)}`;
     card.innerHTML = `
       <h2>${subtopic.title}</h2>
       <p>Open quiz set</p>
+      <div class="subtopic-meta">
+        <span class="meta-pill">Best: ${bestPercentage ? `${bestPercentage}%` : "No data"}</span>
+        <span class="meta-pill">Attempts: ${attempts}</span>
+        <span class="meta-pill ${badge.className}">Badge: ${badge.label}</span>
+      </div>
     `;
     subtopicsGrid.appendChild(card);
   });
