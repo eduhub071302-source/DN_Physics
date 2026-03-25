@@ -62,7 +62,7 @@ self.addEventListener("fetch", (event) => {
     url.pathname.endsWith(".gif") ||
     url.pathname.endsWith(".ico");
 
-  /* ===== NETWORK FIRST for HTML + JSON ===== */
+  /* HTML + JSON = network first */
   if (isHTML || isJSON) {
     event.respondWith(
       fetch(request)
@@ -89,7 +89,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  /* ===== CACHE FIRST for PDFs ===== */
+  /* PDFs = cache first */
   if (isPDF) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
@@ -118,7 +118,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  /* ===== CACHE FIRST for CSS / JS / Images ===== */
+  /* CSS / JS / Images = cache first */
   if (isCSS || isJS || isImage) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
@@ -135,7 +135,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  /* ===== DEFAULT ===== */
+  /* Default */
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       return (
