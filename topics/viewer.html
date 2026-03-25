@@ -262,6 +262,30 @@
     <div class="container">© 2026 DinuuNOVA Physics</div>
   </footer>
 
+  <!-- NEW: MUSIC PLAYER ADDED, OLD VIEWER KEPT -->
+  <div class="music-player-wrap">
+    <button id="musicToggleBtn" class="btn" type="button">🎧 Focus</button>
+
+    <div id="musicPanel" class="music-panel">
+      <div class="music-panel-title">Focus Mode 🎧</div>
+
+      <label for="trackSelect" class="music-label">Select Track</label>
+      <select id="trackSelect" class="music-select"></select>
+
+      <div class="music-controls">
+        <button id="playPauseBtn" class="btn btn-primary" type="button">▶ Play</button>
+        <button id="stopMusicBtn" class="btn" type="button">■ Stop</button>
+      </div>
+
+      <label for="volumeSlider" class="music-label">Volume 🔊</label>
+      <input id="volumeSlider" class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.35" />
+
+      <div id="currentTrackLabel" class="music-track-label">Current: None</div>
+    </div>
+  </div>
+
+  <audio id="bgMusic" loop></audio>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
   <script type="module">
     import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
@@ -345,7 +369,7 @@
       if (!offlineBanner) return;
       offlineBanner.classList.toggle("show", !navigator.onLine);
 
-      /* NEW: small helper/status update, old UI kept */
+      /* old UI kept, small dynamic update */
       if (!navigator.onLine) {
         if (viewerStatusText) {
           viewerStatusText.textContent = "Offline mode. Cached PDFs may still work.";
@@ -563,6 +587,12 @@
         }
       }
     };
+  </script>
+
+  <!-- NEW: shared music system added, old viewer kept -->
+  <script src="/DN_Physics/js/music-player.js"></script>
+</body>
+</html>
   </script>
 
 </body>
