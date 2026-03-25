@@ -12,156 +12,34 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
   <link rel="stylesheet" href="css/style.css" />
-
-  <style>
-    /* ===== NEW ADDITIONS ONLY ===== */
-
-    .topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .refresh-top-btn {
-      padding: 6px 10px;
-      min-height: auto;
-      line-height: 1;
-    }
-
-    .pull-refresh-indicator {
-      position: fixed;
-      top: 70px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(17, 26, 43, 0.96);
-      color: var(--text);
-      border: 1px solid var(--line-soft);
-      border-radius: 999px;
-      padding: 8px 14px;
-      box-shadow: var(--shadow-soft);
-      font-size: 0.92rem;
-      z-index: 2000;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.18s ease, transform 0.18s ease;
-    }
-
-    .pull-refresh-indicator.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(6px);
-    }
-
-    .loading-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(9, 16, 28, 0.72);
-      backdrop-filter: blur(4px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 3000;
-    }
-
-    .loading-overlay.show {
-      display: flex;
-    }
-
-    .loading-box {
-      background: linear-gradient(180deg, rgba(17, 26, 43, 0.98), rgba(12, 18, 31, 0.98));
-      border: 1px solid var(--line-soft);
-      border-radius: 18px;
-      padding: 22px 26px;
-      box-shadow: var(--shadow);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      min-width: 180px;
-    }
-
-    .spinner {
-      width: 38px;
-      height: 38px;
-      border: 4px solid rgba(255, 255, 255, 0.14);
-      border-top-color: var(--accent-2);
-      border-radius: 50%;
-      animation: spin 0.9s linear infinite;
-    }
-
-    .loading-text {
-      color: var(--text);
-      font-size: 0.96rem;
-      font-weight: 700;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    .update-toast {
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      max-width: min(92vw, 360px);
-      background: linear-gradient(180deg, rgba(17, 26, 43, 0.98), rgba(12, 18, 31, 0.98));
-      color: var(--text);
-      border: 1px solid var(--line-soft);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      padding: 16px;
-      z-index: 3500;
-      display: none;
-    }
-
-    .update-toast.show {
-      display: block;
-    }
-
-    .update-toast h3 {
-      margin: 0 0 8px;
-      font-size: 1rem;
-    }
-
-    .update-toast p {
-      margin: 0 0 12px;
-      color: var(--muted);
-      font-size: 0.94rem;
-      line-height: 1.5;
-    }
-
-    .update-toast-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    @media (max-width: 900px) {
-      .topbar-right {
-        width: 100%;
-        justify-content: space-between;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .update-toast {
-        left: 12px;
-        right: 12px;
-        bottom: 12px;
-        max-width: none;
-      }
-    }
-  </style>
 </head>
 <body>
 
-  <!-- NEW: Pull refresh indicator -->
+  <!-- PREMIUM APP OPENING SPLASH -->
+  <div id="appSplash" class="app-splash" aria-hidden="true">
+    <div class="app-splash-bg"></div>
+
+    <div class="app-splash-content">
+      <div class="app-splash-logo-wrap">
+        <div class="app-splash-ring"></div>
+        <div class="app-splash-logo">DN</div>
+      </div>
+
+      <h1 class="app-splash-title">DinuuNOVA Physics</h1>
+      <p class="app-splash-subtitle">Premium A/L Physics Formula Notes</p>
+
+      <div class="app-splash-loader">
+        <div class="app-splash-loader-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pull refresh indicator -->
   <div id="pullRefreshIndicator" class="pull-refresh-indicator">
     ↓ Pull to refresh
   </div>
 
-  <!-- NEW: Loading overlay -->
+  <!-- Loading overlay -->
   <div id="loadingOverlay" class="loading-overlay" aria-hidden="true">
     <div class="loading-box">
       <div class="spinner"></div>
@@ -169,7 +47,7 @@
     </div>
   </div>
 
-  <!-- NEW: Update popup -->
+  <!-- Update popup -->
   <div id="updateToast" class="update-toast" aria-live="polite">
     <h3>New notes available</h3>
     <p>A newer version of the app was found. Refresh to load the latest notes and updates.</p>
@@ -188,7 +66,6 @@
           <a href="index.html" class="active">Home</a>
         </nav>
 
-        <!-- NEW: top refresh button -->
         <button id="refreshBtn" class="btn refresh-top-btn" type="button" title="Refresh app">
           🔄
         </button>
@@ -269,12 +146,12 @@
     const installBtn = document.getElementById("installBtn");
     const refreshBtn = document.getElementById("refreshBtn");
 
-    // NEW
     const loadingOverlay = document.getElementById("loadingOverlay");
     const pullRefreshIndicator = document.getElementById("pullRefreshIndicator");
     const updateToast = document.getElementById("updateToast");
     const toastRefreshBtn = document.getElementById("toastRefreshBtn");
     const toastDismissBtn = document.getElementById("toastDismissBtn");
+    const appSplash = document.getElementById("appSplash");
 
     let refreshingNow = false;
     let touchStartY = 0;
@@ -282,10 +159,6 @@
 
     function showLoadingOverlay() {
       if (loadingOverlay) loadingOverlay.classList.add("show");
-    }
-
-    function hideLoadingOverlay() {
-      if (loadingOverlay) loadingOverlay.classList.remove("show");
     }
 
     async function performStrongRefresh() {
@@ -319,7 +192,6 @@
           .then((registration) => {
             console.log("✅ Service Worker registered:", registration.scope);
 
-            // NEW: check for newer service worker
             registration.update();
 
             if (registration.waiting) {
@@ -340,6 +212,11 @@
           .catch((error) => {
             console.log("❌ Service Worker failed:", error);
           });
+
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+          if (refreshingNow) return;
+          window.location.reload();
+        });
       });
     }
 
@@ -371,14 +248,12 @@
       }
     });
 
-    // NEW: top refresh button
     if (refreshBtn) {
       refreshBtn.addEventListener("click", async () => {
         await performStrongRefresh();
       });
     }
 
-    // NEW: popup buttons
     if (toastRefreshBtn) {
       toastRefreshBtn.addEventListener("click", async () => {
         await performStrongRefresh();
@@ -391,7 +266,6 @@
       });
     }
 
-    // NEW: pull/swipe down to refresh
     window.addEventListener("touchstart", (e) => {
       if (window.scrollY === 0) {
         touchStartY = e.touches[0].clientY;
@@ -423,6 +297,15 @@
         pullRefreshIndicator.classList.remove("show");
         pullRefreshIndicator.textContent = "↓ Pull to refresh";
       }
+    });
+
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        if (appSplash) {
+          appSplash.classList.add("hide");
+        }
+        document.body.classList.add("app-ready");
+      }, 2100);
     });
 
     const searchInput = document.getElementById("subjectSearch");
