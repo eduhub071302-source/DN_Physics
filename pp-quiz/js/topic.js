@@ -144,7 +144,7 @@ function getBadgeData(percentage) {
   if (value >= 90) return { label: "Gold 🥇", className: "badge-gold" };
   if (value >= 75) return { label: "Silver 🥈", className: "badge-silver" };
   if (value >= 50) return { label: "Bronze 🥉", className: "badge-bronze" };
-  return { label: "None", className: "badge-none" };
+  return null;
 }
 
 function getSavedStats(topic, subtopic, setName = "set-1") {
@@ -165,9 +165,9 @@ if (!topicSlug || !topicData[topicSlug]) {
 
   currentTopic.subtopics.forEach((subtopic) => {
     const stats = getSavedStats(topicSlug, subtopic.slug);
-    const bestPercentage = stats ? stats.bestPercentage : null;
     const attempts = stats ? stats.attempts : 0;
-    const badge = getBadgeData(bestPercentage);
+    const bestPercentage = stats?.bestFullBadgePercentage || null;
+    const badge = bestPercentage ? getBadgeData(bestPercentage) : null;
 
     const card = document.createElement("a");
     card.className = "topic-card";
@@ -176,9 +176,17 @@ if (!topicSlug || !topicData[topicSlug]) {
       <h2>${subtopic.title}</h2>
       <p>Open quiz set</p>
       <div class="subtopic-meta">
-        <span class="meta-pill">Best: ${bestPercentage ? `${bestPercentage}%` : "No data"}</span>
         <span class="meta-pill">Attempts: ${attempts}</span>
-        <span class="meta-pill ${badge.className}">Badge: ${badge.label}</span>
+        ${
+          bestPercentage
+            ? `<span class="meta-pill">Best Full Quiz: ${bestPercentage}%</span>`
+            : ""
+        }
+        ${
+          badge
+            ? `<span class="meta-pill ${badge.className}">Badge: ${badge.label}</span>`
+            : ""
+        }
       </div>
     `;
     subtopicsGrid.appendChild(card);
