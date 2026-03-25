@@ -11,10 +11,17 @@
   <header>
     <div class="container nav">
       <div class="brand">DinuuNOVA <span>Physics</span></div>
-      <nav class="nav-links">
-        <a href="../../index.html">Home</a>
-        <a href="index.html" class="active">Matter & Radiation</a>
-      </nav>
+
+      <div class="topbar-right">
+        <nav class="nav-links">
+          <a href="../../index.html">Home</a>
+          <a href="index.html" class="active">Matter & Radiation</a>
+        </nav>
+
+        <button id="refreshBtn" class="btn refresh-top-btn" type="button" title="Refresh app">
+          🔄
+        </button>
+      </div>
     </div>
   </header>
 
@@ -40,8 +47,33 @@
     </div>
   </footer>
 
+  <!-- MUSIC PLAYER -->
+  <div class="music-player-wrap">
+    <button id="musicToggleBtn" class="btn" type="button">🎧 Focus</button>
+
+    <div id="musicPanel" class="music-panel">
+      <div class="music-panel-title">Focus Mode 🎧</div>
+
+      <label for="trackSelect" class="music-label">Select Track</label>
+      <select id="trackSelect" class="music-select"></select>
+
+      <div class="music-controls">
+        <button id="playPauseBtn" class="btn btn-primary" type="button">▶ Play</button>
+        <button id="stopMusicBtn" class="btn" type="button">■ Stop</button>
+      </div>
+
+      <label for="volumeSlider" class="music-label">Volume 🔊</label>
+      <input id="volumeSlider" class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.35" />
+
+      <div id="currentTrackLabel" class="music-track-label">Current: None</div>
+    </div>
+  </div>
+
+  <audio id="bgMusic" loop></audio>
+
   <script>
     const grid = document.getElementById("subjectGrid");
+    const refreshBtn = document.getElementById("refreshBtn");
 
     function prettifyTopicName(fileName) {
       return (fileName || "")
@@ -96,3 +128,32 @@
         grid.innerHTML = `<div class="empty-state">Could not load subtopics.</div>`;
       }
     }
+
+    if (refreshBtn) {
+      refreshBtn.addEventListener("click", async () => {
+        try {
+          if ("caches" in window) {
+            const cacheNames = await caches.keys();
+            await Promise.all(cacheNames.map((name) => caches.delete(name)));
+          }
+
+          if ("serviceWorker" in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (const registration of registrations) {
+              await registration.update();
+            }
+          }
+        } catch (error) {
+          console.log("Refresh warning:", error);
+        }
+
+        window.location.reload();
+      });
+    }
+
+    loadSubjectCards();
+  </script>
+
+  <script src="/DN_Physics/js/music-player.js"></script>
+</body>
+</html>
