@@ -1,4 +1,4 @@
-const CACHE_NAME = "dn-physics-v34";
+const CACHE_NAME = "dn-physics-v35"; // 🔥 increased version
 
 const CORE_FILES = [
   "/DN_Physics/",
@@ -9,6 +9,12 @@ const CORE_FILES = [
   "/DN_Physics/icon-512.png",
   "/DN_Physics/css/style.css",
   "/DN_Physics/topics/viewer.html",
+
+  // 🔥 NEW AUTO SYSTEM FILES
+  "/DN_Physics/topics/topic.html",
+  "/DN_Physics/js/music-player.js",
+
+  // existing
   "/DN_Physics/pdfs/catalog.json"
 ];
 
@@ -54,6 +60,7 @@ self.addEventListener("fetch", (event) => {
     url.pathname.endsWith(".gif") ||
     url.pathname.endsWith(".ico");
 
+  // ===== HTML (pages) =====
   if (isNavigate) {
     event.respondWith(
       fetch(request)
@@ -78,6 +85,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // ===== JSON =====
   if (isJSON) {
     event.respondWith(
       fetch(request)
@@ -91,6 +99,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // ===== PDF =====
   if (isPDF) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
@@ -117,6 +126,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // ===== STATIC FILES =====
   if (isCSS || isJS || isImage) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
@@ -133,6 +143,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // ===== DEFAULT =====
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       return (
