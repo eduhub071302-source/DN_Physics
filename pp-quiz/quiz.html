@@ -22,6 +22,7 @@
         <div><strong>Last Score:</strong> No previous attempt</div>
         <div><strong>Best Score:</strong> No previous attempt</div>
         <div><strong>Attempts:</strong> 0</div>
+        <div><strong>Badge:</strong> None</div>
       </div>
     </div>
 
@@ -31,8 +32,9 @@
         <div id="answeredCounter" class="quiz-counter">Answered: 0</div>
       </div>
 
-      <div class="quiz-image-wrap">
-        <img id="questionImage" class="quiz-image" src="" alt="Question image" />
+      <div class="quiz-image-wrap zoomable-wrap" id="zoomWrap">
+        <img id="questionImage" class="quiz-image zoomable-image" src="" alt="Question image" />
+        <button id="zoomBtn" class="zoom-btn" type="button">🔍 Zoom</button>
       </div>
 
       <div class="answer-section">
@@ -63,7 +65,8 @@
       </div>
 
       <div id="postResultActions" class="submit-wrap" style="display:none;">
-        <button id="retryQuizBtn" class="btn" type="button">Retry Quiz</button>
+        <button id="retryQuizBtn" class="btn" type="button">Retry Full Quiz</button>
+        <button id="retryWrongBtn" class="btn" type="button" style="display:none;">Retry Wrong Questions Only</button>
         <button id="wrongOnlyBtn" class="btn btn-primary" type="button" style="display:none;">
           Go to Wrong Question
         </button>
@@ -75,6 +78,13 @@
       <div id="resultSummary" class="result-summary"></div>
     </div>
   </main>
+
+  <div id="imageModal" class="image-modal" style="display:none;">
+    <button id="closeImageModal" class="image-modal-close" type="button">✕</button>
+    <div id="imageModalViewport" class="image-modal-viewport">
+      <img id="modalImage" class="image-modal-img" src="" alt="Full screen question image" />
+    </div>
+  </div>
 
   <script src="/DN_Physics/pp-quiz/js/quiz.js"></script>
 </body>
