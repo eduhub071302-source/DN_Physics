@@ -3,7 +3,12 @@ const topicData = {
     title: "Units",
     subtopics: [
       { slug: "unit-dimensions", title: "Unit Dimensions" }
-      { slug: "oscillations-waves", title: "Oscillations Waves" }
+    ]
+  },
+  "oscillations-waves": {
+    title: "oscillations-waves",
+    subtopics: [
+      { slug: "velocity-of-sound", title: "Velocity Of Sound" }
     ]
   },
 
