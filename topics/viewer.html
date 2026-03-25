@@ -152,6 +152,17 @@
       display: block;
     }
 
+    /* NEW: small loading animation added without changing old layout */
+    .loading::after {
+      content: " ⏳";
+      animation: viewerBlink 1s infinite;
+    }
+
+    @keyframes viewerBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+
     @media (max-width: 768px) {
       .viewer-wrap {
         padding: 22px 0 34px;
@@ -231,7 +242,7 @@
         <div class="pdf-shell">
           <div class="pdf-toolbar">
             <div class="pdf-toolbar-text" id="fileLabel">Loading file...</div>
-            <div class="pdf-toolbar-text">Best for phone and PC viewing.</div>
+            <div class="pdf-toolbar-text" id="viewerStatusText">Best for phone and PC viewing.</div>
           </div>
 
           <div id="pdfViewer">
@@ -239,7 +250,7 @@
           </div>
         </div>
 
-        <p class="helper">
+        <p class="helper" id="viewerHelper">
           If the PDF does not load, check your internet connection first. If you are offline and the PDF was not opened before, preview may not work. PDFs can work offline after they have been opened once with internet. You can also try <strong>Open PDF</strong>, <strong>Download PDF</strong>, or the <strong>🔄 Refresh</strong> button.
         </p>
       </div>
@@ -319,6 +330,8 @@
     const viewerActions = document.getElementById("viewerActions");
     const refreshBtn = document.getElementById("refreshBtn");
     const offlineBanner = document.getElementById("offlineBanner");
+    const viewerHelper = document.getElementById("viewerHelper");
+    const viewerStatusText = document.getElementById("viewerStatusText");
 
     let pdfUrl = "";
     let absolutePdfUrl = "";
@@ -331,6 +344,23 @@
     function updateOfflineBanner() {
       if (!offlineBanner) return;
       offlineBanner.classList.toggle("show", !navigator.onLine);
+
+      /* NEW: small helper/status update, old UI kept */
+      if (!navigator.onLine) {
+        if (viewerStatusText) {
+          viewerStatusText.textContent = "Offline mode. Cached PDFs may still work.";
+        }
+        if (viewerHelper) {
+          viewerHelper.innerHTML = 'You are offline. PDFs can only open offline if they were opened once before with internet. You can still try <strong>Open PDF</strong>, <strong>Download PDF</strong>, or the <strong>🔄 Refresh</strong> button after reconnecting.';
+        }
+      } else {
+        if (viewerStatusText) {
+          viewerStatusText.textContent = "Best for phone and PC viewing.";
+        }
+        if (viewerHelper) {
+          viewerHelper.innerHTML = 'If the PDF does not load, check your internet connection first. If you are offline and the PDF was not opened before, preview may not work. PDFs can work offline after they have been opened once with internet. You can also try <strong>Open PDF</strong>, <strong>Download PDF</strong>, or the <strong>🔄 Refresh</strong> button.';
+        }
+      }
     }
 
     window.addEventListener("online", updateOfflineBanner);
