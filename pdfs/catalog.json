@@ -10,5 +10,11 @@
     "subject": "current-electricity",
     "file": "basics-formulas.pdf",
     "subjectPage": "/DN_Physics/subjects/current-electricity/index.html"
+  },
+  {
+    "title": "Resistor Systems",
+    "subject": "current-electricity",
+    "file": "resistor-systems-formulas.pdf",
+    "subjectPage": "/DN_Physics/subjects/current-electricity/index.html"
   }
 ]
