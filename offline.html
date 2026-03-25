@@ -1,1 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Offline | DinuuNOVA Physics</title>
+  <link rel="stylesheet" href="/DN_Physics/css/style.css" />
+  <style>
+    .offline-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
 
+    .offline-card {
+      width: min(100%, 520px);
+      background: linear-gradient(180deg, rgba(17, 26, 43, 0.96), rgba(12, 18, 31, 0.96));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+      text-align: center;
+    }
+
+    .offline-icon {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+
+    .offline-card h1 {
+      margin: 0 0 10px;
+      font-size: 1.8rem;
+    }
+
+    .offline-card p {
+      margin: 0 0 18px;
+      color: var(--muted);
+    }
+
+    .offline-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="offline-wrap">
+    <div class="offline-card">
+      <div class="offline-icon">📡</div>
+      <h1>You are offline</h1>
+      <p>
+        The app could not be opened because there is no internet connection right now.
+      </p>
+      <p>
+        After opening the app once with internet, some pages and PDFs can work offline.
+      </p>
+
+      <div class="offline-actions">
+        <button class="btn btn-primary" onclick="location.reload()">Try Again</button>
+        <a class="btn" href="/DN_Physics/index.html">Go Home</a>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
