@@ -179,11 +179,11 @@ function updateSubmitVisibility() {
   const currentTotal = getCurrentTotalCount();
   answeredCounter.textContent = `Answered: ${answeredCount} / ${currentTotal}`;
 
-  submitQuizBtn.style.display =
-    answeredCount === currentTotal && !reviewMode && !practiceWrongOnlyMode
-      ? "inline-flex"
-      : "none";
+  const allAnswered =
+    answeredCount === currentTotal && !reviewMode && !practiceWrongOnlyMode;
 
+  submitQuizBtn.style.display = allAnswered ? "inline-flex" : "none";
+  finishQuizBtn.style.display = allAnswered ? "none" : "inline-flex";
   finishQuizBtn.disabled = reviewMode;
 }
 
@@ -219,6 +219,8 @@ function resetCurrentQuizState() {
   postResultActions.style.display = "none";
   wrongOnlyBtn.style.display = "none";
   retryWrongBtn.style.display = "none";
+  finishQuizBtn.style.display = "inline-flex";
+  submitQuizBtn.style.display = "none";
 
   updateQuestionView();
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -238,6 +240,8 @@ function startWrongOnlyPractice() {
   postResultActions.style.display = "none";
   wrongOnlyBtn.style.display = "none";
   retryWrongBtn.style.display = "none";
+  finishQuizBtn.style.display = "inline-flex";
+  submitQuizBtn.style.display = "none";
 
   updateQuestionView();
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -426,7 +430,7 @@ questionImage.addEventListener("error", () => {
 function openImageModal() {
   modalImage.src = questionImage.src;
   modalScale = 1;
-  modalImage.style.transform = `scale(${modalScale})`;
+  modalImage.style.transform = "scale(1)";
   imageModal.style.display = "flex";
   document.body.style.overflow = "hidden";
 }
@@ -440,7 +444,7 @@ function closeModal() {
 
 function applyModalScale() {
   if (modalScale < 1) modalScale = 1;
-  if (modalScale > 4) modalScale = 4;
+  if (modalScale > 3) modalScale = 3;
   modalImage.style.transform = `scale(${modalScale})`;
 }
 
