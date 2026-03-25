@@ -12,7 +12,7 @@ const DN_MUSIC_TRACKS = [
   { name: "Ambient Focus 1", file: "/DN_Physics/audio/focus-ambient-1.mp3" },
   { name: "Ambient Focus 2", file: "/DN_Physics/audio/focus-ambient-2.mp3" },
   { name: "Ambient Focus 3", file: "/DN_Physics/audio/focus-ambient-3.mp3" },
-  { name: "Ambient Focus 4", file: "/DN_Physics/audio/focus-ambinet-4.mp3" }
+  { name: "Ambient Focus 4", file: "/DN_Physics/audio/focus-ambient-4.mp3" }
 ];
 
 (function () {
