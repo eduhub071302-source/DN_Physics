@@ -1,4 +1,4 @@
-const CACHE_NAME = "dn-physics-v17";
+const CACHE_NAME = "dn-physics-v18";
 
 const CORE_FILES = [
   "/DN_Physics/",
