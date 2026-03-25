@@ -3,14 +3,12 @@
     "title": "Basics",
     "subject": "units",
     "file": "basics-formulas.pdf",
-    "topicPage": "/DN_Physics/topics/units/basics.html",
     "subjectPage": "/DN_Physics/subjects/units/index.html"
   },
   {
     "title": "Basics",
     "subject": "current-electricity",
     "file": "basics-formulas.pdf",
-    "topicPage": "/DN_Physics/topics/current-electricity/basics.html",
     "subjectPage": "/DN_Physics/subjects/current-electricity/index.html"
   }
 ]
