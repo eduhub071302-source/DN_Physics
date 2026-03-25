@@ -90,7 +90,7 @@
   <audio id="bgMusic" loop></audio>
 
   <div id="musicPlayerFloating" class="music-floating">
-    <button id="musicToggleBtn" class="music-float-btn">🎧</button>
+    <button id="musicToggleBtn" class="music-float-btn" type="button">🎧</button>
 
     <div id="musicPanel" class="music-panel">
       <div class="music-header">Focus Music</div>
@@ -100,18 +100,19 @@
       </div>
 
       <div class="music-row">
-        <button id="playPauseBtn">▶ Play</button>
-        <button id="stopMusicBtn">⏹ Stop</button>
+        <button id="playPauseBtn" type="button">▶ Play</button>
+        <button id="stopMusicBtn" type="button">⏹ Stop</button>
       </div>
 
       <div class="music-row">
-        <input id="volumeSlider" type="range" min="0" max="1" step="0.01" />
+        <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.35" />
       </div>
 
-      <div id="currentTrackLabel"></div>
+      <div id="currentTrackLabel" class="music-label">Current: None</div>
     </div>
   </div>
 
   <script src="/DN_Physics/js/music-player.js"></script>
+  <script src="/DN_Physics/pp-quiz/js/quiz.js"></script>
 </body>
 </html>
