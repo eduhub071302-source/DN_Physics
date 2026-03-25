@@ -26,7 +26,6 @@ const zoomBtn = document.getElementById("zoomBtn");
 const imageModal = document.getElementById("imageModal");
 const modalImage = document.getElementById("modalImage");
 const closeImageModal = document.getElementById("closeImageModal");
-const zoomWrap = document.getElementById("zoomWrap");
 const imageModalViewport = document.getElementById("imageModalViewport");
 
 function makeNiceTitle(slug) {
@@ -41,7 +40,7 @@ function getBadgeData(percentage) {
   if (value >= 90) return { label: "Gold 🥇", className: "badge-gold" };
   if (value >= 75) return { label: "Silver 🥈", className: "badge-silver" };
   if (value >= 50) return { label: "Bronze 🥉", className: "badge-bronze" };
-  return { label: "None", className: "badge-none" };
+  return null;
 }
 
 const quizConfig = {
@@ -67,7 +66,6 @@ let wrongQuestionsGlobal = [];
 let wrongQuestionPointer = 0;
 let practiceWrongOnlyMode = false;
 let practiceWrongQuestions = [];
-let practiceWrongIndexMap = [];
 let currentDisplayIndex = 1;
 let pinchStartDistance = 0;
 let modalScale = 1;
@@ -103,23 +101,25 @@ function saveAttemptData(data) {
 
 function renderAttemptInfo() {
   const saved = loadAttemptData();
+
   if (!saved) {
     attemptInfo.innerHTML = `
       <div><strong>Last Score:</strong> No previous attempt</div>
       <div><strong>Best Score:</strong> No previous attempt</div>
       <div><strong>Attempts:</strong> 0</div>
-      <div><strong>Badge:</strong> None</div>
+      <div><strong>Badge System:</strong> Earn badges by scoring <strong>50%+</strong>, <strong>75%+</strong>, and <strong>90%+</strong> out of <strong>all questions</strong> in a <strong>full quiz</strong>.</div>
     `;
     return;
   }
 
-  const badge = getBadgeData(saved.bestPercentage);
+  const badge = saved.bestFullBadgePercentage ? getBadgeData(saved.bestFullBadgePercentage) : null;
 
   attemptInfo.innerHTML = `
     <div><strong>Last Score:</strong> ${saved.lastCorrect} / ${saved.lastAnswered} (${saved.lastPercentage}%)</div>
     <div><strong>Best Score:</strong> ${saved.bestCorrect} / ${saved.bestAnswered} (${saved.bestPercentage}%)</div>
     <div><strong>Attempts:</strong> ${saved.attempts}</div>
-    <div><strong>Badge:</strong> <span class="${badge.className}">${badge.label}</span></div>
+    ${badge ? `<div><strong>Badge:</strong> <span class="${badge.className}">${badge.label}</span></div>` : ""}
+    <div><strong>Badge System:</strong> Earn badges by scoring <strong>50%+</strong>, <strong>75%+</strong>, and <strong>90%+</strong> out of <strong>all questions</strong> in a <strong>full quiz</strong>.</div>
   `;
 }
 
@@ -213,7 +213,6 @@ function resetCurrentQuizState() {
   wrongQuestionPointer = 0;
   practiceWrongOnlyMode = false;
   practiceWrongQuestions = [];
-  practiceWrongIndexMap = [];
 
   reviewNote.style.display = "none";
   resultCard.style.display = "none";
@@ -230,7 +229,6 @@ function startWrongOnlyPractice() {
 
   practiceWrongOnlyMode = true;
   practiceWrongQuestions = [...wrongQuestionsGlobal];
-  practiceWrongIndexMap = [...wrongQuestionsGlobal];
   currentDisplayIndex = 1;
   userAnswers = {};
   reviewMode = false;
@@ -253,6 +251,13 @@ function finalizeAttempt(correct, wrong, unanswered, answeredQuestions, wrongQue
   const previousBestPercentage = previous ? Number(previous.bestPercentage) : -1;
   const bestShouldUpdate = Number(scorePercent) > previousBestPercentage;
 
+  const fullQuizPercentage = ((correct / totalQuestions) * 100).toFixed(1);
+  const previousBestFullBadgePercentage = previous?.bestFullBadgePercentage ?? null;
+  const shouldUpdateFullBadge =
+    mode === "full" &&
+    (previousBestFullBadgePercentage === null ||
+      Number(fullQuizPercentage) > Number(previousBestFullBadgePercentage));
+
   const newData = {
     lastCorrect: correct,
     lastAnswered: answeredQuestions,
@@ -260,11 +265,16 @@ function finalizeAttempt(correct, wrong, unanswered, answeredQuestions, wrongQue
     bestCorrect: bestShouldUpdate ? correct : previous?.bestCorrect ?? correct,
     bestAnswered: bestShouldUpdate ? answeredQuestions : previous?.bestAnswered ?? answeredQuestions,
     bestPercentage: bestShouldUpdate ? scorePercent : previous?.bestPercentage ?? scorePercent,
-    attempts: (previous?.attempts || 0) + 1
+    attempts: (previous?.attempts || 0) + 1,
+    bestFullBadgePercentage: shouldUpdateFullBadge
+      ? fullQuizPercentage
+      : previousBestFullBadgePercentage
   };
 
   saveAttemptData(newData);
   renderAttemptInfo();
+
+  const earnedBadge = mode === "full" ? getBadgeData(fullQuizPercentage) : null;
 
   const modeText =
     mode === "full"
@@ -281,6 +291,18 @@ function finalizeAttempt(correct, wrong, unanswered, answeredQuestions, wrongQue
     <div><strong>Unanswered:</strong> ${unanswered}</div>
     <div><strong>Score:</strong> ${correct} / ${answeredQuestions > 0 ? answeredQuestions : 0}</div>
     <div><strong>Percentage:</strong> ${answeredQuestions > 0 ? scorePercent : "0.0"}%</div>
+    ${
+      mode === "full"
+        ? `<div><strong>Full Quiz Percentage:</strong> ${fullQuizPercentage}% out of all ${totalQuestions} questions</div>`
+        : ""
+    }
+    ${
+      earnedBadge
+        ? `<div><strong>Badge Earned:</strong> <span class="${earnedBadge.className}">${earnedBadge.label}</span></div>`
+        : mode === "full"
+        ? `<div><strong>Badge Earned:</strong> None</div>`
+        : ""
+    }
     <div><strong>Wrong Question Numbers:</strong> ${wrongQuestions.length ? wrongQuestions.join(", ") : "None"}</div>
     <div><strong>Result Mode:</strong> ${modeText}</div>
   `;
@@ -401,7 +423,6 @@ questionImage.addEventListener("error", () => {
   questionImage.alt = "Question image not found";
 });
 
-/* Zoom */
 function openImageModal() {
   modalImage.src = questionImage.src;
   modalScale = 1;
