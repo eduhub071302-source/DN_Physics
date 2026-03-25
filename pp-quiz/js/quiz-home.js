@@ -12,15 +12,22 @@ const topics = [
   { slug: "matter-radiations", title: "Matter & Radiations" }
 ];
 
-const topicsGrid = document.getElementById("topicsGrid");
+document.addEventListener("DOMContentLoaded", () => {
+  const topicsGrid = document.getElementById("topicsGrid");
 
-topics.forEach((topic) => {
-  const card = document.createElement("a");
-  card.className = "topic-card";
-  card.href = `/DN_Physics/pp-quiz/topic.html?topic=${encodeURIComponent(topic.slug)}`;
-  card.innerHTML = `
-    <h2>${topic.title}</h2>
-    <p>Open subtopics</p>
-  `;
-  topicsGrid.appendChild(card);
+  if (!topicsGrid) {
+    console.error("topicsGrid element not found.");
+    return;
+  }
+
+  topics.forEach((topic) => {
+    const card = document.createElement("a");
+    card.className = "topic-card";
+    card.href = `/DN_Physics/pp-quiz/topic.html?topic=${encodeURIComponent(topic.slug)}`;
+    card.innerHTML = `
+      <h2>${topic.title}</h2>
+      <p>Open subtopics</p>
+    `;
+    topicsGrid.appendChild(card);
+  });
 });
