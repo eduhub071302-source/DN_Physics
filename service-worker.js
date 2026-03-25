@@ -1,4 +1,4 @@
-const CACHE_NAME = "dn-physics-v11";
+const CACHE_NAME = "dn-physics-v12";
 
 /* Files to preload (core app shell only) */
 const CORE_FILES = [
