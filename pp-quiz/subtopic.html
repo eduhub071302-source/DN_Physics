@@ -7,18 +7,47 @@
   <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css" />
 </head>
 <body>
-  <header class="quiz-header">
-    <div class="container">
-      <a id="backToTopic" class="back-link" href="/DN_Physics/pp-quiz/index.html">← Back</a>
-      <h1 id="subtopicTitle">Subtopic</h1>
-      <p>Quiz sets</p>
+
+<header class="quiz-header">
+  <div class="container">
+    <a id="backToTopic" class="back-link" href="/DN_Physics/pp-quiz/index.html">← Back</a>
+    <h1 id="subtopicTitle">Subtopic</h1>
+    <p>Quiz sets</p>
+  </div>
+</header>
+
+<main class="container">
+  <section id="quizSetsGrid" class="topics-grid"></section>
+</main>
+
+<!-- 🎧 MUSIC -->
+<audio id="bgMusic" loop></audio>
+
+<div id="musicPlayerFloating" class="music-floating">
+  <button id="musicToggleBtn" class="music-float-btn">🎧</button>
+
+  <div id="musicPanel" class="music-panel">
+    <div class="music-header">Focus Music</div>
+
+    <div class="music-row">
+      <select id="trackSelect"></select>
     </div>
-  </header>
 
-  <main class="container">
-    <section id="quizSetsGrid" class="topics-grid"></section>
-  </main>
+    <div class="music-row">
+      <button id="playPauseBtn">▶ Play</button>
+      <button id="stopMusicBtn">⏹ Stop</button>
+    </div>
 
-  <script src="/DN_Physics/pp-quiz/js/subtopic.js"></script>
+    <div class="music-row">
+      <input id="volumeSlider" type="range" min="0" max="1" step="0.01" />
+    </div>
+
+    <div id="currentTrackLabel"></div>
+  </div>
+</div>
+
+<script src="/DN_Physics/js/music-player.js"></script>
+<script src="/DN_Physics/pp-quiz/js/subtopic.js"></script>
+
 </body>
 </html>
