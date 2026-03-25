@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function getStorageKey() {
-    return `dnphysics_ppquiz_${topic}_${subtopic}_${setName}`;
+    return `dn_physics_pp-quiz_${topic}_${subtopic}_${setName}`;
   }
 
   function loadAttemptData() {
