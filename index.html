@@ -12,23 +12,188 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
   <link rel="stylesheet" href="css/style.css" />
+
+  <style>
+    /* ===== NEW ADDITIONS ONLY ===== */
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .refresh-top-btn {
+      padding: 6px 10px;
+      min-height: auto;
+      line-height: 1;
+    }
+
+    .pull-refresh-indicator {
+      position: fixed;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(17, 26, 43, 0.96);
+      color: var(--text);
+      border: 1px solid var(--line-soft);
+      border-radius: 999px;
+      padding: 8px 14px;
+      box-shadow: var(--shadow-soft);
+      font-size: 0.92rem;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .pull-refresh-indicator.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(6px);
+    }
+
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(9, 16, 28, 0.72);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+    }
+
+    .loading-overlay.show {
+      display: flex;
+    }
+
+    .loading-box {
+      background: linear-gradient(180deg, rgba(17, 26, 43, 0.98), rgba(12, 18, 31, 0.98));
+      border: 1px solid var(--line-soft);
+      border-radius: 18px;
+      padding: 22px 26px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      min-width: 180px;
+    }
+
+    .spinner {
+      width: 38px;
+      height: 38px;
+      border: 4px solid rgba(255, 255, 255, 0.14);
+      border-top-color: var(--accent-2);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
+    .loading-text {
+      color: var(--text);
+      font-size: 0.96rem;
+      font-weight: 700;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .update-toast {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      max-width: min(92vw, 360px);
+      background: linear-gradient(180deg, rgba(17, 26, 43, 0.98), rgba(12, 18, 31, 0.98));
+      color: var(--text);
+      border: 1px solid var(--line-soft);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+      z-index: 3500;
+      display: none;
+    }
+
+    .update-toast.show {
+      display: block;
+    }
+
+    .update-toast h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+    }
+
+    .update-toast p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.5;
+    }
+
+    .update-toast-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 900px) {
+      .topbar-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .update-toast {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        max-width: none;
+      }
+    }
+  </style>
 </head>
 <body>
 
+  <!-- NEW: Pull refresh indicator -->
+  <div id="pullRefreshIndicator" class="pull-refresh-indicator">
+    ↓ Pull to refresh
+  </div>
+
+  <!-- NEW: Loading overlay -->
+  <div id="loadingOverlay" class="loading-overlay" aria-hidden="true">
+    <div class="loading-box">
+      <div class="spinner"></div>
+      <div class="loading-text">Refreshing app...</div>
+    </div>
+  </div>
+
+  <!-- NEW: Update popup -->
+  <div id="updateToast" class="update-toast" aria-live="polite">
+    <h3>New notes available</h3>
+    <p>A newer version of the app was found. Refresh to load the latest notes and updates.</p>
+    <div class="update-toast-actions">
+      <button id="toastRefreshBtn" class="btn btn-primary" type="button">Refresh Now</button>
+      <button id="toastDismissBtn" class="btn" type="button">Later</button>
+    </div>
+  </div>
+
   <header>
     <div class="container nav">
-     <div class="brand">DinuuNOVA <span>Physics</span></div>
+      <div class="brand">DinuuNOVA <span>Physics</span></div>
 
-     <div style="display:flex; align-items:center; gap:10px;">
-      <nav class="nav-links">
-       <a href="index.html" class="active">Home</a>
-      </nav>
+      <div class="topbar-right">
+        <nav class="nav-links">
+          <a href="index.html" class="active">Home</a>
+        </nav>
 
-      <button id="refreshBtn" class="btn" type="button" style="padding:6px 10px;">
-       🔄
-      </button>
-     </div>
-   </div>
+        <!-- NEW: top refresh button -->
+        <button id="refreshBtn" class="btn refresh-top-btn" type="button" title="Refresh app">
+          🔄
+        </button>
+      </div>
+    </div>
   </header>
 
   <section class="hero">
@@ -41,14 +206,11 @@
       </p>
 
       <div class="actions">
-       <button id="installBtn" class="btn btn-install" style="display:none;">
-        Install App
-       </button>
-
-       <button id="refreshBtn" class="btn" type="button" style="display:inline-flex;">
-        🔄 Refresh
-       </button>
+        <button id="installBtn" class="btn btn-install" style="display:none;">
+          Install App
+        </button>
       </div>
+    </div>
   </section>
 
   <section class="section controls-section">
@@ -107,12 +269,73 @@
     const installBtn = document.getElementById("installBtn");
     const refreshBtn = document.getElementById("refreshBtn");
 
+    // NEW
+    const loadingOverlay = document.getElementById("loadingOverlay");
+    const pullRefreshIndicator = document.getElementById("pullRefreshIndicator");
+    const updateToast = document.getElementById("updateToast");
+    const toastRefreshBtn = document.getElementById("toastRefreshBtn");
+    const toastDismissBtn = document.getElementById("toastDismissBtn");
+
+    let refreshingNow = false;
+    let touchStartY = 0;
+    let pullTriggered = false;
+
+    function showLoadingOverlay() {
+      if (loadingOverlay) loadingOverlay.classList.add("show");
+    }
+
+    function hideLoadingOverlay() {
+      if (loadingOverlay) loadingOverlay.classList.remove("show");
+    }
+
+    async function performStrongRefresh() {
+      if (refreshingNow) return;
+      refreshingNow = true;
+      showLoadingOverlay();
+
+      try {
+        if ("caches" in window) {
+          const cacheNames = await caches.keys();
+          await Promise.all(cacheNames.map((name) => caches.delete(name)));
+        }
+
+        if ("serviceWorker" in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (const registration of registrations) {
+            await registration.update();
+          }
+        }
+      } catch (error) {
+        console.log("Refresh cleanup warning:", error);
+      }
+
+      window.location.reload();
+    }
+
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker
           .register("/DN_Physics/service-worker.js")
           .then((registration) => {
             console.log("✅ Service Worker registered:", registration.scope);
+
+            // NEW: check for newer service worker
+            registration.update();
+
+            if (registration.waiting) {
+              updateToast.classList.add("show");
+            }
+
+            registration.addEventListener("updatefound", () => {
+              const newWorker = registration.installing;
+              if (!newWorker) return;
+
+              newWorker.addEventListener("statechange", () => {
+                if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+                  updateToast.classList.add("show");
+                }
+              });
+            });
           })
           .catch((error) => {
             console.log("❌ Service Worker failed:", error);
@@ -148,27 +371,59 @@
       }
     });
 
+    // NEW: top refresh button
     if (refreshBtn) {
       refreshBtn.addEventListener("click", async () => {
-        try {
-          if ("caches" in window) {
-            const cacheNames = await caches.keys();
-            await Promise.all(cacheNames.map((name) => caches.delete(name)));
-          }
-
-          if ("serviceWorker" in navigator) {
-            const registrations = await navigator.serviceWorker.getRegistrations();
-            for (const registration of registrations) {
-              registration.update();
-            }
-          }
-        } catch (error) {
-          console.log("Refresh cleanup warning:", error);
-        }
-
-        window.location.reload();
+        await performStrongRefresh();
       });
     }
+
+    // NEW: popup buttons
+    if (toastRefreshBtn) {
+      toastRefreshBtn.addEventListener("click", async () => {
+        await performStrongRefresh();
+      });
+    }
+
+    if (toastDismissBtn) {
+      toastDismissBtn.addEventListener("click", () => {
+        updateToast.classList.remove("show");
+      });
+    }
+
+    // NEW: pull/swipe down to refresh
+    window.addEventListener("touchstart", (e) => {
+      if (window.scrollY === 0) {
+        touchStartY = e.touches[0].clientY;
+        pullTriggered = false;
+      }
+    }, { passive: true });
+
+    window.addEventListener("touchmove", (e) => {
+      if (window.scrollY !== 0) return;
+      const currentY = e.touches[0].clientY;
+      const distance = currentY - touchStartY;
+
+      if (distance > 25 && !pullTriggered) {
+        pullRefreshIndicator.classList.add("show");
+      }
+
+      if (distance > 90 && !pullTriggered) {
+        pullTriggered = true;
+        pullRefreshIndicator.textContent = "↻ Release to refresh";
+      }
+    }, { passive: true });
+
+    window.addEventListener("touchend", async () => {
+      if (pullTriggered) {
+        pullRefreshIndicator.classList.remove("show");
+        pullRefreshIndicator.textContent = "↓ Pull to refresh";
+        await performStrongRefresh();
+      } else {
+        pullRefreshIndicator.classList.remove("show");
+        pullRefreshIndicator.textContent = "↓ Pull to refresh";
+      }
+    });
 
     const searchInput = document.getElementById("subjectSearch");
     const categoryFilter = document.getElementById("categoryFilter");
