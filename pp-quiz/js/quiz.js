@@ -18,6 +18,9 @@ const resultSummary = document.getElementById("resultSummary");
 const answerButtons = Array.from(document.querySelectorAll(".answer-btn"));
 const attemptInfo = document.getElementById("attemptInfo");
 const reviewNote = document.getElementById("reviewNote");
+const postResultActions = document.getElementById("postResultActions");
+const retryQuizBtn = document.getElementById("retryQuizBtn");
+const wrongOnlyBtn = document.getElementById("wrongOnlyBtn");
 
 function makeNiceTitle(slug) {
   return (slug || "")
@@ -73,6 +76,8 @@ let totalQuestions = 1;
 let answerKey = {};
 let userAnswers = {};
 let reviewMode = false;
+let wrongQuestionsGlobal = [];
+let wrongQuestionPointer = 0;
 
 if (
   topic &&
@@ -192,6 +197,22 @@ function updateQuestionView() {
   updateSubmitVisibility();
 }
 
+function resetCurrentQuizState() {
+  currentQuestion = 1;
+  userAnswers = {};
+  reviewMode = false;
+  wrongQuestionsGlobal = [];
+  wrongQuestionPointer = 0;
+
+  reviewNote.style.display = "none";
+  resultCard.style.display = "none";
+  postResultActions.style.display = "none";
+  wrongOnlyBtn.style.display = "none";
+
+  updateQuestionView();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 answerButtons.forEach((button) => {
   button.addEventListener("click", () => {
     if (reviewMode) return;
@@ -216,6 +237,23 @@ nextBtn.addEventListener("click", () => {
     currentQuestion++;
     updateQuestionView();
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+});
+
+retryQuizBtn.addEventListener("click", () => {
+  resetCurrentQuizState();
+});
+
+wrongOnlyBtn.addEventListener("click", () => {
+  if (!wrongQuestionsGlobal.length) return;
+
+  currentQuestion = wrongQuestionsGlobal[wrongQuestionPointer];
+  updateQuestionView();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+
+  wrongQuestionPointer++;
+  if (wrongQuestionPointer >= wrongQuestionsGlobal.length) {
+    wrongQuestionPointer = 0;
   }
 });
 
@@ -259,8 +297,18 @@ function finalizeAttempt(correct, wrong, unanswered, answeredQuestions, wrongQue
   `;
 
   reviewMode = true;
+  wrongQuestionsGlobal = [...wrongQuestions];
+  wrongQuestionPointer = 0;
+
   reviewNote.style.display = "block";
   resultCard.style.display = "block";
+  postResultActions.style.display = "flex";
+
+  if (wrongQuestionsGlobal.length > 0) {
+    wrongOnlyBtn.style.display = "inline-flex";
+  } else {
+    wrongOnlyBtn.style.display = "none";
+  }
 
   updateQuestionView();
   resultCard.scrollIntoView({ behavior: "smooth" });
