@@ -30,7 +30,7 @@ function makeNiceTitle(slug) {
 }
 
 const quizConfig = {
-  "units": {
+  units: {
     "unit-dimensions": {
       totalQuestions: 32,
       answers: {
@@ -79,19 +79,13 @@ let reviewMode = false;
 let wrongQuestionsGlobal = [];
 let wrongQuestionPointer = 0;
 
-if (
-  topic &&
-  subtopic &&
-  quizConfig[topic] &&
-  quizConfig[topic][subtopic]
-) {
+if (topic && subtopic && quizConfig[topic] && quizConfig[topic][subtopic]) {
   totalQuestions = quizConfig[topic][subtopic].totalQuestions;
   answerKey = quizConfig[topic][subtopic].answers;
 }
 
 quizTitle.textContent = `${makeNiceTitle(subtopic)} - ${makeNiceTitle(setName)}`;
 quizSubtitle.textContent = `${makeNiceTitle(topic)} / ${makeNiceTitle(subtopic)}`;
-
 backToSubtopic.href = `/DN_Physics/pp-quiz/subtopic.html?topic=${encodeURIComponent(topic || "")}&subtopic=${encodeURIComponent(subtopic || "")}`;
 
 function getImagePath(questionNumber) {
@@ -105,7 +99,7 @@ function getStorageKey() {
 function loadAttemptData() {
   try {
     return JSON.parse(localStorage.getItem(getStorageKey())) || null;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -151,16 +145,16 @@ function updateAnswerButtons() {
 
   if (!reviewMode) {
     answerButtons.forEach((button) => {
-      const buttonValue = Number(button.dataset.answer);
-      button.classList.toggle("selected", buttonValue === selected);
+      const value = Number(button.dataset.answer);
+      button.classList.toggle("selected", value === selected);
     });
     return;
   }
 
   answerButtons.forEach((button) => {
-    const buttonValue = Number(button.dataset.answer);
-    const isSelected = buttonValue === selected;
-    const isCorrect = validAnswers.includes(buttonValue);
+    const value = Number(button.dataset.answer);
+    const isSelected = value === selected;
+    const isCorrect = validAnswers.includes(value);
 
     if (isCorrect) {
       button.classList.add("correct-answer");
@@ -176,11 +170,8 @@ function updateSubmitVisibility() {
   const answeredCount = getAnsweredCount();
   answeredCounter.textContent = `Answered: ${answeredCount} / ${totalQuestions}`;
 
-  if (answeredCount === totalQuestions && !reviewMode) {
-    submitQuizBtn.style.display = "inline-flex";
-  } else {
-    submitQuizBtn.style.display = "none";
-  }
+  submitQuizBtn.style.display =
+    answeredCount === totalQuestions && !reviewMode ? "inline-flex" : "none";
 
   finishQuizBtn.disabled = reviewMode;
 }
@@ -213,57 +204,12 @@ function resetCurrentQuizState() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-answerButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    if (reviewMode) return;
-
-    const selectedAnswer = Number(button.dataset.answer);
-    userAnswers[currentQuestion] = selectedAnswer;
-    updateAnswerButtons();
-    updateSubmitVisibility();
-  });
-});
-
-prevBtn.addEventListener("click", () => {
-  if (currentQuestion > 1) {
-    currentQuestion--;
-    updateQuestionView();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-});
-
-nextBtn.addEventListener("click", () => {
-  if (currentQuestion < totalQuestions) {
-    currentQuestion++;
-    updateQuestionView();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-});
-
-retryQuizBtn.addEventListener("click", () => {
-  resetCurrentQuizState();
-});
-
-wrongOnlyBtn.addEventListener("click", () => {
-  if (!wrongQuestionsGlobal.length) return;
-
-  currentQuestion = wrongQuestionsGlobal[wrongQuestionPointer];
-  updateQuestionView();
-  window.scrollTo({ top: 0, behavior: "smooth" });
-
-  wrongQuestionPointer++;
-  if (wrongQuestionPointer >= wrongQuestionsGlobal.length) {
-    wrongQuestionPointer = 0;
-  }
-});
-
 function finalizeAttempt(correct, wrong, unanswered, answeredQuestions, wrongQuestions, mode) {
   const percentageBase = answeredQuestions > 0 ? answeredQuestions : 1;
   const scorePercent = ((correct / percentageBase) * 100).toFixed(1);
 
   const previous = loadAttemptData();
   const previousBestPercentage = previous ? Number(previous.bestPercentage) : -1;
-
   const bestShouldUpdate = Number(scorePercent) > previousBestPercentage;
 
   const newData = {
@@ -303,12 +249,8 @@ function finalizeAttempt(correct, wrong, unanswered, answeredQuestions, wrongQue
   reviewNote.style.display = "block";
   resultCard.style.display = "block";
   postResultActions.style.display = "flex";
-
-  if (wrongQuestionsGlobal.length > 0) {
-    wrongOnlyBtn.style.display = "inline-flex";
-  } else {
-    wrongOnlyBtn.style.display = "none";
-  }
+  retryQuizBtn.style.display = "inline-flex";
+  wrongOnlyBtn.style.display = wrongQuestionsGlobal.length > 0 ? "inline-flex" : "none";
 
   updateQuestionView();
   resultCard.scrollIntoView({ behavior: "smooth" });
@@ -343,13 +285,48 @@ function showResult(mode) {
   finalizeAttempt(correct, wrong, unanswered, answeredQuestions, wrongQuestions, mode);
 }
 
-submitQuizBtn.addEventListener("click", () => {
-  showResult("full");
+answerButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    if (reviewMode) return;
+    userAnswers[currentQuestion] = Number(button.dataset.answer);
+    updateAnswerButtons();
+    updateSubmitVisibility();
+  });
 });
 
-finishQuizBtn.addEventListener("click", () => {
-  showResult("partial");
+prevBtn.addEventListener("click", () => {
+  if (currentQuestion > 1) {
+    currentQuestion--;
+    updateQuestionView();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 });
+
+nextBtn.addEventListener("click", () => {
+  if (currentQuestion < totalQuestions) {
+    currentQuestion++;
+    updateQuestionView();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+});
+
+retryQuizBtn.addEventListener("click", resetCurrentQuizState);
+
+wrongOnlyBtn.addEventListener("click", () => {
+  if (!wrongQuestionsGlobal.length) return;
+
+  currentQuestion = wrongQuestionsGlobal[wrongQuestionPointer];
+  updateQuestionView();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+
+  wrongQuestionPointer++;
+  if (wrongQuestionPointer >= wrongQuestionsGlobal.length) {
+    wrongQuestionPointer = 0;
+  }
+});
+
+submitQuizBtn.addEventListener("click", () => showResult("full"));
+finishQuizBtn.addEventListener("click", () => showResult("partial"));
 
 questionImage.addEventListener("error", () => {
   questionImage.alt = "Question image not found";
