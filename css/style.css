@@ -160,7 +160,6 @@ header {
 
 .search-box input,
 .filter-box select {
-  color: black;
   width: 100%;
   min-height: 52px;
   padding: 12px 14px;
@@ -481,73 +480,6 @@ header {
   color: var(--muted);
   background: rgba(255, 255, 255, 0.02);
 }
-
-@media (max-width: 900px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
-
-  .nav {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .page-title h1 {
-    font-size: 2rem;
-  }
-
-  .viewer-title {
-    font-size: 1.35rem;
-  }
-
-  .pdf-frame {
-    height: 72vh;
-  }
-}
-
-@media (max-width: 600px) {
-  .container {
-    width: min(100% - 20px, 1120px);
-  }
-
-  .hero {
-    padding: 56px 0 34px;
-  }
-
-  .section {
-    padding: 24px 0 42px;
-  }
-
-  .card,
-  .note-box,
-  .pdf-shell {
-    border-radius: 18px;
-    padding: 18px;
-  }
-
-  .btn {
-    width: 100%;
-  }
-
-  .actions {
-    flex-direction: column;
-  }
-
-  .card-top {
-    align-items: center;
-  }
-
-  .search-box,
-  .filter-box {
-    flex: 1 1 100%;
-  }
-
-  .pdf-frame {
-    height: 65vh;
-  }
-}
-
-/* ================= NEW ADDITIONS (DO NOT REMOVE OLD CODE) ================= */
 
 .library-grid {
   display: grid;
@@ -918,7 +850,108 @@ body.app-ready .footer {
   }
 }
 
+/* ===== MUSIC PLAYER: GLOBAL CLEAN STYLES ===== */
+
+.music-player-wrap {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 2600;
+}
+
+.music-panel {
+  display: none;
+  margin-top: 10px;
+  width: 290px;
+  background: linear-gradient(180deg, rgba(17, 26, 43, 0.98), rgba(12, 18, 31, 0.98));
+  border: 1px solid var(--line-soft);
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+
+.music-panel.show {
+  display: block;
+}
+
+.music-panel-title {
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: var(--accent-2);
+  letter-spacing: 0.2px;
+}
+
+.music-select {
+  width: 100%;
+  margin-bottom: 12px;
+  min-height: 46px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line-soft);
+  background: linear-gradient(180deg, rgba(17, 26, 43, 0.96), rgba(12, 18, 31, 0.96));
+  color: var(--text);
+  outline: none;
+  box-shadow: var(--shadow-soft);
+}
+
+.music-select:focus {
+  border-color: rgba(124, 196, 255, 0.35);
+  box-shadow: 0 0 0 4px rgba(78, 161, 255, 0.09);
+}
+
+.music-select option {
+  background: #0f1728;
+  color: #e8eefc;
+}
+
+.music-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.music-controls .btn {
+  flex: 1;
+}
+
+.volume-slider {
+  width: 100%;
+  margin-top: 4px;
+  accent-color: var(--accent);
+}
+
+.music-track-label {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  text-align: left;
+}
+
+/* ===== RESPONSIVE ===== */
+
 @media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .nav {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .page-title h1 {
+    font-size: 2rem;
+  }
+
+  .viewer-title {
+    font-size: 1.35rem;
+  }
+
+  .pdf-frame {
+    height: 72vh;
+  }
+
   .topbar-right {
     width: 100%;
     justify-content: space-between;
@@ -939,9 +972,58 @@ body.app-ready .footer {
     border-radius: 18px;
     padding: 14px;
   }
+
+  .music-player-wrap {
+    right: 14px;
+    bottom: 14px;
+  }
+
+  .music-panel {
+    width: min(88vw, 300px);
+  }
 }
 
 @media (max-width: 600px) {
+  .container {
+    width: min(100% - 20px, 1120px);
+  }
+
+  .hero {
+    padding: 56px 0 34px;
+  }
+
+  .section {
+    padding: 24px 0 42px;
+  }
+
+  .card,
+  .note-box,
+  .pdf-shell {
+    border-radius: 18px;
+    padding: 18px;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .card-top {
+    align-items: center;
+  }
+
+  .search-box,
+  .filter-box {
+    flex: 1 1 100%;
+  }
+
+  .pdf-frame {
+    height: 65vh;
+  }
+
   .update-toast {
     left: 12px;
     right: 12px;
@@ -951,5 +1033,9 @@ body.app-ready .footer {
 
   .app-splash-content {
     width: min(92vw, 380px);
+  }
+
+  .music-controls {
+    flex-direction: column;
   }
 }
