@@ -412,7 +412,7 @@ body {
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 12px;
-  min-height: 240px;
+  min-height: 420px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -428,6 +428,8 @@ body {
   width: 100%;
   max-width: 900px;
   height: auto;
+  max-height: 380px;
+  object-fit: contain;
   display: block;
   border-radius: 12px;
 }
