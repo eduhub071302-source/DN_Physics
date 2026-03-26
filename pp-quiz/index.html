@@ -4,7 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PP Quiz | DN Physics</title>
-  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=20" />
+  <meta
+    name="description"
+    content="Practice A/L Physics past paper MCQs topic by topic with progress tracking, resume support, and focused revision."
+  />
+  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=21" />
 </head>
 <body>
 
@@ -19,64 +23,109 @@
   <main class="quiz-main">
     <div class="container">
 
-      <section class="pp-hero-card">
-        <div class="pp-hero-badge">DinuuNOVA Physics • Past Paper Practice</div>
-        <h2 class="pp-hero-title">Train Like a Real Exam App</h2>
-        <p class="pp-hero-text">
-          Choose a topic, open a subtopic, and practice question sets with progress tracking,
-          retry modes, history, and focused revision.
-        </p>
+      <!-- HERO -->
+      <section class="topic-card fade-slide-up" style="margin-bottom: 20px; min-height: auto;">
+        <div class="topic-card-top">
+          <div class="topic-body">
+            <div class="topic-pill">DinuuNOVA Physics • Past Paper Practice</div>
+            <h2 class="topic-title" style="font-size: 34px; margin-top: 10px;">Train Like a Real Exam App</h2>
+            <p class="topic-desc" style="max-width: 760px;">
+              Choose a topic, open a subtopic, and practice question sets with progress tracking,
+              retry modes, history, and focused revision.
+            </p>
+          </div>
 
-        <div class="pp-hero-pills">
-          <span class="pp-pill">Topic-wise Practice</span>
-          <span class="pp-pill">Set-wise Progress</span>
-          <span class="pp-pill">Retry Wrong Answers</span>
-          <span class="pp-pill">Resume Saved Session</span>
+          <div class="topic-icon" aria-hidden="true">⚡</div>
+        </div>
+
+        <div class="topic-stats">
+          <span class="stat-pill">Topic-wise Practice</span>
+          <span class="stat-pill">Set-wise Progress</span>
+          <span class="stat-pill">Retry Wrong Answers</span>
+          <span class="stat-pill">Resume Saved Session</span>
         </div>
       </section>
 
-      <section class="pp-dashboard-strip">
-        <div class="pp-mini-card">
-          <div class="pp-mini-label">Mode</div>
-          <div class="pp-mini-value">MCQ Practice</div>
-        </div>
+      <!-- DASHBOARD STRIP -->
+      <section class="topics-grid fade-slide-up" style="grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 20px;">
+        <article class="info-card" style="min-height: auto;">
+          <h3 style="margin-bottom: 8px;">Mode</h3>
+          <p style="margin: 0; color: var(--accent-2); font-weight: 700;">MCQ Practice</p>
+        </article>
 
-        <div class="pp-mini-card">
-          <div class="pp-mini-label">System</div>
-          <div class="pp-mini-value">Topic → Subtopic → Set</div>
-        </div>
+        <article class="info-card" style="min-height: auto;">
+          <h3 style="margin-bottom: 8px;">System</h3>
+          <p style="margin: 0; color: var(--accent-2); font-weight: 700;">Topic → Subtopic → Set</p>
+        </article>
 
-        <div class="pp-mini-card">
-          <div class="pp-mini-label">Goal</div>
-          <div class="pp-mini-value">Speed + Accuracy</div>
+        <article class="info-card" style="min-height: auto;">
+          <h3 style="margin-bottom: 8px;">Goal</h3>
+          <p style="margin: 0; color: var(--accent-2); font-weight: 700;">Speed + Accuracy</p>
+        </article>
+      </section>
+
+      <!-- SECTION HEAD -->
+      <section class="fade-slide-up" style="margin-bottom: 16px;">
+        <div style="display: flex; align-items: end; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+          <div>
+            <h3 style="margin: 0 0 6px; font-size: 26px;">Select a Topic</h3>
+            <p style="margin: 0; color: var(--muted);">
+              Open a physics topic to see available subtopics and quiz sets.
+            </p>
+          </div>
         </div>
       </section>
 
-      <section class="pp-section-head">
-        <div>
-          <h3>Select a Topic</h3>
-          <p>Open a physics topic to see available subtopics and quiz sets.</p>
-        </div>
-      </section>
+      <!-- TOPICS GRID -->
+      <section id="topicsGrid" class="topics-grid fade-in" aria-live="polite">
+        <!-- Loading skeleton shown before JS loads real topics -->
+        <article class="skeleton-card">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-line lg"></div>
+          <div class="skeleton-line md"></div>
+          <div class="skeleton-line sm"></div>
+          <div class="skeleton-box"></div>
+        </article>
 
-      <section id="topicsGrid" class="topics-grid">
-        <div class="pp-loading-card">Loading topics...</div>
+        <article class="skeleton-card">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-line lg"></div>
+          <div class="skeleton-line md"></div>
+          <div class="skeleton-line sm"></div>
+          <div class="skeleton-box"></div>
+        </article>
+
+        <article class="skeleton-card">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-line lg"></div>
+          <div class="skeleton-line md"></div>
+          <div class="skeleton-line sm"></div>
+          <div class="skeleton-box"></div>
+        </article>
+
+        <article class="skeleton-card">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-line lg"></div>
+          <div class="skeleton-line md"></div>
+          <div class="skeleton-line sm"></div>
+          <div class="skeleton-box"></div>
+        </article>
       </section>
 
     </div>
   </main>
 
-  <!-- 🎧 GLOBAL MUSIC PLAYER -->
+  <!-- GLOBAL MUSIC PLAYER -->
   <audio id="bgMusic" loop></audio>
 
   <div id="musicPlayerFloating" class="music-floating">
-    <button id="musicToggleBtn" class="music-float-btn" type="button">🎧</button>
+    <button id="musicToggleBtn" class="music-float-btn" type="button" aria-label="Open music player">🎧</button>
 
     <div id="musicPanel" class="music-panel">
       <div class="music-header">Focus Music</div>
 
       <div class="music-row">
-        <select id="trackSelect"></select>
+        <select id="trackSelect" aria-label="Select music track"></select>
       </div>
 
       <div class="music-row">
@@ -85,7 +134,15 @@
       </div>
 
       <div class="music-row">
-        <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.35" />
+        <input
+          id="volumeSlider"
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          value="0.35"
+          aria-label="Music volume"
+        />
       </div>
 
       <div id="currentTrackLabel" class="music-label">Current: None</div>
