@@ -1,4 +1,4 @@
-const CACHE_NAME = "dn-physics-v59"; // 🔥 increased version
+const CACHE_NAME = "dn-physics-v60";
 
 const CORE_FILES = [
   "/DN_Physics/",
@@ -9,12 +9,8 @@ const CORE_FILES = [
   "/DN_Physics/icon-512.png",
   "/DN_Physics/css/style.css",
   "/DN_Physics/topics/viewer.html",
-
-  // 🔥 NEW AUTO SYSTEM FILES
   "/DN_Physics/topics/topic.html",
   "/DN_Physics/js/music-player.js",
-
-  // existing
   "/DN_Physics/pdfs/catalog.json"
 ];
 
@@ -22,22 +18,40 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_FILES))
   );
+
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
+    (async () => {
+      const keys = await caches.keys();
+      await Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
             return caches.delete(key);
           }
         })
-      )
-    )
+      );
+
+      await self.clients.claim();
+
+      const clientsList = await self.clients.matchAll({
+        type: "window",
+        includeUncontrolled: true
+      });
+
+      for (const client of clientsList) {
+        client.postMessage({ type: "SW_UPDATED" });
+      }
+    })()
   );
-  self.clients.claim();
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener("fetch", (event) => {
@@ -60,7 +74,7 @@ self.addEventListener("fetch", (event) => {
     url.pathname.endsWith(".gif") ||
     url.pathname.endsWith(".ico");
 
-  // ===== HTML (pages) =====
+  // HTML pages -> network first
   if (isNavigate) {
     event.respondWith(
       fetch(request)
@@ -85,7 +99,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // ===== JSON =====
+  // JSON -> network first
   if (isJSON) {
     event.respondWith(
       fetch(request)
@@ -99,7 +113,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // ===== PDF =====
+  // PDF -> cache first
   if (isPDF) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
@@ -126,24 +140,25 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // ===== STATIC FILES =====
+  // CSS / JS / images -> stale while revalidate style
   if (isCSS || isJS || isImage) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
-        return (
-          cachedResponse ||
-          fetch(request).then((networkResponse) => {
+        const networkFetch = fetch(request)
+          .then((networkResponse) => {
             const clone = networkResponse.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
             return networkResponse;
           })
-        );
+          .catch(() => cachedResponse);
+
+        return cachedResponse || networkFetch;
       })
     );
     return;
   }
 
-  // ===== DEFAULT =====
+  // default
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       return (
