@@ -4,6 +4,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const subtopic = params.get("subtopic");
 
   const subtopicTitle = document.getElementById("subtopicTitle");
+  const heroTitle = document.getElementById("subtopicHeroTitle");
+  const heroText = document.getElementById("subtopicHeroText");
   const quizSetsGrid = document.getElementById("quizSetsGrid");
   const backToTopic = document.getElementById("backToTopic");
 
@@ -19,27 +21,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   function makeNiceTitle(slug) {
     return (slug || "")
       .split("-")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(" ");
   }
 
-  function getBadgeData(percentage) {
-    const value = Number(percentage) || 0;
-
-    if (value >= 90) return { label: "Gold 🥇", className: "badge-gold" };
-    if (value >= 75) return { label: "Silver 🥈", className: "badge-silver" };
-    if (value >= 50) return { label: "Bronze 🥉", className: "badge-bronze" };
-
+  function getBadgeData(p) {
+    if (p >= 90) return { label: "🥇 Gold", className: "badge-gold" };
+    if (p >= 75) return { label: "🥈 Silver", className: "badge-silver" };
+    if (p >= 50) return { label: "🥉 Bronze", className: "badge-bronze" };
     return null;
   }
 
-  function getMasteryLevel(bestFullQuizPercentage) {
-    const value = Number(bestFullQuizPercentage) || 0;
-
-    if (value >= 90) return "Mastered";
-    if (value >= 75) return "Strong";
-    if (value >= 50) return "Improving";
-
+  function getMasteryLevel(p) {
+    if (p >= 90) return "Mastered";
+    if (p >= 75) return "Strong";
+    if (p >= 50) return "Improving";
     return "Beginner";
   }
 
@@ -53,7 +49,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function getLegacySavedStats(topicSlug, subtopicSlug, setName = "set-1") {
     const key = `dn_physics_pp-quiz_${topicSlug}_${subtopicSlug}_${setName}`;
-
     try {
       return JSON.parse(localStorage.getItem(key)) || null;
     } catch {
@@ -66,7 +61,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function normalizeStats(stats) {
-    if (!stats || typeof stats !== "object") {
+    if (!stats) {
       return {
         attempts: 0,
         bestPercentage: "0.0",
@@ -81,7 +76,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       attempts: Number(stats.attempts) || 0,
       bestPercentage: stats.bestPercentage ?? "0.0",
       bestFullBadgePercentage:
-        stats.bestFullBadgePercentage === null || stats.bestFullBadgePercentage === undefined
+        stats.bestFullBadgePercentage == null
           ? null
           : Number(stats.bestFullBadgePercentage) || 0,
       lastPlayedAt: stats.lastPlayedAt || "Never",
@@ -94,14 +89,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const store = getProgressStore();
     const id = getQuizProgressId(topicSlug, subtopicSlug, setName);
 
-    if (store[id]) {
-      return normalizeStats(store[id]);
-    }
+    if (store[id]) return normalizeStats(store[id]);
 
     const legacy = getLegacySavedStats(topicSlug, subtopicSlug, setName);
-    if (legacy) {
-      return normalizeStats(legacy);
-    }
+    if (legacy) return normalizeStats(legacy);
 
     return normalizeStats(null);
   }
@@ -110,78 +101,68 @@ document.addEventListener("DOMContentLoaded", async () => {
     const manifestPath = `/DN_Physics/pp-quiz/data/${topic}/${subtopic}/sets.json`;
 
     try {
-      const response = await fetch(manifestPath, { cache: "no-store" });
-      if (!response.ok) throw new Error("No sets manifest found");
+      const res = await fetch(manifestPath, { cache: "no-store" });
+      if (!res.ok) throw new Error();
 
-      const data = await response.json();
+      const data = await res.json();
+      const sets = Array.isArray(data) ? data : data.sets;
 
-      let sets = [];
-
-      if (Array.isArray(data)) {
-        sets = data;
-      } else if (Array.isArray(data.sets)) {
-        sets = data.sets;
-      } else {
-        throw new Error("Invalid sets manifest format");
-      }
-
-      const cleanedSets = sets
-        .filter((set) => set && typeof set === "object" && set.slug)
-        .map((set, index) => ({
-          slug: String(set.slug).trim(),
-          title: String(set.title || `Set ${index + 1}`).trim()
-        }))
-        .filter((set) => set.slug.length > 0);
-
-      if (!cleanedSets.length) {
-        throw new Error("No valid sets found");
-      }
-
-      return cleanedSets;
-    } catch (error) {
-      console.warn("Using fallback quiz set:", error);
-      return [
-        { slug: "set-1", title: "Set 1" }
-      ];
+      return sets.map((s, i) => ({
+        slug: s.slug,
+        title: s.title || `Set ${i + 1}`
+      }));
+    } catch {
+      return [{ slug: "set-1", title: "Set 1" }];
     }
   }
 
-  function buildSetCard(set) {
+  function buildSetCard(set, index) {
     const stats = getSavedStats(topic, subtopic, set.slug);
-    const attempts = stats.attempts;
-    const bestPercentage = stats.bestPercentage;
-    const bestFullPercentage = stats.bestFullBadgePercentage;
-    const badge = bestFullPercentage !== null ? getBadgeData(bestFullPercentage) : null;
-    const mastery = getMasteryLevel(bestFullPercentage);
-    const lastPlayed = stats.lastPlayedAt;
-    const streak = stats.streak;
-    const completed = stats.completedFullQuiz;
+
+    const progress = stats.bestFullBadgePercentage || 0;
+    const mastery = getMasteryLevel(progress);
+    const badge = getBadgeData(progress);
 
     const card = document.createElement("a");
-    card.className = "topic-card";
-    card.href = `/DN_Physics/pp-quiz/quiz.html?topic=${encodeURIComponent(topic || "")}&subtopic=${encodeURIComponent(subtopic || "")}&set=${encodeURIComponent(set.slug)}`;
+    card.className = "topic-card fade-slide-up";
+    card.style.animationDelay = `${index * 0.04}s`;
+
+    card.href = `/DN_Physics/pp-quiz/quiz.html?topic=${encodeURIComponent(topic)}&subtopic=${encodeURIComponent(subtopic)}&set=${encodeURIComponent(set.slug)}`;
 
     card.innerHTML = `
-      <h2>${set.title || makeNiceTitle(set.slug)}</h2>
-      <p>${completed ? "Continue or improve your score" : "Start quiz"}</p>
-
-      <div class="subtopic-meta">
-        <span class="meta-pill">Attempts: ${attempts}</span>
-        <span class="meta-pill">Best: ${bestPercentage}%</span>
-        <span class="meta-pill">Mastery: ${mastery}</span>
-        <span class="meta-pill">Last Played: ${lastPlayed}</span>
-        <span class="meta-pill">Streak: ${streak} day${streak === 1 ? "" : "s"}</span>
-        ${
-          completed
-            ? `<span class="meta-pill badge-gold">Completed ✅</span>`
-            : `<span class="meta-pill">Not Completed</span>`
-        }
-        ${
-          badge
-            ? `<span class="meta-pill ${badge.className}">Badge: ${badge.label}</span>`
-            : ""
-        }
+      <div class="topic-card-top">
+        <div class="topic-body">
+          <div class="topic-pill">Quiz Set</div>
+          <h2 class="topic-title">${set.title}</h2>
+          <p class="topic-desc">${mastery} • ${stats.attempts} attempts</p>
+        </div>
+        <div class="topic-icon">🧠</div>
       </div>
+
+      <div class="topic-stats">
+        <span class="stat-pill">Best: ${stats.bestPercentage}%</span>
+        <span class="stat-pill">Mastery: ${mastery}</span>
+        ${badge ? `<span class="stat-pill ${badge.className}">${badge.label}</span>` : ""}
+      </div>
+
+      <div style="margin-top:12px;">
+        <div style="display:flex; justify-content:space-between; font-size:13px; color:var(--muted);">
+          <span>Progress</span>
+          <span>${progress}%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:${progress}%"></div>
+        </div>
+      </div>
+
+      <div class="topic-stats" style="margin-top:12px;">
+        <span class="stat-pill">Last: ${stats.lastPlayedAt}</span>
+        <span class="stat-pill">Streak: ${stats.streak} day${stats.streak === 1 ? "" : "s"}</span>
+      </div>
+
+      <span class="action-btn primary-btn enter-topic-btn" style="margin-top:12px;">
+        ${stats.attempts > 0 ? "Continue" : "Start"}
+      </span>
     `;
 
     return card;
@@ -189,23 +170,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (!topic || !subtopic) {
     subtopicTitle.textContent = "Subtopic Not Found";
-    quizSetsGrid.innerHTML = `<p class="muted-text">Missing topic or subtopic.</p>`;
+    quizSetsGrid.innerHTML = `<div class="empty-state">Missing topic or subtopic.</div>`;
     return;
   }
 
-  subtopicTitle.textContent = makeNiceTitle(subtopic);
-  quizSetsGrid.innerHTML = `<div class="muted-text">Loading quiz sets...</div>`;
+  const niceName = makeNiceTitle(subtopic);
 
-  const quizSets = await loadQuizSets();
+  subtopicTitle.textContent = niceName;
+  if (heroTitle) heroTitle.textContent = niceName;
+  if (heroText) heroText.textContent = `Practice ${niceName} with structured MCQ sets and track your progress.`;
+
+  const sets = await loadQuizSets();
 
   quizSetsGrid.innerHTML = "";
 
-  if (!quizSets.length) {
-    quizSetsGrid.innerHTML = `<p class="muted-text">No quiz sets found yet.</p>`;
-    return;
-  }
-
-  quizSets.forEach((set) => {
-    quizSetsGrid.appendChild(buildSetCard(set));
+  sets.forEach((set, index) => {
+    quizSetsGrid.appendChild(buildSetCard(set, index));
   });
 });
