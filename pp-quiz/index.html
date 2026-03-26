@@ -4,50 +4,95 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PP Quiz | DN Physics</title>
-  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css" />
+  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=20" />
 </head>
 <body>
 
-<header class="quiz-header">
-  <div class="container">
-    <a class="back-link" href="/DN_Physics/index.html">← Back to Home</a>
-    <h1>PP Quiz</h1>
-    <p>Select a topic</p>
+  <header class="quiz-header">
+    <div class="container">
+      <a class="back-link" href="/DN_Physics/index.html">← Back to Home</a>
+      <h1>PP Quiz</h1>
+      <p>Practice past paper MCQs topic by topic with a clean quiz workflow.</p>
+    </div>
+  </header>
+
+  <main class="quiz-main">
+    <div class="container">
+
+      <section class="pp-hero-card">
+        <div class="pp-hero-badge">DinuuNOVA Physics • Past Paper Practice</div>
+        <h2 class="pp-hero-title">Train Like a Real Exam App</h2>
+        <p class="pp-hero-text">
+          Choose a topic, open a subtopic, and practice question sets with progress tracking,
+          retry modes, history, and focused revision.
+        </p>
+
+        <div class="pp-hero-pills">
+          <span class="pp-pill">Topic-wise Practice</span>
+          <span class="pp-pill">Set-wise Progress</span>
+          <span class="pp-pill">Retry Wrong Answers</span>
+          <span class="pp-pill">Resume Saved Session</span>
+        </div>
+      </section>
+
+      <section class="pp-dashboard-strip">
+        <div class="pp-mini-card">
+          <div class="pp-mini-label">Mode</div>
+          <div class="pp-mini-value">MCQ Practice</div>
+        </div>
+
+        <div class="pp-mini-card">
+          <div class="pp-mini-label">System</div>
+          <div class="pp-mini-value">Topic → Subtopic → Set</div>
+        </div>
+
+        <div class="pp-mini-card">
+          <div class="pp-mini-label">Goal</div>
+          <div class="pp-mini-value">Speed + Accuracy</div>
+        </div>
+      </section>
+
+      <section class="pp-section-head">
+        <div>
+          <h3>Select a Topic</h3>
+          <p>Open a physics topic to see available subtopics and quiz sets.</p>
+        </div>
+      </section>
+
+      <section id="topicsGrid" class="topics-grid">
+        <div class="pp-loading-card">Loading topics...</div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- 🎧 GLOBAL MUSIC PLAYER -->
+  <audio id="bgMusic" loop></audio>
+
+  <div id="musicPlayerFloating" class="music-floating">
+    <button id="musicToggleBtn" class="music-float-btn" type="button">🎧</button>
+
+    <div id="musicPanel" class="music-panel">
+      <div class="music-header">Focus Music</div>
+
+      <div class="music-row">
+        <select id="trackSelect"></select>
+      </div>
+
+      <div class="music-row">
+        <button id="playPauseBtn" type="button">▶ Play</button>
+        <button id="stopMusicBtn" type="button">⏹ Stop</button>
+      </div>
+
+      <div class="music-row">
+        <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.35" />
+      </div>
+
+      <div id="currentTrackLabel" class="music-label">Current: None</div>
+    </div>
   </div>
-</header>
 
-<main class="container">
-  <section id="topicsGrid" class="topics-grid"></section>
-</main>
-
-<!-- 🎧 GLOBAL MUSIC PLAYER -->
-<audio id="bgMusic" loop></audio>
-
-<div id="musicPlayerFloating" class="music-floating">
-  <button id="musicToggleBtn" class="music-float-btn">🎧</button>
-
-  <div id="musicPanel" class="music-panel">
-    <div class="music-header">Focus Music</div>
-
-    <div class="music-row">
-      <select id="trackSelect"></select>
-    </div>
-
-    <div class="music-row">
-      <button id="playPauseBtn">▶ Play</button>
-      <button id="stopMusicBtn">⏹ Stop</button>
-    </div>
-
-    <div class="music-row">
-      <input id="volumeSlider" type="range" min="0" max="1" step="0.01" />
-    </div>
-
-    <div id="currentTrackLabel" class="music-label"></div>
-  </div>
-</div>
-
-<script src="/DN_Physics/js/music-player.js"></script>
-<script src="/DN_Physics/pp-quiz/js/quiz-home.js"></script>
-
+  <script src="/DN_Physics/js/music-player.js"></script>
+  <script src="/DN_Physics/pp-quiz/js/quiz-home.js"></script>
 </body>
 </html>
