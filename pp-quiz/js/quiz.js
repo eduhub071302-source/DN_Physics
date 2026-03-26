@@ -62,7 +62,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const resumeQuizBtn = document.getElementById("resumeQuizBtn");
   const discardResumeBtn = document.getElementById("discardResumeBtn");
 
-  // 🔥 NEW: update-safe elements
   const quizUpdateBanner = document.getElementById("quizUpdateBanner");
   const updateAfterBtn = document.getElementById("updateAfterBtn");
 
@@ -129,9 +128,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const QUIZ_PROGRESS_KEY = "dnPhysicsQuizProgress";
   const QUIZ_SESSION_KEY = "dnPhysicsQuizSessions";
 
-  // 🔥 NEW: update-safe state
   let pendingServiceWorkerUpdate = false;
   let isQuizActive = true;
+
+  function canApplyUpdateNow() {
+    return !isQuizActive || reviewMode;
+  }
 
   function makeNiceTitle(slug) {
     return (slug || "")
@@ -873,6 +875,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     stopTimers();
     updateQuestionView();
+
+    if (pendingServiceWorkerUpdate) {
+      setTimeout(async () => {
+        try {
+          const registration = await navigator.serviceWorker.getRegistration();
+
+          if (registration && registration.waiting) {
+            registration.waiting.postMessage({ type: "SKIP_WAITING" });
+          }
+
+          window.location.reload();
+        } catch (error) {
+          console.log("Auto update after quiz error:", error);
+        }
+      }, 1500);
+    }
   }
 
   function showResult(mode) {
@@ -1176,23 +1194,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     pinchStartDistance = 0;
   });
 
-  window.addEventListener("beforeunload", async () => {
+  window.addEventListener("beforeunload", () => {
     saveCurrentSession();
 
-    // 🔥 NEW: apply waiting update only when leaving quiz
     if (!pendingServiceWorkerUpdate) return;
 
-    try {
-      const registration = await navigator.serviceWorker.getRegistration();
+    navigator.serviceWorker.getRegistration().then((registration) => {
       if (registration && registration.waiting) {
         registration.waiting.postMessage({ type: "SKIP_WAITING" });
       }
-    } catch (error) {
+    }).catch((error) => {
       console.log("SW apply on unload warning:", error);
-    }
+    });
   });
 
-  // 🔥 NEW: service worker update-safe logic
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.addEventListener("message", (event) => {
       if (event.data && event.data.type === "SW_UPDATED") {
@@ -1200,6 +1215,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (quizUpdateBanner) {
           quizUpdateBanner.classList.add("show");
+          quizUpdateBanner.innerHTML = `
+            <strong>New version available 🚀</strong><br>
+            Finish your quiz to update safely.
+          `;
         }
 
         console.log("New update available. Waiting until quiz is finished or page is closed.");
@@ -1208,6 +1227,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (updateAfterBtn) {
       updateAfterBtn.addEventListener("click", async () => {
+        if (!canApplyUpdateNow()) {
+          alert("Finish the quiz first before updating ⚠️");
+          return;
+        }
+
         try {
           const registration = await navigator.serviceWorker.getRegistration();
 
