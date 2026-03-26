@@ -323,11 +323,8 @@
           const registration = await navigator.serviceWorker.register("/DN_Physics/service-worker.js");
           console.log("✅ Service Worker registered:", registration.scope);
 
-          await registration.update();
-
-          if (registration.waiting) {
-            registration.waiting.postMessage({ type: "SKIP_WAITING" });
-          }
+          // 🔥 do not auto-force update anymore
+          // user will decide when to update
 
           registration.addEventListener("updatefound", () => {
             const newWorker = registration.installing;
@@ -335,9 +332,20 @@
 
             newWorker.addEventListener("statechange", () => {
               if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
-                newWorker.postMessage({ type: "SKIP_WAITING" });
+                if (updateToast) {
+                  updateToast.classList.add("show");
+                }
               }
             });
+          });
+
+          navigator.serviceWorker.addEventListener("message", (event) => {
+            if (event.data && event.data.type === "SW_UPDATED") {
+              if (autoReloadingFromSW) return;
+              if (updateToast) {
+                updateToast.classList.add("show");
+              }
+            }
           });
 
           navigator.serviceWorker.addEventListener("controllerchange", () => {
@@ -345,15 +353,6 @@
             autoReloadingFromSW = true;
             showLoadingOverlay();
             window.location.reload();
-          });
-
-          navigator.serviceWorker.addEventListener("message", (event) => {
-            if (event.data && event.data.type === "SW_UPDATED") {
-              if (autoReloadingFromSW) return;
-              autoReloadingFromSW = true;
-              showLoadingOverlay();
-              window.location.reload();
-            }
           });
         } catch (error) {
           console.log("❌ Service Worker failed:", error);
@@ -397,7 +396,26 @@
 
     if (toastRefreshBtn) {
       toastRefreshBtn.addEventListener("click", async () => {
-        await performStrongRefresh();
+        showLoadingOverlay();
+
+        try {
+          const registration = await navigator.serviceWorker.getRegistration();
+
+          if (registration && registration.waiting) {
+            registration.waiting.postMessage({ type: "SKIP_WAITING" });
+          } else {
+            await performStrongRefresh();
+            return;
+          }
+        } catch (error) {
+          console.log("Toast refresh error:", error);
+          await performStrongRefresh();
+          return;
+        }
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 600);
       });
     }
 
@@ -405,10 +423,6 @@
       toastDismissBtn.addEventListener("click", () => {
         if (updateToast) updateToast.classList.remove("show");
       });
-    }
-
-    if (updateToast) {
-      updateToast.remove();
     }
 
     window.addEventListener("touchstart", (e) => {
