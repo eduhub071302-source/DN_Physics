@@ -148,7 +148,7 @@ function getBadgeData(percentage) {
 }
 
 function getSavedStats(topic, subtopic, setName = "set-1") {
-  const key = `dnphysics_ppquiz_${topic}_${subtopic}_${setName}`;
+  const key = `dn_physics_pp-quiz_${topic}_${subtopic}_${setName}`;
   try {
     return JSON.parse(localStorage.getItem(key)) || null;
   } catch {
