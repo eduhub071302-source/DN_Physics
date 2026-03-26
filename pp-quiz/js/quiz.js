@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const subtopic = params.get("subtopic");
   const setName = params.get("set") || "set-1";
 
+  const quizUpdateText = document.getElementById("quizUpdateText");
   const quizTitle = document.getElementById("quizTitle");
   const quizSubtitle = document.getElementById("quizSubtitle");
   const backToSubtopic = document.getElementById("backToSubtopic");
