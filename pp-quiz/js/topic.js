@@ -144,17 +144,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function getBadgeData(percentage) {
     const value = Number(percentage) || 0;
+
     if (value >= 90) return { label: "Gold 🥇", className: "badge-gold" };
     if (value >= 75) return { label: "Silver 🥈", className: "badge-silver" };
     if (value >= 50) return { label: "Bronze 🥉", className: "badge-bronze" };
+
     return null;
   }
 
   function getMasteryLevel(bestFullQuizPercentage) {
     const value = Number(bestFullQuizPercentage) || 0;
+
     if (value >= 90) return "Mastered";
     if (value >= 75) return "Strong";
     if (value >= 50) return "Improving";
+
     return "Beginner";
   }
 
@@ -168,6 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function getLegacySavedStats(topic, subtopic, setName = "set-1") {
     const key = `dn_physics_pp-quiz_${topic}_${subtopic}_${setName}`;
+
     try {
       return JSON.parse(localStorage.getItem(key)) || null;
     } catch {
@@ -225,28 +230,13 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  if (!topicTitle || !subtopicsGrid) {
-    console.error("topic.html is missing required elements.");
-    return;
-  }
-
-  if (!topicSlug || !topicData[topicSlug]) {
-    topicTitle.textContent = "Topic Not Found";
-    subtopicsGrid.innerHTML = `<p>Invalid topic selected.</p>`;
-    return;
-  }
-
-  const currentTopic = topicData[topicSlug];
-  topicTitle.textContent = currentTopic.title;
-  subtopicsGrid.innerHTML = "";
-
-  currentTopic.subtopics.forEach((subtopic) => {
-    const summary = calculateSubtopicSummary(topicSlug, subtopic.slug);
+  function createSubtopicCard(topicSlugValue, subtopic) {
+    const summary = calculateSubtopicSummary(topicSlugValue, subtopic.slug);
     const badge = summary.bestFull ? getBadgeData(summary.bestFull) : null;
 
     const card = document.createElement("a");
     card.className = "topic-card";
-    card.href = `/DN_Physics/pp-quiz/subtopic.html?topic=${encodeURIComponent(topicSlug)}&subtopic=${encodeURIComponent(subtopic.slug)}`;
+    card.href = `/DN_Physics/pp-quiz/subtopic.html?topic=${encodeURIComponent(topicSlugValue)}&subtopic=${encodeURIComponent(subtopic.slug)}`;
 
     card.innerHTML = `
       <h2>${subtopic.title}</h2>
@@ -280,6 +270,31 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
-    subtopicsGrid.appendChild(card);
+    return card;
+  }
+
+  if (!topicTitle || !subtopicsGrid) {
+    console.error("topic.html is missing required elements.");
+    return;
+  }
+
+  if (!topicSlug || !topicData[topicSlug]) {
+    topicTitle.textContent = "Topic Not Found";
+    subtopicsGrid.innerHTML = `<p>Invalid topic selected.</p>`;
+    return;
+  }
+
+  const currentTopic = topicData[topicSlug];
+
+  topicTitle.textContent = currentTopic.title;
+  subtopicsGrid.innerHTML = "";
+
+  if (!Array.isArray(currentTopic.subtopics) || currentTopic.subtopics.length === 0) {
+    subtopicsGrid.innerHTML = `<p>No subtopics found yet.</p>`;
+    return;
+  }
+
+  currentTopic.subtopics.forEach((subtopic) => {
+    subtopicsGrid.appendChild(createSubtopicCard(topicSlug, subtopic));
   });
 });
