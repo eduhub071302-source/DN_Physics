@@ -133,6 +133,8 @@ const topicData = {
   }
 };
 
+const QUIZ_PROGRESS_KEY = "dnPhysicsQuizProgress";
+
 const params = new URLSearchParams(window.location.search);
 const topicSlug = params.get("topic");
 
@@ -147,7 +149,15 @@ function getBadgeData(percentage) {
   return null;
 }
 
-function getSavedStats(topic, subtopic, setName = "set-1") {
+function getProgressStore() {
+  try {
+    return JSON.parse(localStorage.getItem(QUIZ_PROGRESS_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function getLegacySavedStats(topic, subtopic, setName = "set-1") {
   const key = `dn_physics_pp-quiz_${topic}_${subtopic}_${setName}`;
   try {
     return JSON.parse(localStorage.getItem(key)) || null;
@@ -156,17 +166,40 @@ function getSavedStats(topic, subtopic, setName = "set-1") {
   }
 }
 
-if (!topicSlug || !topicData[topicSlug]) {
+function getQuizProgressId(topic, subtopic, setName = "set-1") {
+  return `${topic}__${subtopic}__${setName}`;
+}
+
+function getSavedStats(topic, subtopic, setName = "set-1") {
+  const store = getProgressStore();
+  const id = getQuizProgressId(topic, subtopic, setName);
+
+  if (store[id]) {
+    return store[id];
+  }
+
+  const legacy = getLegacySavedStats(topic, subtopic, setName);
+  if (legacy) {
+    return legacy;
+  }
+
+  return null;
+}
+
+if (!topicTitle || !subtopicsGrid) {
+  console.error("topic.html is missing required elements.");
+} else if (!topicSlug || !topicData[topicSlug]) {
   topicTitle.textContent = "Topic Not Found";
   subtopicsGrid.innerHTML = `<p>Invalid topic selected.</p>`;
 } else {
   const currentTopic = topicData[topicSlug];
   topicTitle.textContent = currentTopic.title;
+  subtopicsGrid.innerHTML = "";
 
   currentTopic.subtopics.forEach((subtopic) => {
-    const stats = getSavedStats(topicSlug, subtopic.slug);
-    const attempts = stats ? stats.attempts : 0;
-    const bestPercentage = stats?.bestFullBadgePercentage || null;
+    const stats = getSavedStats(topicSlug, subtopic.slug, "set-1");
+    const attempts = stats ? Number(stats.attempts) || 0 : 0;
+    const bestPercentage = stats?.bestFullBadgePercentage ?? null;
     const badge = bestPercentage ? getBadgeData(bestPercentage) : null;
 
     const card = document.createElement("a");
@@ -178,7 +211,7 @@ if (!topicSlug || !topicData[topicSlug]) {
       <div class="subtopic-meta">
         <span class="meta-pill">Attempts: ${attempts}</span>
         ${
-          bestPercentage
+          bestPercentage !== null
             ? `<span class="meta-pill">Best Full Quiz: ${bestPercentage}%</span>`
             : ""
         }
