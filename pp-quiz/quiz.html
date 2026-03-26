@@ -26,15 +26,25 @@
       z-index: 5000;
       display: none;
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      text-align: center;
     }
 
     .quiz-update-banner.show {
-      display: block;
+      display: flex;
+      animation: fadeSlideUp 0.3s ease;
+    }
+
+    .quiz-update-banner.show {
+      display: flex;
       animation: fadeSlideUp 0.3s ease;
     }
 
     .quiz-update-banner button {
-      margin-left: 8px;
       background: #fff;
       color: #1e3a8a;
       border: none;
@@ -437,9 +447,7 @@
 <body>
 
   <div id="quizUpdateBanner" class="quiz-update-banner">
-    <span id="quizUpdateText">
-      New update available. Apply after finishing quiz.
-    </span>
+    <span id="quizUpdateText">New update available. Apply after finishing quiz.</span>
     <button id="updateAfterBtn" type="button">Update Now</button>
   </div>
 
