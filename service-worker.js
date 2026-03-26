@@ -1,5 +1,7 @@
-const CACHE_NAME = "dn-physics-v72";
+const CACHE_NAME = "dn-physics-v73";
+const META_CACHE = "dn-physics-meta";
 
+// ================= CORE FILES =================
 const CORE_FILES = [
   "/DN_Physics/",
   "/DN_Physics/index.html",
@@ -22,38 +24,51 @@ self.addEventListener("install", (event) => {
       await cache.addAll(CORE_FILES);
     })()
   );
-
-  // DO NOT auto-activate here.
-  // Let the page decide when to apply the update safely.
 });
 
 // ================= ACTIVATE =================
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {
-      const keys = await caches.keys();
+      const cacheNames = await caches.keys();
 
+      // delete old caches
       await Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
+        cacheNames.map((name) => {
+          if (name !== CACHE_NAME && name !== META_CACHE) {
+            return caches.delete(name);
           }
-          return Promise.resolve();
         })
       );
 
       await self.clients.claim();
 
-      const clientsList = await self.clients.matchAll({
-        type: "window",
-        includeUncontrolled: true
-      });
+      // ===== VERSION CHECK =====
+      const metaCache = await caches.open(META_CACHE);
+      const versionResponse = await metaCache.match("version");
 
-      for (const client of clientsList) {
-        client.postMessage({
-          type: "SW_UPDATED",
-          version: CACHE_NAME
+      let oldVersion = null;
+
+      if (versionResponse) {
+        oldVersion = await versionResponse.text();
+      }
+
+      // save current version
+      await metaCache.put("version", new Response(CACHE_NAME));
+
+      // notify only if version changed
+      if (oldVersion && oldVersion !== CACHE_NAME) {
+        const clientsList = await self.clients.matchAll({
+          type: "window",
+          includeUncontrolled: true
         });
+
+        for (const client of clientsList) {
+          client.postMessage({
+            type: "SW_UPDATED",
+            version: CACHE_NAME
+          });
+        }
       }
     })()
   );
@@ -88,154 +103,102 @@ self.addEventListener("fetch", (event) => {
   const isCSS = url.pathname.endsWith(".css");
   const isJS = url.pathname.endsWith(".js");
   const isImage =
-    url.pathname.endsWith(".png") ||
-    url.pathname.endsWith(".jpg") ||
-    url.pathname.endsWith(".jpeg") ||
-    url.pathname.endsWith(".webp") ||
-    url.pathname.endsWith(".svg") ||
-    url.pathname.endsWith(".gif") ||
-    url.pathname.endsWith(".ico");
+    url.pathname.match(/\.(png|jpg|jpeg|webp|svg|gif|ico)$/);
 
-  // ===== HTML pages -> network first, cache fallback =====
+  // ===== HTML =====
   if (isNavigate) {
     event.respondWith(
       (async () => {
         try {
-          const networkResponse = await fetch(request);
+          const network = await fetch(request);
 
-          if (networkResponse && networkResponse.ok) {
-            const clone = networkResponse.clone();
-            const cache = await caches.open(CACHE_NAME);
-            await cache.put(request, clone);
-          }
+          const cache = await caches.open(CACHE_NAME);
+          cache.put(request, network.clone());
 
-          return networkResponse;
-        } catch (error) {
-          const cachedPage = await caches.match(request);
-          if (cachedPage) return cachedPage;
-
-          const offlinePage = await caches.match("/DN_Physics/offline.html");
-          if (offlinePage) return offlinePage;
-
-          return new Response("Offline", {
-            status: 503,
-            statusText: "Offline"
-          });
+          return network;
+        } catch {
+          return (
+            (await caches.match(request)) ||
+            (await caches.match("/DN_Physics/offline.html"))
+          );
         }
       })()
     );
     return;
   }
 
-  // ===== JSON -> network first, cache fallback =====
+  // ===== JSON =====
   if (isJSON) {
     event.respondWith(
       (async () => {
         try {
-          const networkResponse = await fetch(request);
+          const network = await fetch(request);
 
-          if (networkResponse && networkResponse.ok) {
-            const clone = networkResponse.clone();
-            const cache = await caches.open(CACHE_NAME);
-            await cache.put(request, clone);
-          }
+          const cache = await caches.open(CACHE_NAME);
+          cache.put(request, network.clone());
 
-          return networkResponse;
-        } catch (error) {
-          const cachedResponse = await caches.match(request);
-
-          return (
-            cachedResponse ||
-            new Response("JSON unavailable offline", {
-              status: 503,
-              statusText: "Offline JSON Not Cached",
-              headers: { "Content-Type": "text/plain" }
-            })
-          );
+          return network;
+        } catch {
+          return caches.match(request);
         }
       })()
     );
     return;
   }
 
-  // ===== PDF -> cache first, then network =====
+  // ===== PDF =====
   if (isPDF) {
     event.respondWith(
       (async () => {
-        const cachedResponse = await caches.match(request);
-        if (cachedResponse) return cachedResponse;
+        const cached = await caches.match(request);
+        if (cached) return cached;
 
         try {
-          const networkResponse = await fetch(request);
+          const network = await fetch(request);
 
-          if (networkResponse && networkResponse.ok) {
-            const clone = networkResponse.clone();
-            const cache = await caches.open(CACHE_NAME);
-            await cache.put(request, clone);
-          }
+          const cache = await caches.open(CACHE_NAME);
+          cache.put(request, network.clone());
 
-          return networkResponse;
-        } catch (error) {
-          return new Response(
-            "You are offline, and this PDF was not saved before. Please open it once with internet first.",
-            {
-              status: 503,
-              statusText: "Offline PDF Not Cached",
-              headers: { "Content-Type": "text/plain" }
-            }
-          );
+          return network;
+        } catch {
+          return new Response("PDF not available offline", { status: 503 });
         }
       })()
     );
     return;
   }
 
-  // ===== CSS / JS / images -> stale while revalidate =====
+  // ===== STATIC FILES =====
   if (isCSS || isJS || isImage) {
     event.respondWith(
       (async () => {
         const cache = await caches.open(CACHE_NAME);
-        const cachedResponse = await cache.match(request);
+        const cached = await cache.match(request);
 
         const networkFetch = fetch(request)
-          .then(async (networkResponse) => {
-            if (networkResponse && networkResponse.ok) {
-              await cache.put(request, networkResponse.clone());
-            }
-            return networkResponse;
+          .then((res) => {
+            if (res && res.ok) cache.put(request, res.clone());
+            return res;
           })
           .catch(() => null);
 
-        return cachedResponse || (await networkFetch) || new Response("Resource unavailable", {
-          status: 503,
-          statusText: "Unavailable"
-        });
+        return cached || (await networkFetch);
       })()
     );
     return;
   }
 
-  // ===== default -> cache fallback, then network =====
+  // ===== DEFAULT =====
   event.respondWith(
     (async () => {
-      const cachedResponse = await caches.match(request);
-      if (cachedResponse) return cachedResponse;
+      const cached = await caches.match(request);
+      if (cached) return cached;
 
       try {
-        const networkResponse = await fetch(request);
-
-        if (networkResponse && networkResponse.ok) {
-          const cache = await caches.open(CACHE_NAME);
-          await cache.put(request, networkResponse.clone());
-        }
-
-        return networkResponse;
-      } catch (error) {
-        return new Response("Resource unavailable offline", {
-          status: 503,
-          statusText: "Offline Resource Not Cached",
-          headers: { "Content-Type": "text/plain" }
-        });
+        const network = await fetch(request);
+        return network;
+      } catch {
+        return new Response("Offline", { status: 503 });
       }
     })()
   );
