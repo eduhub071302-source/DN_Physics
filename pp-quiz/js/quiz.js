@@ -996,7 +996,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         currentQuestion--;
       }
       updateQuestionView();
-      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   });
 
