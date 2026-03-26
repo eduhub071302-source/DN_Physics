@@ -25,17 +25,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function getBadgeData(percentage) {
     const value = Number(percentage) || 0;
+
     if (value >= 90) return { label: "Gold 🥇", className: "badge-gold" };
     if (value >= 75) return { label: "Silver 🥈", className: "badge-silver" };
     if (value >= 50) return { label: "Bronze 🥉", className: "badge-bronze" };
+
     return null;
   }
 
   function getMasteryLevel(bestFullQuizPercentage) {
     const value = Number(bestFullQuizPercentage) || 0;
+
     if (value >= 90) return "Mastered";
     if (value >= 75) return "Strong";
     if (value >= 50) return "Improving";
+
     return "Beginner";
   }
 
@@ -49,6 +53,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function getLegacySavedStats(topicSlug, subtopicSlug, setName = "set-1") {
     const key = `dn_physics_pp-quiz_${topicSlug}_${subtopicSlug}_${setName}`;
+
     try {
       return JSON.parse(localStorage.getItem(key)) || null;
     } catch {
@@ -60,20 +65,45 @@ document.addEventListener("DOMContentLoaded", async () => {
     return `${topicSlug}__${subtopicSlug}__${setName}`;
   }
 
+  function normalizeStats(stats) {
+    if (!stats || typeof stats !== "object") {
+      return {
+        attempts: 0,
+        bestPercentage: "0.0",
+        bestFullBadgePercentage: null,
+        lastPlayedAt: "Never",
+        streak: 0,
+        completedFullQuiz: false
+      };
+    }
+
+    return {
+      attempts: Number(stats.attempts) || 0,
+      bestPercentage: stats.bestPercentage ?? "0.0",
+      bestFullBadgePercentage:
+        stats.bestFullBadgePercentage === null || stats.bestFullBadgePercentage === undefined
+          ? null
+          : Number(stats.bestFullBadgePercentage) || 0,
+      lastPlayedAt: stats.lastPlayedAt || "Never",
+      streak: Number(stats.streak) || 0,
+      completedFullQuiz: Boolean(stats.completedFullQuiz)
+    };
+  }
+
   function getSavedStats(topicSlug, subtopicSlug, setName = "set-1") {
     const store = getProgressStore();
     const id = getQuizProgressId(topicSlug, subtopicSlug, setName);
 
     if (store[id]) {
-      return store[id];
+      return normalizeStats(store[id]);
     }
 
     const legacy = getLegacySavedStats(topicSlug, subtopicSlug, setName);
     if (legacy) {
-      return legacy;
+      return normalizeStats(legacy);
     }
 
-    return null;
+    return normalizeStats(null);
   }
 
   async function loadQuizSets() {
@@ -85,16 +115,31 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const data = await response.json();
 
+      let sets = [];
+
       if (Array.isArray(data)) {
-        return data;
+        sets = data;
+      } else if (Array.isArray(data.sets)) {
+        sets = data.sets;
+      } else {
+        throw new Error("Invalid sets manifest format");
       }
 
-      if (Array.isArray(data.sets)) {
-        return data.sets;
+      const cleanedSets = sets
+        .filter((set) => set && typeof set === "object" && set.slug)
+        .map((set, index) => ({
+          slug: String(set.slug).trim(),
+          title: String(set.title || `Set ${index + 1}`).trim()
+        }))
+        .filter((set) => set.slug.length > 0);
+
+      if (!cleanedSets.length) {
+        throw new Error("No valid sets found");
       }
 
-      throw new Error("Invalid sets manifest format");
-    } catch {
+      return cleanedSets;
+    } catch (error) {
+      console.warn("Using fallback quiz set:", error);
       return [
         { slug: "set-1", title: "Set 1" }
       ];
@@ -103,14 +148,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function buildSetCard(set) {
     const stats = getSavedStats(topic, subtopic, set.slug);
-    const attempts = stats ? Number(stats.attempts) || 0 : 0;
-    const bestPercentage = stats?.bestPercentage ?? "0.0";
-    const bestFullPercentage = stats?.bestFullBadgePercentage ?? null;
-    const badge = bestFullPercentage ? getBadgeData(bestFullPercentage) : null;
+    const attempts = stats.attempts;
+    const bestPercentage = stats.bestPercentage;
+    const bestFullPercentage = stats.bestFullBadgePercentage;
+    const badge = bestFullPercentage !== null ? getBadgeData(bestFullPercentage) : null;
     const mastery = getMasteryLevel(bestFullPercentage);
-    const lastPlayed = stats?.lastPlayedAt || "Never";
-    const streak = Number(stats?.streak) || 0;
-    const completed = Boolean(stats?.completedFullQuiz);
+    const lastPlayed = stats.lastPlayedAt;
+    const streak = stats.streak;
+    const completed = stats.completedFullQuiz;
 
     const card = document.createElement("a");
     card.className = "topic-card";
