@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
   const topic = params.get("topic");
   const subtopic = params.get("subtopic");
-  const setName = params.get("set");
+  const setName = params.get("set") || "set-1";
 
   const quizTitle = document.getElementById("quizTitle");
   const quizSubtitle = document.getElementById("quizSubtitle");
@@ -55,10 +55,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     imageModalViewport
   ];
 
+  if (!topic || !subtopic) {
+    console.error("Missing topic or subtopic in URL.");
+    if (quizTitle) quizTitle.textContent = "Quiz Not Found";
+    if (quizSubtitle) quizSubtitle.textContent = "Missing topic or subtopic.";
+    return;
+  }
+
   if (requiredElements.some((el) => !el) || answerButtons.length === 0) {
     console.error("Quiz page elements missing. Check quiz.html IDs and classes.");
     return;
   }
+
+  const QUIZ_PROGRESS_KEY = "dnPhysicsQuizProgress";
 
   function makeNiceTitle(slug) {
     return (slug || "")
@@ -73,6 +82,113 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (value >= 75) return { label: "Silver 🥈", className: "badge-silver" };
     if (value >= 50) return { label: "Bronze 🥉", className: "badge-bronze" };
     return null;
+  }
+
+  function getProgressStore() {
+    try {
+      return JSON.parse(localStorage.getItem(QUIZ_PROGRESS_KEY)) || {};
+    } catch {
+      return {};
+    }
+  }
+
+  function saveProgressStore(store) {
+    localStorage.setItem(QUIZ_PROGRESS_KEY, JSON.stringify(store));
+  }
+
+  function getQuizProgressId(topicSlug, subtopicSlug, currentSetName = "set-1") {
+    return `${topicSlug}__${subtopicSlug}__${currentSetName}`;
+  }
+
+  function getLegacyStorageKey() {
+    return `dn_physics_pp-quiz_${topic}_${subtopic}_${setName}`;
+  }
+
+  function getDefaultAttemptData() {
+    return {
+      lastCorrect: 0,
+      lastAnswered: 0,
+      lastPercentage: "0.0",
+      bestCorrect: 0,
+      bestAnswered: 0,
+      bestPercentage: "0.0",
+      attempts: 0,
+      bestFullBadgePercentage: null
+    };
+  }
+
+  function normalizeAttemptData(data) {
+    const base = getDefaultAttemptData();
+    if (!data || typeof data !== "object") return base;
+
+    return {
+      lastCorrect: Number(data.lastCorrect) || 0,
+      lastAnswered: Number(data.lastAnswered) || 0,
+      lastPercentage: data.lastPercentage ?? "0.0",
+      bestCorrect: Number(data.bestCorrect) || 0,
+      bestAnswered: Number(data.bestAnswered) || 0,
+      bestPercentage: data.bestPercentage ?? "0.0",
+      attempts: Number(data.attempts) || 0,
+      bestFullBadgePercentage:
+        data.bestFullBadgePercentage === null || data.bestFullBadgePercentage === undefined
+          ? null
+          : data.bestFullBadgePercentage
+    };
+  }
+
+  function loadAttemptData() {
+    const store = getProgressStore();
+    const progressId = getQuizProgressId(topic, subtopic, setName);
+
+    if (store[progressId]) {
+      return normalizeAttemptData(store[progressId]);
+    }
+
+    // one-time migration from old single-key storage
+    try {
+      const legacy = JSON.parse(localStorage.getItem(getLegacyStorageKey()));
+      if (legacy) {
+        const normalized = normalizeAttemptData(legacy);
+        store[progressId] = normalized;
+        saveProgressStore(store);
+        return normalized;
+      }
+    } catch {
+      // ignore broken old data
+    }
+
+    return null;
+  }
+
+  function saveAttemptData(data) {
+    const store = getProgressStore();
+    const progressId = getQuizProgressId(topic, subtopic, setName);
+    store[progressId] = normalizeAttemptData(data);
+    saveProgressStore(store);
+  }
+
+  function renderAttemptInfo() {
+    const saved = loadAttemptData();
+
+    if (!saved || saved.attempts <= 0) {
+      attemptInfo.innerHTML = `
+        <div><strong>Last Score:</strong> No previous attempt</div>
+        <div><strong>Best Score:</strong> No previous attempt</div>
+        <div><strong>Attempts:</strong> 0</div>
+        <div><strong>Badge System:</strong> Earn badges by scoring <strong>50%+</strong>, <strong>75%+</strong>, and <strong>90%+</strong> out of <strong>all questions</strong> in a <strong>full quiz</strong>.</div>
+      `;
+      return;
+    }
+
+    const badge = saved.bestFullBadgePercentage ? getBadgeData(saved.bestFullBadgePercentage) : null;
+
+    attemptInfo.innerHTML = `
+      <div><strong>Last Score:</strong> ${saved.lastCorrect} / ${saved.lastAnswered} (${saved.lastPercentage}%)</div>
+      <div><strong>Best Score:</strong> ${saved.bestCorrect} / ${saved.bestAnswered} (${saved.bestPercentage}%)</div>
+      <div><strong>Attempts:</strong> ${saved.attempts}</div>
+      ${badge ? `<div><strong>Badge:</strong> <span class="${badge.className}">${badge.label}</span></div>` : `<div><strong>Badge:</strong> None</div>`}
+      <div><strong>Badge System:</strong> Earn badges by scoring <strong>50%+</strong>, <strong>75%+</strong>, and <strong>90%+</strong> out of <strong>all questions</strong> in a <strong>full quiz</strong>.</div>
+    `;
   }
 
   let currentQuestion = 1;
@@ -98,7 +214,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       const data = await response.json();
-      totalQuestions = data.totalQuestions || 1;
+      totalQuestions = Number(data.totalQuestions) || 1;
       answerKey = data.answers || {};
       quizTitle.textContent = `${makeNiceTitle(subtopic)} - ${data.title || makeNiceTitle(setName)}`;
       quizSubtitle.textContent = `${makeNiceTitle(topic)} / ${makeNiceTitle(subtopic)}`;
@@ -112,50 +228,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     return true;
   }
 
-  backToSubtopic.href = `/DN_Physics/pp-quiz/subtopic.html?topic=${encodeURIComponent(topic || "")}&subtopic=${encodeURIComponent(subtopic || "")}`;
+  backToSubtopic.href = `/DN_Physics/pp-quiz/subtopic.html?topic=${encodeURIComponent(topic)}&subtopic=${encodeURIComponent(subtopic)}`;
 
   function getImagePath(questionNumber) {
     return `/DN_Physics/pp-quiz/images/${topic}/${subtopic}/q${questionNumber}.jpg`;
-  }
-
-  function getStorageKey() {
-    return `dn_physics_pp-quiz_${topic}_${subtopic}_${setName}`;
-  }
-
-  function loadAttemptData() {
-    try {
-      return JSON.parse(localStorage.getItem(getStorageKey())) || null;
-    } catch {
-      return null;
-    }
-  }
-
-  function saveAttemptData(data) {
-    localStorage.setItem(getStorageKey(), JSON.stringify(data));
-  }
-
-  function renderAttemptInfo() {
-    const saved = loadAttemptData();
-
-    if (!saved) {
-      attemptInfo.innerHTML = `
-        <div><strong>Last Score:</strong> No previous attempt</div>
-        <div><strong>Best Score:</strong> No previous attempt</div>
-        <div><strong>Attempts:</strong> 0</div>
-        <div><strong>Badge System:</strong> Earn badges by scoring <strong>50%+</strong>, <strong>75%+</strong>, and <strong>90%+</strong> out of <strong>all questions</strong> in a <strong>full quiz</strong>.</div>
-      `;
-      return;
-    }
-
-    const badge = saved.bestFullBadgePercentage ? getBadgeData(saved.bestFullBadgePercentage) : null;
-
-    attemptInfo.innerHTML = `
-      <div><strong>Last Score:</strong> ${saved.lastCorrect} / ${saved.lastAnswered} (${saved.lastPercentage}%)</div>
-      <div><strong>Best Score:</strong> ${saved.bestCorrect} / ${saved.bestAnswered} (${saved.bestPercentage}%)</div>
-      <div><strong>Attempts:</strong> ${saved.attempts}</div>
-      ${badge ? `<div><strong>Badge:</strong> <span class="${badge.className}">${badge.label}</span></div>` : ""}
-      <div><strong>Badge System:</strong> Earn badges by scoring <strong>50%+</strong>, <strong>75%+</strong>, and <strong>90%+</strong> out of <strong>all questions</strong> in a <strong>full quiz</strong>.</div>
-    `;
   }
 
   function getAnsweredCount() {
@@ -286,12 +362,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     const percentageBase = answeredQuestions > 0 ? answeredQuestions : 1;
     const scorePercent = ((correct / percentageBase) * 100).toFixed(1);
 
-    const previous = loadAttemptData();
-    const previousBestPercentage = previous ? Number(previous.bestPercentage) : -1;
+    const previous = loadAttemptData() || getDefaultAttemptData();
+    const previousBestPercentage = Number(previous.bestPercentage) || 0;
     const bestShouldUpdate = Number(scorePercent) > previousBestPercentage;
 
     const fullQuizPercentage = ((correct / totalQuestions) * 100).toFixed(1);
-    const previousBestFullBadgePercentage = previous?.bestFullBadgePercentage ?? null;
+    const previousBestFullBadgePercentage = previous.bestFullBadgePercentage ?? null;
+
     const shouldUpdateFullBadge =
       mode === "full" &&
       (previousBestFullBadgePercentage === null ||
@@ -301,10 +378,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       lastCorrect: correct,
       lastAnswered: answeredQuestions,
       lastPercentage: scorePercent,
-      bestCorrect: bestShouldUpdate ? correct : previous?.bestCorrect ?? correct,
-      bestAnswered: bestShouldUpdate ? answeredQuestions : previous?.bestAnswered ?? answeredQuestions,
-      bestPercentage: bestShouldUpdate ? scorePercent : previous?.bestPercentage ?? scorePercent,
-      attempts: (previous?.attempts || 0) + 1,
+      bestCorrect: bestShouldUpdate ? correct : previous.bestCorrect,
+      bestAnswered: bestShouldUpdate ? answeredQuestions : previous.bestAnswered,
+      bestPercentage: bestShouldUpdate ? scorePercent : previous.bestPercentage,
+      attempts: (previous.attempts || 0) + 1,
       bestFullBadgePercentage: shouldUpdateFullBadge
         ? fullQuizPercentage
         : previousBestFullBadgePercentage
@@ -493,34 +570,46 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (e.target === imageModal) closeModal();
   });
 
-  modalImage.addEventListener("wheel", (e) => {
-    e.preventDefault();
-    modalScale += e.deltaY < 0 ? 0.15 : -0.15;
-    applyModalScale();
-  }, { passive: false });
+  modalImage.addEventListener(
+    "wheel",
+    (e) => {
+      e.preventDefault();
+      modalScale += e.deltaY < 0 ? 0.15 : -0.15;
+      applyModalScale();
+    },
+    { passive: false }
+  );
 
-  imageModalViewport.addEventListener("touchstart", (e) => {
-    if (e.touches.length === 2) {
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      pinchStartDistance = Math.hypot(dx, dy);
-    }
-  }, { passive: true });
-
-  imageModalViewport.addEventListener("touchmove", (e) => {
-    if (e.touches.length === 2) {
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      const currentDistance = Math.hypot(dx, dy);
-
-      if (pinchStartDistance) {
-        const ratio = currentDistance / pinchStartDistance;
-        modalScale *= ratio;
-        pinchStartDistance = currentDistance;
-        applyModalScale();
+  imageModalViewport.addEventListener(
+    "touchstart",
+    (e) => {
+      if (e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        pinchStartDistance = Math.hypot(dx, dy);
       }
-    }
-  }, { passive: true });
+    },
+    { passive: true }
+  );
+
+  imageModalViewport.addEventListener(
+    "touchmove",
+    (e) => {
+      if (e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const currentDistance = Math.hypot(dx, dy);
+
+        if (pinchStartDistance) {
+          const ratio = currentDistance / pinchStartDistance;
+          modalScale *= ratio;
+          pinchStartDistance = currentDistance;
+          applyModalScale();
+        }
+      }
+    },
+    { passive: true }
+  );
 
   imageModalViewport.addEventListener("touchend", () => {
     pinchStartDistance = 0;
