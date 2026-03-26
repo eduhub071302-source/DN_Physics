@@ -294,7 +294,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       flaggedQuestions: Array.from(flaggedQuestions),
       unansweredSnapshot: getUnansweredQuestions(),
       practiceWrongOnlyMode,
-      practiceWrongQuestions,
+      retryModeType,
+      retryQuestionList,
       quizElapsedSeconds,
       questionElapsedSeconds,
       savedAt: Date.now()
@@ -379,7 +380,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   let wrongQuestionsGlobal = [];
   let wrongQuestionPointer = 0;
   let practiceWrongOnlyMode = false;
-  let practiceWrongQuestions = [];
   let currentDisplayIndex = 1;
   let pinchStartDistance = 0;
   let modalScale = 1;
@@ -395,6 +395,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   let retryModeType = "full";
   let retryQuestionList = [];
+
+  function keepQuizAreaInView() {
+    const answerSection = document.querySelector(".answer-section");
+    if (answerSection) {
+      answerSection.scrollIntoView({
+        behavior: "auto",
+        block: "start"
+      });
+    }
+  }
 
   async function loadQuizData() {
     const jsonPath = `/DN_Physics/pp-quiz/data/${topic}/${subtopic}/${setName}.json`;
@@ -545,7 +555,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     questionPalette.innerHTML = "";
 
-    list.forEach((questionNumber, index) => {
+    list.forEach((questionNumber) => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "palette-btn";
@@ -680,6 +690,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         currentQuestion++;
       }
       updateQuestionView();
+      setTimeout(() => {
+        keepQuizAreaInView();
+      }, 30);
       return;
     }
 
@@ -930,9 +943,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     userAnswers = savedSession.userAnswers || {};
     flaggedQuestions = new Set(Array.isArray(savedSession.flaggedQuestions) ? savedSession.flaggedQuestions : []);
     practiceWrongOnlyMode = Boolean(savedSession.practiceWrongOnlyMode);
-    retryModeType = savedSession.practiceWrongOnlyMode ? "list" : "full";
-    retryQuestionList = Array.isArray(savedSession.practiceWrongQuestions) && savedSession.practiceWrongQuestions.length
-      ? savedSession.practiceWrongQuestions
+    retryModeType = savedSession.retryModeType || (savedSession.practiceWrongOnlyMode ? "list" : "full");
+    retryQuestionList = Array.isArray(savedSession.retryQuestionList) && savedSession.retryQuestionList.length
+      ? savedSession.retryQuestionList
       : [];
     quizElapsedSeconds = Number(savedSession.quizElapsedSeconds) || 0;
     questionElapsedSeconds = Number(savedSession.questionElapsedSeconds) || 0;
@@ -996,6 +1009,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         currentQuestion--;
       }
       updateQuestionView();
+      setTimeout(() => {
+        keepQuizAreaInView();
+      }, 30);
     }
   });
 
@@ -1010,7 +1026,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         currentQuestion++;
       }
       updateQuestionView();
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      setTimeout(() => {
+        keepQuizAreaInView();
+      }, 30);
     }
   });
 
