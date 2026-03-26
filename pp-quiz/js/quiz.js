@@ -136,6 +136,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   let pendingServiceWorkerUpdate = false;
   let isQuizActive = true;
 
+  function isMobileView() {
+    return window.innerWidth <= 768;
+  }
+
   function canApplyUpdateNow() {
     return !isQuizActive || reviewMode;
   }
@@ -324,6 +328,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     const sessionId = getQuizProgressId(topic, subtopic, setName);
     delete store[sessionId];
     saveSessionStore(store);
+  }
+
+  function showJumpWrap(show) {
+    if (!jumpWrap) return;
+    jumpWrap.style.display = show ? "flex" : "none";
+    jumpWrap.classList.toggle("show", show);
+  }
+
+  function closeJumpWrap() {
+    showJumpWrap(false);
+  }
+
+  function scrollQuestionIntoView(behavior = "smooth") {
+    const target = document.querySelector(".quiz-main-card") || questionImage;
+    if (!target) return;
+
+    const headerOffset = isMobileView() ? 78 : 96;
+    const y = target.getBoundingClientRect().top + window.scrollY - headerOffset;
+    window.scrollTo({ top: Math.max(0, y), behavior });
   }
 
   function renderAttemptInfo() {
@@ -618,6 +641,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       btn.addEventListener("click", () => {
         goToQuestionByActualNumber(questionNumber);
+        closeJumpWrap();
       });
 
       questionPalette.appendChild(btn);
@@ -780,6 +804,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (resultHeadline) resultHeadline.textContent = "Good Try";
     if (resultMotivation) resultMotivation.textContent = "Keep pushing. Improvement comes from consistency.";
 
+    closeJumpWrap();
     clearSavedSession();
     updateQuestionView();
     updateTimerDisplays();
@@ -810,9 +835,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     submitQuizBtn.style.display = "none";
     answerExplanation.style.display = "none";
 
+    closeJumpWrap();
     updateQuestionView();
     startTimers();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    scrollQuestionIntoView();
   }
 
   function finalizeAttempt(correct, wrong, unanswered, answeredQuestions, wrongQuestions, mode) {
@@ -952,8 +978,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     retryUnansweredBtn.style.display = unanswered > 0 ? "inline-flex" : "none";
     retryMarkedBtn.style.display = flaggedQuestions.size > 0 ? "inline-flex" : "none";
 
+    closeJumpWrap();
     stopTimers();
     updateQuestionView();
+    scrollQuestionIntoView();
 
     if (pendingServiceWorkerUpdate) {
       setTimeout(async () => {
@@ -1020,13 +1048,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     updateQuestionView();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    scrollQuestionIntoView();
   }
 
   function promptJumpToQuestion() {
-    jumpWrap.style.display = jumpWrap.style.display === "none" ? "flex" : "none";
-    jumpInput.max = String(getCurrentTotalCount());
-    jumpInput.value = String(getCurrentShownIndex());
+    const willShow = jumpWrap.style.display === "none";
+    showJumpWrap(willShow);
+
+    if (willShow) {
+      jumpInput.max = String(getCurrentTotalCount());
+      jumpInput.value = String(getCurrentShownIndex());
+      setTimeout(() => jumpInput.focus(), 30);
+    }
   }
 
   function restoreSessionUI(savedSession) {
@@ -1054,9 +1087,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     postResultActions.style.display = "none";
     answerExplanation.style.display = "none";
 
+    closeJumpWrap();
     updateQuestionView();
     updateTimerDisplays();
     startTimers();
+    scrollQuestionIntoView("auto");
   }
 
   function checkResumeCard() {
@@ -1105,6 +1140,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         currentQuestion--;
       }
       updateQuestionView();
+      scrollQuestionIntoView();
     }
   });
 
@@ -1119,6 +1155,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         currentQuestion++;
       }
       updateQuestionView();
+      scrollQuestionIntoView();
     }
   });
 
@@ -1189,10 +1226,23 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (actualQuestion) {
         currentDisplayIndex = value;
         updateQuestionView();
+        closeJumpWrap();
+        jumpInput.blur();
+        scrollQuestionIntoView();
       }
     } else if (value >= 1 && value <= totalQuestions) {
       currentQuestion = value;
       updateQuestionView();
+      closeJumpWrap();
+      jumpInput.blur();
+      scrollQuestionIntoView();
+    }
+  });
+
+  jumpInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      jumpConfirmBtn.click();
     }
   });
 
