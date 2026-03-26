@@ -130,7 +130,7 @@
   <div id="loadingOverlay" class="loading-overlay" aria-hidden="true">
     <div class="loading-box">
       <div class="spinner"></div>
-      <div class="loading-text">Refreshing app...</div>
+      <div class="loading-text" id="loadingText">Updating app... 0%</div>
     </div>
   </div>
 
@@ -273,6 +273,7 @@
     const refreshBtn = document.getElementById("refreshBtn");
 
     const loadingOverlay = document.getElementById("loadingOverlay");
+    const loadingText = document.getElementById("loadingText");
     const pullRefreshIndicator = document.getElementById("pullRefreshIndicator");
     const updateToast = document.getElementById("updateToast");
     const toastRefreshBtn = document.getElementById("toastRefreshBtn");
@@ -283,38 +284,94 @@
     let touchStartY = 0;
     let pullTriggered = false;
     let autoReloadingFromSW = false;
+    let fakeProgressTimer = null;
 
     function showLoadingOverlay() {
       if (loadingOverlay) loadingOverlay.classList.add("show");
     }
 
-    async function performStrongRefresh() {
-      if (refreshingNow) return;
-      refreshingNow = true;
-      showLoadingOverlay();
+    function hideLoadingOverlay() {
+      if (loadingOverlay) loadingOverlay.classList.remove("show");
+    }
 
-      try {
-        if ("caches" in window) {
-          const cacheNames = await caches.keys();
-          await Promise.all(cacheNames.map((name) => caches.delete(name)));
+    function setLoadingText(text) {
+      if (loadingText) loadingText.textContent = text;
+    }
+
+    function startFakeProgress() {
+      if (fakeProgressTimer) {
+        clearInterval(fakeProgressTimer);
+        fakeProgressTimer = null;
+      }
+
+      let progress = 0;
+      setLoadingText("Updating app... 0%");
+
+      fakeProgressTimer = setInterval(() => {
+        if (progress < 20) {
+          progress += 4;
+        } else if (progress < 45) {
+          progress += 3;
+        } else if (progress < 70) {
+          progress += 2;
+        } else if (progress < 90) {
+          progress += 1;
         }
 
-        if ("serviceWorker" in navigator) {
-          const registrations = await navigator.serviceWorker.getRegistrations();
+        if (progress > 90) progress = 90;
+        setLoadingText(`Updating app... ${progress}%`);
+      }, 180);
+    }
 
-          for (const registration of registrations) {
+    function finishFakeProgress() {
+      if (fakeProgressTimer) {
+        clearInterval(fakeProgressTimer);
+        fakeProgressTimer = null;
+      }
+      setLoadingText("Updating app... 100%");
+    }
+
+    function isUserBusy() {
+      return window.location.pathname.includes("quiz.html");
+    }
+
+    function showBusyUpdateMessage() {
+      alert("Finish your quiz first before updating ⚠️");
+    }
+
+    async function performSafeUpdate() {
+      if (refreshingNow) return;
+      refreshingNow = true;
+
+      showLoadingOverlay();
+      startFakeProgress();
+
+      try {
+        if ("serviceWorker" in navigator) {
+          const registration = await navigator.serviceWorker.getRegistration();
+
+          if (registration) {
             await registration.update();
 
             if (registration.waiting) {
+              setLoadingText("Applying update... 95%");
               registration.waiting.postMessage({ type: "SKIP_WAITING" });
+              return;
             }
           }
         }
-      } catch (error) {
-        console.log("Refresh cleanup warning:", error);
-      }
 
-      window.location.reload();
+        finishFakeProgress();
+        setTimeout(() => {
+          window.location.reload();
+        }, 250);
+      } catch (error) {
+        console.log("Safe update error:", error);
+        finishFakeProgress();
+        setTimeout(() => {
+          window.location.reload();
+        }, 250);
+      }
     }
 
     if ("serviceWorker" in navigator) {
@@ -322,9 +379,6 @@
         try {
           const registration = await navigator.serviceWorker.register("/DN_Physics/service-worker.js");
           console.log("✅ Service Worker registered:", registration.scope);
-
-          // 🔥 do not auto-force update anymore
-          // user will decide when to update
 
           registration.addEventListener("updatefound", () => {
             const newWorker = registration.installing;
@@ -340,18 +394,26 @@
           });
 
           navigator.serviceWorker.addEventListener("message", (event) => {
-            if (event.data && event.data.type === "SW_UPDATED") {
+            if (!event.data) return;
+
+            if (event.data.type === "SW_UPDATED") {
               if (autoReloadingFromSW) return;
               if (updateToast) {
                 updateToast.classList.add("show");
               }
+            }
+
+            if (event.data.type === "SW_VERSION") {
+              console.log("Service Worker version:", event.data.version);
             }
           });
 
           navigator.serviceWorker.addEventListener("controllerchange", () => {
             if (autoReloadingFromSW) return;
             autoReloadingFromSW = true;
+            finishFakeProgress();
             showLoadingOverlay();
+            setLoadingText("Update complete... 100%");
             window.location.reload();
           });
         } catch (error) {
@@ -390,32 +452,24 @@
 
     if (refreshBtn) {
       refreshBtn.addEventListener("click", async () => {
-        await performStrongRefresh();
+        if (isUserBusy()) {
+          showBusyUpdateMessage();
+          return;
+        }
+
+        await performSafeUpdate();
       });
     }
 
     if (toastRefreshBtn) {
       toastRefreshBtn.addEventListener("click", async () => {
-        showLoadingOverlay();
-
-        try {
-          const registration = await navigator.serviceWorker.getRegistration();
-
-          if (registration && registration.waiting) {
-            registration.waiting.postMessage({ type: "SKIP_WAITING" });
-          } else {
-            await performStrongRefresh();
-            return;
-          }
-        } catch (error) {
-          console.log("Toast refresh error:", error);
-          await performStrongRefresh();
+        if (isUserBusy()) {
+          showBusyUpdateMessage();
           return;
         }
 
-        setTimeout(() => {
-          window.location.reload();
-        }, 600);
+        if (updateToast) updateToast.classList.remove("show");
+        await performSafeUpdate();
       });
     }
 
@@ -454,7 +508,13 @@
       if (pullTriggered) {
         pullRefreshIndicator.classList.remove("show");
         pullRefreshIndicator.textContent = "↓ Pull to refresh";
-        await performStrongRefresh();
+
+        if (isUserBusy()) {
+          showBusyUpdateMessage();
+          return;
+        }
+
+        await performSafeUpdate();
       } else {
         pullRefreshIndicator.classList.remove("show");
         pullRefreshIndicator.textContent = "↓ Pull to refresh";
