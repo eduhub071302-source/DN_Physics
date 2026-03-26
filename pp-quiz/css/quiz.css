@@ -4,10 +4,12 @@
 
 :root {
   --bg: #0b1220;
-  --panel: #111a2b;
+  --bg-2: #0f1728;
+  --panel: rgba(17, 26, 43, 0.96);
   --panel-2: #17233a;
+  --panel-3: rgba(23, 35, 58, 0.82);
   --line: #24314f;
-  --line-soft: #2d4067;
+  --line-soft: rgba(255, 255, 255, 0.08);
   --text: #e8eefc;
   --muted: #a8b3cf;
   --accent: #4ea1ff;
@@ -21,7 +23,9 @@
   --gold: #ffd95e;
   --shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
   --shadow-strong: 0 16px 34px rgba(0, 0, 0, 0.42);
-  --radius: 18px;
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
 }
 
 html {
@@ -35,6 +39,7 @@ body {
     radial-gradient(circle at top, rgba(78, 161, 255, 0.08), transparent 28%),
     linear-gradient(180deg, #09101c 0%, #0d1524 100%);
   color: var(--text);
+  line-height: 1.6;
 }
 
 a {
@@ -84,6 +89,7 @@ select {
 .quiz-header h1 {
   margin: 0 0 8px;
   font-size: 32px;
+  line-height: 1.1;
 }
 
 .quiz-header p {
@@ -114,7 +120,7 @@ select {
 .post-result-actions {
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   padding: 18px;
   box-shadow: var(--shadow);
 }
@@ -132,6 +138,7 @@ select {
 #resultSummary,
 #historySummary {
   line-height: 1.8;
+  color: var(--muted);
 }
 
 #attemptInfo > div,
@@ -167,19 +174,20 @@ select {
   justify-content: center;
   min-height: 46px;
   padding: 12px 18px;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--line);
   background: var(--panel-2);
   color: var(--text);
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 0.18s ease, border-color 0.18s ease, opacity 0.18s ease, background 0.18s ease;
+  transition: transform 0.18s ease, border-color 0.18s ease, opacity 0.18s ease, background 0.18s ease, color 0.18s ease;
 }
 
 .action-btn:hover {
   transform: translateY(-2px);
   border-color: var(--accent);
+  color: var(--accent-2);
 }
 
 .action-btn:disabled {
@@ -189,14 +197,15 @@ select {
 }
 
 .primary-btn {
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
   color: #08121c;
-  border-color: var(--accent);
+  border-color: transparent;
 }
 
 .primary-btn:hover {
-  border-color: var(--accent-2);
   color: #08121c;
+  border-color: transparent;
+  filter: brightness(1.03);
 }
 
 /* PROGRESS */
@@ -263,7 +272,7 @@ select {
 .timer-box {
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.03);
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   padding: 14px 12px;
 }
 
@@ -292,7 +301,7 @@ select {
   width: 100%;
   background: var(--bg);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   padding: 12px;
   min-height: 420px;
   display: flex;
@@ -305,10 +314,11 @@ select {
   width: 100%;
   max-width: 900px;
   height: auto;
-  max-height: 380px;
+  max-height: 520px;
   object-fit: contain;
   border-radius: 12px;
   background: #fff;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
 #zoomBtn {
@@ -558,7 +568,8 @@ select {
   background: #fff;
 }
 
-#closeImageModal {
+#closeImageModal,
+.close-modal-btn {
   position: absolute;
   top: 16px;
   right: 16px;
