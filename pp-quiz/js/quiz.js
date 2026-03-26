@@ -7,27 +7,60 @@ document.addEventListener("DOMContentLoaded", async () => {
   const quizTitle = document.getElementById("quizTitle");
   const quizSubtitle = document.getElementById("quizSubtitle");
   const backToSubtopic = document.getElementById("backToSubtopic");
+
   const questionCounter = document.getElementById("questionCounter");
   const answeredCounter = document.getElementById("answeredCounter");
+  const flaggedCounter = document.getElementById("flaggedCounter");
+
   const questionImage = document.getElementById("questionImage");
   const prevBtn = document.getElementById("prevBtn");
   const nextBtn = document.getElementById("nextBtn");
   const submitQuizBtn = document.getElementById("submitQuizBtn");
   const finishQuizBtn = document.getElementById("finishQuizBtn");
+
   const resultCard = document.getElementById("resultCard");
   const resultSummary = document.getElementById("resultSummary");
+  const historyCard = document.getElementById("historyCard");
+  const historySummary = document.getElementById("historySummary");
+
   const answerButtons = Array.from(document.querySelectorAll(".answer-btn"));
   const attemptInfo = document.getElementById("attemptInfo");
+  const performanceSummary = document.getElementById("performanceSummary");
+
   const reviewNote = document.getElementById("reviewNote");
   const postResultActions = document.getElementById("postResultActions");
   const retryQuizBtn = document.getElementById("retryQuizBtn");
   const retryWrongBtn = document.getElementById("retryWrongBtn");
+  const retryUnansweredBtn = document.getElementById("retryUnansweredBtn");
+  const retryMarkedBtn = document.getElementById("retryMarkedBtn");
   const wrongOnlyBtn = document.getElementById("wrongOnlyBtn");
+
   const zoomBtn = document.getElementById("zoomBtn");
   const imageModal = document.getElementById("imageModal");
   const modalImage = document.getElementById("modalImage");
   const closeImageModal = document.getElementById("closeImageModal");
   const imageModalViewport = document.getElementById("imageModalViewport");
+
+  const quizTimerDisplay = document.getElementById("quizTimerDisplay");
+  const questionTimerDisplay = document.getElementById("questionTimerDisplay");
+
+  const markReviewBtn = document.getElementById("markReviewBtn");
+  const jumpBtn = document.getElementById("jumpBtn");
+  const jumpWrap = document.getElementById("jumpWrap");
+  const jumpInput = document.getElementById("jumpInput");
+  const jumpConfirmBtn = document.getElementById("jumpConfirmBtn");
+
+  const questionPalette = document.getElementById("questionPalette");
+  const quizProgressFill = document.getElementById("quizProgressFill");
+  const quizProgressText = document.getElementById("quizProgressText");
+
+  const answerExplanation = document.getElementById("answerExplanation");
+  const answerExplanationText = document.getElementById("answerExplanationText");
+
+  const resumeCard = document.getElementById("resumeCard");
+  const resumeSummary = document.getElementById("resumeSummary");
+  const resumeQuizBtn = document.getElementById("resumeQuizBtn");
+  const discardResumeBtn = document.getElementById("discardResumeBtn");
 
   const requiredElements = [
     quizTitle,
@@ -35,6 +68,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     backToSubtopic,
     questionCounter,
     answeredCounter,
+    flaggedCounter,
     questionImage,
     prevBtn,
     nextBtn,
@@ -42,17 +76,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     finishQuizBtn,
     resultCard,
     resultSummary,
+    historyCard,
+    historySummary,
     attemptInfo,
+    performanceSummary,
     reviewNote,
     postResultActions,
     retryQuizBtn,
     retryWrongBtn,
+    retryUnansweredBtn,
+    retryMarkedBtn,
     wrongOnlyBtn,
     zoomBtn,
     imageModal,
     modalImage,
     closeImageModal,
-    imageModalViewport
+    imageModalViewport,
+    quizTimerDisplay,
+    questionTimerDisplay,
+    markReviewBtn,
+    jumpBtn,
+    jumpWrap,
+    jumpInput,
+    jumpConfirmBtn,
+    questionPalette,
+    quizProgressFill,
+    quizProgressText,
+    answerExplanation,
+    answerExplanationText,
+    resumeCard,
+    resumeSummary,
+    resumeQuizBtn,
+    discardResumeBtn
   ];
 
   if (!topic || !subtopic) {
@@ -68,6 +123,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   const QUIZ_PROGRESS_KEY = "dnPhysicsQuizProgress";
+  const QUIZ_SESSION_KEY = "dnPhysicsQuizSessions";
 
   function makeNiceTitle(slug) {
     return (slug || "")
@@ -76,12 +132,38 @@ document.addEventListener("DOMContentLoaded", async () => {
       .join(" ");
   }
 
+  function formatTime(totalSeconds) {
+    const safe = Math.max(0, Math.floor(Number(totalSeconds) || 0));
+    const mins = Math.floor(safe / 60);
+    const secs = safe % 60;
+    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  }
+
   function getBadgeData(percentage) {
     const value = Number(percentage) || 0;
     if (value >= 90) return { label: "Gold 🥇", className: "badge-gold" };
     if (value >= 75) return { label: "Silver 🥈", className: "badge-silver" };
     if (value >= 50) return { label: "Bronze 🥉", className: "badge-bronze" };
     return null;
+  }
+
+  function getMasteryLevel(bestFullQuizPercentage) {
+    const value = Number(bestFullQuizPercentage) || 0;
+    if (value >= 90) return "Mastered";
+    if (value >= 75) return "Strong";
+    if (value >= 50) return "Improving";
+    return "Beginner";
+  }
+
+  function getTodayDateString() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  }
+
+  function getYesterdayDateString(dateString) {
+    const d = new Date(`${dateString}T00:00:00`);
+    d.setDate(d.getDate() - 1);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   }
 
   function getProgressStore() {
@@ -94,6 +176,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function saveProgressStore(store) {
     localStorage.setItem(QUIZ_PROGRESS_KEY, JSON.stringify(store));
+  }
+
+  function getSessionStore() {
+    try {
+      return JSON.parse(localStorage.getItem(QUIZ_SESSION_KEY)) || {};
+    } catch {
+      return {};
+    }
+  }
+
+  function saveSessionStore(store) {
+    localStorage.setItem(QUIZ_SESSION_KEY, JSON.stringify(store));
   }
 
   function getQuizProgressId(topicSlug, subtopicSlug, currentSetName = "set-1") {
@@ -113,8 +207,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       bestAnswered: 0,
       bestPercentage: "0.0",
       attempts: 0,
-      bestFullBadgePercentage: null
+      bestFullBadgePercentage: null,
+      lastPlayedAt: null,
+      streak: 0,
+      completedFullQuiz: false,
+      totalWrongBank: [],
+      bestHistory: []
     };
+  }
+
+  function normalizeArrayOfNumbers(arr) {
+    if (!Array.isArray(arr)) return [];
+    return [...new Set(arr.map((n) => Number(n)).filter((n) => Number.isFinite(n) && n > 0))].sort((a, b) => a - b);
   }
 
   function normalizeAttemptData(data) {
@@ -132,7 +236,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       bestFullBadgePercentage:
         data.bestFullBadgePercentage === null || data.bestFullBadgePercentage === undefined
           ? null
-          : data.bestFullBadgePercentage
+          : data.bestFullBadgePercentage,
+      lastPlayedAt: data.lastPlayedAt || null,
+      streak: Number(data.streak) || 0,
+      completedFullQuiz: Boolean(data.completedFullQuiz),
+      totalWrongBank: normalizeArrayOfNumbers(data.totalWrongBank),
+      bestHistory: Array.isArray(data.bestHistory) ? data.bestHistory.slice(0, 10) : []
     };
   }
 
@@ -144,7 +253,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       return normalizeAttemptData(store[progressId]);
     }
 
-    // one-time migration from old single-key storage
     try {
       const legacy = JSON.parse(localStorage.getItem(getLegacyStorageKey()));
       if (legacy) {
@@ -154,7 +262,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         return normalized;
       }
     } catch {
-      // ignore broken old data
+      // ignore
     }
 
     return null;
@@ -167,6 +275,41 @@ document.addEventListener("DOMContentLoaded", async () => {
     saveProgressStore(store);
   }
 
+  function getSavedSession() {
+    const store = getSessionStore();
+    const sessionId = getQuizProgressId(topic, subtopic, setName);
+    return store[sessionId] || null;
+  }
+
+  function saveCurrentSession() {
+    if (reviewMode) return;
+
+    const store = getSessionStore();
+    const sessionId = getQuizProgressId(topic, subtopic, setName);
+
+    store[sessionId] = {
+      currentQuestion,
+      currentDisplayIndex,
+      userAnswers,
+      flaggedQuestions: Array.from(flaggedQuestions),
+      unansweredSnapshot: getUnansweredQuestions(),
+      practiceWrongOnlyMode,
+      practiceWrongQuestions,
+      quizElapsedSeconds,
+      questionElapsedSeconds,
+      savedAt: Date.now()
+    };
+
+    saveSessionStore(store);
+  }
+
+  function clearSavedSession() {
+    const store = getSessionStore();
+    const sessionId = getQuizProgressId(topic, subtopic, setName);
+    delete store[sessionId];
+    saveSessionStore(store);
+  }
+
   function renderAttemptInfo() {
     const saved = loadAttemptData();
 
@@ -175,7 +318,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         <div><strong>Last Score:</strong> No previous attempt</div>
         <div><strong>Best Score:</strong> No previous attempt</div>
         <div><strong>Attempts:</strong> 0</div>
-        <div><strong>Badge System:</strong> Earn badges by scoring <strong>50%+</strong>, <strong>75%+</strong>, and <strong>90%+</strong> out of <strong>all questions</strong> in a <strong>full quiz</strong>.</div>
+        <div><strong>Badge:</strong> None</div>
+        <div><strong>Wrong Bank:</strong> 0 questions</div>
       `;
       return;
     }
@@ -186,14 +330,50 @@ document.addEventListener("DOMContentLoaded", async () => {
       <div><strong>Last Score:</strong> ${saved.lastCorrect} / ${saved.lastAnswered} (${saved.lastPercentage}%)</div>
       <div><strong>Best Score:</strong> ${saved.bestCorrect} / ${saved.bestAnswered} (${saved.bestPercentage}%)</div>
       <div><strong>Attempts:</strong> ${saved.attempts}</div>
-      ${badge ? `<div><strong>Badge:</strong> <span class="${badge.className}">${badge.label}</span></div>` : `<div><strong>Badge:</strong> None</div>`}
-      <div><strong>Badge System:</strong> Earn badges by scoring <strong>50%+</strong>, <strong>75%+</strong>, and <strong>90%+</strong> out of <strong>all questions</strong> in a <strong>full quiz</strong>.</div>
+      <div><strong>Badge:</strong> ${badge ? `<span class="${badge.className}">${badge.label}</span>` : "None"}</div>
+      <div><strong>Wrong Bank:</strong> ${saved.totalWrongBank.length} questions</div>
     `;
+  }
+
+  function renderPerformanceCard() {
+    const saved = loadAttemptData() || getDefaultAttemptData();
+    const mastery = getMasteryLevel(saved.bestFullBadgePercentage);
+    const lastPlayedText = saved.lastPlayedAt ? saved.lastPlayedAt : "Never";
+
+    performanceSummary.innerHTML = `
+      <div><strong>Mastery:</strong> ${mastery}</div>
+      <div><strong>Completed Full Quiz:</strong> ${saved.completedFullQuiz ? "Yes" : "No"}</div>
+      <div><strong>Last Played:</strong> ${lastPlayedText}</div>
+      <div><strong>Streak:</strong> ${saved.streak} day${saved.streak === 1 ? "" : "s"}</div>
+    `;
+  }
+
+  function renderHistoryCard() {
+    const saved = loadAttemptData() || getDefaultAttemptData();
+    const history = Array.isArray(saved.bestHistory) ? saved.bestHistory : [];
+
+    historyCard.style.display = history.length ? "block" : "none";
+
+    if (!history.length) {
+      historySummary.innerHTML = `<div>No history yet.</div>`;
+      return;
+    }
+
+    historySummary.innerHTML = history
+      .map((item, index) => {
+        return `
+          <div>
+            <strong>#${index + 1}</strong> — ${item.date || "Unknown"} — ${item.mode || "quiz"} — ${item.percentage || "0.0"}%
+          </div>
+        `;
+      })
+      .join("");
   }
 
   let currentQuestion = 1;
   let totalQuestions = 1;
   let answerKey = {};
+  let explanations = {};
   let userAnswers = {};
   let reviewMode = false;
   let wrongQuestionsGlobal = [];
@@ -203,6 +383,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   let currentDisplayIndex = 1;
   let pinchStartDistance = 0;
   let modalScale = 1;
+  let flaggedQuestions = new Set();
+
+  let quizTimerInterval = null;
+  let questionTimerInterval = null;
+  let quizElapsedSeconds = 0;
+  let questionElapsedSeconds = 0;
+
+  let quizTimeLimitSeconds = null;
+  let questionTimeLimitSeconds = null;
+
+  let retryModeType = "full";
+  let retryQuestionList = [];
 
   async function loadQuizData() {
     const jsonPath = `/DN_Physics/pp-quiz/data/${topic}/${subtopic}/${setName}.json`;
@@ -216,6 +408,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       const data = await response.json();
       totalQuestions = Number(data.totalQuestions) || 1;
       answerKey = data.answers || {};
+      explanations = data.explanations || {};
+      quizTimeLimitSeconds = Number(data.quizTimeLimitSeconds) || null;
+      questionTimeLimitSeconds = Number(data.questionTimeLimitSeconds) || null;
+
       quizTitle.textContent = `${makeNiceTitle(subtopic)} - ${data.title || makeNiceTitle(setName)}`;
       quizSubtitle.textContent = `${makeNiceTitle(topic)} / ${makeNiceTitle(subtopic)}`;
     } catch (error) {
@@ -235,24 +431,70 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function getAnsweredCount() {
-    return Object.keys(userAnswers).length;
+    const relevantQuestions = getQuestionListForCurrentMode();
+    return relevantQuestions.filter((q) => userAnswers[q] !== undefined).length;
+  }
+
+  function getFlaggedCount() {
+    const relevantQuestions = getQuestionListForCurrentMode();
+    return relevantQuestions.filter((q) => flaggedQuestions.has(q)).length;
+  }
+
+  function getQuestionListForCurrentMode() {
+    if (retryModeType === "list" || practiceWrongOnlyMode) {
+      return [...retryQuestionList];
+    }
+    return Array.from({ length: totalQuestions }, (_, i) => i + 1);
   }
 
   function getCurrentQuestionNumber() {
-    if (practiceWrongOnlyMode) {
-      return practiceWrongQuestions[currentDisplayIndex - 1];
+    if (retryModeType === "list" || practiceWrongOnlyMode) {
+      return retryQuestionList[currentDisplayIndex - 1];
     }
     return currentQuestion;
   }
 
   function getCurrentTotalCount() {
-    return practiceWrongOnlyMode ? practiceWrongQuestions.length : totalQuestions;
+    if (retryModeType === "list" || practiceWrongOnlyMode) {
+      return retryQuestionList.length;
+    }
+    return totalQuestions;
+  }
+
+  function getCurrentShownIndex() {
+    if (retryModeType === "list" || practiceWrongOnlyMode) {
+      return currentDisplayIndex;
+    }
+    return currentQuestion;
+  }
+
+  function getUnansweredQuestions() {
+    const questionList = getQuestionListForCurrentMode();
+    return questionList.filter((q) => userAnswers[q] === undefined);
   }
 
   function clearReviewClasses() {
     answerButtons.forEach((button) => {
       button.classList.remove("selected", "correct-answer", "wrong-answer", "review-dim");
     });
+  }
+
+  function updateExplanationBox() {
+    if (!reviewMode) {
+      answerExplanation.style.display = "none";
+      return;
+    }
+
+    const questionNumber = getCurrentQuestionNumber();
+    const explanation = explanations[String(questionNumber)];
+
+    if (explanation) {
+      answerExplanation.style.display = "block";
+      answerExplanationText.textContent = explanation;
+    } else {
+      answerExplanation.style.display = "none";
+      answerExplanationText.textContent = "No explanation available.";
+    }
   }
 
   function updateAnswerButtons() {
@@ -267,6 +509,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const value = Number(button.dataset.answer);
         button.classList.toggle("selected", value === selected);
       });
+      updateExplanationBox();
       return;
     }
 
@@ -283,25 +526,69 @@ document.addEventListener("DOMContentLoaded", async () => {
         button.classList.add("review-dim");
       }
     });
+
+    updateExplanationBox();
+  }
+
+  function updateProgressBar() {
+    const answeredCount = getAnsweredCount();
+    const totalCount = getCurrentTotalCount();
+    const percent = totalCount > 0 ? ((answeredCount / totalCount) * 100).toFixed(1) : "0.0";
+
+    quizProgressFill.style.width = `${percent}%`;
+    quizProgressText.textContent = `${percent}%`;
+  }
+
+  function updatePalette() {
+    const currentQ = getCurrentQuestionNumber();
+    const list = getQuestionListForCurrentMode();
+
+    questionPalette.innerHTML = "";
+
+    list.forEach((questionNumber, index) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "palette-btn";
+      btn.textContent = questionNumber;
+
+      if (questionNumber === currentQ) btn.classList.add("is-current");
+      if (userAnswers[questionNumber] !== undefined) btn.classList.add("is-answered");
+      if (flaggedQuestions.has(questionNumber)) btn.classList.add("is-flagged");
+      if (userAnswers[questionNumber] === undefined) btn.classList.add("is-unanswered");
+
+      btn.addEventListener("click", () => {
+        goToQuestionByActualNumber(questionNumber);
+      });
+
+      questionPalette.appendChild(btn);
+    });
+
+    markReviewBtn.textContent = flaggedQuestions.has(currentQ)
+      ? "★ Unmark Review"
+      : "☆ Mark for Review";
   }
 
   function updateSubmitVisibility() {
     const answeredCount = getAnsweredCount();
     const currentTotal = getCurrentTotalCount();
-    answeredCounter.textContent = `Answered: ${answeredCount} / ${currentTotal}`;
 
-    const allAnswered =
-      answeredCount === currentTotal && !reviewMode && !practiceWrongOnlyMode;
+    answeredCounter.textContent = `Answered: ${answeredCount} / ${currentTotal}`;
+    flaggedCounter.textContent = `Flagged: ${getFlaggedCount()}`;
+
+    const allAnswered = answeredCount === currentTotal && !reviewMode;
 
     submitQuizBtn.style.display = allAnswered ? "inline-flex" : "none";
     finishQuizBtn.style.display = allAnswered ? "none" : "inline-flex";
     finishQuizBtn.disabled = reviewMode;
+
+    updateProgressBar();
+    updatePalette();
   }
 
   function updateQuestionView() {
     const questionNumber = getCurrentQuestionNumber();
     const totalCount = getCurrentTotalCount();
-    const shownIndex = practiceWrongOnlyMode ? currentDisplayIndex : currentQuestion;
+    const shownIndex = getCurrentShownIndex();
 
     questionCounter.textContent = `Question ${shownIndex} of ${totalCount}`;
     questionImage.src = getImagePath(questionNumber);
@@ -313,6 +600,92 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     updateAnswerButtons();
     updateSubmitVisibility();
+    resetQuestionTimer();
+    saveCurrentSession();
+  }
+
+  function stopTimers() {
+    if (quizTimerInterval) {
+      clearInterval(quizTimerInterval);
+      quizTimerInterval = null;
+    }
+    if (questionTimerInterval) {
+      clearInterval(questionTimerInterval);
+      questionTimerInterval = null;
+    }
+  }
+
+  function updateTimerDisplays() {
+    if (quizTimeLimitSeconds) {
+      quizTimerDisplay.textContent = formatTime(Math.max(0, quizTimeLimitSeconds - quizElapsedSeconds));
+    } else {
+      quizTimerDisplay.textContent = formatTime(quizElapsedSeconds);
+    }
+
+    if (questionTimeLimitSeconds) {
+      questionTimerDisplay.textContent = formatTime(Math.max(0, questionTimeLimitSeconds - questionElapsedSeconds));
+    } else {
+      questionTimerDisplay.textContent = formatTime(questionElapsedSeconds);
+    }
+  }
+
+  function startTimers() {
+    stopTimers();
+
+    quizTimerInterval = setInterval(() => {
+      quizElapsedSeconds++;
+      updateTimerDisplays();
+      saveCurrentSession();
+
+      if (quizTimeLimitSeconds && quizElapsedSeconds >= quizTimeLimitSeconds && !reviewMode) {
+        showResult("full");
+      }
+    }, 1000);
+
+    questionTimerInterval = setInterval(() => {
+      questionElapsedSeconds++;
+      updateTimerDisplays();
+
+      if (questionTimeLimitSeconds && questionElapsedSeconds >= questionTimeLimitSeconds && !reviewMode) {
+        autoAdvanceQuestion();
+      }
+    }, 1000);
+  }
+
+  function resetQuestionTimer() {
+    questionElapsedSeconds = 0;
+    updateTimerDisplays();
+
+    if (questionTimerInterval) {
+      clearInterval(questionTimerInterval);
+      questionTimerInterval = setInterval(() => {
+        questionElapsedSeconds++;
+        updateTimerDisplays();
+
+        if (questionTimeLimitSeconds && questionElapsedSeconds >= questionTimeLimitSeconds && !reviewMode) {
+          autoAdvanceQuestion();
+        }
+      }, 1000);
+    }
+  }
+
+  function autoAdvanceQuestion() {
+    const shownIndex = getCurrentShownIndex();
+    const total = getCurrentTotalCount();
+
+    if (shownIndex < total) {
+      if (retryModeType === "list" || practiceWrongOnlyMode) {
+        currentDisplayIndex++;
+      } else {
+        currentQuestion++;
+      }
+      updateQuestionView();
+      return;
+    }
+
+    if (!reviewMode) {
+      showResult("partial");
+    }
   }
 
   function resetCurrentQuizState() {
@@ -323,36 +696,50 @@ document.addEventListener("DOMContentLoaded", async () => {
     wrongQuestionsGlobal = [];
     wrongQuestionPointer = 0;
     practiceWrongOnlyMode = false;
-    practiceWrongQuestions = [];
+    retryModeType = "full";
+    retryQuestionList = [];
+    flaggedQuestions = new Set();
+    quizElapsedSeconds = 0;
+    questionElapsedSeconds = 0;
 
     reviewNote.style.display = "none";
     resultCard.style.display = "none";
     postResultActions.style.display = "none";
     wrongOnlyBtn.style.display = "none";
     retryWrongBtn.style.display = "none";
+    retryUnansweredBtn.style.display = "none";
+    retryMarkedBtn.style.display = "none";
     finishQuizBtn.style.display = "inline-flex";
     submitQuizBtn.style.display = "none";
+    answerExplanation.style.display = "none";
 
+    clearSavedSession();
     updateQuestionView();
+    updateTimerDisplays();
+    startTimers();
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function startWrongOnlyPractice() {
-    if (!wrongQuestionsGlobal.length) return;
+  function startListRetryMode(questionList) {
+    if (!Array.isArray(questionList) || !questionList.length) return;
 
-    practiceWrongOnlyMode = true;
-    practiceWrongQuestions = [...wrongQuestionsGlobal];
+    retryModeType = "list";
+    retryQuestionList = [...questionList];
     currentDisplayIndex = 1;
-    userAnswers = {};
     reviewMode = false;
+    userAnswers = {};
+    questionElapsedSeconds = 0;
 
     reviewNote.style.display = "none";
     resultCard.style.display = "none";
     postResultActions.style.display = "none";
     wrongOnlyBtn.style.display = "none";
     retryWrongBtn.style.display = "none";
+    retryUnansweredBtn.style.display = "none";
+    retryMarkedBtn.style.display = "none";
     finishQuizBtn.style.display = "inline-flex";
     submitQuizBtn.style.display = "none";
+    answerExplanation.style.display = "none";
 
     updateQuestionView();
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -374,6 +761,29 @@ document.addEventListener("DOMContentLoaded", async () => {
       (previousBestFullBadgePercentage === null ||
         Number(fullQuizPercentage) > Number(previousBestFullBadgePercentage));
 
+    const today = getTodayDateString();
+    let nextStreak = previous.streak || 0;
+
+    if (!previous.lastPlayedAt) {
+      nextStreak = 1;
+    } else if (previous.lastPlayedAt === today) {
+      nextStreak = previous.streak || 1;
+    } else if (previous.lastPlayedAt === getYesterdayDateString(today)) {
+      nextStreak = (previous.streak || 0) + 1;
+    } else {
+      nextStreak = 1;
+    }
+
+    const wrongBankSet = new Set(previous.totalWrongBank || []);
+    wrongQuestions.forEach((q) => wrongBankSet.add(q));
+
+    const history = Array.isArray(previous.bestHistory) ? [...previous.bestHistory] : [];
+    history.unshift({
+      date: today,
+      mode,
+      percentage: mode === "full" ? fullQuizPercentage : scorePercent
+    });
+
     const newData = {
       lastCorrect: correct,
       lastAnswered: answeredQuestions,
@@ -384,20 +794,31 @@ document.addEventListener("DOMContentLoaded", async () => {
       attempts: (previous.attempts || 0) + 1,
       bestFullBadgePercentage: shouldUpdateFullBadge
         ? fullQuizPercentage
-        : previousBestFullBadgePercentage
+        : previousBestFullBadgePercentage,
+      lastPlayedAt: today,
+      streak: nextStreak,
+      completedFullQuiz: previous.completedFullQuiz || mode === "full",
+      totalWrongBank: [...wrongBankSet].sort((a, b) => a - b),
+      bestHistory: history.slice(0, 10)
     };
 
     saveAttemptData(newData);
+    clearSavedSession();
     renderAttemptInfo();
+    renderPerformanceCard();
+    renderHistoryCard();
 
     const earnedBadge = mode === "full" ? getBadgeData(fullQuizPercentage) : null;
+    const masteryLevel = getMasteryLevel(newData.bestFullBadgePercentage);
 
     const modeText =
       mode === "full"
-        ? "Calculated from all answered questions after full submit."
+        ? "Calculated from all questions after full submit."
         : mode === "wrong-only"
         ? "Calculated from wrong-question practice only."
-        : "Calculated only from answered questions after finishing now.";
+        : mode === "partial"
+        ? "Calculated only from answered questions after finishing now."
+        : "Calculated from the selected retry list.";
 
     resultSummary.innerHTML = `
       <div><strong>Total Questions:</strong> ${getCurrentTotalCount()}</div>
@@ -412,6 +833,9 @@ document.addEventListener("DOMContentLoaded", async () => {
           ? `<div><strong>Full Quiz Percentage:</strong> ${fullQuizPercentage}% out of all ${totalQuestions} questions</div>`
           : ""
       }
+      <div><strong>Mastery:</strong> ${masteryLevel}</div>
+      <div><strong>Last Played:</strong> ${today}</div>
+      <div><strong>Streak:</strong> ${newData.streak} day${newData.streak === 1 ? "" : "s"}</div>
       ${
         earnedBadge
           ? `<div><strong>Badge Earned:</strong> <span class="${earnedBadge.className}">${earnedBadge.label}</span></div>`
@@ -433,27 +857,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     retryQuizBtn.style.display = "inline-flex";
     wrongOnlyBtn.style.display = wrongQuestionsGlobal.length > 0 ? "inline-flex" : "none";
     retryWrongBtn.style.display = wrongQuestions.length > 0 ? "inline-flex" : "none";
+    retryUnansweredBtn.style.display = unanswered > 0 ? "inline-flex" : "none";
+    retryMarkedBtn.style.display = flaggedQuestions.size > 0 ? "inline-flex" : "none";
 
+    stopTimers();
     updateQuestionView();
     resultCard.scrollIntoView({ behavior: "smooth" });
   }
 
   function showResult(mode) {
+    const questionList =
+      retryModeType === "list" || practiceWrongOnlyMode
+        ? [...retryQuestionList]
+        : Array.from({ length: totalQuestions }, (_, i) => i + 1);
+
     let correct = 0;
     let wrong = 0;
     let unanswered = 0;
     let wrongQuestions = [];
     let answeredQuestions = 0;
 
-    const questionList = practiceWrongOnlyMode
-      ? practiceWrongQuestions
-      : Array.from({ length: totalQuestions }, (_, i) => i + 1);
-
     for (const questionNumber of questionList) {
       const userAnswer = userAnswers[questionNumber];
       const validAnswers = answerKey[String(questionNumber)] || [];
 
-      if (!userAnswer) {
+      if (userAnswer === undefined) {
         unanswered++;
         continue;
       }
@@ -471,6 +899,82 @@ document.addEventListener("DOMContentLoaded", async () => {
     finalizeAttempt(correct, wrong, unanswered, answeredQuestions, wrongQuestions, mode);
   }
 
+  function goToQuestionByActualNumber(questionNumber) {
+    const target = Number(questionNumber);
+    if (!Number.isFinite(target)) return;
+
+    if (retryModeType === "list" || practiceWrongOnlyMode) {
+      const index = retryQuestionList.indexOf(target);
+      if (index === -1) return;
+      currentDisplayIndex = index + 1;
+    } else {
+      if (target < 1 || target > totalQuestions) return;
+      currentQuestion = target;
+    }
+
+    updateQuestionView();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function promptJumpToQuestion() {
+    jumpWrap.style.display = jumpWrap.style.display === "none" ? "flex" : "none";
+    jumpInput.max = String(getCurrentTotalCount());
+    jumpInput.value = String(getCurrentShownIndex());
+  }
+
+  function restoreSessionUI(savedSession) {
+    if (!savedSession) return;
+
+    currentQuestion = Number(savedSession.currentQuestion) || 1;
+    currentDisplayIndex = Number(savedSession.currentDisplayIndex) || 1;
+    userAnswers = savedSession.userAnswers || {};
+    flaggedQuestions = new Set(Array.isArray(savedSession.flaggedQuestions) ? savedSession.flaggedQuestions : []);
+    practiceWrongOnlyMode = Boolean(savedSession.practiceWrongOnlyMode);
+    retryModeType = savedSession.practiceWrongOnlyMode ? "list" : "full";
+    retryQuestionList = Array.isArray(savedSession.practiceWrongQuestions) && savedSession.practiceWrongQuestions.length
+      ? savedSession.practiceWrongQuestions
+      : [];
+    quizElapsedSeconds = Number(savedSession.quizElapsedSeconds) || 0;
+    questionElapsedSeconds = Number(savedSession.questionElapsedSeconds) || 0;
+
+    reviewMode = false;
+    wrongQuestionsGlobal = [];
+    wrongQuestionPointer = 0;
+
+    reviewNote.style.display = "none";
+    resultCard.style.display = "none";
+    postResultActions.style.display = "none";
+    answerExplanation.style.display = "none";
+
+    updateQuestionView();
+    updateTimerDisplays();
+    startTimers();
+  }
+
+  function checkResumeCard() {
+    const savedSession = getSavedSession();
+    if (!savedSession || !savedSession.userAnswers || Object.keys(savedSession.userAnswers).length === 0) {
+      resumeCard.style.display = "none";
+      return;
+    }
+
+    const answered = Object.keys(savedSession.userAnswers).length;
+    const savedAt = savedSession.savedAt ? new Date(savedSession.savedAt).toLocaleString() : "Earlier";
+    resumeSummary.textContent = `Answered ${answered} question(s). Saved at ${savedAt}.`;
+    resumeCard.style.display = "block";
+
+    resumeQuizBtn.onclick = () => {
+      resumeCard.style.display = "none";
+      restoreSessionUI(savedSession);
+    };
+
+    discardResumeBtn.onclick = () => {
+      clearSavedSession();
+      resumeCard.style.display = "none";
+      resetCurrentQuizState();
+    };
+  }
+
   answerButtons.forEach((button) => {
     button.addEventListener("click", () => {
       if (reviewMode) return;
@@ -478,53 +982,66 @@ document.addEventListener("DOMContentLoaded", async () => {
       userAnswers[questionNumber] = Number(button.dataset.answer);
       updateAnswerButtons();
       updateSubmitVisibility();
+      saveCurrentSession();
     });
   });
 
   prevBtn.addEventListener("click", () => {
-    if (practiceWrongOnlyMode) {
-      if (currentDisplayIndex > 1) {
-        currentDisplayIndex--;
-        updateQuestionView();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-      return;
-    }
+    const shownIndex = getCurrentShownIndex();
 
-    if (currentQuestion > 1) {
-      currentQuestion--;
+    if (shownIndex > 1) {
+      if (retryModeType === "list" || practiceWrongOnlyMode) {
+        currentDisplayIndex--;
+      } else {
+        currentQuestion--;
+      }
       updateQuestionView();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   });
 
   nextBtn.addEventListener("click", () => {
-    if (practiceWrongOnlyMode) {
-      if (currentDisplayIndex < practiceWrongQuestions.length) {
-        currentDisplayIndex++;
-        updateQuestionView();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-      return;
-    }
+    const shownIndex = getCurrentShownIndex();
+    const total = getCurrentTotalCount();
 
-    if (currentQuestion < totalQuestions) {
-      currentQuestion++;
+    if (shownIndex < total) {
+      if (retryModeType === "list" || practiceWrongOnlyMode) {
+        currentDisplayIndex++;
+      } else {
+        currentQuestion++;
+      }
       updateQuestionView();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   });
 
   retryQuizBtn.addEventListener("click", resetCurrentQuizState);
-  retryWrongBtn.addEventListener("click", startWrongOnlyPractice);
+
+  retryWrongBtn.addEventListener("click", () => {
+    if (!wrongQuestionsGlobal.length) return;
+    practiceWrongOnlyMode = false;
+    startListRetryMode(wrongQuestionsGlobal);
+  });
+
+  retryUnansweredBtn.addEventListener("click", () => {
+    const unanswered = getQuestionListForCurrentMode().filter((q) => userAnswers[q] === undefined);
+    if (!unanswered.length) return;
+    practiceWrongOnlyMode = false;
+    startListRetryMode(unanswered);
+  });
+
+  retryMarkedBtn.addEventListener("click", () => {
+    const marked = getQuestionListForCurrentMode().filter((q) => flaggedQuestions.has(q));
+    if (!marked.length) return;
+    practiceWrongOnlyMode = false;
+    startListRetryMode(marked);
+  });
 
   wrongOnlyBtn.addEventListener("click", () => {
     if (!wrongQuestionsGlobal.length) return;
 
-    currentQuestion = wrongQuestionsGlobal[wrongQuestionPointer];
-    practiceWrongOnlyMode = false;
-    updateQuestionView();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    const questionNo = wrongQuestionsGlobal[wrongQuestionPointer];
+    goToQuestionByActualNumber(questionNo);
 
     wrongQuestionPointer++;
     if (wrongQuestionPointer >= wrongQuestionsGlobal.length) {
@@ -533,9 +1050,44 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   submitQuizBtn.addEventListener("click", () => showResult("full"));
-  finishQuizBtn.addEventListener("click", () =>
-    showResult(practiceWrongOnlyMode ? "wrong-only" : "partial")
-  );
+
+  finishQuizBtn.addEventListener("click", () => {
+    const mode =
+      retryModeType === "list" || practiceWrongOnlyMode ? "custom-list" : "partial";
+    showResult(mode);
+  });
+
+  markReviewBtn.addEventListener("click", () => {
+    if (reviewMode) return;
+    const q = getCurrentQuestionNumber();
+
+    if (flaggedQuestions.has(q)) {
+      flaggedQuestions.delete(q);
+    } else {
+      flaggedQuestions.add(q);
+    }
+
+    updateSubmitVisibility();
+    saveCurrentSession();
+  });
+
+  jumpBtn.addEventListener("click", promptJumpToQuestion);
+
+  jumpConfirmBtn.addEventListener("click", () => {
+    const value = Number(jumpInput.value);
+    if (!Number.isFinite(value)) return;
+
+    if (retryModeType === "list" || practiceWrongOnlyMode) {
+      const actualQuestion = retryQuestionList[value - 1];
+      if (actualQuestion) {
+        currentDisplayIndex = value;
+        updateQuestionView();
+      }
+    } else if (value >= 1 && value <= totalQuestions) {
+      currentQuestion = value;
+      updateQuestionView();
+    }
+  });
 
   questionImage.addEventListener("error", () => {
     questionImage.alt = "Question image not found";
@@ -615,9 +1167,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     pinchStartDistance = 0;
   });
 
+  window.addEventListener("beforeunload", () => {
+    saveCurrentSession();
+  });
+
   const loaded = await loadQuizData();
   if (!loaded) return;
 
   renderAttemptInfo();
+  renderPerformanceCard();
+  renderHistoryCard();
+  updateTimerDisplays();
   updateQuestionView();
+  checkResumeCard();
+
+  if (resumeCard.style.display === "none") {
+    startTimers();
+  }
 });
