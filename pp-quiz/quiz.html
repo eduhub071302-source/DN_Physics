@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quiz | PP Quiz</title>
 
-  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=21" />
+  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=22" />
 
   <style>
     html, body {
@@ -20,8 +20,8 @@
       right: 0;
       background: linear-gradient(90deg, #1e3a8a, #2563eb);
       color: #fff;
-      padding: 12px 14px;
-      font-size: 14px;
+      padding: 10px 12px;
+      font-size: 13px;
       text-align: center;
       z-index: 5000;
       display: none;
@@ -34,19 +34,19 @@
     }
 
     .quiz-update-banner button {
-      margin-left: 10px;
+      margin-left: 8px;
       background: #fff;
       color: #1e3a8a;
       border: none;
-      padding: 6px 12px;
+      padding: 6px 10px;
       border-radius: 10px;
       cursor: pointer;
       font-weight: 700;
     }
 
     .motivation-bar {
-      margin-bottom: 16px;
-      padding: 14px 16px;
+      margin-bottom: 12px;
+      padding: 12px 14px;
       border-radius: 14px;
       border: 1px solid rgba(124, 196, 255, 0.18);
       background: rgba(78, 161, 255, 0.08);
@@ -54,12 +54,12 @@
       text-align: center;
       font-weight: 600;
       letter-spacing: 0.2px;
+      line-height: 1.5;
     }
 
-    /* ORGANIZED QUIZ LAYOUT */
     .quiz-shell {
       display: grid;
-      gap: 18px;
+      gap: 14px;
     }
 
     .quiz-status-card,
@@ -75,38 +75,38 @@
     }
 
     .quiz-status-card {
-      padding: 16px 18px;
+      padding: 12px;
       position: sticky;
-      top: 92px;
+      top: 84px;
       z-index: 20;
     }
 
     .quiz-status-top {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 6px;
       align-items: center;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
 
     .quiz-status-pill {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 38px;
-      padding: 8px 14px;
+      min-height: 30px;
+      padding: 5px 10px;
       border-radius: 999px;
       border: 1px solid var(--line);
       background: rgba(255,255,255,0.03);
       color: var(--muted);
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 700;
     }
 
     .quiz-status-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1.2fr) repeat(2, minmax(140px, 180px));
-      gap: 14px;
+      grid-template-columns: 1fr 110px 110px;
+      gap: 8px;
       align-items: stretch;
     }
 
@@ -114,14 +114,14 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
       min-width: 0;
     }
 
     .quiz-progress-inline {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .quiz-progress-inline .progress-bar {
@@ -131,42 +131,42 @@
     .quiz-progress-caption {
       display: flex;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
       color: var(--muted);
-      font-size: 13px;
+      font-size: 12px;
     }
 
     .quiz-mini-timer {
       border: 1px solid var(--line);
       background: rgba(255,255,255,0.03);
-      border-radius: 14px;
-      padding: 12px 14px;
+      border-radius: 12px;
+      padding: 8px 10px;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      min-height: 72px;
+      min-height: 54px;
     }
 
     .quiz-mini-timer span {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .quiz-mini-timer strong {
-      font-size: 20px;
+      font-size: 15px;
       line-height: 1;
       color: var(--accent-2);
     }
 
     .quiz-main-card {
-      padding: 18px;
+      padding: 14px;
     }
 
     .quiz-main-image {
-      margin-bottom: 18px;
+      margin-bottom: 14px;
     }
 
     .quiz-main-image .question-image-wrap {
@@ -175,55 +175,56 @@
 
     .quiz-controls-card,
     .quiz-nav-card {
-      padding: 16px 18px;
+      padding: 12px;
     }
 
     .quiz-section-head {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 12px;
+      gap: 10px;
+      margin-bottom: 10px;
     }
 
     .quiz-section-head h3 {
       margin: 0;
-      font-size: 18px;
+      font-size: 16px;
     }
 
     .quiz-section-head p {
       margin: 0;
       color: var(--muted);
-      font-size: 13px;
+      font-size: 12px;
+      line-height: 1.5;
     }
 
     .quiz-primary-actions {
       display: flex;
-      gap: 12px;
+      gap: 8px;
       flex-wrap: wrap;
     }
 
     .quiz-primary-actions .action-btn {
       flex: 1;
-      min-width: 160px;
+      min-width: 140px;
     }
 
     .quiz-nav-top {
       display: flex;
-      gap: 12px;
+      gap: 8px;
       flex-wrap: wrap;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
 
     .quiz-nav-top .action-btn {
-      min-width: 150px;
+      min-width: 140px;
     }
 
     .quiz-nav-row {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
 
     .quiz-nav-row #jumpWrap {
@@ -237,15 +238,15 @@
 
     .result-hero {
       display: grid;
-      grid-template-columns: 140px 1fr;
-      gap: 20px;
+      grid-template-columns: 120px 1fr;
+      gap: 16px;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     .score-circle {
-      width: 140px;
-      height: 140px;
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
       display: grid;
       place-items: center;
@@ -256,8 +257,8 @@
     }
 
     .score-inner {
-      width: 90px;
-      height: 90px;
+      width: 78px;
+      height: 78px;
       border-radius: 50%;
       display: grid;
       place-items: center;
@@ -266,7 +267,7 @@
     }
 
     .score-inner strong {
-      font-size: 28px;
+      font-size: 22px;
     }
 
     @media (max-width: 980px) {
@@ -280,9 +281,82 @@
     }
 
     @media (max-width: 768px) {
-      .result-hero {
+      .quiz-header {
+        padding: 16px 0 12px;
+      }
+
+      .back-link {
+        margin-bottom: 10px;
+        padding: 7px 10px;
+        font-size: 13px;
+      }
+
+      .quiz-header h1 {
+        font-size: 24px;
+        margin-bottom: 4px;
+      }
+
+      .quiz-header p {
+        font-size: 13px;
+      }
+
+      .quiz-main {
+        padding: 16px 0 28px;
+      }
+
+      .quiz-top-cards {
         grid-template-columns: 1fr;
-        text-align: center;
+        gap: 12px;
+      }
+
+      .motivation-bar {
+        margin-bottom: 0;
+        padding: 10px 12px;
+        font-size: 13px;
+      }
+
+      .quiz-status-card {
+        top: 74px;
+        padding: 10px;
+      }
+
+      .quiz-status-top {
+        gap: 6px;
+        margin-bottom: 8px;
+      }
+
+      .quiz-status-pill {
+        min-height: 28px;
+        padding: 5px 8px;
+        font-size: 11px;
+      }
+
+      .quiz-status-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .quiz-progress-block {
+        grid-column: 1 / -1;
+      }
+
+      .quiz-main-card {
+        padding: 12px;
+      }
+
+      .question-image-wrap {
+        min-height: 210px;
+        padding: 8px;
+      }
+
+      #questionImage {
+        max-height: 220px;
+      }
+
+      #zoomBtn {
+        margin-top: 10px;
+        min-height: 38px;
+        padding: 8px 12px;
+        font-size: 13px;
       }
 
       .quiz-primary-actions,
@@ -294,6 +368,68 @@
       .quiz-nav-top .action-btn {
         width: 100%;
         min-width: unset;
+      }
+
+      .result-hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .quiz-header {
+        padding: 14px 0 10px;
+      }
+
+      .quiz-header h1 {
+        font-size: 22px;
+      }
+
+      .quiz-main {
+        padding: 14px 0 24px;
+      }
+
+      .motivation-bar {
+        padding: 10px;
+        font-size: 12px;
+      }
+
+      .quiz-status-card,
+      .quiz-main-card,
+      .quiz-controls-card,
+      .quiz-nav-card {
+        border-radius: 14px;
+      }
+
+      .quiz-status-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .quiz-mini-timer strong {
+        font-size: 14px;
+      }
+
+      .question-image-wrap {
+        min-height: 180px;
+        padding: 7px;
+      }
+
+      #questionImage {
+        max-height: 190px;
+      }
+
+      .score-circle {
+        width: 100px;
+        height: 100px;
+      }
+
+      .score-inner {
+        width: 66px;
+        height: 66px;
+      }
+
+      .score-inner strong {
+        font-size: 18px;
       }
     }
   </style>
@@ -342,7 +478,6 @@
           </div>
         </section>
 
-        <!-- STATUS SECTION -->
         <section class="quiz-status-card">
           <div class="quiz-status-top">
             <span id="questionCounter" class="quiz-status-pill">Question 1 of 1</span>
@@ -376,7 +511,6 @@
           </div>
         </section>
 
-        <!-- QUESTION SECTION -->
         <section class="quiz-main-card">
           <div class="quiz-main-image">
             <div class="question-image-wrap">
@@ -403,7 +537,6 @@
           </div>
         </section>
 
-        <!-- MAIN ACTIONS -->
         <section class="quiz-controls-card">
           <div class="quiz-section-head">
             <div>
@@ -420,7 +553,6 @@
           </div>
         </section>
 
-        <!-- JUMP + PALETTE -->
         <section class="quiz-nav-card">
           <div class="quiz-section-head">
             <div>
@@ -444,7 +576,6 @@
           <div id="questionPalette" class="question-palette"></div>
         </section>
 
-        <!-- RESULT -->
         <section id="resultCard" class="result-card" style="display:none;">
           <div class="result-hero">
             <div class="score-circle">
@@ -462,7 +593,6 @@
           <div id="resultSummary"></div>
         </section>
 
-        <!-- POST RESULT ACTIONS -->
         <section id="postResultActions" class="post-result-actions" style="display:none;">
           <button id="retryQuizBtn" class="action-btn primary-btn" type="button">Retry Full Quiz</button>
           <button id="retryWrongBtn" class="action-btn" type="button" style="display:none;">Retry Wrong</button>
@@ -471,7 +601,6 @@
           <button id="wrongOnlyBtn" class="action-btn" type="button" style="display:none;">Review Wrong</button>
         </section>
 
-        <!-- HISTORY AT BOTTOM -->
         <section id="historyCard" class="history-card" style="display:none;">
           <h3>History</h3>
           <div id="historySummary"></div>
