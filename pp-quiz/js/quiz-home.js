@@ -1,15 +1,15 @@
 const topics = [
-  { slug: "units", title: "Units" },
-  { slug: "mechanics", title: "Mechanics" },
-  { slug: "oscillations-waves", title: "Oscillations & Waves" },
-  { slug: "thermal-physics", title: "Thermal Physics" },
-  { slug: "gravitational-field", title: "Gravitational Field" },
-  { slug: "electrostatics-field", title: "Electrostatics Field" },
-  { slug: "magnetic-field", title: "Magnetic Field" },
-  { slug: "current-electricity", title: "Current Electricity" },
-  { slug: "electronics", title: "Electronics" },
-  { slug: "mechanical-properties", title: "Mechanical Properties" },
-  { slug: "matter-radiations", title: "Matter & Radiations" }
+  { slug: "units", title: "Units", icon: "📏", desc: "SI units, dimensions, prefixes, and measurement basics." },
+  { slug: "mechanics", title: "Mechanics", icon: "⚙️", desc: "Motion, forces, energy, momentum, and circular motion." },
+  { slug: "oscillations-waves", title: "Oscillations & Waves", icon: "🌊", desc: "SHM, wave motion, properties, and sound concepts." },
+  { slug: "thermal-physics", title: "Thermal Physics", icon: "🔥", desc: "Temperature, gases, heat transfer, and thermal laws." },
+  { slug: "gravitational-field", title: "Gravitational Field", icon: "🌍", desc: "Gravitation, field strength, potential, and motion." },
+  { slug: "electrostatics-field", title: "Electrostatics Field", icon: "⚡", desc: "Charges, electric fields, potential, and capacitance basics." },
+  { slug: "magnetic-field", title: "Magnetic Field", icon: "🧲", desc: "Magnetic effects, forces, fields, and electromagnetic ideas." },
+  { slug: "current-electricity", title: "Current Electricity", icon: "🔋", desc: "Current, resistance, circuits, power, and electrical laws." },
+  { slug: "electronics", title: "Electronics", icon: "💻", desc: "Diodes, transistors, logic, and core electronic systems." },
+  { slug: "mechanical-properties", title: "Mechanical Properties", icon: "🏗️", desc: "Elasticity, stress, strain, viscosity, and material behavior." },
+  { slug: "matter-radiations", title: "Matter & Radiations", icon: "☢️", desc: "Atomic structure, radiation, quantum ideas, and modern physics." }
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -20,14 +20,62 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  topics.forEach((topic) => {
-    const card = document.createElement("a");
-    card.className = "topic-card";
-    card.href = `/DN_Physics/pp-quiz/topic.html?topic=${encodeURIComponent(topic.slug)}`;
-    card.innerHTML = `
-      <h2>${topic.title}</h2>
-      <p>Open subtopics</p>
-    `;
-    topicsGrid.appendChild(card);
-  });
+  renderTopics(topicsGrid, topics);
 });
+
+function renderTopics(container, topicList) {
+  if (!Array.isArray(topicList) || topicList.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state fade-in">
+        <h3>No topics found</h3>
+        <p>Please add topics to quiz-home.js and try again.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = "";
+
+  topicList.forEach((topic, index) => {
+    const card = document.createElement("a");
+    card.className = "topic-card fade-slide-up";
+    card.href = `/DN_Physics/pp-quiz/topic.html?topic=${encodeURIComponent(topic.slug)}`;
+    card.setAttribute("aria-label", `Open ${topic.title}`);
+
+    card.style.animationDelay = `${index * 0.04}s`;
+
+    card.innerHTML = `
+      <div class="topic-card-top">
+        <div class="topic-body">
+          <div class="topic-pill">PP Quiz Topic</div>
+          <h2 class="topic-title">${escapeHtml(topic.title)}</h2>
+          <p class="topic-desc">${escapeHtml(topic.desc || "Open subtopics and begin practicing.")}</p>
+        </div>
+        <div class="topic-icon" aria-hidden="true">${escapeHtml(topic.icon || "📘")}</div>
+      </div>
+
+      <div class="topic-stats">
+        <span class="stat-pill">Subtopics</span>
+        <span class="stat-pill">MCQ Sets</span>
+        <span class="stat-pill">Progress Ready</span>
+      </div>
+
+      <span class="action-btn primary-btn enter-topic-btn">Open Topic</span>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (char) => {
+    const map = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    };
+    return map[char];
+  });
+}
