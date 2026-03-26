@@ -1,4 +1,4 @@
-const CACHE_NAME = "dn-physics-v60";
+const CACHE_NAME = "dn-physics-v61";
 
 const CORE_FILES = [
   "/DN_Physics/",
@@ -18,7 +18,6 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_FILES))
   );
-
   self.skipWaiting();
 });
 
@@ -26,11 +25,13 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {
       const keys = await caches.keys();
+
       await Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
             return caches.delete(key);
           }
+          return Promise.resolve();
         })
       );
 
@@ -56,10 +57,10 @@ self.addEventListener("message", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const request = event.request;
-  const url = new URL(request.url);
 
   if (request.method !== "GET") return;
 
+  const url = new URL(request.url);
   const isNavigate = request.mode === "navigate";
   const isJSON = url.pathname.endsWith(".json");
   const isPDF = url.pathname.endsWith(".pdf");
@@ -74,13 +75,15 @@ self.addEventListener("fetch", (event) => {
     url.pathname.endsWith(".gif") ||
     url.pathname.endsWith(".ico");
 
-  // HTML pages -> network first
+  // HTML pages -> network first, cache fallback
   if (isNavigate) {
     event.respondWith(
       fetch(request)
         .then((networkResponse) => {
-          const clone = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          if (networkResponse && networkResponse.ok) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
           return networkResponse;
         })
         .catch(async () => {
@@ -99,21 +102,33 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // JSON -> network first
+  // JSON -> network first, cache fallback
   if (isJSON) {
     event.respondWith(
       fetch(request)
         .then((networkResponse) => {
-          const clone = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          if (networkResponse && networkResponse.ok) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
           return networkResponse;
         })
-        .catch(() => caches.match(request))
+        .catch(async () => {
+          const cachedResponse = await caches.match(request);
+          return (
+            cachedResponse ||
+            new Response("JSON unavailable offline", {
+              status: 503,
+              statusText: "Offline JSON Not Cached",
+              headers: { "Content-Type": "text/plain" }
+            })
+          );
+        })
     );
     return;
   }
 
-  // PDF -> cache first
+  // PDF -> cache first, then network
   if (isPDF) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
@@ -121,8 +136,10 @@ self.addEventListener("fetch", (event) => {
 
         return fetch(request)
           .then((networkResponse) => {
-            const clone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+            if (networkResponse && networkResponse.ok) {
+              const clone = networkResponse.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+            }
             return networkResponse;
           })
           .catch(() => {
@@ -140,14 +157,16 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // CSS / JS / images -> stale while revalidate style
+  // CSS / JS / images -> cache first, update in background
   if (isCSS || isJS || isImage) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
         const networkFetch = fetch(request)
           .then((networkResponse) => {
-            const clone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+            if (networkResponse && networkResponse.ok) {
+              const clone = networkResponse.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+            }
             return networkResponse;
           })
           .catch(() => cachedResponse);
@@ -158,17 +177,26 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // default
+  // default -> cache fallback, then network
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
-      return (
-        cachedResponse ||
-        fetch(request).then((networkResponse) => {
-          const clone = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+      if (cachedResponse) return cachedResponse;
+
+      return fetch(request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.ok) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
           return networkResponse;
         })
-      );
+        .catch(() => {
+          return new Response("Resource unavailable offline", {
+            status: 503,
+            statusText: "Offline Resource Not Cached",
+            headers: { "Content-Type": "text/plain" }
+          });
+        });
     })
   );
 });
