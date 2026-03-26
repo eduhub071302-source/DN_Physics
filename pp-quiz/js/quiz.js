@@ -1346,10 +1346,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (quizUpdateBanner) {
           quizUpdateBanner.classList.add("show");
-          quizUpdateBanner.innerHTML = `
-            <strong>New version available 🚀</strong><br>
-            Finish your quiz to update safely.
-          `;
+        }
+        
+        if (quizUpdateText) {
+          quizUpdateText.innerHTML =
+            `<strong>New version available 🚀</strong> Finish your quiz to update safely.`;
         }
 
         console.log("New update available. Waiting until quiz is finished or page is closed.");
