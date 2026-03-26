@@ -4,7 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Topic | PP Quiz</title>
-  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css" />
+  <meta
+    name="description"
+    content="Choose a subtopic and start A/L Physics past paper MCQ practice with DinuuNOVA Physics."
+  />
+  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=21" />
 </head>
 <body>
 
@@ -12,25 +16,114 @@
     <div class="container">
       <a class="back-link" href="/DN_Physics/pp-quiz/index.html">← Back to Topics</a>
       <h1 id="topicTitle">Topic</h1>
-      <p>Select a subtopic</p>
+      <p>Select a subtopic and open a quiz set.</p>
     </div>
   </header>
 
-  <main class="container">
-    <section id="subtopicsGrid" class="topics-grid"></section>
+  <main class="quiz-main">
+    <div class="container">
+
+      <!-- TOPIC HERO -->
+      <section class="topic-card fade-slide-up" style="margin-bottom: 20px; min-height: auto;">
+        <div class="topic-card-top">
+          <div class="topic-body">
+            <div class="topic-pill">PP Quiz • Subtopic Selection</div>
+            <h2 class="topic-title" id="topicHeroTitle" style="font-size: 34px; margin-top: 10px;">Loading Topic...</h2>
+            <p class="topic-desc" id="topicHeroText" style="max-width: 760px;">
+              Choose a subtopic below and continue your focused past paper MCQ practice.
+            </p>
+          </div>
+
+          <div class="topic-icon" aria-hidden="true">📘</div>
+        </div>
+
+        <div class="topic-stats">
+          <span class="stat-pill">Subtopic Practice</span>
+          <span class="stat-pill">Set-wise Revision</span>
+          <span class="stat-pill">Progress Tracking</span>
+          <span class="stat-pill">Focused Training</span>
+        </div>
+      </section>
+
+      <!-- MINI DASHBOARD -->
+      <section class="topics-grid fade-slide-up" style="grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 20px;">
+        <article class="info-card" style="min-height: auto;">
+          <h3 style="margin-bottom: 8px;">Step 1</h3>
+          <p style="margin: 0; color: var(--accent-2); font-weight: 700;">Choose Subtopic</p>
+        </article>
+
+        <article class="info-card" style="min-height: auto;">
+          <h3 style="margin-bottom: 8px;">Step 2</h3>
+          <p style="margin: 0; color: var(--accent-2); font-weight: 700;">Open Quiz Set</p>
+        </article>
+
+        <article class="info-card" style="min-height: auto;">
+          <h3 style="margin-bottom: 8px;">Target</h3>
+          <p style="margin: 0; color: var(--accent-2); font-weight: 700;">Accuracy + Speed</p>
+        </article>
+      </section>
+
+      <!-- SECTION HEAD -->
+      <section class="fade-slide-up" style="margin-bottom: 16px;">
+        <div style="display: flex; align-items: end; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+          <div>
+            <h3 style="margin: 0 0 6px; font-size: 26px;">Available Subtopics</h3>
+            <p style="margin: 0; color: var(--muted);">
+              Open a subtopic to view available quiz sets and continue your revision.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SUBTOPICS GRID -->
+      <section id="subtopicsGrid" class="topics-grid fade-in" aria-live="polite">
+        <article class="skeleton-card">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-line lg"></div>
+          <div class="skeleton-line md"></div>
+          <div class="skeleton-line sm"></div>
+          <div class="skeleton-box"></div>
+        </article>
+
+        <article class="skeleton-card">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-line lg"></div>
+          <div class="skeleton-line md"></div>
+          <div class="skeleton-line sm"></div>
+          <div class="skeleton-box"></div>
+        </article>
+
+        <article class="skeleton-card">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-line lg"></div>
+          <div class="skeleton-line md"></div>
+          <div class="skeleton-line sm"></div>
+          <div class="skeleton-box"></div>
+        </article>
+
+        <article class="skeleton-card">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-line lg"></div>
+          <div class="skeleton-line md"></div>
+          <div class="skeleton-line sm"></div>
+          <div class="skeleton-box"></div>
+        </article>
+      </section>
+
+    </div>
   </main>
 
-  <!-- 🎧 GLOBAL MUSIC PLAYER -->
+  <!-- GLOBAL MUSIC PLAYER -->
   <audio id="bgMusic" loop></audio>
 
   <div id="musicPlayerFloating" class="music-floating">
-    <button id="musicToggleBtn" class="music-float-btn" type="button">🎧</button>
+    <button id="musicToggleBtn" class="music-float-btn" type="button" aria-label="Open music player">🎧</button>
 
     <div id="musicPanel" class="music-panel">
       <div class="music-header">Focus Music</div>
 
       <div class="music-row">
-        <select id="trackSelect"></select>
+        <select id="trackSelect" aria-label="Select music track"></select>
       </div>
 
       <div class="music-row">
@@ -39,7 +132,15 @@
       </div>
 
       <div class="music-row">
-        <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.35" />
+        <input
+          id="volumeSlider"
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          value="0.35"
+          aria-label="Music volume"
+        />
       </div>
 
       <div id="currentTrackLabel" class="music-label">Current: None</div>
@@ -48,6 +149,5 @@
 
   <script src="/DN_Physics/js/music-player.js"></script>
   <script src="/DN_Physics/pp-quiz/js/topic.js"></script>
-
 </body>
 </html>
