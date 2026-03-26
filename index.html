@@ -14,7 +14,6 @@
   <link rel="stylesheet" href="css/style.css" />
 
   <style>
-    /* KEPT: premium floating music player */
     .music-player-wrap {
       position: fixed;
       bottom: 20px;
@@ -88,6 +87,10 @@
       line-height: 1.5;
     }
 
+    .dashboard-section .grid .card h3 {
+      margin-top: 0;
+    }
+
     @media (max-width: 768px) {
       .music-player-wrap {
         right: 14px;
@@ -102,7 +105,6 @@
 </head>
 <body>
 
-  <!-- PREMIUM APP OPENING SPLASH -->
   <div id="appSplash" class="app-splash" aria-hidden="true">
     <div class="app-splash-bg"></div>
 
@@ -121,12 +123,10 @@
     </div>
   </div>
 
-  <!-- Pull refresh indicator -->
   <div id="pullRefreshIndicator" class="pull-refresh-indicator">
     ↓ Pull to refresh
   </div>
 
-  <!-- Loading overlay -->
   <div id="loadingOverlay" class="loading-overlay" aria-hidden="true">
     <div class="loading-box">
       <div class="spinner"></div>
@@ -134,7 +134,6 @@
     </div>
   </div>
 
-  <!-- Update popup (kept, but auto-update flow now hides it) -->
   <div id="updateToast" class="update-toast" aria-live="polite">
     <h3>New notes available</h3>
     <p>A newer version of the app was found. Refresh to load the latest notes and updates.</p>
@@ -177,6 +176,19 @@
         <a class="btn" href="/DN_Physics/pp-quiz/index.html">
           PP Quiz
         </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section dashboard-section">
+    <div class="container">
+      <h2>Your Dashboard</h2>
+      <p class="section-sub">
+        Continue your learning journey. Stay consistent — island first is built daily.
+      </p>
+
+      <div class="grid" id="dashboardGrid">
+        <div class="empty-state">Loading your progress...</div>
       </div>
     </div>
   </section>
@@ -232,7 +244,6 @@
     </div>
   </footer>
 
-  <!-- MUSIC PLAYER -->
   <div class="music-player-wrap">
     <button id="musicToggleBtn" class="btn" type="button">🎧 Focus</button>
 
@@ -396,7 +407,6 @@
       });
     }
 
-    // Keep old update toast HTML, but hide it for auto-update flow
     if (updateToast) {
       updateToast.remove();
     }
@@ -451,6 +461,7 @@
     const pinnedSection = document.getElementById("pinnedSection");
     const pinnedGrid = document.getElementById("pinnedGrid");
     const subjectGrid = document.getElementById("subjectGrid");
+    const dashboardGrid = document.getElementById("dashboardGrid");
 
     let SUBJECTS = {};
     let subjectCards = [];
@@ -668,6 +679,142 @@
       filterSubjects();
     }
 
+    function createDashCard(title, desc, btnText, link) {
+      return `
+        <div class="card">
+          <h3>${title}</h3>
+          <p>${desc}</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="${link}">${btnText}</a>
+          </div>
+        </div>
+      `;
+    }
+
+    function getLastPdf() {
+      try {
+        return JSON.parse(localStorage.getItem("dnPdfLastOpened"));
+      } catch {
+        return null;
+      }
+    }
+
+    function getQuizProgress() {
+      try {
+        return JSON.parse(localStorage.getItem("dnPhysicsQuizProgress")) || {};
+      } catch {
+        return {};
+      }
+    }
+
+    function getBestQuiz() {
+      const store = getQuizProgress();
+      let best = null;
+      let bestKey = null;
+
+      Object.entries(store).forEach(([key, item]) => {
+        const currentBest = Number(item.bestPercentage || 0);
+        const bestBest = Number(best?.bestPercentage || 0);
+
+        if (!best || currentBest > bestBest) {
+          best = item;
+          bestKey = key;
+        }
+      });
+
+      return bestKey ? { key: bestKey, ...best } : null;
+    }
+
+    function getWeakQuiz() {
+      const store = getQuizProgress();
+      let weak = null;
+      let weakKey = null;
+
+      Object.entries(store).forEach(([key, item]) => {
+        const attempts = Number(item.attempts || 0);
+        if (attempts <= 0) return;
+
+        const currentBest = Number(item.bestPercentage || 100);
+        const weakBest = Number(weak?.bestPercentage || 100);
+
+        if (!weak || currentBest < weakBest) {
+          weak = item;
+          weakKey = key;
+        }
+      });
+
+      return weakKey ? { key: weakKey, ...weak } : null;
+    }
+
+    function parseQuizKey(rawKey) {
+      if (!rawKey) {
+        return { topic: "", subtopic: "", set: "set-1" };
+      }
+
+      const parts = rawKey.split("__");
+      return {
+        topic: parts[0] || "",
+        subtopic: parts[1] || "",
+        set: parts[2] || "set-1"
+      };
+    }
+
+    function buildQuizUrlFromKey(rawKey) {
+      const parsed = parseQuizKey(rawKey);
+      if (!parsed.topic || !parsed.subtopic) {
+        return "/DN_Physics/pp-quiz/index.html";
+      }
+
+      return `/DN_Physics/pp-quiz/quiz.html?topic=${encodeURIComponent(parsed.topic)}&subtopic=${encodeURIComponent(parsed.subtopic)}&set=${encodeURIComponent(parsed.set)}`;
+    }
+
+    function renderDashboard() {
+      if (!dashboardGrid) return;
+
+      let html = "";
+
+      const lastPdf = getLastPdf();
+      if (lastPdf && lastPdf.url) {
+        html += createDashCard(
+          "📘 Continue Reading",
+          `${lastPdf.title || lastPdf.file || "Open your last note"}`,
+          "Open Note",
+          `/DN_Physics/topics/viewer.html?pdf=${encodeURIComponent(lastPdf.url)}&title=${encodeURIComponent(lastPdf.title || "")}&subjectName=${encodeURIComponent(prettifySubject(lastPdf.subject || ""))}`
+        );
+      }
+
+      const bestQuiz = getBestQuiz();
+      if (bestQuiz) {
+        const parsed = parseQuizKey(bestQuiz.key);
+        html += createDashCard(
+          "🔥 Best Topic",
+          `${prettifySubject(parsed.subtopic)} · Score: ${bestQuiz.bestPercentage || "0.0"}%`,
+          "Improve Score",
+          buildQuizUrlFromKey(bestQuiz.key)
+        );
+      }
+
+      const weakQuiz = getWeakQuiz();
+      if (weakQuiz && Number(weakQuiz.bestPercentage || 0) < 70) {
+        const parsed = parseQuizKey(weakQuiz.key);
+        html += createDashCard(
+          "⚠️ Weak Area",
+          `${prettifySubject(parsed.subtopic)} · Score: ${weakQuiz.bestPercentage || "0.0"}%`,
+          "Practice Now",
+          buildQuizUrlFromKey(weakQuiz.key)
+        );
+      }
+
+      html += createDashCard(
+        "🚀 Keep Going",
+        "Discipline builds your future. Open notes, solve quizzes, and keep your streak alive.",
+        "Open PP Quiz",
+        "/DN_Physics/pp-quiz/index.html"
+      );
+
+      dashboardGrid.innerHTML = html || `<div class="empty-state">Start learning to see your progress here 🚀</div>`;
+    }
+
     async function loadSubjectsFromCatalog() {
       try {
         const res = await fetch("/DN_Physics/pdfs/catalog.json");
@@ -678,6 +825,7 @@
 
         if (!uniqueSubjects.length) {
           subjectGrid.innerHTML = `<div class="empty-state">No subjects found.</div>`;
+          renderDashboard();
           return;
         }
 
@@ -730,9 +878,11 @@
         });
 
         rebuildPinsAndFilters();
+        renderDashboard();
       } catch (error) {
         console.error(error);
         subjectGrid.innerHTML = `<div class="empty-state">Could not load subjects.</div>`;
+        renderDashboard();
       }
     }
 
