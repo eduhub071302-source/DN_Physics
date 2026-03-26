@@ -65,6 +65,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const quizUpdateBanner = document.getElementById("quizUpdateBanner");
   const updateAfterBtn = document.getElementById("updateAfterBtn");
 
+  const motivationBar = document.getElementById("motivationBar");
+  const finalScoreEl = document.getElementById("finalScore");
+  const resultHeadline = document.getElementById("resultHeadline");
+  const resultMotivation = document.getElementById("resultMotivation");
+
   const requiredElements = [
     quizTitle,
     quizSubtitle,
@@ -406,6 +411,41 @@ document.addEventListener("DOMContentLoaded", async () => {
   let retryModeType = "full";
   let retryQuestionList = [];
 
+  const MOTIVATION_LINES = [
+    "Stay focused. Every question improves your rank.",
+    "Small improvements create big rank jumps.",
+    "You are training like top exam competitors.",
+    "Discipline beats talent when talent is lazy.",
+    "Do not rush. Accuracy is your power.",
+    "Every correct answer builds your confidence.",
+    "You vs yesterday. That is the real battle."
+  ];
+
+  function updateMotivationBar() {
+    if (!motivationBar) return;
+
+    const total = getCurrentTotalCount();
+    const answered = getAnsweredCount();
+    const progress = total > 0 ? (answered / total) * 100 : 0;
+
+    let text = "";
+
+    if (reviewMode) {
+      text = "Review mode active. Learn deeply from every mistake.";
+    } else if (progress < 25) {
+      text = "Start strong. Focus deeply.";
+    } else if (progress < 60) {
+      text = "Good momentum. Keep going.";
+    } else if (progress < 90) {
+      text = "Almost there. Stay sharp.";
+    } else {
+      text = "Final push. Finish strong.";
+    }
+
+    const randomLine = MOTIVATION_LINES[Math.floor(Math.random() * MOTIVATION_LINES.length)];
+    motivationBar.textContent = `${text} • ${randomLine}`;
+  }
+
   async function loadQuizData() {
     const jsonPath = `/DN_Physics/pp-quiz/data/${topic}/${subtopic}/${setName}.json`;
 
@@ -547,6 +587,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     quizProgressFill.style.width = `${percent}%`;
     quizProgressText.textContent = `${percent}%`;
+
+    const percentNum = Number(percent);
+
+    if (percentNum >= 80) {
+      quizProgressFill.style.background = "linear-gradient(90deg, #22c55e, #4ade80)";
+    } else if (percentNum >= 50) {
+      quizProgressFill.style.background = "linear-gradient(90deg, #f59e0b, #fbbf24)";
+    } else {
+      quizProgressFill.style.background = "linear-gradient(90deg, #3b82f6, #60a5fa)";
+    }
   }
 
   function updatePalette() {
@@ -610,6 +660,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     updateAnswerButtons();
     updateSubmitVisibility();
+    updateMotivationBar();
     resetQuestionTimer();
     saveCurrentSession();
   }
@@ -715,6 +766,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     reviewNote.style.display = "none";
     resultCard.style.display = "none";
+    historyCard.style.display = "none";
     postResultActions.style.display = "none";
     wrongOnlyBtn.style.display = "none";
     retryWrongBtn.style.display = "none";
@@ -723,6 +775,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     finishQuizBtn.style.display = "inline-flex";
     submitQuizBtn.style.display = "none";
     answerExplanation.style.display = "none";
+
+    if (finalScoreEl) finalScoreEl.textContent = "0%";
+    if (resultHeadline) resultHeadline.textContent = "Good Try";
+    if (resultMotivation) resultMotivation.textContent = "Keep pushing. Improvement comes from consistency.";
 
     clearSavedSession();
     updateQuestionView();
@@ -744,6 +800,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     reviewNote.style.display = "none";
     resultCard.style.display = "none";
+    historyCard.style.display = "none";
     postResultActions.style.display = "none";
     wrongOnlyBtn.style.display = "none";
     retryWrongBtn.style.display = "none";
@@ -754,6 +811,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     answerExplanation.style.display = "none";
 
     updateQuestionView();
+    startTimers();
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -832,6 +890,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         ? "Calculated only from answered questions after finishing now."
         : "Calculated from the selected retry list.";
 
+    const scoreValue = Number(mode === "full" ? fullQuizPercentage : scorePercent);
+
+    if (finalScoreEl) finalScoreEl.textContent = `${scoreValue}%`;
+
+    if (resultHeadline && resultMotivation) {
+      if (scoreValue >= 90) {
+        resultHeadline.textContent = "Excellent 🔥";
+        resultMotivation.textContent = "This is island-rank level performance.";
+      } else if (scoreValue >= 75) {
+        resultHeadline.textContent = "Strong 💪";
+        resultMotivation.textContent = "You're close to top level. Keep pushing.";
+      } else if (scoreValue >= 50) {
+        resultHeadline.textContent = "Improving 📈";
+        resultMotivation.textContent = "You're building the foundation. Stay consistent.";
+      } else {
+        resultHeadline.textContent = "Keep Going ⚡";
+        resultMotivation.textContent = "Every mistake is training. Don't stop now.";
+      }
+    }
+
     resultSummary.innerHTML = `
       <div><strong>Total Questions:</strong> ${getCurrentTotalCount()}</div>
       <div><strong>Answered Questions:</strong> ${answeredQuestions}</div>
@@ -866,6 +944,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     reviewNote.style.display = "block";
     resultCard.style.display = "block";
+    historyCard.style.display = "block";
     postResultActions.style.display = "flex";
     retryQuizBtn.style.display = "inline-flex";
     wrongOnlyBtn.style.display = wrongQuestionsGlobal.length > 0 ? "inline-flex" : "none";
@@ -1011,6 +1090,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       userAnswers[questionNumber] = Number(button.dataset.answer);
       updateAnswerButtons();
       updateSubmitVisibility();
+      updateMotivationBar();
       saveCurrentSession();
     });
   });
