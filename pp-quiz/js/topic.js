@@ -184,14 +184,29 @@ document.addEventListener("DOMContentLoaded", () => {
     return `${topic}__${subtopic}__${setName}`;
   }
 
+  function normalizeStats(stats) {
+    if (!stats || typeof stats !== "object") return null;
+
+    return {
+      attempts: Number(stats.attempts) || 0,
+      bestFullBadgePercentage:
+        stats.bestFullBadgePercentage === null || stats.bestFullBadgePercentage === undefined
+          ? null
+          : Number(stats.bestFullBadgePercentage) || 0,
+      lastPlayedAt: stats.lastPlayedAt || "Never",
+      streak: Number(stats.streak) || 0,
+      completedFullQuiz: Boolean(stats.completedFullQuiz)
+    };
+  }
+
   function getSavedStats(topic, subtopic, setName = "set-1") {
     const store = getProgressStore();
     const id = getQuizProgressId(topic, subtopic, setName);
 
-    if (store[id]) return store[id];
+    if (store[id]) return normalizeStats(store[id]);
 
     const legacy = getLegacySavedStats(topic, subtopic, setName);
-    if (legacy) return legacy;
+    if (legacy) return normalizeStats(legacy);
 
     return null;
   }
@@ -211,13 +226,19 @@ document.addEventListener("DOMContentLoaded", () => {
       };
     }
 
-    const attempts = Number(stats.attempts) || 0;
-    const bestFull = stats.bestFullBadgePercentage ?? null;
+    const attempts = stats.attempts;
+    const bestFull = stats.bestFullBadgePercentage;
     const mastery = getMasteryLevel(bestFull);
     const lastPlayed = stats.lastPlayedAt || "Never";
-    const streak = Number(stats.streak) || 0;
-    const completed = Boolean(stats.completedFullQuiz);
-    const progress = completed ? 100 : bestFull ? Number(bestFull) : 0;
+    const streak = stats.streak;
+    const completed = stats.completedFullQuiz;
+
+    let progress = 0;
+    if (completed) {
+      progress = 100;
+    } else if (bestFull !== null) {
+      progress = Math.max(0, Math.min(100, Number(bestFull)));
+    }
 
     return {
       attempts,
@@ -232,7 +253,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function createSubtopicCard(topicSlugValue, subtopic) {
     const summary = calculateSubtopicSummary(topicSlugValue, subtopic.slug);
-    const badge = summary.bestFull ? getBadgeData(summary.bestFull) : null;
+    const badge = summary.bestFull !== null ? getBadgeData(summary.bestFull) : null;
 
     const card = document.createElement("a");
     card.className = "topic-card";
