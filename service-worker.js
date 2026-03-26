@@ -1,4 +1,4 @@
-const CACHE_NAME = "dn-physics-v70";
+const CACHE_NAME = "dn-physics-v71"; // 🔥 increase version
 
 const CORE_FILES = [
   "/DN_Physics/",
@@ -14,13 +14,33 @@ const CORE_FILES = [
   "/DN_Physics/pdfs/catalog.json"
 ];
 
+// ================= INSTALL =================
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_FILES))
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+
+      // 🔥 simulate progress stages
+      self.clients.matchAll({ includeUncontrolled: true }).then((clients) => {
+        clients.forEach((client) =>
+          client.postMessage({ type: "UPDATE_STAGE", stage: "Preparing update..." })
+        );
+      });
+
+      await cache.addAll(CORE_FILES);
+
+      self.clients.matchAll({ includeUncontrolled: true }).then((clients) => {
+        clients.forEach((client) =>
+          client.postMessage({ type: "UPDATE_STAGE", stage: "Core files cached" })
+        );
+      });
+    })()
   );
-  self.skipWaiting();
+
+  self.skipWaiting(); // keep your behavior
 });
 
+// ================= ACTIVATE =================
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {
@@ -42,25 +62,32 @@ self.addEventListener("activate", (event) => {
         includeUncontrolled: true
       });
 
+      // 🔥 notify update ready
       for (const client of clientsList) {
-        client.postMessage({ type: "SW_UPDATED" });
+        client.postMessage({
+          type: "SW_UPDATED",
+          version: CACHE_NAME
+        });
       }
     })()
   );
 });
 
+// ================= MESSAGE =================
 self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "SKIP_WAITING") {
     self.skipWaiting();
   }
 });
 
+// ================= FETCH =================
 self.addEventListener("fetch", (event) => {
   const request = event.request;
 
   if (request.method !== "GET") return;
 
   const url = new URL(request.url);
+
   const isNavigate = request.mode === "navigate";
   const isJSON = url.pathname.endsWith(".json");
   const isPDF = url.pathname.endsWith(".pdf");
@@ -75,7 +102,7 @@ self.addEventListener("fetch", (event) => {
     url.pathname.endsWith(".gif") ||
     url.pathname.endsWith(".ico");
 
-  // HTML pages -> network first, cache fallback
+  // ===== HTML =====
   if (isNavigate) {
     event.respondWith(
       fetch(request)
@@ -94,15 +121,14 @@ self.addEventListener("fetch", (event) => {
           if (offlinePage) return offlinePage;
 
           return new Response("Offline", {
-            status: 503,
-            statusText: "Offline"
+            status: 503
           });
         })
     );
     return;
   }
 
-  // JSON -> network first, cache fallback
+  // ===== JSON =====
   if (isJSON) {
     event.respondWith(
       fetch(request)
@@ -114,21 +140,13 @@ self.addEventListener("fetch", (event) => {
           return networkResponse;
         })
         .catch(async () => {
-          const cachedResponse = await caches.match(request);
-          return (
-            cachedResponse ||
-            new Response("JSON unavailable offline", {
-              status: 503,
-              statusText: "Offline JSON Not Cached",
-              headers: { "Content-Type": "text/plain" }
-            })
-          );
+          return caches.match(request);
         })
     );
     return;
   }
 
-  // PDF -> cache first, then network
+  // ===== PDF =====
   if (isPDF) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
@@ -144,12 +162,8 @@ self.addEventListener("fetch", (event) => {
           })
           .catch(() => {
             return new Response(
-              "You are offline, and this PDF was not saved before. Please open it once with internet first.",
-              {
-                status: 503,
-                statusText: "Offline PDF Not Cached",
-                headers: { "Content-Type": "text/plain" }
-              }
+              "Open once online to use offline",
+              { status: 503 }
             );
           });
       })
@@ -157,11 +171,11 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // CSS / JS / images -> cache first, update in background
+  // ===== STATIC FILES =====
   if (isCSS || isJS || isImage) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
-        const networkFetch = fetch(request)
+        const fetchPromise = fetch(request)
           .then((networkResponse) => {
             if (networkResponse && networkResponse.ok) {
               const clone = networkResponse.clone();
@@ -171,32 +185,25 @@ self.addEventListener("fetch", (event) => {
           })
           .catch(() => cachedResponse);
 
-        return cachedResponse || networkFetch;
+        return cachedResponse || fetchPromise;
       })
     );
     return;
   }
 
-  // default -> cache fallback, then network
+  // ===== DEFAULT =====
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
-      if (cachedResponse) return cachedResponse;
-
-      return fetch(request)
-        .then((networkResponse) => {
+      return (
+        cachedResponse ||
+        fetch(request).then((networkResponse) => {
           if (networkResponse && networkResponse.ok) {
             const clone = networkResponse.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           }
           return networkResponse;
         })
-        .catch(() => {
-          return new Response("Resource unavailable offline", {
-            status: 503,
-            statusText: "Offline Resource Not Cached",
-            headers: { "Content-Type": "text/plain" }
-          });
-        });
+      );
     })
   );
 });
