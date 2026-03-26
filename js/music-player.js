@@ -16,7 +16,15 @@ const DN_MUSIC_TRACKS = [
 ];
 
 (function () {
-  const bgMusic = document.getElementById("bgMusic");
+  // ===== GLOBAL AUDIO (IMPORTANT FIX) =====
+  if (!window.DN_GLOBAL_AUDIO) {
+    window.DN_GLOBAL_AUDIO = new Audio();
+    window.DN_GLOBAL_AUDIO.loop = true;
+  }
+
+  const bgMusic = window.DN_GLOBAL_AUDIO;
+
+  // ===== UI ELEMENTS =====
   const musicToggleBtn = document.getElementById("musicToggleBtn");
   const musicPanel = document.getElementById("musicPanel");
   const trackSelect = document.getElementById("trackSelect");
@@ -25,351 +33,116 @@ const DN_MUSIC_TRACKS = [
   const volumeSlider = document.getElementById("volumeSlider");
   const currentTrackLabel = document.getElementById("currentTrackLabel");
 
-  if (
-    !bgMusic ||
-    !musicToggleBtn ||
-    !musicPanel ||
-    !trackSelect ||
-    !playPauseBtn ||
-    !stopMusicBtn ||
-    !volumeSlider ||
-    !currentTrackLabel
-  ) {
-    return;
-  }
+  if (!musicToggleBtn) return;
 
   const STORAGE_KEYS = {
-    TRACK_INDEX: "dnPhysicsMusicTrackIndex",
-    VOLUME: "dnPhysicsMusicVolume",
-    PLAYING: "dnPhysicsMusicPlaying",
-    CURRENT_TIME: "dnPhysicsMusicCurrentTime"
+    TRACK_INDEX: "dnMusicTrack",
+    VOLUME: "dnMusicVolume",
+    PLAYING: "dnMusicPlaying"
   };
 
-  let isMusicPlaying = false;
   let currentTrackIndex = 0;
-  let fadeInterval = null;
-  let saveTimer = null;
-  let restoredTimeOnce = false;
+  let isPlaying = false;
 
-  function saveState() {
-    try {
-      localStorage.setItem(STORAGE_KEYS.TRACK_INDEX, String(currentTrackIndex));
-      localStorage.setItem(STORAGE_KEYS.VOLUME, String(volumeSlider.value));
-      localStorage.setItem(STORAGE_KEYS.PLAYING, String(isMusicPlaying));
-      localStorage.setItem(
-        STORAGE_KEYS.CURRENT_TIME,
-        String(bgMusic.currentTime || 0)
-      );
-    } catch (error) {
-      console.log("Music state save failed:", error);
-    }
-  }
-
-  function renderTrackOptions() {
-    trackSelect.innerHTML = DN_MUSIC_TRACKS.map((track, index) => {
-      return `<option value="${index}">${track.name}</option>`;
-    }).join("");
-  }
-
-  function formatTime(seconds) {
-    const total = Math.max(0, Math.floor(Number(seconds) || 0));
-    const mins = Math.floor(total / 60);
-    const secs = total % 60;
-    return `${mins}:${String(secs).padStart(2, "0")}`;
+  function renderTracks() {
+    trackSelect.innerHTML = DN_MUSIC_TRACKS.map(
+      (t, i) => `<option value="${i}">${t.name}</option>`
+    ).join("");
   }
 
   function updateUI() {
-    const currentTrack = DN_MUSIC_TRACKS[currentTrackIndex];
-    const timeText = formatTime(bgMusic.currentTime || 0);
-    currentTrackLabel.textContent = currentTrack
-      ? `Current: ${currentTrack.name} • ${timeText}`
-      : "Current: None";
-    playPauseBtn.textContent = isMusicPlaying ? "⏸ Pause" : "▶ Play";
+    const track = DN_MUSIC_TRACKS[currentTrackIndex];
+    currentTrackLabel.textContent = track
+      ? `Current: ${track.name}`
+      : "None";
+
+    playPauseBtn.textContent = isPlaying ? "⏸ Pause" : "▶ Play";
   }
 
-  function clearFade() {
-    if (fadeInterval) {
-      clearInterval(fadeInterval);
-      fadeInterval = null;
-    }
-  }
+  function setTrack(index) {
+    currentTrackIndex = index;
+    const track = DN_MUSIC_TRACKS[index];
 
-  function startAutoSaveTime() {
-    stopAutoSaveTime();
-    saveTimer = setInterval(() => {
-      if (!bgMusic.paused && !bgMusic.ended) {
-        saveState();
-      }
-    }, 1000);
-  }
+    if (!track) return;
 
-  function stopAutoSaveTime() {
-    if (saveTimer) {
-      clearInterval(saveTimer);
-      saveTimer = null;
-    }
-  }
-
-  function setTrack(index, resetTime = true) {
-    const safeIndex =
-      Number.isInteger(Number(index)) &&
-      Number(index) >= 0 &&
-      Number(index) < DN_MUSIC_TRACKS.length
-        ? Number(index)
-        : 0;
-
-    currentTrackIndex = safeIndex;
-    const selected = DN_MUSIC_TRACKS[currentTrackIndex];
-
-    if (!selected) return;
-
-    const currentSrcPath = bgMusic.src
-      ? new URL(bgMusic.src, location.href).pathname
-      : "";
-
-    if (currentSrcPath !== selected.file) {
-      bgMusic.src = selected.file;
-      bgMusic.load();
+    if (!bgMusic.src.includes(track.file)) {
+      bgMusic.src = track.file;
     }
 
-    if (resetTime) {
-      bgMusic.currentTime = 0;
-      restoredTimeOnce = true;
-    } else {
-      restoredTimeOnce = false;
-    }
-
-    trackSelect.value = String(currentTrackIndex);
+    trackSelect.value = index;
     updateUI();
     saveState();
   }
 
-  function fadeIn(targetVolume = Number(volumeSlider.value), duration = 350) {
-    clearFade();
-
-    const steps = 15;
-    const stepTime = duration / steps;
-    const increment = targetVolume / steps;
-
-    bgMusic.volume = 0;
-
-    fadeInterval = setInterval(() => {
-      if (bgMusic.volume + increment >= targetVolume) {
-        bgMusic.volume = targetVolume;
-        clearFade();
-      } else {
-        bgMusic.volume += increment;
-      }
-    }, stepTime);
-  }
-
-  function fadeOut(duration = 250) {
-    return new Promise((resolve) => {
-      clearFade();
-
-      const steps = 12;
-      const stepTime = duration / steps;
-      const currentVolume = bgMusic.volume;
-      const decrement = currentVolume / steps;
-
-      fadeInterval = setInterval(() => {
-        if (bgMusic.volume - decrement <= 0.01) {
-          bgMusic.volume = 0;
-          bgMusic.pause();
-          clearFade();
-          resolve();
-        } else {
-          bgMusic.volume -= decrement;
-        }
-      }, stepTime);
-    });
-  }
-
-  async function playTrack(index, resetTime = false) {
-    setTrack(index, resetTime);
-
+  async function play() {
     try {
       await bgMusic.play();
-      isMusicPlaying = true;
-      fadeIn(Number(volumeSlider.value));
-      startAutoSaveTime();
-    } catch (error) {
-      isMusicPlaying = false;
-      console.log("Music playback blocked:", error);
+      isPlaying = true;
+    } catch (e) {
+      console.log("Play blocked:", e);
     }
-
     updateUI();
     saveState();
   }
 
-  async function pauseTrack() {
-    saveState();
-    await fadeOut();
-    isMusicPlaying = false;
-    bgMusic.volume = Number(volumeSlider.value);
-    stopAutoSaveTime();
+  function pause() {
+    bgMusic.pause();
+    isPlaying = false;
     updateUI();
     saveState();
   }
 
-  async function stopTrack() {
-    saveState();
-    await fadeOut();
+  function stop() {
+    bgMusic.pause();
     bgMusic.currentTime = 0;
-    isMusicPlaying = false;
-    bgMusic.volume = Number(volumeSlider.value);
-    stopAutoSaveTime();
+    isPlaying = false;
     updateUI();
     saveState();
   }
 
-  async function attemptResume() {
-    try {
-      await bgMusic.play();
-      isMusicPlaying = true;
-      bgMusic.volume = Number(volumeSlider.value);
-      startAutoSaveTime();
-    } catch (error) {
-      isMusicPlaying = false;
-      stopAutoSaveTime();
-      console.log("Resume blocked until next user tap:", error);
-    }
-
-    updateUI();
-    saveState();
+  function saveState() {
+    localStorage.setItem(STORAGE_KEYS.TRACK_INDEX, currentTrackIndex);
+    localStorage.setItem(STORAGE_KEYS.VOLUME, bgMusic.volume);
+    localStorage.setItem(STORAGE_KEYS.PLAYING, isPlaying);
   }
 
   function loadState() {
-    let savedTrack = 0;
-    let savedVolume = 0.35;
-    let savedPlaying = false;
+    const savedTrack = Number(localStorage.getItem(STORAGE_KEYS.TRACK_INDEX)) || 0;
+    const savedVolume = Number(localStorage.getItem(STORAGE_KEYS.VOLUME)) || 0.35;
+    const savedPlaying = localStorage.getItem(STORAGE_KEYS.PLAYING) === "true";
 
-    try {
-      const rawTrack = localStorage.getItem(STORAGE_KEYS.TRACK_INDEX);
-      const rawVolume = localStorage.getItem(STORAGE_KEYS.VOLUME);
-      const rawPlaying = localStorage.getItem(STORAGE_KEYS.PLAYING);
-
-      if (rawTrack !== null) savedTrack = Number(rawTrack) || 0;
-      if (rawVolume !== null) savedVolume = Number(rawVolume);
-      if (rawPlaying !== null) savedPlaying = rawPlaying === "true";
-    } catch (error) {
-      console.log("Music state load failed:", error);
-    }
-
-    if (!Number.isFinite(savedVolume) || savedVolume < 0 || savedVolume > 1) {
-      savedVolume = 0.35;
-    }
-
-    volumeSlider.value = String(savedVolume);
     bgMusic.volume = savedVolume;
+    volumeSlider.value = savedVolume;
 
-    renderTrackOptions();
-    setTrack(savedTrack, false);
+    renderTracks();
+    setTrack(savedTrack);
 
-    isMusicPlaying = savedPlaying;
-    updateUI();
+    if (savedPlaying) {
+      play();
+    }
   }
 
+  // ===== EVENTS =====
   musicToggleBtn.addEventListener("click", () => {
     musicPanel.classList.toggle("show");
   });
 
-  trackSelect.addEventListener("change", async () => {
-    const newIndex = Number(trackSelect.value) || 0;
-
-    try {
-      localStorage.setItem(STORAGE_KEYS.CURRENT_TIME, "0");
-    } catch (error) {
-      console.log("Could not reset saved time:", error);
-    }
-
-    if (isMusicPlaying) {
-      await playTrack(newIndex, true);
-    } else {
-      setTrack(newIndex, true);
-    }
+  trackSelect.addEventListener("change", () => {
+    setTrack(Number(trackSelect.value));
+    if (isPlaying) play();
   });
 
-  playPauseBtn.addEventListener("click", async () => {
-    if (isMusicPlaying) {
-      await pauseTrack();
-    } else {
-      await playTrack(currentTrackIndex, false);
-    }
+  playPauseBtn.addEventListener("click", () => {
+    isPlaying ? pause() : play();
   });
 
-  stopMusicBtn.addEventListener("click", async () => {
-    await stopTrack();
-  });
+  stopMusicBtn.addEventListener("click", stop);
 
   volumeSlider.addEventListener("input", () => {
     bgMusic.volume = Number(volumeSlider.value);
     saveState();
-    updateUI();
   });
 
-  bgMusic.addEventListener("loadedmetadata", () => {
-    if (!restoredTimeOnce) {
-      let savedTime = 0;
-
-      try {
-        savedTime = Number(localStorage.getItem(STORAGE_KEYS.CURRENT_TIME)) || 0;
-      } catch (error) {
-        console.log("Could not read saved time:", error);
-      }
-
-      if (
-        Number.isFinite(savedTime) &&
-        savedTime > 0 &&
-        Number.isFinite(bgMusic.duration) &&
-        savedTime < bgMusic.duration
-      ) {
-        bgMusic.currentTime = savedTime;
-      }
-
-      restoredTimeOnce = true;
-    }
-
-    updateUI();
-
-    if (isMusicPlaying) {
-      attemptResume();
-    }
-  });
-
-  bgMusic.addEventListener("timeupdate", () => {
-    updateUI();
-  });
-
-  bgMusic.addEventListener("ended", () => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.CURRENT_TIME, "0");
-    } catch (error) {
-      console.log("Could not clear saved time:", error);
-    }
-
-    stopAutoSaveTime();
-
-    if (bgMusic.loop) {
-      isMusicPlaying = true;
-      startAutoSaveTime();
-    } else {
-      isMusicPlaying = false;
-    }
-
-    updateUI();
-    saveState();
-  });
-
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
-      saveState();
-    }
-  });
-
-  window.addEventListener("beforeunload", () => {
-    saveState();
-  });
-
+  // ===== INIT =====
   loadState();
 })();
