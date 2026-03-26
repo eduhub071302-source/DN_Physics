@@ -152,7 +152,6 @@
       display: block;
     }
 
-    /* NEW: small loading animation added without changing old layout */
     .loading::after {
       content: " ⏳";
       animation: viewerBlink 1s infinite;
@@ -191,7 +190,6 @@
 </head>
 <body>
 
-  <!-- OFFLINE BANNER -->
   <div id="offlineBanner" class="offline-banner">
     You are offline. Some PDFs may not load unless they were opened before.
   </div>
@@ -262,7 +260,6 @@
     <div class="container">© 2026 DinuuNOVA Physics</div>
   </footer>
 
-  <!-- NEW: MUSIC PLAYER ADDED, OLD VIEWER KEPT -->
   <div class="music-player-wrap">
     <button id="musicToggleBtn" class="btn" type="button">🎧 Focus</button>
 
@@ -304,6 +301,12 @@
     const rawTitle = params.get("title");
     const rawBack = params.get("back");
     const rawSubjectName = params.get("subjectName");
+
+    const PDF_STORAGE_KEYS = {
+      RECENT: "dnPdfRecent",
+      FAVORITES: "dnPdfFavorites",
+      LAST_OPENED: "dnPdfLastOpened"
+    };
 
     function safeDecode(value, fallback = "") {
       try {
@@ -369,7 +372,6 @@
       if (!offlineBanner) return;
       offlineBanner.classList.toggle("show", !navigator.onLine);
 
-      /* old UI kept, small dynamic update */
       if (!navigator.onLine) {
         if (viewerStatusText) {
           viewerStatusText.textContent = "Offline mode. Cached PDFs may still work.";
@@ -393,11 +395,6 @@
 
     async function performViewerRefresh() {
       try {
-        if ("caches" in window) {
-          const cacheNames = await caches.keys();
-          await Promise.all(cacheNames.map((name) => caches.delete(name)));
-        }
-
         if ("serviceWorker" in navigator) {
           const registrations = await navigator.serviceWorker.getRegistrations();
           for (const registration of registrations) {
@@ -415,6 +412,103 @@
       refreshBtn.addEventListener("click", async () => {
         await performViewerRefresh();
       });
+    }
+
+    function getPdfId() {
+      return `${subjectSlug}__${fileName}`;
+    }
+
+    function saveRecentPdf() {
+      try {
+        const recent = JSON.parse(localStorage.getItem(PDF_STORAGE_KEYS.RECENT)) || [];
+
+        const entry = {
+          id: getPdfId(),
+          title: shareTitle,
+          subject: subjectSlug,
+          file: fileName,
+          url: pdfUrl,
+          lastOpened: new Date().toLocaleDateString()
+        };
+
+        const filtered = recent.filter(r => r.id !== entry.id);
+        filtered.unshift(entry);
+
+        localStorage.setItem(PDF_STORAGE_KEYS.RECENT, JSON.stringify(filtered.slice(0, 10)));
+        localStorage.setItem(PDF_STORAGE_KEYS.LAST_OPENED, JSON.stringify(entry));
+      } catch (e) {
+        console.log("Recent save failed", e);
+      }
+    }
+
+    function isFavorite() {
+      try {
+        const favs = JSON.parse(localStorage.getItem(PDF_STORAGE_KEYS.FAVORITES)) || [];
+        return favs.some(f => f.id === getPdfId());
+      } catch {
+        return false;
+      }
+    }
+
+    function updateFavoriteUI() {
+      const favBtn = document.getElementById("favoriteBtn");
+      if (!favBtn) return;
+      favBtn.textContent = isFavorite() ? "⭐ Favorited" : "☆ Favorite";
+    }
+
+    function toggleFavorite() {
+      try {
+        const favs = JSON.parse(localStorage.getItem(PDF_STORAGE_KEYS.FAVORITES)) || [];
+        const id = getPdfId();
+        const exists = favs.find(f => f.id === id);
+
+        let newFavs;
+        if (exists) {
+          newFavs = favs.filter(f => f.id !== id);
+        } else {
+          newFavs = [
+            ...favs,
+            {
+              id,
+              title: shareTitle,
+              subject: subjectSlug,
+              file: fileName,
+              url: pdfUrl
+            }
+          ];
+        }
+
+        localStorage.setItem(PDF_STORAGE_KEYS.FAVORITES, JSON.stringify(newFavs));
+        updateFavoriteUI();
+      } catch (e) {
+        console.log("Favorite toggle error", e);
+      }
+    }
+
+    function addExtraButtons() {
+      const actions = document.getElementById("viewerActions");
+      if (!actions) return;
+
+      if (!document.getElementById("favoriteBtn")) {
+        const favBtn = document.createElement("button");
+        favBtn.className = "btn";
+        favBtn.id = "favoriteBtn";
+        favBtn.textContent = "☆ Favorite";
+        favBtn.type = "button";
+        favBtn.onclick = toggleFavorite;
+        actions.appendChild(favBtn);
+      }
+
+      if (!document.getElementById("relatedQuizBtn")) {
+        const quizBtn = document.createElement("a");
+        quizBtn.className = "btn btn-primary";
+        quizBtn.id = "relatedQuizBtn";
+        quizBtn.textContent = "🎯 Practice Quiz";
+        quizBtn.href = `/DN_Physics/pp-quiz/topic.html?topic=${encodeURIComponent(subjectSlug || "")}`;
+        actions.appendChild(quizBtn);
+      }
+
+      updateFavoriteUI();
     }
 
     async function showLibrary() {
@@ -494,6 +588,9 @@
 
           container.appendChild(canvas);
         }
+
+        saveRecentPdf();
+        addExtraButtons();
       } catch (error) {
         const isOffline = !navigator.onLine;
 
@@ -589,11 +686,6 @@
     };
   </script>
 
-  <!-- NEW: shared music system added, old viewer kept -->
   <script src="/DN_Physics/js/music-player.js"></script>
-</body>
-</html>
-  </script>
-
 </body>
 </html>
