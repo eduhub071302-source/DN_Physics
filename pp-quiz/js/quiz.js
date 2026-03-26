@@ -62,6 +62,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const resumeQuizBtn = document.getElementById("resumeQuizBtn");
   const discardResumeBtn = document.getElementById("discardResumeBtn");
 
+  // 🔥 NEW: update-safe elements
+  const quizUpdateBanner = document.getElementById("quizUpdateBanner");
+  const updateAfterBtn = document.getElementById("updateAfterBtn");
+
   const requiredElements = [
     quizTitle,
     quizSubtitle,
@@ -124,6 +128,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const QUIZ_PROGRESS_KEY = "dnPhysicsQuizProgress";
   const QUIZ_SESSION_KEY = "dnPhysicsQuizSessions";
+
+  // 🔥 NEW: update-safe state
+  let pendingServiceWorkerUpdate = false;
+  let isQuizActive = true;
 
   function makeNiceTitle(slug) {
     return (slug || "")
@@ -701,6 +709,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     flaggedQuestions = new Set();
     quizElapsedSeconds = 0;
     questionElapsedSeconds = 0;
+    isQuizActive = true;
 
     reviewNote.style.display = "none";
     resultCard.style.display = "none";
@@ -729,6 +738,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     reviewMode = false;
     userAnswers = {};
     questionElapsedSeconds = 0;
+    isQuizActive = true;
 
     reviewNote.style.display = "none";
     resultCard.style.display = "none";
@@ -850,6 +860,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     reviewMode = true;
     wrongQuestionsGlobal = [...wrongQuestions];
     wrongQuestionPointer = 0;
+    isQuizActive = false;
 
     reviewNote.style.display = "block";
     resultCard.style.display = "block";
@@ -939,6 +950,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     reviewMode = false;
     wrongQuestionsGlobal = [];
     wrongQuestionPointer = 0;
+    isQuizActive = true;
 
     reviewNote.style.display = "none";
     resultCard.style.display = "none";
@@ -1164,9 +1176,54 @@ document.addEventListener("DOMContentLoaded", async () => {
     pinchStartDistance = 0;
   });
 
-  window.addEventListener("beforeunload", () => {
+  window.addEventListener("beforeunload", async () => {
     saveCurrentSession();
+
+    // 🔥 NEW: apply waiting update only when leaving quiz
+    if (!pendingServiceWorkerUpdate) return;
+
+    try {
+      const registration = await navigator.serviceWorker.getRegistration();
+      if (registration && registration.waiting) {
+        registration.waiting.postMessage({ type: "SKIP_WAITING" });
+      }
+    } catch (error) {
+      console.log("SW apply on unload warning:", error);
+    }
   });
+
+  // 🔥 NEW: service worker update-safe logic
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.addEventListener("message", (event) => {
+      if (event.data && event.data.type === "SW_UPDATED") {
+        pendingServiceWorkerUpdate = true;
+
+        if (quizUpdateBanner) {
+          quizUpdateBanner.classList.add("show");
+        }
+
+        console.log("New update available. Waiting until quiz is finished or page is closed.");
+      }
+    });
+
+    if (updateAfterBtn) {
+      updateAfterBtn.addEventListener("click", async () => {
+        try {
+          const registration = await navigator.serviceWorker.getRegistration();
+
+          if (registration && registration.waiting) {
+            registration.waiting.postMessage({ type: "SKIP_WAITING" });
+          }
+
+          setTimeout(() => {
+            window.location.reload();
+          }, 500);
+        } catch (error) {
+          console.log("Manual update warning:", error);
+        }
+      });
+    }
+  }
 
   const loaded = await loadQuizData();
   if (!loaded) return;
