@@ -16,66 +16,169 @@
   </header>
 
   <main class="container quiz-page">
-    <div id="attemptInfoCard" class="quiz-view-card attempt-info-card">
-      <h2>Your Progress</h2>
-      <div id="attemptInfo" class="result-summary">
-        <div><strong>Last Score:</strong> No previous attempt</div>
-        <div><strong>Best Score:</strong> No previous attempt</div>
-        <div><strong>Attempts:</strong> 0</div>
-        <div><strong>Badge:</strong> None</div>
+    <!-- RESUME BOX -->
+    <div id="resumeCard" class="quiz-view-card resume-card" style="display:none;">
+      <div class="resume-card-top">
+        <div>
+          <h2>Resume Unfinished Quiz</h2>
+          <p id="resumeSummary" class="muted-text">We found saved progress for this quiz.</p>
+        </div>
+        <div class="resume-actions">
+          <button id="resumeQuizBtn" class="btn btn-primary" type="button">Resume</button>
+          <button id="discardResumeBtn" class="btn" type="button">Start Fresh</button>
+        </div>
       </div>
     </div>
 
-    <div class="quiz-view-card">
-      <div class="quiz-top-row">
-        <div id="questionCounter" class="quiz-counter">Question 1 of 1</div>
-        <div id="answeredCounter" class="quiz-counter">Answered: 0</div>
-      </div>
-
-      <div class="quiz-image-wrap zoomable-wrap" id="zoomWrap">
-        <img id="questionImage" class="quiz-image zoomable-image" src="" alt="Question image" />
-        <button id="zoomBtn" class="zoom-btn" type="button">🔍 Zoom</button>
-      </div>
-
-      <div class="answer-section">
-        <h3 class="answer-title">Choose Your Answer</h3>
-        <div class="answer-grid">
-          <button class="answer-btn" data-answer="1" type="button">1</button>
-          <button class="answer-btn" data-answer="2" type="button">2</button>
-          <button class="answer-btn" data-answer="3" type="button">3</button>
-          <button class="answer-btn" data-answer="4" type="button">4</button>
-          <button class="answer-btn" data-answer="5" type="button">5</button>
+    <!-- TOP DASHBOARD -->
+    <div class="quiz-dashboard-grid">
+      <div id="attemptInfoCard" class="quiz-view-card attempt-info-card">
+        <h2>Your Progress</h2>
+        <div id="attemptInfo" class="result-summary">
+          <div><strong>Last Score:</strong> No previous attempt</div>
+          <div><strong>Best Score:</strong> No previous attempt</div>
+          <div><strong>Attempts:</strong> 0</div>
+          <div><strong>Badge:</strong> None</div>
         </div>
       </div>
 
-      <div id="reviewNote" class="review-note" style="display:none;">
-        Review mode: red = your wrong answer, green = correct answer.
-      </div>
-
-      <div class="quiz-nav">
-        <button id="prevBtn" class="btn" type="button">← Previous</button>
-        <button id="nextBtn" class="btn btn-primary" type="button">Next →</button>
-      </div>
-
-      <div class="submit-wrap">
-        <button id="finishQuizBtn" class="btn" type="button">Finish Now</button>
-        <button id="submitQuizBtn" class="btn btn-primary submit-btn" type="button" style="display:none;">
-          Submit Quiz
-        </button>
-      </div>
-
-      <div id="postResultActions" class="submit-wrap" style="display:none;">
-        <button id="retryQuizBtn" class="btn" type="button">Retry Full Quiz</button>
-        <button id="retryWrongBtn" class="btn" type="button" style="display:none;">Retry Wrong Questions Only</button>
-        <button id="wrongOnlyBtn" class="btn btn-primary" type="button" style="display:none;">
-          Go to Wrong Question
-        </button>
+      <div id="performanceCard" class="quiz-view-card performance-card">
+        <h2>Performance</h2>
+        <div id="performanceSummary" class="result-summary">
+          <div><strong>Mastery:</strong> Beginner</div>
+          <div><strong>Completed Full Quiz:</strong> No</div>
+          <div><strong>Last Played:</strong> Never</div>
+          <div><strong>Streak:</strong> 0 days</div>
+        </div>
       </div>
     </div>
 
-    <div id="resultCard" class="quiz-view-card result-card" style="display:none;">
-      <h2>Quiz Result</h2>
-      <div id="resultSummary" class="result-summary"></div>
+    <!-- MAIN QUIZ LAYOUT -->
+    <div class="quiz-main-layout">
+      <!-- LEFT: PALETTE / TOOLS -->
+      <aside class="quiz-sidebar">
+        <div class="quiz-view-card sidebar-card">
+          <h2>Quiz Tools</h2>
+
+          <div class="timer-wrap">
+            <div class="timer-box">
+              <div class="timer-label">Quiz Timer</div>
+              <div id="quizTimerDisplay" class="timer-value">00:00</div>
+            </div>
+
+            <div class="timer-box">
+              <div class="timer-label">Question Timer</div>
+              <div id="questionTimerDisplay" class="timer-value">00:00</div>
+            </div>
+          </div>
+
+          <div class="sidebar-actions">
+            <button id="markReviewBtn" class="btn" type="button">☆ Mark for Review</button>
+            <button id="jumpBtn" class="btn" type="button">Jump to Question</button>
+          </div>
+
+          <div class="jump-wrap" id="jumpWrap" style="display:none;">
+            <input
+              id="jumpInput"
+              class="jump-input"
+              type="number"
+              min="1"
+              value="1"
+              placeholder="Question no."
+            />
+            <button id="jumpConfirmBtn" class="btn btn-primary" type="button">Go</button>
+          </div>
+
+          <div class="palette-legend">
+            <span class="legend-pill legend-current">Current</span>
+            <span class="legend-pill legend-answered">Answered</span>
+            <span class="legend-pill legend-flagged">Flagged</span>
+            <span class="legend-pill legend-unanswered">Unanswered</span>
+          </div>
+
+          <div id="questionPalette" class="question-palette"></div>
+        </div>
+      </aside>
+
+      <!-- RIGHT: QUIZ -->
+      <section class="quiz-content">
+        <div class="quiz-view-card">
+          <div class="quiz-top-row">
+            <div id="questionCounter" class="quiz-counter">Question 1 of 1</div>
+            <div id="answeredCounter" class="quiz-counter">Answered: 0</div>
+            <div id="flaggedCounter" class="quiz-counter">Flagged: 0</div>
+          </div>
+
+          <div class="quiz-progress-strip">
+            <div class="quiz-progress-label-row">
+              <span>Subtopic Progress</span>
+              <span id="quizProgressText">0%</span>
+            </div>
+            <div class="quiz-progress-bar">
+              <div id="quizProgressFill" class="quiz-progress-fill"></div>
+            </div>
+          </div>
+
+          <div class="quiz-image-wrap zoomable-wrap" id="zoomWrap">
+            <img id="questionImage" class="quiz-image zoomable-image" src="" alt="Question image" />
+            <button id="zoomBtn" class="zoom-btn" type="button">🔍 Zoom</button>
+          </div>
+
+          <div class="answer-section">
+            <h3 class="answer-title">Choose Your Answer</h3>
+            <div class="answer-grid">
+              <button class="answer-btn" data-answer="1" type="button">1</button>
+              <button class="answer-btn" data-answer="2" type="button">2</button>
+              <button class="answer-btn" data-answer="3" type="button">3</button>
+              <button class="answer-btn" data-answer="4" type="button">4</button>
+              <button class="answer-btn" data-answer="5" type="button">5</button>
+            </div>
+          </div>
+
+          <div id="reviewNote" class="review-note" style="display:none;">
+            Review mode: red = your wrong answer, green = correct answer.
+          </div>
+
+          <div id="answerExplanation" class="review-note explanation-box" style="display:none;">
+            <strong>Explanation:</strong>
+            <div id="answerExplanationText" class="explanation-text">No explanation available.</div>
+          </div>
+
+          <div class="quiz-nav">
+            <button id="prevBtn" class="btn" type="button">← Previous</button>
+            <button id="nextBtn" class="btn btn-primary" type="button">Next →</button>
+          </div>
+
+          <div class="submit-wrap">
+            <button id="finishQuizBtn" class="btn" type="button">Finish Now</button>
+            <button id="submitQuizBtn" class="btn btn-primary submit-btn" type="button" style="display:none;">
+              Submit Quiz
+            </button>
+          </div>
+
+          <div id="postResultActions" class="submit-wrap" style="display:none;">
+            <button id="retryQuizBtn" class="btn" type="button">Retry Full Quiz</button>
+            <button id="retryWrongBtn" class="btn" type="button" style="display:none;">Retry Wrong Questions Only</button>
+            <button id="retryUnansweredBtn" class="btn" type="button" style="display:none;">Retry Unanswered</button>
+            <button id="retryMarkedBtn" class="btn" type="button" style="display:none;">Retry Marked</button>
+            <button id="wrongOnlyBtn" class="btn btn-primary" type="button" style="display:none;">
+              Go to Wrong Question
+            </button>
+          </div>
+        </div>
+
+        <div id="resultCard" class="quiz-view-card result-card" style="display:none;">
+          <h2>Quiz Result</h2>
+          <div id="resultSummary" class="result-summary"></div>
+        </div>
+
+        <div id="historyCard" class="quiz-view-card result-card" style="display:none;">
+          <h2>Best Score History</h2>
+          <div id="historySummary" class="result-summary">
+            <div>No history yet.</div>
+          </div>
+        </div>
+      </section>
     </div>
   </main>
 
