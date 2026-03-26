@@ -134,7 +134,7 @@
     </div>
   </div>
 
-  <!-- Update popup -->
+  <!-- Update popup (kept, but auto-update flow now hides it) -->
   <div id="updateToast" class="update-toast" aria-live="polite">
     <h3>New notes available</h3>
     <p>A newer version of the app was found. Refresh to load the latest notes and updates.</p>
@@ -178,6 +178,7 @@
           PP Quiz
         </a>
       </div>
+    </div>
   </section>
 
   <section class="section controls-section">
@@ -270,6 +271,7 @@
     let refreshingNow = false;
     let touchStartY = 0;
     let pullTriggered = false;
+    let autoReloadingFromSW = false;
 
     function showLoadingOverlay() {
       if (loadingOverlay) loadingOverlay.classList.add("show");
@@ -288,8 +290,13 @@
 
         if ("serviceWorker" in navigator) {
           const registrations = await navigator.serviceWorker.getRegistrations();
+
           for (const registration of registrations) {
             await registration.update();
+
+            if (registration.waiting) {
+              registration.waiting.postMessage({ type: "SKIP_WAITING" });
+            }
           }
         }
       } catch (error) {
@@ -300,37 +307,46 @@
     }
 
     if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker
-          .register("/DN_Physics/service-worker.js")
-          .then((registration) => {
-            console.log("✅ Service Worker registered:", registration.scope);
+      window.addEventListener("load", async () => {
+        try {
+          const registration = await navigator.serviceWorker.register("/DN_Physics/service-worker.js");
+          console.log("✅ Service Worker registered:", registration.scope);
 
-            registration.update();
+          await registration.update();
 
-            if (registration.waiting) {
-              updateToast.classList.add("show");
-            }
+          if (registration.waiting) {
+            registration.waiting.postMessage({ type: "SKIP_WAITING" });
+          }
 
-            registration.addEventListener("updatefound", () => {
-              const newWorker = registration.installing;
-              if (!newWorker) return;
+          registration.addEventListener("updatefound", () => {
+            const newWorker = registration.installing;
+            if (!newWorker) return;
 
-              newWorker.addEventListener("statechange", () => {
-                if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
-                  updateToast.classList.add("show");
-                }
-              });
+            newWorker.addEventListener("statechange", () => {
+              if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+                newWorker.postMessage({ type: "SKIP_WAITING" });
+              }
             });
-          })
-          .catch((error) => {
-            console.log("❌ Service Worker failed:", error);
           });
 
-        navigator.serviceWorker.addEventListener("controllerchange", () => {
-          if (refreshingNow) return;
-          window.location.reload();
-        });
+          navigator.serviceWorker.addEventListener("controllerchange", () => {
+            if (autoReloadingFromSW) return;
+            autoReloadingFromSW = true;
+            showLoadingOverlay();
+            window.location.reload();
+          });
+
+          navigator.serviceWorker.addEventListener("message", (event) => {
+            if (event.data && event.data.type === "SW_UPDATED") {
+              if (autoReloadingFromSW) return;
+              autoReloadingFromSW = true;
+              showLoadingOverlay();
+              window.location.reload();
+            }
+          });
+        } catch (error) {
+          console.log("❌ Service Worker failed:", error);
+        }
       });
     }
 
@@ -376,8 +392,13 @@
 
     if (toastDismissBtn) {
       toastDismissBtn.addEventListener("click", () => {
-        updateToast.classList.remove("show");
+        if (updateToast) updateToast.classList.remove("show");
       });
+    }
+
+    // Keep old update toast HTML, but hide it for auto-update flow
+    if (updateToast) {
+      updateToast.remove();
     }
 
     window.addEventListener("touchstart", (e) => {
@@ -389,20 +410,23 @@
 
     window.addEventListener("touchmove", (e) => {
       if (window.scrollY !== 0) return;
+
       const currentY = e.touches[0].clientY;
       const distance = currentY - touchStartY;
 
-      if (distance > 25 && !pullTriggered) {
+      if (pullRefreshIndicator && distance > 25 && !pullTriggered) {
         pullRefreshIndicator.classList.add("show");
       }
 
-      if (distance > 90 && !pullTriggered) {
+      if (pullRefreshIndicator && distance > 90 && !pullTriggered) {
         pullTriggered = true;
         pullRefreshIndicator.textContent = "↻ Release to refresh";
       }
     }, { passive: true });
 
     window.addEventListener("touchend", async () => {
+      if (!pullRefreshIndicator) return;
+
       if (pullTriggered) {
         pullRefreshIndicator.classList.remove("show");
         pullRefreshIndicator.textContent = "↓ Pull to refresh";
@@ -606,6 +630,8 @@
     }
 
     function filterSubjects() {
+      if (!searchInput || !categoryFilter) return;
+
       const searchValue = searchInput.value.trim().toLowerCase();
       const selectedCategory = categoryFilter.value;
 
@@ -710,8 +736,13 @@
       }
     }
 
-    searchInput.addEventListener("input", filterSubjects);
-    categoryFilter.addEventListener("change", filterSubjects);
+    if (searchInput) {
+      searchInput.addEventListener("input", filterSubjects);
+    }
+
+    if (categoryFilter) {
+      categoryFilter.addEventListener("change", filterSubjects);
+    }
 
     loadSubjectsFromCatalog();
   </script>
