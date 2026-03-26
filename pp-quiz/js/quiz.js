@@ -396,16 +396,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   let retryModeType = "full";
   let retryQuestionList = [];
 
-  function keepQuizAreaInView() {
-    const answerSection = document.querySelector(".answer-section");
-    if (answerSection) {
-      answerSection.scrollIntoView({
-        behavior: "auto",
-        block: "start"
-      });
-    }
-  }
-
   async function loadQuizData() {
     const jsonPath = `/DN_Physics/pp-quiz/data/${topic}/${subtopic}/${setName}.json`;
 
@@ -690,9 +680,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         currentQuestion++;
       }
       updateQuestionView();
-      setTimeout(() => {
-        keepQuizAreaInView();
-      }, 30);
       return;
     }
 
@@ -730,7 +717,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateQuestionView();
     updateTimerDisplays();
     startTimers();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo(0, 0);
   }
 
   function startListRetryMode(questionList) {
@@ -875,7 +862,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     stopTimers();
     updateQuestionView();
-    resultCard.scrollIntoView({ behavior: "smooth" });
   }
 
   function showResult(mode) {
@@ -1009,9 +995,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         currentQuestion--;
       }
       updateQuestionView();
-      setTimeout(() => {
-        keepQuizAreaInView();
-      }, 30);
     }
   });
 
@@ -1026,9 +1009,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         currentQuestion++;
       }
       updateQuestionView();
-      setTimeout(() => {
-        keepQuizAreaInView();
-      }, 30);
     }
   });
 
