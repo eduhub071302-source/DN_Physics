@@ -37,11 +37,13 @@ function renderTopics(container, topicList) {
   container.innerHTML = "";
 
   topicList.forEach((topic, index) => {
+    const href = `/DN_Physics/pp-quiz/topic.html?topic=${encodeURIComponent(topic.slug)}`;
     const card = document.createElement("a");
-    card.className = "topic-card fade-slide-up";
-    card.href = `/DN_Physics/pp-quiz/topic.html?topic=${encodeURIComponent(topic.slug)}`;
-    card.setAttribute("aria-label", `Open ${topic.title}`);
 
+    card.className = "topic-card fade-slide-up";
+    card.href = href;
+    card.setAttribute("aria-label", `Open ${topic.title}`);
+    card.setAttribute("data-href", href);
     card.style.animationDelay = `${index * 0.04}s`;
 
     card.innerHTML = `
@@ -63,7 +65,72 @@ function renderTopics(container, topicList) {
       <span class="action-btn primary-btn enter-topic-btn">Open Topic</span>
     `;
 
+    attachSmoothCardTouch(card);
     container.appendChild(card);
+  });
+}
+
+function attachSmoothCardTouch(card) {
+  let startX = 0;
+  let startY = 0;
+  let moved = false;
+  let touching = false;
+
+  const MOVE_LIMIT = 10;
+
+  card.addEventListener("touchstart", (event) => {
+    if (!event.touches || event.touches.length !== 1) return;
+
+    const touch = event.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+    moved = false;
+    touching = true;
+
+    card.classList.add("card-touch-active");
+  }, { passive: true });
+
+  card.addEventListener("touchmove", (event) => {
+    if (!touching || !event.touches || event.touches.length !== 1) return;
+
+    const touch = event.touches[0];
+    const dx = Math.abs(touch.clientX - startX);
+    const dy = Math.abs(touch.clientY - startY);
+
+    if (dx > MOVE_LIMIT || dy > MOVE_LIMIT) {
+      moved = true;
+      card.classList.remove("card-touch-active");
+    }
+  }, { passive: true });
+
+  card.addEventListener("touchend", () => {
+    touching = false;
+    setTimeout(() => {
+      card.classList.remove("card-touch-active");
+    }, 80);
+  }, { passive: true });
+
+  card.addEventListener("touchcancel", () => {
+    touching = false;
+    moved = true;
+    card.classList.remove("card-touch-active");
+  }, { passive: true });
+
+  card.addEventListener("click", (event) => {
+    if (moved) {
+      event.preventDefault();
+      moved = false;
+      return;
+    }
+  });
+
+  card.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      card.classList.add("card-touch-active");
+      setTimeout(() => {
+        card.classList.remove("card-touch-active");
+      }, 120);
+    }
   });
 }
 
@@ -73,7 +140,7 @@ function escapeHtml(value) {
       "&": "&amp;",
       "<": "&lt;",
       ">": "&gt;",
-      '"': "&quot;",
+      "\"": "&quot;",
       "'": "&#39;"
     };
     return map[char];
