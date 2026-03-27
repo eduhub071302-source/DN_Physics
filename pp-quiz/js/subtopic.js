@@ -116,6 +116,61 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  /* 🔥 TOUCH FIX (same as other pages) */
+  function attachSmoothCardTouch(card) {
+    let startX = 0;
+    let startY = 0;
+    let moved = false;
+    let touching = false;
+
+    const MOVE_LIMIT = 10;
+
+    card.addEventListener("touchstart", (event) => {
+      if (!event.touches || event.touches.length !== 1) return;
+
+      const touch = event.touches[0];
+      startX = touch.clientX;
+      startY = touch.clientY;
+      moved = false;
+      touching = true;
+
+      card.classList.add("card-touch-active");
+    }, { passive: true });
+
+    card.addEventListener("touchmove", (event) => {
+      if (!touching || !event.touches) return;
+
+      const touch = event.touches[0];
+      const dx = Math.abs(touch.clientX - startX);
+      const dy = Math.abs(touch.clientY - startY);
+
+      if (dx > MOVE_LIMIT || dy > MOVE_LIMIT) {
+        moved = true;
+        card.classList.remove("card-touch-active");
+      }
+    }, { passive: true });
+
+    card.addEventListener("touchend", () => {
+      touching = false;
+      setTimeout(() => {
+        card.classList.remove("card-touch-active");
+      }, 80);
+    }, { passive: true });
+
+    card.addEventListener("touchcancel", () => {
+      touching = false;
+      moved = true;
+      card.classList.remove("card-touch-active");
+    }, { passive: true });
+
+    card.addEventListener("click", (event) => {
+      if (moved) {
+        event.preventDefault();
+        moved = false;
+      }
+    });
+  }
+
   function buildSetCard(set, index) {
     const stats = getSavedStats(topic, subtopic, set.slug);
 
@@ -164,6 +219,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         ${stats.attempts > 0 ? "Continue" : "Start"}
       </span>
     `;
+
+    attachSmoothCardTouch(card); // 🔥 APPLY FIX HERE
 
     return card;
   }
