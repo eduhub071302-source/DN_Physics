@@ -1893,4 +1893,8 @@ button {
   /* 10. Optional: smoother question transitions */
   .quiz-main-card {
     transition: transform 0.2s ease;
+
+  .topic-card.card-touch-active {
+    transform: scale(0.985);
+    transition: transform 0.08s ease;
 }
