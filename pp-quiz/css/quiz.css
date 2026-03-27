@@ -1811,4 +1811,86 @@ button {
   .score-inner strong {
     font-size: 17px;
   }
+
+  /* ========================================
+     MOBILE TOUCH PERFORMANCE FIX (IMPORTANT)
+     ======================================== */
+
+  /* 1. Remove tap delay + improve responsiveness */
+  button,
+  .action-btn,
+  .answer-btn,
+  .palette-btn,
+  .music-float-btn {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  /* 2. Strong active feedback (this is KEY for smooth feel) */
+  .action-btn:active,
+  .answer-btn:active,
+  .palette-btn:active,
+  .music-float-btn:active {
+    transform: scale(0.95);
+    transition: transform 0.05s ease;
+  }
+
+  /* 3. Faster button response (reduce lag feel) */
+  .action-btn,
+  .answer-btn,
+  .palette-btn {
+    transition:
+      transform 0.1s ease,
+      background 0.15s ease,
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  /* 4. Improve tap size for mobile (critical UX) */
+  @media (max-width: 768px) {
+    .action-btn {
+      min-height: 44px; /* Apple/Google standard */
+    }
+
+    .answer-btn {
+      width: 52px;
+      height: 52px;
+    }
+
+    .palette-btn {
+      min-height: 40px;
+    }
+  }
+
+  /* 5. Prevent accidental double-tap zoom */
+  html, body {
+    touch-action: manipulation;
+  }
+
+  /* 6. Smooth scroll behavior for interactions */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 7. Remove long press menu (feels more app-like) */
+  button {
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  /* 8. Instant visual press feedback (premium feel) */
+  .action-btn:active,
+  .answer-btn:active {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  }
+
+  /* 9. Improve grid tap spacing */
+  .answer-grid {
+    padding: 4px 0;
+  }
+
+  /* 10. Optional: smoother question transitions */
+  .quiz-main-card {
+    transition: transform 0.2s ease;
 }
