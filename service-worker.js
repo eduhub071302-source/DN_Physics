@@ -41,7 +41,10 @@ self.addEventListener("activate", (event) => {
         })
       );
 
-      await self.clients.claim();
+      // safer claim (avoid breaking running app)
+      setTimeout(() => {
+        self.clients.claim();
+      }, 500);
 
       // ===== VERSION CHECK =====
       const metaCache = await caches.open(META_CACHE);
@@ -67,6 +70,7 @@ self.addEventListener("activate", (event) => {
           client.postMessage({
             type: "SW_UPDATED",
             version: CACHE_NAME
+            safe: true
           });
         }
       }
@@ -168,6 +172,12 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // ===== AUDIO FILES (NO CACHE - STREAM ONLY) =====
+  if (url.pathname.match(/\.(mp3|wav|ogg)$/)) {
+    event.respondWith(fetch(request));
+    return;
+  }
+
   // ===== STATIC FILES =====
   if (isCSS || isJS || isImage) {
     event.respondWith(
@@ -182,7 +192,13 @@ self.addEventListener("fetch", (event) => {
           })
           .catch(() => null);
 
-        return cached || (await networkFetch);
+        if (cached) return cached;
+
+        const network = await networkFetch;
+        if (network) return network;
+
+        // fallback
+        return new Response("Offline", { status: 503 });
       })()
     );
     return;
