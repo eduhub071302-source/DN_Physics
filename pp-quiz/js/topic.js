@@ -259,7 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
-        '"': "&quot;",
+        "\"": "&quot;",
         "'": "&#39;"
       };
       return map[char];
@@ -286,6 +286,60 @@ document.addEventListener("DOMContentLoaded", () => {
     return `Build confidence step by step with repeated practice on this subtopic.`;
   }
 
+  function attachSmoothCardTouch(card) {
+    let startX = 0;
+    let startY = 0;
+    let moved = false;
+    let touching = false;
+
+    const MOVE_LIMIT = 10;
+
+    card.addEventListener("touchstart", (event) => {
+      if (!event.touches || event.touches.length !== 1) return;
+
+      const touch = event.touches[0];
+      startX = touch.clientX;
+      startY = touch.clientY;
+      moved = false;
+      touching = true;
+
+      card.classList.add("card-touch-active");
+    }, { passive: true });
+
+    card.addEventListener("touchmove", (event) => {
+      if (!touching || !event.touches) return;
+
+      const touch = event.touches[0];
+      const dx = Math.abs(touch.clientX - startX);
+      const dy = Math.abs(touch.clientY - startY);
+
+      if (dx > MOVE_LIMIT || dy > MOVE_LIMIT) {
+        moved = true;
+        card.classList.remove("card-touch-active");
+      }
+    }, { passive: true });
+
+    card.addEventListener("touchend", () => {
+      touching = false;
+      setTimeout(() => {
+        card.classList.remove("card-touch-active");
+      }, 80);
+    }, { passive: true });
+
+    card.addEventListener("touchcancel", () => {
+      touching = false;
+      moved = true;
+      card.classList.remove("card-touch-active");
+    }, { passive: true });
+
+    card.addEventListener("click", (event) => {
+      if (moved) {
+        event.preventDefault();
+        moved = false;
+      }
+    });
+  }
+
   function createSubtopicCard(topicSlugValue, subtopic, index) {
     const summary = calculateSubtopicSummary(topicSlugValue, subtopic.slug);
     const badge = summary.bestFull !== null ? getBadgeData(summary.bestFull) : null;
@@ -296,7 +350,12 @@ document.addEventListener("DOMContentLoaded", () => {
     card.setAttribute("aria-label", `Open ${subtopic.title}`);
     card.style.animationDelay = `${index * 0.04}s`;
 
-    const actionText = summary.completed ? "Continue Mastering" : summary.attempts > 0 ? "Continue Practice" : "Start Practice";
+    const actionText = summary.completed
+      ? "Continue Mastering"
+      : summary.attempts > 0
+      ? "Continue Practice"
+      : "Start Practice";
+
     const description = getSubtopicDescription(subtopic.title, summary.mastery, summary.attempts);
 
     card.innerHTML = `
@@ -334,6 +393,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <span class="action-btn primary-btn enter-topic-btn">${actionText}</span>
     `;
 
+    attachSmoothCardTouch(card);
     return card;
   }
 
