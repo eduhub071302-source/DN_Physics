@@ -8,7 +8,7 @@
     name="description"
     content="Practice A/L Physics past paper MCQs topic by topic with progress tracking, resume support, and focused revision."
   />
-  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=21" />
+  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=22" />
 </head>
 <body>
 
@@ -30,8 +30,7 @@
             <div class="topic-pill">DinuuNOVA Physics • Past Paper Practice</div>
             <h2 class="topic-title" style="font-size: 34px; margin-top: 10px;">Train Like a Real Exam App</h2>
             <p class="topic-desc" style="max-width: 760px;">
-              Choose a topic, open a subtopic, and practice question sets with progress tracking,
-              retry modes, history, and focused revision.
+              Choose a topic and start practicing instantly. Focus on accuracy, speed, and consistency.
             </p>
           </div>
 
@@ -40,28 +39,9 @@
 
         <div class="topic-stats">
           <span class="stat-pill">Topic-wise Practice</span>
-          <span class="stat-pill">Set-wise Progress</span>
           <span class="stat-pill">Retry Wrong Answers</span>
-          <span class="stat-pill">Resume Saved Session</span>
+          <span class="stat-pill">Resume Anytime</span>
         </div>
-      </section>
-
-      <!-- DASHBOARD STRIP -->
-      <section class="topics-grid fade-slide-up" style="grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 20px;">
-        <article class="info-card" style="min-height: auto;">
-          <h3 style="margin-bottom: 8px;">Mode</h3>
-          <p style="margin: 0; color: var(--accent-2); font-weight: 700;">MCQ Practice</p>
-        </article>
-
-        <article class="info-card" style="min-height: auto;">
-          <h3 style="margin-bottom: 8px;">System</h3>
-          <p style="margin: 0; color: var(--accent-2); font-weight: 700;">Topic → Subtopic → Set</p>
-        </article>
-
-        <article class="info-card" style="min-height: auto;">
-          <h3 style="margin-bottom: 8px;">Goal</h3>
-          <p style="margin: 0; color: var(--accent-2); font-weight: 700;">Speed + Accuracy</p>
-        </article>
       </section>
 
       <!-- SECTION HEAD -->
@@ -70,7 +50,7 @@
           <div>
             <h3 style="margin: 0 0 6px; font-size: 26px;">Select a Topic</h3>
             <p style="margin: 0; color: var(--muted);">
-              Open a physics topic to see available subtopics and quiz sets.
+              Tap a topic to begin your practice.
             </p>
           </div>
         </div>
@@ -78,7 +58,8 @@
 
       <!-- TOPICS GRID -->
       <section id="topicsGrid" class="topics-grid fade-in" aria-live="polite">
-        <!-- Loading skeleton shown before JS loads real topics -->
+
+        <!-- Skeleton loading -->
         <article class="skeleton-card">
           <div class="skeleton-avatar"></div>
           <div class="skeleton-line lg"></div>
@@ -110,6 +91,7 @@
           <div class="skeleton-line sm"></div>
           <div class="skeleton-box"></div>
         </article>
+
       </section>
 
     </div>
