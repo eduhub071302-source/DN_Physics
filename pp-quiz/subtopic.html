@@ -8,7 +8,7 @@
     name="description"
     content="Open quiz sets for a selected A/L Physics subtopic and continue focused past paper MCQ practice."
   />
-  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=21" />
+  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=22" />
 </head>
 <body>
 
@@ -16,21 +16,21 @@
     <div class="container">
       <a id="backToTopic" class="back-link" href="/DN_Physics/pp-quiz/index.html">← Back</a>
       <h1 id="subtopicTitle">Subtopic</h1>
-      <p>Choose a quiz set and continue your revision.</p>
+      <p>Choose a quiz set to start practicing.</p>
     </div>
   </header>
 
   <main class="quiz-main">
     <div class="container">
 
-      <!-- SUBTOPIC HERO -->
+      <!-- HERO -->
       <section class="topic-card fade-slide-up" style="margin-bottom: 20px; min-height: auto;">
         <div class="topic-card-top">
           <div class="topic-body">
             <div class="topic-pill">PP Quiz • Set Selection</div>
             <h2 id="subtopicHeroTitle" class="topic-title" style="font-size: 34px; margin-top: 10px;">Loading Subtopic...</h2>
             <p id="subtopicHeroText" class="topic-desc" style="max-width: 760px;">
-              Choose a quiz set below and continue your focused past paper MCQ practice.
+              Choose a set and start your focused practice instantly.
             </p>
           </div>
 
@@ -39,28 +39,9 @@
 
         <div class="topic-stats">
           <span class="stat-pill">Set-wise Practice</span>
-          <span class="stat-pill">Progress Tracking</span>
           <span class="stat-pill">Retry Wrong Answers</span>
-          <span class="stat-pill">Accuracy Building</span>
+          <span class="stat-pill">Progress Tracking</span>
         </div>
-      </section>
-
-      <!-- MINI DASHBOARD -->
-      <section class="topics-grid fade-slide-up" style="grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 20px;">
-        <article class="info-card" style="min-height: auto;">
-          <h3 style="margin-bottom: 8px;">Step 1</h3>
-          <p style="margin: 0; color: var(--accent-2); font-weight: 700;">Choose Set</p>
-        </article>
-
-        <article class="info-card" style="min-height: auto;">
-          <h3 style="margin-bottom: 8px;">Step 2</h3>
-          <p style="margin: 0; color: var(--accent-2); font-weight: 700;">Start / Resume</p>
-        </article>
-
-        <article class="info-card" style="min-height: auto;">
-          <h3 style="margin-bottom: 8px;">Target</h3>
-          <p style="margin: 0; color: var(--accent-2); font-weight: 700;">Master the Subtopic</p>
-        </article>
       </section>
 
       <!-- SECTION HEAD -->
@@ -69,7 +50,7 @@
           <div>
             <h3 style="margin: 0 0 6px; font-size: 26px;">Available Quiz Sets</h3>
             <p style="margin: 0; color: var(--muted);">
-              Open a set to practice, improve accuracy, and track your best performance.
+              Tap a set to begin and improve your accuracy.
             </p>
           </div>
         </div>
@@ -77,6 +58,8 @@
 
       <!-- QUIZ SETS GRID -->
       <section id="quizSetsGrid" class="topics-grid fade-in" aria-live="polite">
+
+        <!-- Skeleton loading -->
         <article class="skeleton-card">
           <div class="skeleton-avatar"></div>
           <div class="skeleton-line lg"></div>
@@ -108,6 +91,7 @@
           <div class="skeleton-line sm"></div>
           <div class="skeleton-box"></div>
         </article>
+
       </section>
 
     </div>
