@@ -8,7 +8,7 @@
     name="description"
     content="Choose a subtopic and start A/L Physics past paper MCQ practice with DinuuNOVA Physics."
   />
-  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=21" />
+  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=22" />
 </head>
 <body>
 
@@ -16,21 +16,21 @@
     <div class="container">
       <a class="back-link" href="/DN_Physics/pp-quiz/index.html">← Back to Topics</a>
       <h1 id="topicTitle">Topic</h1>
-      <p>Select a subtopic and open a quiz set.</p>
+      <p>Select a subtopic to begin practice.</p>
     </div>
   </header>
 
   <main class="quiz-main">
     <div class="container">
 
-      <!-- TOPIC HERO -->
+      <!-- HERO -->
       <section class="topic-card fade-slide-up" style="margin-bottom: 20px; min-height: auto;">
         <div class="topic-card-top">
           <div class="topic-body">
             <div class="topic-pill">PP Quiz • Subtopic Selection</div>
             <h2 class="topic-title" id="topicHeroTitle" style="font-size: 34px; margin-top: 10px;">Loading Topic...</h2>
             <p class="topic-desc" id="topicHeroText" style="max-width: 760px;">
-              Choose a subtopic below and continue your focused past paper MCQ practice.
+              Choose a subtopic and start practicing instantly.
             </p>
           </div>
 
@@ -39,28 +39,9 @@
 
         <div class="topic-stats">
           <span class="stat-pill">Subtopic Practice</span>
-          <span class="stat-pill">Set-wise Revision</span>
           <span class="stat-pill">Progress Tracking</span>
-          <span class="stat-pill">Focused Training</span>
+          <span class="stat-pill">Focused Revision</span>
         </div>
-      </section>
-
-      <!-- MINI DASHBOARD -->
-      <section class="topics-grid fade-slide-up" style="grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 20px;">
-        <article class="info-card" style="min-height: auto;">
-          <h3 style="margin-bottom: 8px;">Step 1</h3>
-          <p style="margin: 0; color: var(--accent-2); font-weight: 700;">Choose Subtopic</p>
-        </article>
-
-        <article class="info-card" style="min-height: auto;">
-          <h3 style="margin-bottom: 8px;">Step 2</h3>
-          <p style="margin: 0; color: var(--accent-2); font-weight: 700;">Open Quiz Set</p>
-        </article>
-
-        <article class="info-card" style="min-height: auto;">
-          <h3 style="margin-bottom: 8px;">Target</h3>
-          <p style="margin: 0; color: var(--accent-2); font-weight: 700;">Accuracy + Speed</p>
-        </article>
       </section>
 
       <!-- SECTION HEAD -->
@@ -69,7 +50,7 @@
           <div>
             <h3 style="margin: 0 0 6px; font-size: 26px;">Available Subtopics</h3>
             <p style="margin: 0; color: var(--muted);">
-              Open a subtopic to view available quiz sets and continue your revision.
+              Tap a subtopic to continue your revision.
             </p>
           </div>
         </div>
@@ -77,6 +58,8 @@
 
       <!-- SUBTOPICS GRID -->
       <section id="subtopicsGrid" class="topics-grid fade-in" aria-live="polite">
+
+        <!-- Skeleton loading -->
         <article class="skeleton-card">
           <div class="skeleton-avatar"></div>
           <div class="skeleton-line lg"></div>
@@ -108,6 +91,7 @@
           <div class="skeleton-line sm"></div>
           <div class="skeleton-box"></div>
         </article>
+
       </section>
 
     </div>
