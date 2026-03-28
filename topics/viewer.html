@@ -502,7 +502,7 @@
       } else {
         try {
           await navigator.clipboard.writeText(shareUrl);
-          alert("PDF link copied.");
+          showToast("Link copied ✅");
         } catch (error) {
           alert("Copy this link manually:\n" + shareUrl);
         }
