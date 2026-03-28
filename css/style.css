@@ -384,6 +384,18 @@ main {
   margin-top: 18px;
 }
 
+/* ===== TOPIC PAGE (topic.html) ===== */
+
+.topic-share-actions {
+  margin-top: 12px;
+}
+
+.topic-helper-text {
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
 .dashboard-section .grid .card h3 {
   margin-top: 0;
 }
