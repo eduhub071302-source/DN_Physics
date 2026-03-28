@@ -14,7 +14,6 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <!-- APP SPLASH -->
   <div id="appSplash" class="app-splash" aria-hidden="true">
     <div class="app-splash-bg"></div>
 
@@ -33,12 +32,10 @@
     </div>
   </div>
 
-  <!-- PULL REFRESH -->
   <div id="pullRefreshIndicator" class="pull-refresh-indicator" aria-hidden="true">
     ↓ Pull to refresh
   </div>
 
-  <!-- LOADING OVERLAY -->
   <div id="loadingOverlay" class="loading-overlay" aria-hidden="true">
     <div class="loading-box">
       <div class="spinner"></div>
@@ -46,7 +43,6 @@
     </div>
   </div>
 
-  <!-- UPDATE TOAST -->
   <div id="updateToast" class="update-toast" aria-live="polite" aria-hidden="true">
     <h3>New notes available</h3>
     <p>A newer version of the app was found. Refresh to load the latest notes and updates.</p>
@@ -56,7 +52,6 @@
     </div>
   </div>
 
-  <!-- HEADER -->
   <header class="site-header">
     <div class="container nav">
       <div class="brand">DinuuNOVA <span>Physics</span></div>
@@ -80,7 +75,6 @@
   </header>
 
   <main>
-    <!-- HERO -->
     <section class="hero">
       <div class="container">
         <div class="badge">A/L Physics Formula Notes</div>
@@ -102,7 +96,6 @@
       </div>
     </section>
 
-    <!-- DASHBOARD -->
     <section class="section dashboard-section">
       <div class="container">
         <h2>Your Dashboard</h2>
@@ -116,7 +109,6 @@
       </div>
     </section>
 
-    <!-- CONTROLS -->
     <section class="section controls-section">
       <div class="container">
         <div class="controls-wrap">
@@ -138,7 +130,6 @@
       </div>
     </section>
 
-    <!-- PINNED -->
     <section class="section pinned-section is-hidden" id="pinnedSection">
       <div class="container">
         <h2>Pinned Topics</h2>
@@ -150,7 +141,6 @@
       </div>
     </section>
 
-    <!-- SUBJECTS -->
     <section class="section">
       <div class="container">
         <h2>Main Topics</h2>
@@ -165,14 +155,12 @@
     </section>
   </main>
 
-  <!-- FOOTER -->
   <footer class="footer">
     <div class="container">
       © 2026 DinuuNOVA Physics · Email: eduhub071302@gmail.com
     </div>
   </footer>
 
-  <!-- MUSIC PLAYER -->
   <div class="music-player-wrap">
     <button
       id="musicToggleBtn"
@@ -314,7 +302,7 @@
         clearInterval(fakeProgressTimer);
         fakeProgressTimer = null;
       }
-      
+
       setLoadingText("Update complete 🚀 100%");
     }
 
@@ -814,18 +802,87 @@
       return `/DN_Physics/pp-quiz/quiz.html?topic=${encodeURIComponent(parsed.topic)}&subtopic=${encodeURIComponent(parsed.subtopic)}&set=${encodeURIComponent(parsed.set)}`;
     }
 
+    function getRecentPdfs() {
+      try {
+        return JSON.parse(localStorage.getItem("dnPdfRecent")) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function getFavorites() {
+      try {
+        return JSON.parse(localStorage.getItem("dnPdfFavorites")) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function getMostStudiedSubject(recent) {
+      if (!recent.length) return null;
+
+      const count = {};
+
+      recent.forEach(item => {
+        if (!item.subject) return;
+        count[item.subject] = (count[item.subject] || 0) + 1;
+      });
+
+      let max = 0;
+      let best = null;
+
+      Object.entries(count).forEach(([key, val]) => {
+        if (val > max) {
+          max = val;
+          best = key;
+        }
+      });
+
+      return best ? prettifySubject(best) : null;
+    }
+
     function renderDashboard() {
       if (!dashboardGrid) return;
 
       let html = "";
 
       const lastPdf = getLastPdf();
+      const recent = getRecentPdfs();
+      const favorites = getFavorites();
+
+      const mostStudied = getMostStudiedSubject(recent);
+
       if (lastPdf && lastPdf.url) {
         html += createDashCard(
           "📘 Continue Reading",
           `${lastPdf.title || lastPdf.file || "Open your last note"}`,
           "Open Note",
           `/DN_Physics/topics/viewer.html?pdf=${encodeURIComponent(lastPdf.url)}&title=${encodeURIComponent(lastPdf.title || "")}&subjectName=${encodeURIComponent(prettifySubject(lastPdf.subject || ""))}`
+        );
+      }
+
+      html += createDashCard(
+        "📊 Total Study Sessions",
+        `${recent.length} PDFs opened`,
+        "Keep Learning",
+        "/DN_Physics/index.html"
+      );
+
+      if (mostStudied) {
+        html += createDashCard(
+          "🧠 Most Studied",
+          `${mostStudied}`,
+          "Open Subject",
+          "/DN_Physics/index.html"
+        );
+      }
+
+      if (favorites.length > 0) {
+        html += createDashCard(
+          "⭐ Favorites",
+          `${favorites.length} saved topics`,
+          "View PDFs",
+          "/DN_Physics/topics/viewer.html"
         );
       }
 
@@ -853,7 +910,7 @@
 
       html += createDashCard(
         "🚀 Keep Going",
-        "Discipline builds your future. Open notes, solve quizzes, and keep your streak alive.",
+        "Consistency builds island rank. Stay focused.",
         "Open PP Quiz",
         "/DN_Physics/pp-quiz/index.html"
       );
