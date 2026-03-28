@@ -278,16 +278,13 @@
         if (progress < 25) {
           stage = "Checking update...";
           progress += 5;
-        }
-        else if (progress < 55) {
+        } else if (progress < 55) {
           stage = "Downloading files...";
           progress += 4;
-        }
-        else if (progress < 85) {
+        } else if (progress < 85) {
           stage = "Applying update...";
           progress += 2;
-        }
-        else if (progress < 95) {
+        } else if (progress < 95) {
           stage = "Finalizing...";
           progress += 1;
         }
@@ -849,7 +846,6 @@
       const lastPdf = getLastPdf();
       const recent = getRecentPdfs();
       const favorites = getFavorites();
-
       const mostStudied = getMostStudiedSubject(recent);
 
       if (lastPdf && lastPdf.url) {
@@ -864,16 +860,22 @@
       html += createDashCard(
         "📊 Total Study Sessions",
         `${recent.length} PDFs opened`,
-        "Keep Learning",
-        "/DN_Physics/index.html"
+        "Open Library",
+        "/DN_Physics/topics/viewer.html"
       );
 
       if (mostStudied) {
+        const mostStudiedSlug = mostStudied
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, "")
+          .trim()
+          .replace(/\s+/g, "-");
+
         html += createDashCard(
           "🧠 Most Studied",
           `${mostStudied}`,
           "Open Subject",
-          "/DN_Physics/index.html"
+          `/DN_Physics/subjects/${mostStudiedSlug}/index.html`
         );
       }
 
