@@ -39,6 +39,55 @@
       0%, 100% { opacity: 1; }
       50% { opacity: 0.35; }
     }
+
+    .zoom-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .zoom-readout {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: #e8eefc;
+      font-weight: 700;
+      min-width: 82px;
+    }
+
+    .pdf-page-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    .pdf-page-label {
+      margin: 0 0 10px;
+      text-align: center;
+      color: #a8b3cf;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    @media (max-width: 768px) {
+      .zoom-controls {
+        width: 100%;
+      }
+
+      .zoom-controls .btn {
+        flex: 1 1 calc(50% - 10px);
+      }
+
+      .zoom-readout {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -100,6 +149,16 @@
             <div class="pdf-toolbar">
               <div class="pdf-toolbar-text" id="fileLabel">Loading file...</div>
               <div class="pdf-toolbar-text" id="viewerStatusText">Best for phone and PC viewing.</div>
+            </div>
+
+            <div class="pdf-toolbar">
+              <div class="zoom-controls">
+                <button class="btn" id="zoomOutBtn" type="button">－ Zoom Out</button>
+                <button class="btn" id="zoomInBtn" type="button">＋ Zoom In</button>
+                <button class="btn" id="fitWidthBtn" type="button">Fit Width</button>
+                <button class="btn" id="resetZoomBtn" type="button">Reset</button>
+                <div class="zoom-readout" id="zoomLevelText">100%</div>
+              </div>
             </div>
 
             <div id="pdfViewer" aria-live="polite">
@@ -201,6 +260,12 @@
     const viewerHelper = document.getElementById("viewerHelper");
     const viewerStatusText = document.getElementById("viewerStatusText");
 
+    const zoomOutBtn = document.getElementById("zoomOutBtn");
+    const zoomInBtn = document.getElementById("zoomInBtn");
+    const fitWidthBtn = document.getElementById("fitWidthBtn");
+    const resetZoomBtn = document.getElementById("resetZoomBtn");
+    const zoomLevelText = document.getElementById("zoomLevelText");
+
     let pdfUrl = "";
     let absolutePdfUrl = "";
     let fileName = "";
@@ -208,6 +273,12 @@
     let subjectDisplayName = "Subject";
     let backUrl = "/DN_Physics/index.html";
     let shareTitle = "PDF Viewer";
+
+    let pdfDoc = null;
+    let currentZoom = 1;
+    const MIN_ZOOM = 0.6;
+    const MAX_ZOOM = 3;
+    const ZOOM_STEP = 0.2;
 
     function safeDecode(value, fallback = "") {
       try {
@@ -243,6 +314,12 @@
       const subjectName = encodeURIComponent(prettifyFolderName(item.subject));
 
       return `/DN_Physics/topics/viewer.html?pdf=${encodeURIComponent(pdf)}&title=${title}&back=${back}&subjectName=${subjectName}`;
+    }
+
+    function updateZoomReadout() {
+      if (zoomLevelText) {
+        zoomLevelText.textContent = `${Math.round(currentZoom * 100)}%`;
+      }
     }
 
     function updateOfflineBanner() {
@@ -429,36 +506,67 @@
       }
     }
 
+    function getFitWidthZoom(baseViewportWidth) {
+      const containerWidth = Math.max(container.clientWidth - 36, 320);
+      const zoom = containerWidth / baseViewportWidth;
+      return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom));
+    }
+
+    async function renderPdfPages() {
+      if (!pdfDoc) return;
+
+      container.innerHTML = `<div class="loading">Rendering PDF...</div>`;
+
+      const pagesFragment = document.createDocumentFragment();
+      const totalPages = pdfDoc.numPages;
+
+      container.innerHTML = "";
+
+      for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+        const page = await pdfDoc.getPage(pageNum);
+        const viewport = page.getViewport({ scale: currentZoom });
+
+        const pageWrap = document.createElement("div");
+        pageWrap.className = "pdf-page-wrap";
+
+        const pageInner = document.createElement("div");
+
+        const pageLabel = document.createElement("div");
+        pageLabel.className = "pdf-page-label";
+        pageLabel.textContent = `Page ${pageNum} / ${totalPages}`;
+
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        canvas.className = "pdf-page";
+
+        await page.render({
+          canvasContext: context,
+          viewport
+        }).promise;
+
+        pageInner.appendChild(pageLabel);
+        pageInner.appendChild(canvas);
+        pageWrap.appendChild(pageInner);
+        pagesFragment.appendChild(pageWrap);
+      }
+
+      container.appendChild(pagesFragment);
+      updateZoomReadout();
+    }
+
     async function renderPdf() {
       try {
         const loadingTask = pdfjsLib.getDocument(pdfUrl);
-        const pdf = await loadingTask.promise;
+        pdfDoc = await loadingTask.promise;
 
-        container.innerHTML = "";
+        const firstPage = await pdfDoc.getPage(1);
+        const firstViewport = firstPage.getViewport({ scale: 1 });
+        currentZoom = getFitWidthZoom(firstViewport.width);
 
-        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-          const page = await pdf.getPage(pageNum);
-
-          const baseViewport = page.getViewport({ scale: 1 });
-          const containerWidth = Math.max(container.clientWidth - 36, 320);
-          const scale = Math.min(2, Math.max(1.1, containerWidth / baseViewport.width));
-          const viewport = page.getViewport({ scale });
-
-          const canvas = document.createElement("canvas");
-          const context = canvas.getContext("2d");
-
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          canvas.className = "pdf-page";
-
-          await page.render({
-            canvasContext: context,
-            viewport
-          }).promise;
-
-          container.appendChild(canvas);
-        }
-
+        await renderPdfPages();
         saveRecentPdf();
         addExtraButtons();
       } catch (error) {
@@ -540,6 +648,32 @@
       }
     }
 
+    async function zoomIn() {
+      if (!pdfDoc) return;
+      currentZoom = Math.min(MAX_ZOOM, +(currentZoom + ZOOM_STEP).toFixed(2));
+      await renderPdfPages();
+    }
+
+    async function zoomOut() {
+      if (!pdfDoc) return;
+      currentZoom = Math.max(MIN_ZOOM, +(currentZoom - ZOOM_STEP).toFixed(2));
+      await renderPdfPages();
+    }
+
+    async function resetZoom() {
+      if (!pdfDoc) return;
+      currentZoom = 1;
+      await renderPdfPages();
+    }
+
+    async function fitWidth() {
+      if (!pdfDoc) return;
+      const firstPage = await pdfDoc.getPage(1);
+      const firstViewport = firstPage.getViewport({ scale: 1 });
+      currentZoom = getFitWidthZoom(firstViewport.width);
+      await renderPdfPages();
+    }
+
     function setupViewerEvents() {
       window.addEventListener("online", updateOfflineBanner);
       window.addEventListener("offline", updateOfflineBanner);
@@ -556,6 +690,34 @@
           await shareCurrentPdf();
         });
       }
+
+      if (zoomInBtn) {
+        zoomInBtn.addEventListener("click", async () => {
+          await zoomIn();
+        });
+      }
+
+      if (zoomOutBtn) {
+        zoomOutBtn.addEventListener("click", async () => {
+          await zoomOut();
+        });
+      }
+
+      if (resetZoomBtn) {
+        resetZoomBtn.addEventListener("click", async () => {
+          await resetZoom();
+        });
+      }
+
+      if (fitWidthBtn) {
+        fitWidthBtn.addEventListener("click", async () => {
+          await fitWidth();
+        });
+      }
+
+      window.addEventListener("resize", () => {
+        updateZoomReadout();
+      });
     }
 
     async function initViewer() {
