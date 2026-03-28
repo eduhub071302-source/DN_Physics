@@ -4,59 +4,75 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Topic | DinuuNOVA Physics</title>
+
+  <link rel="manifest" href="/DN_Physics/manifest.json" />
+  <meta name="theme-color" content="#4ea1ff" />
+  <link rel="apple-touch-icon" href="/DN_Physics/icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
   <link rel="stylesheet" href="/DN_Physics/css/style.css" />
 </head>
 <body>
-
-  <header>
+  <header class="site-header">
     <div class="container nav">
       <div class="brand">DinuuNOVA <span>Physics</span></div>
 
       <div class="topbar-right">
-        <nav class="nav-links">
+        <nav class="nav-links" aria-label="Topic navigation">
           <a href="/DN_Physics/index.html">Home</a>
-          <a id="subjectNavLink" href="#">Subject</a>
+          <a id="subjectNavLink" href="/DN_Physics/index.html">Subject</a>
         </nav>
 
-        <button id="refreshBtn" class="btn refresh-top-btn">🔄</button>
+        <button
+          id="refreshBtn"
+          class="btn refresh-top-btn"
+          type="button"
+          title="Refresh page"
+          aria-label="Refresh page"
+        >
+          🔄
+        </button>
       </div>
     </div>
   </header>
 
-  <section class="page-title">
-    <div class="container">
-      <a class="back-link" id="backLink" href="#">← Back</a>
-      <h1 id="topicTitle">Topic</h1>
-      <p>Formula-only note page for quick revision.</p>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container">
-      <div class="note-box">
-        <div class="badge">PDF Note</div>
-
-        <h2 id="sheetTitle">Formula Sheet</h2>
-        <p>View, download, or share this formula sheet.</p>
-
-        <div class="actions">
-          <a class="btn" id="viewBtn">📖 View PDF</a>
-          <a class="btn btn-primary" id="downloadBtn" download>⬇ Download PDF</a>
-          <button class="btn" onclick="sharePdf()">📤 Share PDF</button>
-        </div>
-
-        <div class="actions" style="margin-top: 12px;">
-          <a class="btn" id="waShare" target="_blank">WhatsApp</a>
-          <a class="btn" id="tgShare" target="_blank">Telegram</a>
-          <a class="btn" id="mailShare">Email</a>
-        </div>
-
-        <p style="margin-top:16px; color: var(--muted); font-size: 0.95rem;">
-          If preview is slow on your phone, use <strong>Download PDF</strong>.
-        </p>
+  <main>
+    <section class="page-title">
+      <div class="container">
+        <a class="back-link" id="backLink" href="/DN_Physics/index.html">← Back</a>
+        <h1 id="topicTitle">Topic</h1>
+        <p>Formula-only note page for quick revision.</p>
       </div>
-    </div>
-  </section>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="note-box">
+          <div class="badge">PDF Note</div>
+
+          <h2 id="sheetTitle">Formula Sheet</h2>
+          <p>View, download, or share this formula sheet.</p>
+
+          <div class="actions">
+            <a class="btn" id="viewBtn" href="/DN_Physics/index.html">📖 View PDF</a>
+            <a class="btn btn-primary" id="downloadBtn" href="/DN_Physics/index.html" download>⬇ Download PDF</a>
+            <button class="btn" id="shareBtn" type="button">📤 Share PDF</button>
+          </div>
+
+          <div class="actions topic-share-actions">
+            <a class="btn" id="waShare" target="_blank" rel="noopener">WhatsApp</a>
+            <a class="btn" id="tgShare" target="_blank" rel="noopener">Telegram</a>
+            <a class="btn" id="mailShare">Email</a>
+          </div>
+
+          <p class="topic-helper-text">
+            If preview is slow on your phone, use <strong>Download PDF</strong>.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
 
   <footer class="footer">
     <div class="container">
@@ -64,23 +80,38 @@
     </div>
   </footer>
 
-  <!-- 🎧 MUSIC PLAYER -->
   <div class="music-player-wrap">
-    <button id="musicToggleBtn" class="btn">🎧 Focus</button>
+    <button
+      id="musicToggleBtn"
+      class="btn music-toggle-btn"
+      type="button"
+      aria-expanded="false"
+      aria-controls="musicPanel"
+    >
+      🎧 Focus
+    </button>
 
-    <div id="musicPanel" class="music-panel">
+    <div id="musicPanel" class="music-panel" aria-hidden="true">
       <div class="music-panel-title">Focus Mode 🎧</div>
 
-      <label class="music-label">Select Track</label>
+      <label for="trackSelect" class="music-label">Select Track</label>
       <select id="trackSelect" class="music-select"></select>
 
       <div class="music-controls">
-        <button id="playPauseBtn" class="btn btn-primary">▶ Play</button>
-        <button id="stopMusicBtn" class="btn">■ Stop</button>
+        <button id="playPauseBtn" class="btn btn-primary" type="button">▶ Play</button>
+        <button id="stopMusicBtn" class="btn" type="button">■ Stop</button>
       </div>
 
-      <label class="music-label">Volume 🔊</label>
-      <input id="volumeSlider" class="volume-slider" type="range" min="0" max="1" step="0.01" />
+      <label for="volumeSlider" class="music-label">Volume 🔊</label>
+      <input
+        id="volumeSlider"
+        class="volume-slider"
+        type="range"
+        min="0"
+        max="1"
+        step="0.01"
+        value="0.35"
+      />
 
       <div id="currentTrackLabel" class="music-track-label">Current: None</div>
     </div>
@@ -91,71 +122,144 @@
   <script>
     const params = new URLSearchParams(window.location.search);
 
-    const subject = params.get("subject");
-    const file = params.get("file");
-    const title = params.get("title") || "Topic";
+    const subject = params.get("subject") || "";
+    const file = params.get("file") || "";
+    const rawTitle = params.get("title") || "Topic";
 
-    const prettySubject = subject
-      .replace(/-/g, " ")
-      .replace(/\b\w/g, c => c.toUpperCase());
+    const refreshBtn = document.getElementById("refreshBtn");
+    const subjectNavLink = document.getElementById("subjectNavLink");
+    const backLink = document.getElementById("backLink");
+    const topicTitle = document.getElementById("topicTitle");
+    const sheetTitle = document.getElementById("sheetTitle");
+    const viewBtn = document.getElementById("viewBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const shareBtn = document.getElementById("shareBtn");
+    const waShare = document.getElementById("waShare");
+    const tgShare = document.getElementById("tgShare");
+    const mailShare = document.getElementById("mailShare");
 
-    const pdfPath = `/DN_Physics/pdfs/${subject}/${file}`;
-    const subjectPage = `/DN_Physics/subjects/${subject}/index.html`;
-    const fullPdfUrl = location.origin + pdfPath;
+    function prettifySubject(value) {
+      return (value || "Subject")
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, (char) => char.toUpperCase());
+    }
 
-    // ===== SET TEXT =====
+    function safeText(value, fallback = "Topic") {
+      return (value || fallback).trim();
+    }
+
+    const prettySubject = prettifySubject(subject);
+    const title = safeText(rawTitle, "Topic");
+
+    const hasValidParams = Boolean(subject && file);
+
+    const pdfPath = hasValidParams
+      ? `/DN_Physics/pdfs/${subject}/${file}`
+      : "/DN_Physics/index.html";
+
+    const subjectPage = subject
+      ? `/DN_Physics/subjects/${subject}/index.html`
+      : "/DN_Physics/index.html";
+
+    const fullPdfUrl = hasValidParams
+      ? `${location.origin}${pdfPath}`
+      : `${location.origin}/DN_Physics/index.html`;
+
     document.title = `${title} | ${prettySubject}`;
-    document.getElementById("topicTitle").textContent = title;
-    document.getElementById("sheetTitle").textContent = `${title} Formula Sheet`;
+    topicTitle.textContent = title;
+    sheetTitle.textContent = `${title} Formula Sheet`;
 
-    // ===== NAVIGATION =====
-    document.getElementById("backLink").href = subjectPage;
-    document.getElementById("backLink").textContent = `← Back to ${prettySubject}`;
+    backLink.href = subjectPage;
+    backLink.textContent = subject ? `← Back to ${prettySubject}` : "← Back to Home";
 
-    document.getElementById("subjectNavLink").href = subjectPage;
-    document.getElementById("subjectNavLink").textContent = prettySubject;
+    subjectNavLink.href = subjectPage;
+    subjectNavLink.textContent = prettySubject;
 
-    // ===== BUTTONS =====
-    document.getElementById("viewBtn").href =
-      `/DN_Physics/topics/viewer.html?pdf=${encodeURIComponent(pdfPath)}&title=${encodeURIComponent(title + " Formula Sheet")}&back=${encodeURIComponent(subjectPage)}&subjectName=${encodeURIComponent(prettySubject)}`;
+    if (hasValidParams) {
+      viewBtn.href =
+        `/DN_Physics/topics/viewer.html?pdf=${encodeURIComponent(pdfPath)}` +
+        `&title=${encodeURIComponent(title + " Formula Sheet")}` +
+        `&back=${encodeURIComponent(subjectPage)}` +
+        `&subjectName=${encodeURIComponent(prettySubject)}`;
 
-    document.getElementById("downloadBtn").href = pdfPath;
+      downloadBtn.href = pdfPath;
 
-    // ===== SHARE =====
-    document.getElementById("waShare").href =
-      "https://wa.me/?text=" + encodeURIComponent(`${title} Formula Sheet - DinuuNOVA Physics ${fullPdfUrl}`);
+      waShare.href =
+        "https://wa.me/?text=" +
+        encodeURIComponent(`${title} Formula Sheet - DinuuNOVA Physics ${fullPdfUrl}`);
 
-    document.getElementById("tgShare").href =
-      "https://t.me/share/url?url=" + encodeURIComponent(fullPdfUrl) +
-      "&text=" + encodeURIComponent(`${title} Formula Sheet - DinuuNOVA Physics`);
+      tgShare.href =
+        "https://t.me/share/url?url=" +
+        encodeURIComponent(fullPdfUrl) +
+        "&text=" +
+        encodeURIComponent(`${title} Formula Sheet - DinuuNOVA Physics`);
 
-    document.getElementById("mailShare").href =
-      "mailto:?subject=" + encodeURIComponent(`${title} Formula Sheet - DinuuNOVA Physics`) +
-      "&body=" + encodeURIComponent(`View or download the PDF:\n\n${fullPdfUrl}`);
+      mailShare.href =
+        "mailto:?subject=" +
+        encodeURIComponent(`${title} Formula Sheet - DinuuNOVA Physics`) +
+        "&body=" +
+        encodeURIComponent(`View or download the PDF:\n\n${fullPdfUrl}`);
+    } else {
+      viewBtn.href = "/DN_Physics/index.html";
+      downloadBtn.href = "/DN_Physics/index.html";
+      waShare.href = "https://wa.me/";
+      tgShare.href = "https://t.me/";
+      mailShare.href = "mailto:";
+    }
 
     async function sharePdf() {
+      if (!hasValidParams) {
+        alert("This PDF link is missing.");
+        return;
+      }
+
       if (navigator.share) {
-        await navigator.share({
-          title: `${title} Formula Sheet`,
-          url: fullPdfUrl
-        });
+        try {
+          await navigator.share({
+            title: `${title} Formula Sheet`,
+            url: fullPdfUrl
+          });
+        } catch (error) {
+          console.log("Share cancelled or failed:", error);
+        }
       } else {
-        await navigator.clipboard.writeText(fullPdfUrl);
-        alert("PDF link copied!");
+        try {
+          await navigator.clipboard.writeText(fullPdfUrl);
+          alert("PDF link copied!");
+        } catch (error) {
+          alert("Copy this link manually:\n" + fullPdfUrl);
+        }
       }
     }
 
-    // ===== REFRESH BUTTON =====
-    document.getElementById("refreshBtn").onclick = async () => {
-      if ("caches" in window) {
-        const keys = await caches.keys();
-        await Promise.all(keys.map(k => caches.delete(k)));
+    async function performRefresh() {
+      try {
+        if ("serviceWorker" in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (const registration of registrations) {
+            await registration.update();
+          }
+        }
+      } catch (error) {
+        console.log("Refresh warning:", error);
       }
-      location.reload();
-    };
+
+      window.location.reload();
+    }
+
+    if (shareBtn) {
+      shareBtn.addEventListener("click", async () => {
+        await sharePdf();
+      });
+    }
+
+    if (refreshBtn) {
+      refreshBtn.addEventListener("click", async () => {
+        await performRefresh();
+      });
+    }
   </script>
 
   <script src="/DN_Physics/js/music-player.js"></script>
-
 </body>
 </html>
