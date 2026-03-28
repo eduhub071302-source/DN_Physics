@@ -225,7 +225,7 @@
       } else {
         try {
           await navigator.clipboard.writeText(fullPdfUrl);
-          alert("PDF link copied!");
+          showToast("Link copied ✅");
         } catch (error) {
           alert("Copy this link manually:\n" + fullPdfUrl);
         }
