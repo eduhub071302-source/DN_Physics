@@ -12,99 +12,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
   <link rel="stylesheet" href="css/style.css" />
-
-  <style>
-    .music-player-wrap {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 2600;
-    }
-
-    .music-panel {
-      display: none;
-      margin-top: 10px;
-      width: 290px;
-      background: linear-gradient(180deg, rgba(17, 26, 43, 0.98), rgba(12, 18, 31, 0.98));
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 18px;
-      padding: 14px;
-      box-shadow: 0 14px 40px rgba(0,0,0,0.35);
-    }
-
-    .music-panel.show {
-      display: block;
-    }
-
-    .music-panel-title {
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-
-    .music-label {
-      display: block;
-      margin-bottom: 8px;
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .music-select {
-      width: 100%;
-      margin-bottom: 12px;
-      min-height: 46px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--line-soft);
-      background: rgba(255,255,255,0.04);
-      color: var(--text);
-      outline: none;
-    }
-
-    .music-select option {
-      background: #0f1728;
-      color: #e8eefc;
-    }
-
-    .music-controls {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .music-controls .btn {
-      flex: 1;
-    }
-
-    .volume-slider {
-      width: 100%;
-      margin-top: 4px;
-    }
-
-    .music-track-label {
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 0.92rem;
-      line-height: 1.5;
-    }
-
-    .dashboard-section .grid .card h3 {
-      margin-top: 0;
-    }
-
-    @media (max-width: 768px) {
-      .music-player-wrap {
-        right: 14px;
-        bottom: 14px;
-      }
-
-      .music-panel {
-        width: min(88vw, 300px);
-      }
-    }
-  </style>
 </head>
 <body>
-
+  <!-- APP SPLASH -->
   <div id="appSplash" class="app-splash" aria-hidden="true">
     <div class="app-splash-bg"></div>
 
@@ -123,10 +33,12 @@
     </div>
   </div>
 
-  <div id="pullRefreshIndicator" class="pull-refresh-indicator">
+  <!-- PULL REFRESH -->
+  <div id="pullRefreshIndicator" class="pull-refresh-indicator" aria-hidden="true">
     ↓ Pull to refresh
   </div>
 
+  <!-- LOADING OVERLAY -->
   <div id="loadingOverlay" class="loading-overlay" aria-hidden="true">
     <div class="loading-box">
       <div class="spinner"></div>
@@ -134,7 +46,8 @@
     </div>
   </div>
 
-  <div id="updateToast" class="update-toast" aria-live="polite">
+  <!-- UPDATE TOAST -->
+  <div id="updateToast" class="update-toast" aria-live="polite" aria-hidden="true">
     <h3>New notes available</h3>
     <p>A newer version of the app was found. Refresh to load the latest notes and updates.</p>
     <div class="update-toast-actions">
@@ -143,111 +56,135 @@
     </div>
   </div>
 
-  <header>
+  <!-- HEADER -->
+  <header class="site-header">
     <div class="container nav">
       <div class="brand">DinuuNOVA <span>Physics</span></div>
 
       <div class="topbar-right">
-        <nav class="nav-links">
-          <a href="index.html" class="active">Home</a>
+        <nav class="nav-links" aria-label="Main navigation">
+          <a href="index.html" class="active" aria-current="page">Home</a>
         </nav>
 
-        <button id="refreshBtn" class="btn refresh-top-btn" type="button" title="Refresh app">
+        <button
+          id="refreshBtn"
+          class="btn refresh-top-btn"
+          type="button"
+          title="Refresh app"
+          aria-label="Refresh app"
+        >
           🔄
         </button>
       </div>
     </div>
   </header>
 
-  <section class="hero">
-    <div class="container">
-      <div class="badge">A/L Physics Formula Notes</div>
-      <h1>Clean Physics Formula Notes for Fast Revision</h1>
-      <p>
-        Organized by main topic and subtopic. Built for students who want quick access
-        to formulas without wasting time.
-      </p>
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container">
+        <div class="badge">A/L Physics Formula Notes</div>
+        <h1>Clean Physics Formula Notes for Fast Revision</h1>
+        <p>
+          Organized by main topic and subtopic. Built for students who want quick access
+          to formulas without wasting time.
+        </p>
 
-      <div class="actions">
-        <button id="installBtn" class="btn btn-install" style="display:none;">
-          Install App
-        </button>
+        <div class="actions">
+          <button id="installBtn" class="btn btn-install is-hidden" type="button">
+            Install App
+          </button>
 
-        <a class="btn btn-primary" href="/DN_Physics/pp-quiz/index.html">
-          🔥 Practice Past Paper MCQs
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section dashboard-section">
-    <div class="container">
-      <h2>Your Dashboard</h2>
-      <p class="section-sub">
-        Continue your learning journey. Stay consistent — island first is built daily.
-      </p>
-
-      <div class="grid" id="dashboardGrid">
-        <div class="empty-state">Loading your progress...</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section controls-section">
-    <div class="container">
-      <div class="controls-wrap">
-        <div class="search-box">
-          <input
-            type="text"
-            id="subjectSearch"
-            placeholder="Search subjects..."
-            aria-label="Search subjects"
-          />
-        </div>
-
-        <div class="filter-box">
-          <select id="categoryFilter" aria-label="Filter by category">
-            <option value="all">All Subjects</option>
-          </select>
+          <a class="btn btn-primary" href="/DN_Physics/pp-quiz/index.html">
+            🔥 Practice Past Paper MCQs
+          </a>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="section pinned-section" id="pinnedSection" style="display:none;">
-    <div class="container">
-      <h2>Pinned Topics</h2>
-      <p class="section-sub">
-        Your saved quick-access subjects will appear here.
-      </p>
+    <!-- DASHBOARD -->
+    <section class="section dashboard-section">
+      <div class="container">
+        <h2>Your Dashboard</h2>
+        <p class="section-sub">
+          Continue your learning journey. Stay consistent — island first is built daily.
+        </p>
 
-      <div class="grid" id="pinnedGrid"></div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container">
-      <h2>Main Topics</h2>
-      <p class="section-sub">
-        Subjects available in your digital physics note system.
-      </p>
-
-      <div class="grid" id="subjectGrid">
-        <div class="empty-state">Loading subjects...</div>
+        <div class="grid" id="dashboardGrid">
+          <div class="empty-state">Loading your progress...</div>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
+    <!-- CONTROLS -->
+    <section class="section controls-section">
+      <div class="container">
+        <div class="controls-wrap">
+          <div class="search-box">
+            <input
+              type="text"
+              id="subjectSearch"
+              placeholder="Search subjects..."
+              aria-label="Search subjects"
+            />
+          </div>
+
+          <div class="filter-box">
+            <select id="categoryFilter" aria-label="Filter by category">
+              <option value="all">All Subjects</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PINNED -->
+    <section class="section pinned-section is-hidden" id="pinnedSection">
+      <div class="container">
+        <h2>Pinned Topics</h2>
+        <p class="section-sub">
+          Your saved quick-access subjects will appear here.
+        </p>
+
+        <div class="grid" id="pinnedGrid"></div>
+      </div>
+    </section>
+
+    <!-- SUBJECTS -->
+    <section class="section">
+      <div class="container">
+        <h2>Main Topics</h2>
+        <p class="section-sub">
+          Subjects available in your digital physics note system.
+        </p>
+
+        <div class="grid" id="subjectGrid">
+          <div class="empty-state">Loading subjects...</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
   <footer class="footer">
     <div class="container">
       © 2026 DinuuNOVA Physics · Email: eduhub071302@gmail.com
     </div>
   </footer>
 
+  <!-- MUSIC PLAYER -->
   <div class="music-player-wrap">
-    <button id="musicToggleBtn" class="btn" type="button">🎧 Focus</button>
+    <button
+      id="musicToggleBtn"
+      class="btn music-toggle-btn"
+      type="button"
+      aria-expanded="false"
+      aria-controls="musicPanel"
+    >
+      🎧 Focus
+    </button>
 
-    <div id="musicPanel" class="music-panel">
+    <div id="musicPanel" class="music-panel" aria-hidden="true">
       <div class="music-panel-title">Focus Mode 🎧</div>
 
       <label for="trackSelect" class="music-label">Select Track</label>
@@ -259,7 +196,15 @@
       </div>
 
       <label for="volumeSlider" class="music-label">Volume 🔊</label>
-      <input id="volumeSlider" class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.35" />
+      <input
+        id="volumeSlider"
+        class="volume-slider"
+        type="range"
+        min="0"
+        max="1"
+        step="0.01"
+        value="0.35"
+      />
 
       <div id="currentTrackLabel" class="music-track-label">Current: None</div>
     </div>
@@ -268,7 +213,8 @@
   <audio id="bgMusic" loop></audio>
 
   <script>
-    let deferredPrompt;
+    let deferredPrompt = null;
+
     const installBtn = document.getElementById("installBtn");
     const refreshBtn = document.getElementById("refreshBtn");
 
@@ -280,22 +226,53 @@
     const toastDismissBtn = document.getElementById("toastDismissBtn");
     const appSplash = document.getElementById("appSplash");
 
+    const searchInput = document.getElementById("subjectSearch");
+    const categoryFilter = document.getElementById("categoryFilter");
+    const pinnedSection = document.getElementById("pinnedSection");
+    const pinnedGrid = document.getElementById("pinnedGrid");
+    const subjectGrid = document.getElementById("subjectGrid");
+    const dashboardGrid = document.getElementById("dashboardGrid");
+
     let refreshingNow = false;
     let touchStartY = 0;
     let pullTriggered = false;
     let autoReloadingFromSW = false;
     let fakeProgressTimer = null;
 
+    let SUBJECTS = {};
+    let subjectCards = [];
+    let pinButtons = [];
+
     function showLoadingOverlay() {
-      if (loadingOverlay) loadingOverlay.classList.add("show");
+      if (loadingOverlay) {
+        loadingOverlay.classList.add("show");
+        loadingOverlay.setAttribute("aria-hidden", "false");
+      }
     }
 
     function hideLoadingOverlay() {
-      if (loadingOverlay) loadingOverlay.classList.remove("show");
+      if (loadingOverlay) {
+        loadingOverlay.classList.remove("show");
+        loadingOverlay.setAttribute("aria-hidden", "true");
+      }
     }
 
     function setLoadingText(text) {
       if (loadingText) loadingText.textContent = text;
+    }
+
+    function showUpdateToast() {
+      if (updateToast) {
+        updateToast.classList.add("show");
+        updateToast.setAttribute("aria-hidden", "false");
+      }
+    }
+
+    function hideUpdateToast() {
+      if (updateToast) {
+        updateToast.classList.remove("show");
+        updateToast.setAttribute("aria-hidden", "true");
+      }
     }
 
     function startFakeProgress() {
@@ -336,7 +313,10 @@
     }
 
     function showBusyUpdateMessage() {
-      alert("Finish your quiz first before updating ⚠️");
+      hideUpdateToast();
+      setTimeout(() => {
+        alert("Finish your quiz first before updating ⚠️");
+      }, 80);
     }
 
     async function performSafeUpdate() {
@@ -374,177 +354,158 @@
       }
     }
 
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", async () => {
-        try {
-          const registration = await navigator.serviceWorker.register("/DN_Physics/service-worker.js");
-          console.log("✅ Service Worker registered:", registration.scope);
+    async function registerServiceWorker() {
+      if (!("serviceWorker" in navigator)) return;
 
-          registration.addEventListener("updatefound", () => {
-            const newWorker = registration.installing;
-            if (!newWorker) return;
+      try {
+        const registration = await navigator.serviceWorker.register("/DN_Physics/service-worker.js");
+        console.log("✅ Service Worker registered:", registration.scope);
 
-            newWorker.addEventListener("statechange", () => {
-              if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
-                if (updateToast) {
-                  updateToast.classList.add("show");
-                }
-              }
-            });
-          });
+        registration.addEventListener("updatefound", () => {
+          const newWorker = registration.installing;
+          if (!newWorker) return;
 
-          navigator.serviceWorker.addEventListener("message", (event) => {
-            if (!event.data) return;
-
-            if (event.data.type === "SW_UPDATED") {
-              if (autoReloadingFromSW) return;
-              if (updateToast) {
-                updateToast.classList.add("show");
-              }
-            }
-
-            if (event.data.type === "SW_VERSION") {
-              console.log("Service Worker version:", event.data.version);
+          newWorker.addEventListener("statechange", () => {
+            if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+              showUpdateToast();
             }
           });
+        });
 
-          navigator.serviceWorker.addEventListener("controllerchange", () => {
+        navigator.serviceWorker.addEventListener("message", (event) => {
+          if (!event.data) return;
+
+          if (event.data.type === "SW_UPDATED") {
             if (autoReloadingFromSW) return;
-            autoReloadingFromSW = true;
-            finishFakeProgress();
-            showLoadingOverlay();
-            setLoadingText("Update complete... 100%");
-            window.location.reload();
-          });
-        } catch (error) {
-          console.log("❌ Service Worker failed:", error);
-        }
-      });
+            showUpdateToast();
+          }
+
+          if (event.data.type === "SW_VERSION") {
+            console.log("Service Worker version:", event.data.version);
+          }
+        });
+
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+          if (autoReloadingFromSW) return;
+          autoReloadingFromSW = true;
+          finishFakeProgress();
+          showLoadingOverlay();
+          setLoadingText("Update complete... 100%");
+          window.location.reload();
+        });
+      } catch (error) {
+        console.log("❌ Service Worker failed:", error);
+      }
     }
 
-    window.addEventListener("beforeinstallprompt", (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
+    function setupInstallPrompt() {
+      window.addEventListener("beforeinstallprompt", (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+
+        if (installBtn) {
+          installBtn.classList.remove("is-hidden");
+        }
+      });
 
       if (installBtn) {
-        installBtn.style.display = "inline-flex";
+        installBtn.addEventListener("click", async () => {
+          if (!deferredPrompt) return;
+
+          deferredPrompt.prompt();
+          await deferredPrompt.userChoice;
+
+          deferredPrompt = null;
+          installBtn.classList.add("is-hidden");
+        });
       }
-    });
 
-    if (installBtn) {
-      installBtn.addEventListener("click", async () => {
-        if (!deferredPrompt) return;
-
-        deferredPrompt.prompt();
-        await deferredPrompt.userChoice;
-
-        deferredPrompt = null;
-        installBtn.style.display = "none";
+      window.addEventListener("appinstalled", () => {
+        console.log("✅ PWA installed");
+        if (installBtn) {
+          installBtn.classList.add("is-hidden");
+        }
       });
     }
 
-    window.addEventListener("appinstalled", () => {
-      console.log("✅ PWA installed");
-      if (installBtn) {
-        installBtn.style.display = "none";
+    function setupRefreshActions() {
+      if (refreshBtn) {
+        refreshBtn.addEventListener("click", async () => {
+          if (isUserBusy()) {
+            showBusyUpdateMessage();
+            return;
+          }
+          await performSafeUpdate();
+        });
       }
-    });
 
-    if (refreshBtn) {
-      refreshBtn.addEventListener("click", async () => {
-        if (isUserBusy()) {
-          showBusyUpdateMessage();
-          return;
-        }
+      if (toastRefreshBtn) {
+        toastRefreshBtn.addEventListener("click", async () => {
+          if (isUserBusy()) {
+            showBusyUpdateMessage();
+            return;
+          }
 
-        await performSafeUpdate();
-      });
+          hideUpdateToast();
+          await performSafeUpdate();
+        });
+      }
+
+      if (toastDismissBtn) {
+        toastDismissBtn.addEventListener("click", () => {
+          hideUpdateToast();
+        });
+      }
     }
 
-    if (toastRefreshBtn) {
-      toastRefreshBtn.addEventListener("click", async () => {
-        if (isUserBusy()) {
-          showBusyUpdateMessage();
-          return;
+    function setupPullToRefresh() {
+      window.addEventListener("touchstart", (e) => {
+        if (window.scrollY === 0) {
+          touchStartY = e.touches[0].clientY;
+          pullTriggered = false;
+        }
+      }, { passive: true });
+
+      window.addEventListener("touchmove", (e) => {
+        if (window.scrollY !== 0) return;
+
+        const currentY = e.touches[0].clientY;
+        const distance = currentY - touchStartY;
+
+        if (pullRefreshIndicator && distance > 25 && !pullTriggered) {
+          pullRefreshIndicator.classList.add("show");
         }
 
-        if (updateToast) updateToast.classList.remove("show");
-        await performSafeUpdate();
+        if (pullRefreshIndicator && distance > 90 && !pullTriggered) {
+          pullTriggered = true;
+          pullRefreshIndicator.textContent = "↻ Release to refresh";
+        }
+      }, { passive: true });
+
+      window.addEventListener("touchend", async () => {
+        if (!pullRefreshIndicator) return;
+
+        if (pullTriggered) {
+          pullRefreshIndicator.classList.remove("show");
+          pullRefreshIndicator.textContent = "↓ Pull to refresh";
+
+          if (isUserBusy()) {
+            showBusyUpdateMessage();
+            return;
+          }
+
+          await performSafeUpdate();
+        } else {
+          pullRefreshIndicator.classList.remove("show");
+          pullRefreshIndicator.textContent = "↓ Pull to refresh";
+        }
       });
     }
-
-    if (toastDismissBtn) {
-      toastDismissBtn.addEventListener("click", () => {
-        if (updateToast) updateToast.classList.remove("show");
-      });
-    }
-
-    window.addEventListener("touchstart", (e) => {
-      if (window.scrollY === 0) {
-        touchStartY = e.touches[0].clientY;
-        pullTriggered = false;
-      }
-    }, { passive: true });
-
-    window.addEventListener("touchmove", (e) => {
-      if (window.scrollY !== 0) return;
-
-      const currentY = e.touches[0].clientY;
-      const distance = currentY - touchStartY;
-
-      if (pullRefreshIndicator && distance > 25 && !pullTriggered) {
-        pullRefreshIndicator.classList.add("show");
-      }
-
-      if (pullRefreshIndicator && distance > 90 && !pullTriggered) {
-        pullTriggered = true;
-        pullRefreshIndicator.textContent = "↻ Release to refresh";
-      }
-    }, { passive: true });
-
-    window.addEventListener("touchend", async () => {
-      if (!pullRefreshIndicator) return;
-
-      if (pullTriggered) {
-        pullRefreshIndicator.classList.remove("show");
-        pullRefreshIndicator.textContent = "↓ Pull to refresh";
-
-        if (isUserBusy()) {
-          showBusyUpdateMessage();
-          return;
-        }
-
-        await performSafeUpdate();
-      } else {
-        pullRefreshIndicator.classList.remove("show");
-        pullRefreshIndicator.textContent = "↓ Pull to refresh";
-      }
-    });
-
-    window.addEventListener("load", () => {
-      setTimeout(() => {
-        if (appSplash) {
-          appSplash.classList.add("hide");
-        }
-        document.body.classList.add("app-ready");
-      }, 2100);
-    });
-
-    const searchInput = document.getElementById("subjectSearch");
-    const categoryFilter = document.getElementById("categoryFilter");
-    const pinnedSection = document.getElementById("pinnedSection");
-    const pinnedGrid = document.getElementById("pinnedGrid");
-    const subjectGrid = document.getElementById("subjectGrid");
-    const dashboardGrid = document.getElementById("dashboardGrid");
-
-    let SUBJECTS = {};
-    let subjectCards = [];
-    let pinButtons = [];
 
     function prettifySubject(name) {
       return (name || "")
         .replace(/-/g, " ")
-        .replace(/\b\w/g, c => c.toUpperCase())
+        .replace(/\b\w/g, (c) => c.toUpperCase())
         .trim();
     }
 
@@ -584,7 +545,7 @@
       const exists = pinned.includes(subjectName);
 
       const updated = exists
-        ? pinned.filter(name => name !== subjectName)
+        ? pinned.filter((name) => name !== subjectName)
         : [...pinned, subjectName];
 
       savePinnedSubjects(updated);
@@ -595,7 +556,7 @@
     function updatePinButtons() {
       const pinned = getPinnedSubjects();
 
-      pinButtons.forEach(button => {
+      pinButtons.forEach((button) => {
         const subjectName = button.dataset.subject;
         const isPinned = pinned.includes(subjectName);
 
@@ -661,18 +622,18 @@
       pinnedGrid.innerHTML = "";
 
       if (pinned.length === 0) {
-        pinnedSection.style.display = "none";
+        pinnedSection.classList.add("is-hidden");
         return;
       }
 
-      pinned.forEach(name => {
+      pinned.forEach((name) => {
         const subject = SUBJECTS[name];
         if (subject) {
           pinnedGrid.appendChild(createPinnedCard(subject));
         }
       });
 
-      pinnedSection.style.display = "block";
+      pinnedSection.classList.remove("is-hidden");
     }
 
     function levenshtein(a, b) {
@@ -720,7 +681,7 @@
       const searchValue = searchInput.value.trim().toLowerCase();
       const selectedCategory = categoryFilter.value;
 
-      subjectCards.forEach(card => {
+      subjectCards.forEach((card) => {
         const title = (card.dataset.title || "").toLowerCase();
         const category = (card.dataset.category || "").toLowerCase();
         const keywords = (card.dataset.keywords || "").toLowerCase();
@@ -742,7 +703,7 @@
       pinButtons = Array.from(document.querySelectorAll(".pin-btn"));
       subjectCards = Array.from(document.querySelectorAll(".subject-card"));
 
-      pinButtons.forEach(button => {
+      pinButtons.forEach((button) => {
         button.addEventListener("click", () => {
           togglePin(button.dataset.subject);
         });
@@ -835,6 +796,7 @@
 
     function buildQuizUrlFromKey(rawKey) {
       const parsed = parseQuizKey(rawKey);
+
       if (!parsed.topic || !parsed.subtopic) {
         return "/DN_Physics/pp-quiz/index.html";
       }
@@ -886,7 +848,8 @@
         "/DN_Physics/pp-quiz/index.html"
       );
 
-      dashboardGrid.innerHTML = html || `<div class="empty-state">Start learning to see your progress here 🚀</div>`;
+      dashboardGrid.innerHTML =
+        html || `<div class="empty-state">Start learning to see your progress here 🚀</div>`;
     }
 
     async function loadSubjectsFromCatalog() {
@@ -895,7 +858,7 @@
         if (!res.ok) throw new Error("Failed to load catalog");
 
         const items = await res.json();
-        const uniqueSubjects = [...new Set(items.map(item => item.subject).filter(Boolean))];
+        const uniqueSubjects = [...new Set(items.map((item) => item.subject).filter(Boolean))];
 
         if (!uniqueSubjects.length) {
           subjectGrid.innerHTML = `<div class="empty-state">No subjects found.</div>`;
@@ -915,9 +878,9 @@
 
           SUBJECTS[subjectName] = {
             title: subjectName,
-            badge: badge,
-            description: description,
-            link: link,
+            badge,
+            description,
+            link,
             openable: true
           };
 
@@ -944,7 +907,7 @@
         }).join("");
 
         const usedCategories = [...new Set(uniqueSubjects.map(getSubjectCategory))];
-        usedCategories.forEach(category => {
+        usedCategories.forEach((category) => {
           const option = document.createElement("option");
           option.value = category;
           option.textContent = prettifySubject(category);
@@ -960,15 +923,41 @@
       }
     }
 
-    if (searchInput) {
-      searchInput.addEventListener("input", filterSubjects);
+    function setupSearchAndFilter() {
+      if (searchInput) {
+        searchInput.addEventListener("input", filterSubjects);
+      }
+
+      if (categoryFilter) {
+        categoryFilter.addEventListener("change", filterSubjects);
+      }
     }
 
-    if (categoryFilter) {
-      categoryFilter.addEventListener("change", filterSubjects);
+    function setupSplash() {
+      window.addEventListener("load", () => {
+        setTimeout(() => {
+          if (appSplash) {
+            appSplash.classList.add("hide");
+          }
+          document.body.classList.add("app-ready");
+        }, 2100);
+      });
     }
 
-    loadSubjectsFromCatalog();
+    async function initPage() {
+      setupInstallPrompt();
+      setupRefreshActions();
+      setupPullToRefresh();
+      setupSearchAndFilter();
+      setupSplash();
+      await loadSubjectsFromCatalog();
+    }
+
+    window.addEventListener("load", async () => {
+      await registerServiceWorker();
+    });
+
+    initPage();
   </script>
 
   <script src="/DN_Physics/js/music-player.js"></script>
