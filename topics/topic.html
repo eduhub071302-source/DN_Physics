@@ -81,39 +81,14 @@
   </footer>
 
   <div class="music-player-wrap">
-    <button
-      id="musicToggleBtn"
-      class="btn music-toggle-btn"
-      type="button"
-      aria-expanded="false"
-      aria-controls="musicPanel"
-    >
-      🎧 Focus
-    </button>
-
-    <div id="musicPanel" class="music-panel" aria-hidden="true">
+    <button id="musicToggleBtn" class="btn music-toggle-btn" type="button">🎧 Focus</button>
+    <div id="musicPanel" class="music-panel">
       <div class="music-panel-title">Focus Mode 🎧</div>
-
-      <label for="trackSelect" class="music-label">Select Track</label>
-      <select id="trackSelect" class="music-select"></select>
-
-      <div class="music-controls">
-        <button id="playPauseBtn" class="btn btn-primary" type="button">▶ Play</button>
-        <button id="stopMusicBtn" class="btn" type="button">■ Stop</button>
-      </div>
-
-      <label for="volumeSlider" class="music-label">Volume 🔊</label>
-      <input
-        id="volumeSlider"
-        class="volume-slider"
-        type="range"
-        min="0"
-        max="1"
-        step="0.01"
-        value="0.35"
-      />
-
-      <div id="currentTrackLabel" class="music-track-label">Current: None</div>
+      <select id="trackSelect"></select>
+      <button id="playPauseBtn">▶ Play</button>
+      <button id="stopMusicBtn">■ Stop</button>
+      <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.35" />
+      <div id="currentTrackLabel">Current: None</div>
     </div>
   </div>
 
@@ -144,12 +119,8 @@
         .replace(/\b\w/g, (char) => char.toUpperCase());
     }
 
-    function safeText(value, fallback = "Topic") {
-      return (value || fallback).trim();
-    }
-
     const prettySubject = prettifySubject(subject);
-    const title = safeText(rawTitle, "Topic");
+    const title = rawTitle.trim();
 
     const hasValidParams = Boolean(subject && file);
 
@@ -165,13 +136,10 @@
       ? `${location.origin}${pdfPath}`
       : `${location.origin}/DN_Physics/index.html`;
 
-    document.title = `${title} | ${prettySubject}`;
     topicTitle.textContent = title;
     sheetTitle.textContent = `${title} Formula Sheet`;
 
     backLink.href = subjectPage;
-    backLink.textContent = subject ? `← Back to ${prettySubject}` : "← Back to Home";
-
     subjectNavLink.href = subjectPage;
     subjectNavLink.textContent = prettySubject;
 
@@ -184,84 +152,55 @@
 
       downloadBtn.href = pdfPath;
 
-      waShare.href =
-        "https://wa.me/?text=" +
-        encodeURIComponent(`${title} Formula Sheet - DinuuNOVA Physics ${fullPdfUrl}`);
+      waShare.href = "https://wa.me/?text=" + encodeURIComponent(fullPdfUrl);
+      tgShare.href = "https://t.me/share/url?url=" + encodeURIComponent(fullPdfUrl);
+      mailShare.href = "mailto:?body=" + encodeURIComponent(fullPdfUrl);
+    }
 
-      tgShare.href =
-        "https://t.me/share/url?url=" +
-        encodeURIComponent(fullPdfUrl) +
-        "&text=" +
-        encodeURIComponent(`${title} Formula Sheet - DinuuNOVA Physics`);
-
-      mailShare.href =
-        "mailto:?subject=" +
-        encodeURIComponent(`${title} Formula Sheet - DinuuNOVA Physics`) +
-        "&body=" +
-        encodeURIComponent(`View or download the PDF:\n\n${fullPdfUrl}`);
-    } else {
-      viewBtn.href = "/DN_Physics/index.html";
-      downloadBtn.href = "/DN_Physics/index.html";
-      waShare.href = "https://wa.me/";
-      tgShare.href = "https://t.me/";
-      mailShare.href = "mailto:";
+    async function copyFallback(text) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
     }
 
     async function sharePdf() {
       if (!hasValidParams) {
-        alert("This PDF link is missing.");
+        showToast("Invalid PDF link ⚠️");
         return;
       }
 
       if (navigator.share) {
         try {
           await navigator.share({
-            title: `${title} Formula Sheet`,
+            title: title,
             url: fullPdfUrl
           });
-        } catch (error) {
-          console.log("Share cancelled or failed:", error);
-        }
-      } else {
-        try {
-          await navigator.clipboard.writeText(fullPdfUrl);
-          showToast("Link copied ✅");
-        } catch (error) {
-          alert("Copy this link manually:\n" + fullPdfUrl);
-        }
+          return;
+        } catch {}
       }
-    }
 
-    async function performRefresh() {
       try {
-        if ("serviceWorker" in navigator) {
-          const registrations = await navigator.serviceWorker.getRegistrations();
-          for (const registration of registrations) {
-            await registration.update();
-          }
-        }
-      } catch (error) {
-        console.log("Refresh warning:", error);
+        await navigator.clipboard.writeText(fullPdfUrl);
+        showToast("Link copied ✅");
+      } catch {
+        await copyFallback(fullPdfUrl);
+        showToast("Link copied ✅");
       }
-
-      window.location.reload();
     }
 
     if (shareBtn) {
-      shareBtn.addEventListener("click", async () => {
-        await sharePdf();
-      });
+      shareBtn.addEventListener("click", sharePdf);
     }
 
     if (refreshBtn) {
-      refreshBtn.addEventListener("click", async () => {
-        await performRefresh();
-      });
+      refreshBtn.addEventListener("click", () => location.reload());
     }
 
-    function showToast(message = "Done") {
+    function showToast(message) {
       let toast = document.getElementById("globalToast");
-
       if (!toast) {
         toast = document.createElement("div");
         toast.id = "globalToast";
@@ -272,9 +211,7 @@
       toast.textContent = message;
       toast.classList.add("show");
 
-      setTimeout(() => {
-        toast.classList.remove("show");
-      }, 2200);
+      setTimeout(() => toast.classList.remove("show"), 2200);
     }
   </script>
 
