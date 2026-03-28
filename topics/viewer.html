@@ -4,142 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PDF Viewer | DinuuNOVA Physics</title>
+
+  <link rel="manifest" href="/DN_Physics/manifest.json" />
+  <meta name="theme-color" content="#4ea1ff" />
+  <link rel="apple-touch-icon" href="/DN_Physics/icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
   <link rel="stylesheet" href="/DN_Physics/css/style.css" />
+
   <style>
-    .viewer-wrap {
-      padding: 28px 0 40px;
-    }
-
-    .viewer-topbar {
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
-
-    .viewer-title {
-      margin: 0;
-      font-size: 1.55rem;
-      letter-spacing: -0.02em;
-      line-height: 1.2;
-    }
-
-    .pdf-shell {
-      background: linear-gradient(180deg, rgba(17, 26, 43, 0.96), rgba(12, 18, 31, 0.96));
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 24px;
-      padding: 14px;
-      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
-    }
-
-    .pdf-toolbar {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
-      margin-bottom: 12px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-
-    .pdf-toolbar-text {
-      color: var(--muted, #a8b3cf);
-      font-size: 0.95rem;
-    }
-
-    #pdfViewer {
-      width: 100%;
-      min-height: 70vh;
-      background: #0a1322;
-      border-radius: 18px;
-      padding: 18px;
-      overflow: auto;
-    }
-
-    .pdf-page {
-      display: block;
-      margin: 0 auto 18px;
-      max-width: 100%;
-      height: auto;
-      border-radius: 12px;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.3);
-      background: white;
-    }
-
-    .helper {
-      margin-top: 14px;
-      color: var(--muted, #a8b3cf);
-      font-size: 0.95rem;
-    }
-
-    .loading {
-      color: var(--muted, #a8b3cf);
-      text-align: center;
-      padding: 30px 0;
-      line-height: 1.7;
-    }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .library-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-    }
-
-    .pdf-card {
-      background: linear-gradient(180deg, rgba(17, 26, 43, 0.96), rgba(12, 18, 31, 0.96));
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 20px;
-      padding: 18px;
-      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.25);
-    }
-
-    .pdf-card h3 {
-      margin: 0 0 8px;
-      font-size: 1.08rem;
-      color: #e8eefc;
-    }
-
-    .pdf-card p {
-      margin: 0 0 14px;
-      color: var(--muted, #a8b3cf);
-      font-size: 0.95rem;
-    }
-
-    .card-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .refresh-top-btn {
-      padding: 6px 10px;
-      min-height: auto;
-      line-height: 1;
-    }
-
     .offline-banner {
       display: none;
       background: #7a1f1f;
-      color: white;
+      color: #ffffff;
       text-align: center;
       padding: 10px 14px;
       font-weight: 700;
@@ -161,109 +39,98 @@
       0%, 100% { opacity: 1; }
       50% { opacity: 0.35; }
     }
-
-    @media (max-width: 768px) {
-      .viewer-wrap {
-        padding: 22px 0 34px;
-      }
-
-      .viewer-title {
-        font-size: 1.25rem;
-      }
-
-      #pdfViewer {
-        min-height: 60vh;
-        padding: 12px;
-      }
-
-      .pdf-shell {
-        border-radius: 18px;
-        padding: 12px;
-      }
-
-      .topbar-right {
-        width: 100%;
-        justify-content: space-between;
-      }
-    }
   </style>
 </head>
 <body>
-
   <div id="offlineBanner" class="offline-banner">
     You are offline. Some PDFs may not load unless they were opened before.
   </div>
 
-  <header>
+  <header class="site-header">
     <div class="container nav">
       <div class="brand">DinuuNOVA <span>Physics</span></div>
 
       <div class="topbar-right">
-        <nav class="nav-links">
+        <nav class="nav-links" aria-label="Viewer navigation">
           <a href="/DN_Physics/index.html">Home</a>
           <a id="subjectLink" href="/DN_Physics/index.html">Subject</a>
           <a id="backLink" href="/DN_Physics/index.html">Back</a>
         </nav>
 
-        <button id="refreshBtn" class="btn refresh-top-btn" type="button" title="Refresh app">
+        <button
+          id="refreshBtn"
+          class="btn refresh-top-btn"
+          type="button"
+          title="Refresh app"
+          aria-label="Refresh app"
+        >
           🔄
         </button>
       </div>
     </div>
   </header>
 
-  <section class="viewer-wrap">
-    <div class="container">
+  <main>
+    <section class="viewer-wrap">
+      <div class="container">
+        <div class="viewer-topbar">
+          <h1 class="viewer-title" id="viewerTitle">PDF Viewer</h1>
 
-      <div class="viewer-topbar">
-        <h1 class="viewer-title" id="viewerTitle">PDF Viewer</h1>
-
-        <div class="actions" id="viewerActions">
-          <a class="btn" id="backBtn" href="/DN_Physics/index.html">← Back</a>
-          <a class="btn btn-primary" id="openBtn" href="#" target="_blank" rel="noopener">Open PDF</a>
-          <a class="btn btn-primary" id="downloadBtn" href="#" download>⬇ Download PDF</a>
-          <button class="btn" type="button" onclick="shareCurrentPdf()">📤 Share PDF</button>
-        </div>
-      </div>
-
-      <div id="librarySection" class="hidden">
-        <div class="pdf-shell">
-          <div class="pdf-toolbar">
-            <div class="pdf-toolbar-text">All PDFs from your catalog</div>
-            <div class="pdf-toolbar-text">Add new PDFs in catalog.json</div>
-          </div>
-          <div class="library-grid" id="libraryGrid"></div>
-        </div>
-      </div>
-
-      <div id="viewerSection">
-        <div class="pdf-shell">
-          <div class="pdf-toolbar">
-            <div class="pdf-toolbar-text" id="fileLabel">Loading file...</div>
-            <div class="pdf-toolbar-text" id="viewerStatusText">Best for phone and PC viewing.</div>
-          </div>
-
-          <div id="pdfViewer">
-            <div class="loading">Loading PDF...</div>
+          <div class="actions" id="viewerActions">
+            <a class="btn" id="backBtn" href="/DN_Physics/index.html">← Back</a>
+            <a class="btn btn-primary" id="openBtn" href="#" target="_blank" rel="noopener">Open PDF</a>
+            <a class="btn" id="downloadBtn" href="#" download>⬇ Download PDF</a>
+            <button class="btn" id="shareBtn" type="button">📤 Share PDF</button>
           </div>
         </div>
 
-        <p class="helper" id="viewerHelper">
-          If the PDF does not load, check your internet connection first. If you are offline and the PDF was not opened before, preview may not work. PDFs can work offline after they have been opened once with internet. You can also try <strong>Open PDF</strong>, <strong>Download PDF</strong>, or the <strong>🔄 Refresh</strong> button.
-        </p>
-      </div>
+        <section id="librarySection" class="hidden" aria-label="PDF library">
+          <div class="pdf-shell">
+            <div class="pdf-toolbar">
+              <div class="pdf-toolbar-text">All PDFs from your catalog</div>
+              <div class="pdf-toolbar-text">Add new PDFs in catalog.json</div>
+            </div>
 
-    </div>
-  </section>
+            <div class="library-grid" id="libraryGrid"></div>
+          </div>
+        </section>
+
+        <section id="viewerSection" aria-label="PDF preview section">
+          <div class="pdf-shell">
+            <div class="pdf-toolbar">
+              <div class="pdf-toolbar-text" id="fileLabel">Loading file...</div>
+              <div class="pdf-toolbar-text" id="viewerStatusText">Best for phone and PC viewing.</div>
+            </div>
+
+            <div id="pdfViewer" aria-live="polite">
+              <div class="loading">Loading PDF...</div>
+            </div>
+          </div>
+
+          <p class="helper" id="viewerHelper">
+            If the PDF does not load, check your internet connection first. If you are offline and the PDF was not opened before, preview may not work. PDFs can work offline after they have been opened once with internet. You can also try <strong>Open PDF</strong>, <strong>Download PDF</strong>, or the <strong>🔄 Refresh</strong> button.
+          </p>
+        </section>
+      </div>
+    </section>
+  </main>
 
   <footer class="footer">
     <div class="container">© 2026 DinuuNOVA Physics</div>
   </footer>
 
   <div class="music-player-wrap">
-    <button id="musicToggleBtn" class="btn" type="button">🎧 Focus</button>
+    <button
+      id="musicToggleBtn"
+      class="btn music-toggle-btn"
+      type="button"
+      aria-expanded="false"
+      aria-controls="musicPanel"
+    >
+      🎧 Focus
+    </button>
 
-    <div id="musicPanel" class="music-panel">
+    <div id="musicPanel" class="music-panel" aria-hidden="true">
       <div class="music-panel-title">Focus Mode 🎧</div>
 
       <label for="trackSelect" class="music-label">Select Track</label>
@@ -275,7 +142,15 @@
       </div>
 
       <label for="volumeSlider" class="music-label">Volume 🔊</label>
-      <input id="volumeSlider" class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.35" />
+      <input
+        id="volumeSlider"
+        class="volume-slider"
+        type="range"
+        min="0"
+        max="1"
+        step="0.01"
+        value="0.35"
+      />
 
       <div id="currentTrackLabel" class="music-track-label">Current: None</div>
     </div>
@@ -307,6 +182,32 @@
       FAVORITES: "dnPdfFavorites",
       LAST_OPENED: "dnPdfLastOpened"
     };
+
+    const viewerTitleEl = document.getElementById("viewerTitle");
+    const fileLabelEl = document.getElementById("fileLabel");
+    const subjectLinkEl = document.getElementById("subjectLink");
+    const backLinkEl = document.getElementById("backLink");
+    const backBtnEl = document.getElementById("backBtn");
+    const openBtnEl = document.getElementById("openBtn");
+    const downloadBtnEl = document.getElementById("downloadBtn");
+    const shareBtnEl = document.getElementById("shareBtn");
+    const container = document.getElementById("pdfViewer");
+    const librarySection = document.getElementById("librarySection");
+    const viewerSection = document.getElementById("viewerSection");
+    const libraryGrid = document.getElementById("libraryGrid");
+    const viewerActions = document.getElementById("viewerActions");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const offlineBanner = document.getElementById("offlineBanner");
+    const viewerHelper = document.getElementById("viewerHelper");
+    const viewerStatusText = document.getElementById("viewerStatusText");
+
+    let pdfUrl = "";
+    let absolutePdfUrl = "";
+    let fileName = "";
+    let subjectSlug = "";
+    let subjectDisplayName = "Subject";
+    let backUrl = "/DN_Physics/index.html";
+    let shareTitle = "PDF Viewer";
 
     function safeDecode(value, fallback = "") {
       try {
@@ -340,58 +241,35 @@
       const title = encodeURIComponent(item.title || item.file.replace(/\.pdf$/i, ""));
       const back = encodeURIComponent(item.subjectPage || `/DN_Physics/subjects/${item.subject}/index.html`);
       const subjectName = encodeURIComponent(prettifyFolderName(item.subject));
+
       return `/DN_Physics/topics/viewer.html?pdf=${encodeURIComponent(pdf)}&title=${title}&back=${back}&subjectName=${subjectName}`;
     }
 
-    const viewerTitleEl = document.getElementById("viewerTitle");
-    const fileLabelEl = document.getElementById("fileLabel");
-    const subjectLinkEl = document.getElementById("subjectLink");
-    const backLinkEl = document.getElementById("backLink");
-    const backBtnEl = document.getElementById("backBtn");
-    const openBtnEl = document.getElementById("openBtn");
-    const downloadBtnEl = document.getElementById("downloadBtn");
-    const container = document.getElementById("pdfViewer");
-    const librarySection = document.getElementById("librarySection");
-    const viewerSection = document.getElementById("viewerSection");
-    const libraryGrid = document.getElementById("libraryGrid");
-    const viewerActions = document.getElementById("viewerActions");
-    const refreshBtn = document.getElementById("refreshBtn");
-    const offlineBanner = document.getElementById("offlineBanner");
-    const viewerHelper = document.getElementById("viewerHelper");
-    const viewerStatusText = document.getElementById("viewerStatusText");
-
-    let pdfUrl = "";
-    let absolutePdfUrl = "";
-    let fileName = "";
-    let subjectSlug = "";
-    let subjectDisplayName = "Subject";
-    let backUrl = "/DN_Physics/index.html";
-    let shareTitle = "PDF Viewer";
-
     function updateOfflineBanner() {
       if (!offlineBanner) return;
+
       offlineBanner.classList.toggle("show", !navigator.onLine);
 
       if (!navigator.onLine) {
         if (viewerStatusText) {
           viewerStatusText.textContent = "Offline mode. Cached PDFs may still work.";
         }
+
         if (viewerHelper) {
-          viewerHelper.innerHTML = 'You are offline. PDFs can only open offline if they were opened once before with internet. You can still try <strong>Open PDF</strong>, <strong>Download PDF</strong>, or the <strong>🔄 Refresh</strong> button after reconnecting.';
+          viewerHelper.innerHTML =
+            'You are offline. PDFs can only open offline if they were opened once before with internet. You can still try <strong>Open PDF</strong>, <strong>Download PDF</strong>, or the <strong>🔄 Refresh</strong> button after reconnecting.';
         }
       } else {
         if (viewerStatusText) {
           viewerStatusText.textContent = "Best for phone and PC viewing.";
         }
+
         if (viewerHelper) {
-          viewerHelper.innerHTML = 'If the PDF does not load, check your internet connection first. If you are offline and the PDF was not opened before, preview may not work. PDFs can work offline after they have been opened once with internet. You can also try <strong>Open PDF</strong>, <strong>Download PDF</strong>, or the <strong>🔄 Refresh</strong> button.';
+          viewerHelper.innerHTML =
+            'If the PDF does not load, check your internet connection first. If you are offline and the PDF was not opened before, preview may not work. PDFs can work offline after they have been opened once with internet. You can also try <strong>Open PDF</strong>, <strong>Download PDF</strong>, or the <strong>🔄 Refresh</strong> button.';
         }
       }
     }
-
-    window.addEventListener("online", updateOfflineBanner);
-    window.addEventListener("offline", updateOfflineBanner);
-    updateOfflineBanner();
 
     async function performViewerRefresh() {
       try {
@@ -406,12 +284,6 @@
       }
 
       window.location.reload();
-    }
-
-    if (refreshBtn) {
-      refreshBtn.addEventListener("click", async () => {
-        await performViewerRefresh();
-      });
     }
 
     function getPdfId() {
@@ -431,43 +303,44 @@
           lastOpened: new Date().toLocaleDateString()
         };
 
-        const filtered = recent.filter(r => r.id !== entry.id);
+        const filtered = recent.filter(item => item.id !== entry.id);
         filtered.unshift(entry);
 
         localStorage.setItem(PDF_STORAGE_KEYS.RECENT, JSON.stringify(filtered.slice(0, 10)));
         localStorage.setItem(PDF_STORAGE_KEYS.LAST_OPENED, JSON.stringify(entry));
-      } catch (e) {
-        console.log("Recent save failed", e);
+      } catch (error) {
+        console.log("Recent save failed", error);
       }
     }
 
     function isFavorite() {
       try {
-        const favs = JSON.parse(localStorage.getItem(PDF_STORAGE_KEYS.FAVORITES)) || [];
-        return favs.some(f => f.id === getPdfId());
+        const favorites = JSON.parse(localStorage.getItem(PDF_STORAGE_KEYS.FAVORITES)) || [];
+        return favorites.some(item => item.id === getPdfId());
       } catch {
         return false;
       }
     }
 
     function updateFavoriteUI() {
-      const favBtn = document.getElementById("favoriteBtn");
-      if (!favBtn) return;
-      favBtn.textContent = isFavorite() ? "⭐ Favorited" : "☆ Favorite";
+      const favoriteBtn = document.getElementById("favoriteBtn");
+      if (!favoriteBtn) return;
+      favoriteBtn.textContent = isFavorite() ? "⭐ Favorited" : "☆ Favorite";
     }
 
     function toggleFavorite() {
       try {
-        const favs = JSON.parse(localStorage.getItem(PDF_STORAGE_KEYS.FAVORITES)) || [];
+        const favorites = JSON.parse(localStorage.getItem(PDF_STORAGE_KEYS.FAVORITES)) || [];
         const id = getPdfId();
-        const exists = favs.find(f => f.id === id);
+        const exists = favorites.find(item => item.id === id);
 
-        let newFavs;
+        let nextFavorites;
+
         if (exists) {
-          newFavs = favs.filter(f => f.id !== id);
+          nextFavorites = favorites.filter(item => item.id !== id);
         } else {
-          newFavs = [
-            ...favs,
+          nextFavorites = [
+            ...favorites,
             {
               id,
               title: shareTitle,
@@ -478,25 +351,24 @@
           ];
         }
 
-        localStorage.setItem(PDF_STORAGE_KEYS.FAVORITES, JSON.stringify(newFavs));
+        localStorage.setItem(PDF_STORAGE_KEYS.FAVORITES, JSON.stringify(nextFavorites));
         updateFavoriteUI();
-      } catch (e) {
-        console.log("Favorite toggle error", e);
+      } catch (error) {
+        console.log("Favorite toggle error", error);
       }
     }
 
     function addExtraButtons() {
-      const actions = document.getElementById("viewerActions");
-      if (!actions) return;
+      if (!viewerActions) return;
 
       if (!document.getElementById("favoriteBtn")) {
-        const favBtn = document.createElement("button");
-        favBtn.className = "btn";
-        favBtn.id = "favoriteBtn";
-        favBtn.textContent = "☆ Favorite";
-        favBtn.type = "button";
-        favBtn.onclick = toggleFavorite;
-        actions.appendChild(favBtn);
+        const favoriteBtn = document.createElement("button");
+        favoriteBtn.className = "btn";
+        favoriteBtn.id = "favoriteBtn";
+        favoriteBtn.type = "button";
+        favoriteBtn.textContent = "☆ Favorite";
+        favoriteBtn.addEventListener("click", toggleFavorite);
+        viewerActions.appendChild(favoriteBtn);
       }
 
       if (!document.getElementById("relatedQuizBtn")) {
@@ -505,7 +377,7 @@
         quizBtn.id = "relatedQuizBtn";
         quizBtn.textContent = "🎯 Practice Quiz";
         quizBtn.href = `/DN_Physics/pp-quiz/topic.html?topic=${encodeURIComponent(subjectSlug || "")}`;
-        actions.appendChild(quizBtn);
+        viewerActions.appendChild(quizBtn);
       }
 
       updateFavoriteUI();
@@ -549,10 +421,8 @@
           <div class="loading">
             ${
               isOffline
-                ? `You are offline, so the PDF list cannot be updated right now.<br><br>
-                   Please connect to the internet and refresh the page.`
-                : `Could not load catalog.json right now.<br><br>
-                   Please check your internet and try again.`
+                ? `You are offline, so the PDF list cannot be updated right now.<br><br>Please connect to the internet and refresh the page.`
+                : `Could not load catalog.json right now.<br><br>Please check your internet and try again.`
             }
           </div>
         `;
@@ -583,7 +453,7 @@
 
           await page.render({
             canvasContext: context,
-            viewport: viewport
+            viewport
           }).promise;
 
           container.appendChild(canvas);
@@ -598,11 +468,8 @@
           <div class="loading">
             ${
               isOffline
-                ? `You are offline, and this PDF could not be loaded.<br><br>
-                   This usually means the PDF was not saved offline before.`
-                : `This PDF could not be loaded right now.<br><br>
-                   This may be due to weak internet, the PDF not being cached yet,
-                   or preview not working properly on this device.`
+                ? `You are offline, and this PDF could not be loaded.<br><br>This usually means the PDF was not saved offline before.`
+                : `This PDF could not be loaded right now.<br><br>This may be due to weak internet, the PDF not being cached yet, or preview not working properly on this device.`
             }
             <br><br>
             To use PDFs offline:
@@ -618,9 +485,56 @@
       }
     }
 
-    if (!directPdf && !oldSubject && !oldFile) {
-      showLibrary();
-    } else {
+    async function shareCurrentPdf() {
+      const shareUrl = absolutePdfUrl || window.location.href;
+      const shareData = {
+        title: shareTitle,
+        text: "View or download this PDF:",
+        url: shareUrl
+      };
+
+      if (navigator.share) {
+        try {
+          await navigator.share(shareData);
+        } catch (error) {
+          console.log("Share cancelled or failed:", error);
+        }
+      } else {
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          alert("PDF link copied.");
+        } catch (error) {
+          alert("Copy this link manually:\n" + shareUrl);
+        }
+      }
+    }
+
+    function setupViewerEvents() {
+      window.addEventListener("online", updateOfflineBanner);
+      window.addEventListener("offline", updateOfflineBanner);
+      updateOfflineBanner();
+
+      if (refreshBtn) {
+        refreshBtn.addEventListener("click", async () => {
+          await performViewerRefresh();
+        });
+      }
+
+      if (shareBtnEl) {
+        shareBtnEl.addEventListener("click", async () => {
+          await shareCurrentPdf();
+        });
+      }
+    }
+
+    async function initViewer() {
+      setupViewerEvents();
+
+      if (!directPdf && !oldSubject && !oldFile) {
+        await showLibrary();
+        return;
+      }
+
       if (directPdf) {
         pdfUrl = normalizePath(safeDecode(directPdf));
         absolutePdfUrl = makeAbsolute(pdfUrl);
@@ -660,30 +574,10 @@
       openBtnEl.href = pdfUrl;
       downloadBtnEl.href = pdfUrl;
 
-      renderPdf();
+      await renderPdf();
     }
 
-    window.shareCurrentPdf = async function () {
-      const shareUrl = absolutePdfUrl || window.location.href;
-      const shareData = {
-        title: shareTitle,
-        text: "View or download this PDF:",
-        url: shareUrl
-      };
-
-      if (navigator.share) {
-        try {
-          await navigator.share(shareData);
-        } catch (e) {}
-      } else {
-        try {
-          await navigator.clipboard.writeText(shareUrl);
-          alert("PDF link copied.");
-        } catch (e) {
-          alert("Copy this link manually:\n" + shareUrl);
-        }
-      }
-    };
+    initViewer();
   </script>
 
   <script src="/DN_Physics/js/music-player.js"></script>
