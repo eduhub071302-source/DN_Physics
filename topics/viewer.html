@@ -485,6 +485,30 @@
       }
     }
 
+    async function copyTextFallback(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.setAttribute("readonly", "");
+      textArea.style.position = "fixed";
+      textArea.style.opacity = "0";
+      textArea.style.pointerEvents = "none";
+      document.body.appendChild(textArea);
+
+      textArea.focus();
+      textArea.select();
+
+      let copied = false;
+
+      try {
+        copied = document.execCommand("copy");
+      } catch (error) {
+        copied = false;
+      }
+
+      document.body.removeChild(textArea);
+      return copied;
+    }
+
     async function shareCurrentPdf() {
       const shareUrl = absolutePdfUrl || window.location.href;
       const shareData = {
@@ -496,15 +520,22 @@
       if (navigator.share) {
         try {
           await navigator.share(shareData);
+          return;
         } catch (error) {
           console.log("Share cancelled or failed:", error);
         }
-      } else {
-        try {
-          await navigator.clipboard.writeText(shareUrl);
+      }
+
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        showToast("Link copied ✅");
+        return;
+      } catch (error) {
+        const copied = await copyTextFallback(shareUrl);
+        if (copied) {
           showToast("Link copied ✅");
-        } catch (error) {
-          alert("Copy this link manually:\n" + shareUrl);
+        } else {
+          showToast("Copy failed. Use Open PDF.");
         }
       }
     }
