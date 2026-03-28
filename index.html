@@ -282,22 +282,31 @@
       }
 
       let progress = 0;
-      setLoadingText("Updating app... 0%");
+      let stage = "Checking update...";
+
+      setLoadingText(`${stage} 0%`);
 
       fakeProgressTimer = setInterval(() => {
-        if (progress < 20) {
+        if (progress < 25) {
+          stage = "Checking update...";
+          progress += 5;
+        }
+        else if (progress < 55) {
+          stage = "Downloading files...";
           progress += 4;
-        } else if (progress < 45) {
-          progress += 3;
-        } else if (progress < 70) {
+        }
+        else if (progress < 85) {
+          stage = "Applying update...";
           progress += 2;
-        } else if (progress < 90) {
+        }
+        else if (progress < 95) {
+          stage = "Finalizing...";
           progress += 1;
         }
 
-        if (progress > 90) progress = 90;
-        setLoadingText(`Updating app... ${progress}%`);
-      }, 180);
+        if (progress > 95) progress = 95;
+        setLoadingText(`${stage} ${progress}%`);
+      }, 160);
     }
 
     function finishFakeProgress() {
@@ -305,7 +314,8 @@
         clearInterval(fakeProgressTimer);
         fakeProgressTimer = null;
       }
-      setLoadingText("Updating app... 100%");
+      
+      setLoadingText("Update complete 🚀 100%");
     }
 
     function isUserBusy() {
