@@ -958,6 +958,24 @@
     });
 
     initPage();
+
+    function showToast(message = "Done") {
+      let toast = document.getElementById("globalToast");
+
+      if (!toast) {
+        toast = document.createElement("div");
+        toast.id = "globalToast";
+        toast.className = "toast";
+        document.body.appendChild(toast);
+      }
+
+      toast.textContent = message;
+      toast.classList.add("show");
+
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2200);
+    }
   </script>
 
   <script src="/DN_Physics/js/music-player.js"></script>
