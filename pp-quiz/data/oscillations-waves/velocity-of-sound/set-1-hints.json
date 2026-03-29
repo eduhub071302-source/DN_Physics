@@ -1,12 +1,12 @@
 {
   "1": {
-    "f": "v = sqrt(gamma*R*T/M)",
+    "f": "v = √(γRT/M)",
     "focus": "Speed depends on square-root relationships, not direct proportionality.",
-    "step": "Check whether v is proportional to T, sqrt(T), sqrt(gamma), or 1/sqrt(M).",
+    "step": "Check whether v is proportional to T, √T, √γ, or 1/√M.",
     "mistake": "Saying v is directly proportional to temperature or molar mass."
   },
   "2": {
-    "f": "v = sqrt(gamma*P/rho) = sqrt(gamma*R*T/M)",
+    "f": "v = √(γP/ρ) = √(γRT/M)",
     "focus": "For a given gas, speed depends mainly on temperature.",
     "step": "If temperature stays constant, test whether changing pressure alone changes v.",
     "mistake": "Thinking pressure alone changes sound speed when temperature is fixed."
@@ -18,55 +18,55 @@
     "mistake": "Confusing quality with pitch."
   },
   "4": {
-    "f": "u_mix = sqrt(gamma*P/rho_mix)",
+    "f": "uₘᵢₓ = √(γP/ρₘᵢₓ)",
     "focus": "At fixed pressure, speed depends on mixture density.",
     "step": "Find mixture density from total mass divided by total volume.",
     "mistake": "Using a simple average of speeds instead of working through density."
   },
   "5": {
-    "f": "v is proportional to sqrt(T)",
+    "f": "v ∝ √T",
     "focus": "Temperature changes with height, so sound speed changes too.",
     "step": "Think about what happens to temperature as you go upward.",
     "mistake": "Treating speed as constant with altitude without checking temperature."
   },
   "6": {
-    "f": "In gases: v = sqrt(gamma*R*T/M); in solids: v = sqrt(Y/rho)",
+    "f": "In gases: v = √(γRT/M); in solids: v = √(Y/ρ)",
     "focus": "Sound speed depends on elasticity and density of the medium.",
     "step": "Compare different media by considering both rigidity and density.",
     "mistake": "Thinking higher-frequency sound travels faster in the same medium."
   },
   "7": {
-    "f": "v = sqrt(gamma*R*T/M)",
+    "f": "v = √(γRT/M)",
     "focus": "For a specific gas, only temperature changes v directly.",
     "step": "Check which action changes temperature, not just pressure or amount of gas.",
     "mistake": "Thinking adding more gas automatically increases sound speed."
   },
   "8": {
-    "f": "v = sqrt(gamma*R*T/M) = sqrt(gamma*P/rho)",
+    "f": "v = √(γRT/M) = √(γP/ρ)",
     "focus": "Constant temperature is the key condition.",
     "step": "Test each statement assuming T stays fixed.",
     "mistake": "Thinking higher density always means lower speed without checking the full relation."
   },
   "9": {
-    "f": "v = sqrt(gamma*R*T/M)",
+    "f": "v = √(γRT/M)",
     "focus": "Speed is determined by the medium, not by wave frequency.",
     "step": "Separate medium properties from wave properties.",
     "mistake": "Assuming higher frequency means higher sound speed."
   },
   "10": {
-    "f": "v is proportional to sqrt(T in kelvin)",
+    "f": "v ∝ √T  (T in kelvin)",
     "focus": "Temperature must be converted to kelvin before using the ratio.",
     "step": "Convert the initial Celsius temperature to kelvin first.",
     "mistake": "Using Celsius directly in the square-root relationship."
   },
   "11": {
-    "f": "v = sqrt(E/rho)",
+    "f": "v = √(E/ρ)",
     "focus": "Sound generally travels fastest in solids, then liquids, then gases.",
     "step": "Identify the phase of each medium before comparing.",
     "mistake": "Choosing only by density and ignoring elasticity."
   },
   "12": {
-    "f": "v is proportional to sqrt(T in kelvin)",
+    "f": "v ∝ √T  (T in kelvin)",
     "focus": "Convert to kelvin, apply the ratio, then convert back if needed.",
     "step": "Start with the temperature in kelvin, not Celsius.",
     "mistake": "Forgetting to convert the final result back to Celsius."
