@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const subtopic = params.get("subtopic");
   const setName = params.get("set") || "set-1";
 
-  const quizUpdateText = document.getElementById("quizUpdateText");
   const quizTitle = document.getElementById("quizTitle");
   const quizSubtitle = document.getElementById("quizSubtitle");
   const backToSubtopic = document.getElementById("backToSubtopic");
@@ -146,6 +145,41 @@ document.addEventListener("DOMContentLoaded", async () => {
   let renderScheduled = false;
   let saveTimeout = null;
 
+  let currentQuestion = 1;
+  let totalQuestions = 1;
+  let answerKey = {};
+  let explanations = {};
+  let userAnswers = {};
+  let reviewMode = false;
+  let wrongQuestionsGlobal = [];
+  let wrongQuestionPointer = 0;
+  let practiceWrongOnlyMode = false;
+  let currentDisplayIndex = 1;
+  let pinchStartDistance = 0;
+  let modalScale = 1;
+  let flaggedQuestions = new Set();
+
+  let quizTimerInterval = null;
+  let questionTimerInterval = null;
+  let quizElapsedSeconds = 0;
+  let questionElapsedSeconds = 0;
+
+  let quizTimeLimitSeconds = null;
+  let questionTimeLimitSeconds = null;
+
+  let retryModeType = "full";
+  let retryQuestionList = [];
+
+  const MOTIVATION_LINES = [
+    "Stay focused. Every question improves your rank.",
+    "Small improvements create big rank jumps.",
+    "You are training like top exam competitors.",
+    "Discipline beats talent when talent is lazy.",
+    "Do not rush. Accuracy is your power.",
+    "Every correct answer builds your confidence.",
+    "You vs yesterday. That is the real battle."
+  ];
+
   function showToast(message = "Done") {
     let toast = document.getElementById("globalToast");
 
@@ -165,9 +199,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function hideHintBox() {
-    if (hintBox) {
-      hintBox.style.display = "none";
-    }
+    if (hintBox) hintBox.style.display = "none";
   }
 
   function showHintBox(message) {
@@ -189,10 +221,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function isMobileView() {
     return window.innerWidth <= 768;
-  }
-
-  function canApplyUpdateNow() {
-    return !isQuizActive || reviewMode;
   }
 
   function makeNiceTitle(slug) {
@@ -467,131 +495,184 @@ document.addEventListener("DOMContentLoaded", async () => {
       .join("");
   }
 
-  let currentQuestion = 1;
-  let totalQuestions = 1;
-  let answerKey = {};
-  let explanations = {};
-  let userAnswers = {};
-  let reviewMode = false;
-  let wrongQuestionsGlobal = [];
-  let wrongQuestionPointer = 0;
-  let practiceWrongOnlyMode = false;
-  let currentDisplayIndex = 1;
-  let pinchStartDistance = 0;
-  let modalScale = 1;
-  let flaggedQuestions = new Set();
-
-  let quizTimerInterval = null;
-  let questionTimerInterval = null;
-  let quizElapsedSeconds = 0;
-  let questionElapsedSeconds = 0;
-
-  let quizTimeLimitSeconds = null;
-  let questionTimeLimitSeconds = null;
-
-  let retryModeType = "full";
-  let retryQuestionList = [];
-
-  const MOTIVATION_LINES = [
-    "Stay focused. Every question improves your rank.",
-    "Small improvements create big rank jumps.",
-    "You are training like top exam competitors.",
-    "Discipline beats talent when talent is lazy.",
-    "Do not rush. Accuracy is your power.",
-    "Every correct answer builds your confidence.",
-    "You vs yesterday. That is the real battle."
-  ];
-
   function getHintForCurrentQuestion() {
     const questionNumber = getCurrentQuestionNumber();
     const topicName = (topic || "").toLowerCase();
     const subtopicName = (subtopic || "").toLowerCase();
 
-    if (subtopicName.includes("circular")) {
-      return `Hint for Question ${questionNumber}: Think about centripetal force. Ask yourself what force is acting toward the center, and recall the relation mv²/r.`;
+    if (subtopicName.includes("projectile")) {
+      return `Topic: Projectile Motion
+Formula: Resolve into horizontal and vertical motion
+Focus: Treat x and y directions separately
+First step: Write the vertical motion relation first
+Common mistake: Mixing horizontal and vertical equations`;
     }
 
-    if (subtopicName.includes("projectile")) {
-      return `Hint for Question ${questionNumber}: Split the motion into horizontal and vertical parts. Treat them separately before combining the result.`;
+    if (subtopicName.includes("circular")) {
+      return `Topic: Circular Motion
+Formula: F = mv²/r
+Focus: Find what provides the centripetal force
+First step: Identify the inward force clearly
+Common mistake: Using the wrong radius or wrong force direction`;
     }
 
     if (subtopicName.includes("simple-harmonic")) {
-      return `Hint for Question ${questionNumber}: Focus on the restoring force or acceleration. In SHM, they are directed toward equilibrium.`;
+      return `Topic: Simple Harmonic Motion
+Formula: Restoring force or acceleration toward equilibrium
+Focus: Check the direction relative to equilibrium
+First step: Identify the displacement from mean position
+Common mistake: Forgetting the restoring direction`;
     }
 
     if (subtopicName.includes("friction")) {
-      return `Hint for Question ${questionNumber}: First identify whether the friction is static or kinetic, then check which force balance or limiting condition applies.`;
+      return `Topic: Friction
+Formula: F = μR
+Focus: Decide whether friction is static or kinetic
+First step: Check whether motion has started or is about to start
+Common mistake: Using the wrong type of friction`;
     }
 
     if (subtopicName.includes("newtons-laws")) {
-      return `Hint for Question ${questionNumber}: Draw the forces clearly. Then apply Newton’s second law in the correct direction.`;
+      return `Topic: Newton's Laws
+Formula: F = ma
+Focus: Draw the force diagram first
+First step: Mark every force with correct direction
+Common mistake: Missing forces or using the wrong sign`;
     }
 
     if (subtopicName.includes("work-power-energy")) {
-      return `Hint for Question ${questionNumber}: Decide whether this is easier with work-energy conservation or with power = work/time.`;
+      return `Topic: Work, Power and Energy
+Formula: Energy conservation or P = W/t
+Focus: Decide which relation fits best
+First step: Identify initial and final states
+Common mistake: Ignoring energy loss or wrong units`;
     }
 
     if (subtopicName.includes("ohms-law")) {
-      return `Hint for Question ${questionNumber}: Recall V = IR. Identify which two quantities are already known.`;
+      return `Topic: Ohm's Law
+Formula: V = IR
+Focus: Identify the two known quantities
+First step: Rearrange the formula carefully
+Common mistake: Mixing current, voltage, and resistance`;
     }
 
     if (subtopicName.includes("kirchhoffs-law")) {
-      return `Hint for Question ${questionNumber}: Think about loop rules and junction rules. Check whether this asks about current balance or potential difference.`;
+      return `Topic: Kirchhoff's Laws
+Formula: Junction rule and loop rule
+Focus: Check whether this is about current or potential difference
+First step: Choose the loop or junction carefully
+Common mistake: Sign errors in loops`;
     }
 
     if (subtopicName.includes("potentiometer")) {
-      return `Hint for Question ${questionNumber}: Focus on the potential gradient idea. Balance condition is usually the key.`;
+      return `Topic: Potentiometer
+Formula: Potential gradient and balance condition
+Focus: Think about the null point idea
+First step: Write the balance relation
+Common mistake: Forgetting proportionality along the wire`;
     }
 
-    if (subtopicName.includes("capacitance")) {
-      return `Hint for Question ${questionNumber}: Recall the definition of capacitance and check whether the combination is series or parallel.`;
+    if (subtopicName.includes("capacit")) {
+      return `Topic: Capacitance
+Formula: Q = CV
+Focus: Check whether capacitors are in series or parallel
+First step: Find equivalent capacitance first
+Common mistake: Using resistor combination rules by accident`;
     }
 
     if (subtopicName.includes("electric-field")) {
-      return `Hint for Question ${questionNumber}: Start from electric field direction and magnitude. Think carefully about the sign of charge.`;
+      return `Topic: Electric Field
+Formula: Field direction and magnitude relations
+Focus: Think about the sign of the charge
+First step: Draw the field direction
+Common mistake: Using force direction instead of field direction`;
     }
 
     if (subtopicName.includes("magnetic")) {
-      return `Hint for Question ${questionNumber}: Use the correct hand rule and identify the angle between the field and the moving charge or conductor.`;
+      return `Topic: Magnetic Field
+Formula: F = BIL or F = qvB
+Focus: Angle and direction matter
+First step: Apply the correct hand rule
+Common mistake: Ignoring the angle between vectors`;
     }
 
     if (subtopicName.includes("thermodynamics")) {
-      return `Hint for Question ${questionNumber}: Check which quantity is held constant, then choose the correct gas-law or thermodynamic relation.`;
+      return `Topic: Thermodynamics
+Formula: Choose the correct gas law or thermal relation
+Focus: Check what quantity is constant
+First step: Identify changing and constant variables
+Common mistake: Using the wrong gas-law condition`;
     }
 
     if (subtopicName.includes("calorimetry")) {
-      return `Hint for Question ${questionNumber}: Think in terms of heat lost = heat gained, unless there is extra heat exchange mentioned.`;
+      return `Topic: Calorimetry
+Formula: Q = mcΔT
+Focus: Heat lost equals heat gained
+First step: Write an energy balance equation
+Common mistake: Missing the sign or wrong temperature change`;
     }
 
     if (subtopicName.includes("refraction")) {
-      return `Hint for Question ${questionNumber}: Identify the media first, then recall the relation involving refractive index or Snell’s law.`;
+      return `Topic: Refraction
+Formula: Snell's law or refractive index relation
+Focus: Identify the media first
+First step: Write the known refractive relation
+Common mistake: Mixing angle with the surface instead of the normal`;
     }
 
     if (subtopicName.includes("wave-properties")) {
-      return `Hint for Question ${questionNumber}: Start from the wave equation v = fλ and check which quantity changes and which stays constant.`;
+      return `Topic: Wave Properties
+Formula: v = fλ
+Focus: Check which quantity changes and which stays constant
+First step: Write the wave equation
+Common mistake: Confusing frequency with wavelength`;
     }
 
     if (subtopicName.includes("radioactivity")) {
-      return `Hint for Question ${questionNumber}: Focus on decay law, half-life, or the type of radiation involved.`;
+      return `Topic: Radioactivity
+Formula: Decay law or half-life relation
+Focus: Check what is being asked about decay
+First step: Identify the number of half-lives or decay relation
+Common mistake: Mixing remaining amount with decayed amount`;
     }
 
     if (topicName.includes("mechanics")) {
-      return `Hint for Question ${questionNumber}: Think about the force diagram first. Once forces are clear, the correct equation usually becomes obvious.`;
+      return `Topic: Mechanics
+Formula: Use the main force or motion relation
+Focus: Draw the force or motion diagram first
+First step: List the known quantities clearly
+Common mistake: Jumping into calculation before identifying the model`;
     }
 
     if (topicName.includes("current-electricity") || topicName.includes("electric")) {
-      return `Hint for Question ${questionNumber}: Recall the core relations like V = IR, Q = It, or P = VI. Use the one that matches the known values.`;
+      return `Topic: Electricity
+Formula: Use V = IR, Q = It, or P = VI as needed
+Focus: Match the correct formula to the known values
+First step: Write all given electrical quantities
+Common mistake: Using a correct formula for the wrong quantity`;
     }
 
     if (topicName.includes("oscillations-waves") || topicName.includes("waves")) {
-      return `Hint for Question ${questionNumber}: Decide whether this is about frequency, wavelength, speed, or phase. Then use the simplest relation first.`;
+      return `Topic: Waves
+Formula: v = fλ or the relevant oscillation relation
+Focus: Decide whether this is about speed, frequency, phase, or wavelength
+First step: Identify the exact wave quantity asked
+Common mistake: Assuming all wave quantities change together`;
     }
 
     if (topicName.includes("thermal-physics") || topicName.includes("thermal")) {
-      return `Hint for Question ${questionNumber}: Check whether the problem is about heat transfer, expansion, or gas behavior. The constant quantity matters a lot.`;
+      return `Topic: Thermal Physics
+Formula: Use the heat or gas relation that matches the condition
+Focus: Check what is constant
+First step: Identify the thermal process clearly
+Common mistake: Ignoring the condition stated in the question`;
     }
 
-    return `Hint for Question ${questionNumber}: Identify the main topic first, then choose the most relevant formula or law. Focus on the important values, symbols, or diagram details before calculating.`;
+    return `Topic: Physics
+Formula: Identify the key relation
+Focus: Use known values and the diagram carefully
+First step: Write the given data before calculating
+Common mistake: Starting the calculation too early`;
   }
 
   function updateMotivationBar() {
@@ -1523,22 +1604,23 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (!pendingServiceWorkerUpdate) return;
 
-    navigator.serviceWorker.getRegistration().then((registration) => {
-      if (registration && registration.waiting) {
-        registration.waiting.postMessage({ type: "SKIP_WAITING" });
-      }
-    }).catch((error) => {
-      console.log("SW apply on unload warning:", error);
-    });
+    navigator.serviceWorker
+      .getRegistration()
+      .then((registration) => {
+        if (registration && registration.waiting) {
+          registration.waiting.postMessage({ type: "SKIP_WAITING" });
+        }
+      })
+      .catch((error) => {
+        console.log("SW apply on unload warning:", error);
+      });
   });
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.addEventListener("message", (event) => {
       if (event.data && event.data.type === "SW_UPDATED") {
         pendingServiceWorkerUpdate = true;
-
         showToast("New update available after quiz 🚀");
-
         console.log("Update will apply after quiz.");
       }
     });
