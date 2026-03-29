@@ -36,6 +36,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const retryMarkedBtn = document.getElementById("retryMarkedBtn");
   const wrongOnlyBtn = document.getElementById("wrongOnlyBtn");
 
+  const hintBtn = document.getElementById("hintBtn");
+  const hintBox = document.getElementById("hintBox");
+  const hintText = document.getElementById("hintText");
+  const closeHintBtn = document.getElementById("closeHintBtn");
+
   const zoomBtn = document.getElementById("zoomBtn");
   const imageModal = document.getElementById("imageModal");
   const modalImage = document.getElementById("modalImage");
@@ -62,7 +67,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const resumeSummary = document.getElementById("resumeSummary");
   const resumeQuizBtn = document.getElementById("resumeQuizBtn");
   const discardResumeBtn = document.getElementById("discardResumeBtn");
-  
+
   const motivationBar = document.getElementById("motivationBar");
   const finalScoreEl = document.getElementById("finalScore");
   const resultHeadline = document.getElementById("resultHeadline");
@@ -93,6 +98,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     retryUnansweredBtn,
     retryMarkedBtn,
     wrongOnlyBtn,
+    hintBtn,
+    hintBox,
+    hintText,
+    closeHintBtn,
     zoomBtn,
     imageModal,
     modalImage,
@@ -153,6 +162,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     setTimeout(() => {
       toast.classList.remove("show");
     }, 2200);
+  }
+
+  function hideHintBox() {
+    if (hintBox) {
+      hintBox.style.display = "none";
+    }
+  }
+
+  function showHintBox(message) {
+    if (!hintBox || !hintText) return;
+    hintText.textContent = message;
+    hintBox.style.display = "block";
   }
 
   function scheduleRender(fn) {
@@ -481,6 +502,98 @@ document.addEventListener("DOMContentLoaded", async () => {
     "You vs yesterday. That is the real battle."
   ];
 
+  function getHintForCurrentQuestion() {
+    const questionNumber = getCurrentQuestionNumber();
+    const topicName = (topic || "").toLowerCase();
+    const subtopicName = (subtopic || "").toLowerCase();
+
+    if (subtopicName.includes("circular")) {
+      return `Hint for Question ${questionNumber}: Think about centripetal force. Ask yourself what force is acting toward the center, and recall the relation mv²/r.`;
+    }
+
+    if (subtopicName.includes("projectile")) {
+      return `Hint for Question ${questionNumber}: Split the motion into horizontal and vertical parts. Treat them separately before combining the result.`;
+    }
+
+    if (subtopicName.includes("simple-harmonic")) {
+      return `Hint for Question ${questionNumber}: Focus on the restoring force or acceleration. In SHM, they are directed toward equilibrium.`;
+    }
+
+    if (subtopicName.includes("friction")) {
+      return `Hint for Question ${questionNumber}: First identify whether the friction is static or kinetic, then check which force balance or limiting condition applies.`;
+    }
+
+    if (subtopicName.includes("newtons-laws")) {
+      return `Hint for Question ${questionNumber}: Draw the forces clearly. Then apply Newton’s second law in the correct direction.`;
+    }
+
+    if (subtopicName.includes("work-power-energy")) {
+      return `Hint for Question ${questionNumber}: Decide whether this is easier with work-energy conservation or with power = work/time.`;
+    }
+
+    if (subtopicName.includes("ohms-law")) {
+      return `Hint for Question ${questionNumber}: Recall V = IR. Identify which two quantities are already known.`;
+    }
+
+    if (subtopicName.includes("kirchhoffs-law")) {
+      return `Hint for Question ${questionNumber}: Think about loop rules and junction rules. Check whether this asks about current balance or potential difference.`;
+    }
+
+    if (subtopicName.includes("potentiometer")) {
+      return `Hint for Question ${questionNumber}: Focus on the potential gradient idea. Balance condition is usually the key.`;
+    }
+
+    if (subtopicName.includes("capacitance")) {
+      return `Hint for Question ${questionNumber}: Recall the definition of capacitance and check whether the combination is series or parallel.`;
+    }
+
+    if (subtopicName.includes("electric-field")) {
+      return `Hint for Question ${questionNumber}: Start from electric field direction and magnitude. Think carefully about the sign of charge.`;
+    }
+
+    if (subtopicName.includes("magnetic")) {
+      return `Hint for Question ${questionNumber}: Use the correct hand rule and identify the angle between the field and the moving charge or conductor.`;
+    }
+
+    if (subtopicName.includes("thermodynamics")) {
+      return `Hint for Question ${questionNumber}: Check which quantity is held constant, then choose the correct gas-law or thermodynamic relation.`;
+    }
+
+    if (subtopicName.includes("calorimetry")) {
+      return `Hint for Question ${questionNumber}: Think in terms of heat lost = heat gained, unless there is extra heat exchange mentioned.`;
+    }
+
+    if (subtopicName.includes("refraction")) {
+      return `Hint for Question ${questionNumber}: Identify the media first, then recall the relation involving refractive index or Snell’s law.`;
+    }
+
+    if (subtopicName.includes("wave-properties")) {
+      return `Hint for Question ${questionNumber}: Start from the wave equation v = fλ and check which quantity changes and which stays constant.`;
+    }
+
+    if (subtopicName.includes("radioactivity")) {
+      return `Hint for Question ${questionNumber}: Focus on decay law, half-life, or the type of radiation involved.`;
+    }
+
+    if (topicName.includes("mechanics")) {
+      return `Hint for Question ${questionNumber}: Think about the force diagram first. Once forces are clear, the correct equation usually becomes obvious.`;
+    }
+
+    if (topicName.includes("current-electricity") || topicName.includes("electric")) {
+      return `Hint for Question ${questionNumber}: Recall the core relations like V = IR, Q = It, or P = VI. Use the one that matches the known values.`;
+    }
+
+    if (topicName.includes("oscillations-waves") || topicName.includes("waves")) {
+      return `Hint for Question ${questionNumber}: Decide whether this is about frequency, wavelength, speed, or phase. Then use the simplest relation first.`;
+    }
+
+    if (topicName.includes("thermal-physics") || topicName.includes("thermal")) {
+      return `Hint for Question ${questionNumber}: Check whether the problem is about heat transfer, expansion, or gas behavior. The constant quantity matters a lot.`;
+    }
+
+    return `Hint for Question ${questionNumber}: Identify the main topic first, then choose the most relevant formula or law. Focus on the important values, symbols, or diagram details before calculating.`;
+  }
+
   function updateMotivationBar() {
     if (!motivationBar) return;
 
@@ -724,6 +837,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const totalCount = getCurrentTotalCount();
     const shownIndex = getCurrentShownIndex();
 
+    hideHintBox();
+
     questionCounter.textContent = `Question ${shownIndex} of ${totalCount}`;
     questionImage.src = getImagePath(questionNumber);
     questionImage.alt = `${makeNiceTitle(subtopic)} question ${questionNumber}`;
@@ -850,6 +965,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     finishQuizBtn.style.display = "inline-flex";
     submitQuizBtn.style.display = "none";
     answerExplanation.style.display = "none";
+    hideHintBox();
 
     if (finalScoreEl) finalScoreEl.textContent = "0%";
     if (resultHeadline) resultHeadline.textContent = "Good Try";
@@ -885,6 +1001,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     finishQuizBtn.style.display = "inline-flex";
     submitQuizBtn.style.display = "none";
     answerExplanation.style.display = "none";
+    hideHintBox();
 
     closeJumpWrap();
     scheduleRender(updateQuestionView);
@@ -1029,6 +1146,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     retryUnansweredBtn.style.display = unanswered > 0 ? "inline-flex" : "none";
     retryMarkedBtn.style.display = flaggedQuestions.size > 0 ? "inline-flex" : "none";
 
+    hideHintBox();
     closeJumpWrap();
     stopTimers();
     scheduleRender(updateQuestionView);
@@ -1137,6 +1255,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     resultCard.style.display = "none";
     postResultActions.style.display = "none";
     answerExplanation.style.display = "none";
+    hideHintBox();
 
     closeJumpWrap();
     scheduleRender(updateQuestionView);
@@ -1188,6 +1307,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         }, 300);
       }
     });
+  });
+
+  hintBtn.addEventListener("click", () => {
+    if (reviewMode) {
+      showToast("Hints are disabled in review mode");
+      return;
+    }
+
+    const hintMessage = getHintForCurrentQuestion();
+    showHintBox(hintMessage);
+    showToast("Hint loaded 💡");
+  });
+
+  closeHintBtn.addEventListener("click", () => {
+    hideHintBox();
   });
 
   prevBtn.addEventListener("click", () => {
@@ -1407,7 +1541,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         console.log("Update will apply after quiz.");
       }
-    });  
+    });
   }
 
   const loaded = await loadQuizData();
