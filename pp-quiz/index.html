@@ -8,7 +8,7 @@
     name="description"
     content="Practice A/L Physics past paper MCQs topic by topic with progress tracking, resume support, and focused revision."
   />
-  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=22" />
+  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=23" />
 </head>
 <body>
 
@@ -16,7 +16,7 @@
     <div class="container">
       <a class="back-link" href="/DN_Physics/index.html">← Back to Home</a>
       <h1>PP Quiz</h1>
-      <p>Practice past paper MCQs topic by topic with a clean quiz workflow.</p>
+      <p>Practice A/L Physics past paper MCQs topic by topic with a clean, focused quiz workflow.</p>
     </div>
   </header>
 
@@ -24,20 +24,20 @@
     <div class="container">
 
       <!-- HERO -->
-      <section class="topic-card fade-slide-up" style="margin-bottom: 20px; min-height: auto;">
-        <div class="topic-card-top">
+      <section class="topic-card quiz-home-hero fade-slide-up" aria-label="Quiz introduction">
+        <div class="topic-card-top quiz-home-hero-top">
           <div class="topic-body">
             <div class="topic-pill">DinuuNOVA Physics • Past Paper Practice</div>
-            <h2 class="topic-title" style="font-size: 34px; margin-top: 10px;">Train Like a Real Exam App</h2>
-            <p class="topic-desc" style="max-width: 760px;">
-              Choose a topic and start practicing instantly. Focus on accuracy, speed, and consistency.
+            <h2 class="topic-title quiz-home-title">Train Like a Real Exam App</h2>
+            <p class="topic-desc quiz-home-desc">
+              Choose a topic and start practicing instantly. Build speed, accuracy, and confidence with a smooth revision-focused workflow.
             </p>
           </div>
 
-          <div class="topic-icon" aria-hidden="true">⚡</div>
+          <div class="topic-icon quiz-home-icon" aria-hidden="true">⚡</div>
         </div>
 
-        <div class="topic-stats">
+        <div class="topic-stats quiz-home-stats" aria-label="Quiz features">
           <span class="stat-pill">Topic-wise Practice</span>
           <span class="stat-pill">Retry Wrong Answers</span>
           <span class="stat-pill">Resume Anytime</span>
@@ -45,11 +45,11 @@
       </section>
 
       <!-- SECTION HEAD -->
-      <section class="fade-slide-up" style="margin-bottom: 16px;">
-        <div style="display: flex; align-items: end; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+      <section class="quiz-home-section-head fade-slide-up" aria-label="Topic selection intro">
+        <div class="quiz-home-section-row">
           <div>
-            <h3 style="margin: 0 0 6px; font-size: 26px;">Select a Topic</h3>
-            <p style="margin: 0; color: var(--muted);">
+            <h3 class="quiz-home-section-title">Select a Topic</h3>
+            <p class="quiz-home-section-subtitle">
               Tap a topic to begin your practice.
             </p>
           </div>
@@ -57,10 +57,10 @@
       </section>
 
       <!-- TOPICS GRID -->
-      <section id="topicsGrid" class="topics-grid fade-in" aria-live="polite">
+      <section id="topicsGrid" class="topics-grid fade-in" aria-live="polite" aria-label="Quiz topics">
 
         <!-- Skeleton loading -->
-        <article class="skeleton-card">
+        <article class="skeleton-card" aria-hidden="true">
           <div class="skeleton-avatar"></div>
           <div class="skeleton-line lg"></div>
           <div class="skeleton-line md"></div>
@@ -68,7 +68,7 @@
           <div class="skeleton-box"></div>
         </article>
 
-        <article class="skeleton-card">
+        <article class="skeleton-card" aria-hidden="true">
           <div class="skeleton-avatar"></div>
           <div class="skeleton-line lg"></div>
           <div class="skeleton-line md"></div>
@@ -76,7 +76,7 @@
           <div class="skeleton-box"></div>
         </article>
 
-        <article class="skeleton-card">
+        <article class="skeleton-card" aria-hidden="true">
           <div class="skeleton-avatar"></div>
           <div class="skeleton-line lg"></div>
           <div class="skeleton-line md"></div>
@@ -84,7 +84,7 @@
           <div class="skeleton-box"></div>
         </article>
 
-        <article class="skeleton-card">
+        <article class="skeleton-card" aria-hidden="true">
           <div class="skeleton-avatar"></div>
           <div class="skeleton-line lg"></div>
           <div class="skeleton-line md"></div>
@@ -101,9 +101,18 @@
   <audio id="bgMusic" loop></audio>
 
   <div id="musicPlayerFloating" class="music-floating">
-    <button id="musicToggleBtn" class="music-float-btn" type="button" aria-label="Open music player">🎧</button>
+    <button
+      id="musicToggleBtn"
+      class="music-float-btn"
+      type="button"
+      aria-label="Open music player"
+      aria-expanded="false"
+      aria-controls="musicPanel"
+    >
+      🎧
+    </button>
 
-    <div id="musicPanel" class="music-panel">
+    <div id="musicPanel" class="music-panel" aria-hidden="true">
       <div class="music-header">Focus Music</div>
 
       <div class="music-row">
