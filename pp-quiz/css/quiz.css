@@ -1943,30 +1943,29 @@ button {
    💡 HINT + IMAGE ACTIONS
 ========================= */
 
-.question-image-actions {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  right: 10px;
+.question-toolbar {
   display: flex;
   justify-content: space-between;
   gap: 10px;
+  margin-bottom: 12px;
+  position: sticky;
+  top: 0;
   z-index: 5;
-  pointer-events: none;
+  padding-bottom: 8px;
+  background: linear-gradient(180deg, rgba(10, 18, 32, 0.98), rgba(10, 18, 32, 0.78));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
-.question-image-actions .action-btn {
-  pointer-events: auto;
-  min-height: 36px;
+.question-toolbar .action-btn {
+  min-height: 38px;
   padding: 6px 12px;
   font-size: 13px;
   border-radius: 10px;
-  backdrop-filter: blur(10px);
-  background: rgba(20, 30, 50, 0.65);
+  background: rgba(20, 30, 50, 0.78);
   border: 1px solid rgba(124, 196, 255, 0.18);
 }
 
-/* Remove old zoom position */
 #zoomBtn {
   margin-top: 0 !important;
   align-self: auto !important;
@@ -1987,12 +1986,34 @@ button {
   animation: fadeSlideUp 0.25s ease;
 }
 
+.hint-box-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
 .hint-title {
   font-size: 16px;
   font-weight: 700;
   color: var(--accent-2);
-  margin-bottom: 12px;
   letter-spacing: 0.2px;
+}
+
+.hint-close-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.hint-close-btn:hover {
+  border-color: var(--accent);
+  transform: scale(1.05);
 }
 
 .hint-content {
@@ -2022,41 +2043,7 @@ button {
   line-height: 1.7;
   color: #dce7ff;
   word-break: break-word;
-}
-
-.hint-box-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.hint-box-head strong {
-  color: var(--accent-2);
-  font-size: 14px;
-}
-
-.hint-close-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text);
-  cursor: pointer;
-  transition: all 0.18s ease;
-}
-
-.hint-close-btn:hover {
-  border-color: var(--accent);
-  transform: scale(1.05);
-}
-
-#hintText {
-  margin: 0;
-  color: #dce7ff;
-  font-size: 14px;
-  line-height: 1.7;
+  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
 }
 
 /* =========================
@@ -2065,14 +2052,14 @@ button {
 
 @media (max-width: 768px) {
 
-  .question-image-actions {
-    top: 6px;
-    left: 6px;
-    right: 6px;
+  .question-toolbar {
+    gap: 8px;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
   }
 
-  .question-image-actions .action-btn {
-    min-height: 32px;
+  .question-toolbar .action-btn {
+    min-height: 34px;
     padding: 5px 10px;
     font-size: 12px;
     border-radius: 9px;
@@ -2085,7 +2072,6 @@ button {
 
   .hint-title {
     font-size: 15px;
-    margin-bottom: 10px;
   }
 
   .hint-content {
@@ -2101,9 +2087,43 @@ button {
     font-size: 11px;
   }
 
-  .hint-value,
-  #hintText {
+  .hint-value {
     font-size: 13px;
     line-height: 1.65;
+  }
+}
+
+@media (max-width: 768px) {
+  .quiz-status-card {
+    position: sticky;
+    top: 82px;
+    z-index: 20;
+  }
+
+  .quiz-controls-card {
+    position: sticky;
+    bottom: 8px;
+    z-index: 25;
+    box-shadow: 0 18px 34px rgba(0, 0, 0, 0.38);
+  }
+
+  .quiz-primary-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .quiz-primary-actions .action-btn {
+    min-width: 0;
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+
+  #submitQuizBtn {
+    grid-column: 1 / -1;
+  }
+
+  .quiz-main {
+    padding-bottom: 110px;
   }
 }
