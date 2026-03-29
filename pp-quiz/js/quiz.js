@@ -62,10 +62,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const resumeSummary = document.getElementById("resumeSummary");
   const resumeQuizBtn = document.getElementById("resumeQuizBtn");
   const discardResumeBtn = document.getElementById("discardResumeBtn");
-
-  const quizUpdateBanner = document.getElementById("quizUpdateBanner");
-  const updateAfterBtn = document.getElementById("updateAfterBtn");
-
+  
   const motivationBar = document.getElementById("motivationBar");
   const finalScoreEl = document.getElementById("finalScore");
   const resultHeadline = document.getElementById("resultHeadline");
@@ -1406,41 +1403,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (event.data && event.data.type === "SW_UPDATED") {
         pendingServiceWorkerUpdate = true;
 
-        if (quizUpdateBanner) {
-          quizUpdateBanner.classList.add("show");
-        }
+        showToast("New update available after quiz 🚀");
 
-        if (quizUpdateText) {
-          quizUpdateText.innerHTML =
-            `<strong>New version available 🚀</strong> Finish your quiz to update safely.`;
-        }
-
-        console.log("New update available. Waiting until quiz is finished or page is closed.");
+        console.log("Update will apply after quiz.");
       }
-    });
-
-    if (updateAfterBtn) {
-      updateAfterBtn.addEventListener("click", async () => {
-        if (!canApplyUpdateNow()) {
-          showToast("Finish quiz first ⚠️");
-          return;
-        }
-
-        try {
-          const registration = await navigator.serviceWorker.getRegistration();
-
-          if (registration && registration.waiting) {
-            registration.waiting.postMessage({ type: "SKIP_WAITING" });
-          }
-
-          setTimeout(() => {
-            window.location.reload();
-          }, 500);
-        } catch (error) {
-          console.log("Manual update warning:", error);
-        }
-      });
-    }
+    });  
   }
 
   const loaded = await loadQuizData();
