@@ -149,6 +149,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   let totalQuestions = 1;
   let answerKey = {};
   let explanations = {};
+  let hintData = {};
   let userAnswers = {};
   let reviewMode = false;
   let wrongQuestionsGlobal = [];
@@ -496,7 +497,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function getHintForCurrentQuestion() {
-    const questionNumber = getCurrentQuestionNumber();
+    const q = String(getCurrentQuestionNumber());
+
+    if (hintData && hintData[q]) {
+      const h = hintData[q];
+
+      return `Topic: ${makeNiceTitle(subtopic)}
+Formula: ${h.f || "-"}
+Focus: ${h.focus || "-"}
+First step: ${h.step || "-"}
+Common mistake: ${h.mistake || "-"}`;
+    }
+
     const topicName = (topic || "").toLowerCase();
     const subtopicName = (subtopic || "").toLowerCase();
 
@@ -504,70 +516,70 @@ document.addEventListener("DOMContentLoaded", async () => {
       return `Topic: Projectile Motion
 Formula: Resolve into horizontal and vertical motion
 Focus: Treat x and y directions separately
-First step: Write the vertical motion relation first
-Common mistake: Mixing horizontal and vertical equations`;
+First step: Write vertical motion first
+Common mistake: Mixing x and y`;
     }
 
     if (subtopicName.includes("circular")) {
       return `Topic: Circular Motion
 Formula: F = mv²/r
-Focus: Find what provides the centripetal force
-First step: Identify the inward force clearly
-Common mistake: Using the wrong radius or wrong force direction`;
+Focus: inward force
+First step: identify centripetal force
+Common mistake: wrong direction`;
     }
 
     if (subtopicName.includes("simple-harmonic")) {
       return `Topic: Simple Harmonic Motion
-Formula: Restoring force or acceleration toward equilibrium
-Focus: Check the direction relative to equilibrium
-First step: Identify the displacement from mean position
-Common mistake: Forgetting the restoring direction`;
+Formula: Restoring force and acceleration toward equilibrium
+Focus: Direction relative to equilibrium
+First step: Identify displacement from mean position
+Common mistake: Forgetting restoring direction`;
     }
 
     if (subtopicName.includes("friction")) {
       return `Topic: Friction
 Formula: F = μR
-Focus: Decide whether friction is static or kinetic
-First step: Check whether motion has started or is about to start
-Common mistake: Using the wrong type of friction`;
+Focus: Static or kinetic friction
+First step: Check whether motion has started
+Common mistake: Using wrong friction type`;
     }
 
     if (subtopicName.includes("newtons-laws")) {
       return `Topic: Newton's Laws
 Formula: F = ma
-Focus: Draw the force diagram first
-First step: Mark every force with correct direction
-Common mistake: Missing forces or using the wrong sign`;
+Focus: Free body diagram
+First step: Draw every force with direction
+Common mistake: Missing a force or wrong sign`;
     }
 
     if (subtopicName.includes("work-power-energy")) {
       return `Topic: Work, Power and Energy
 Formula: Energy conservation or P = W/t
-Focus: Decide which relation fits best
+Focus: Pick the best relation
 First step: Identify initial and final states
-Common mistake: Ignoring energy loss or wrong units`;
+Common mistake: Ignoring energy loss`;
     }
 
     if (subtopicName.includes("ohms-law")) {
       return `Topic: Ohm's Law
 Formula: V = IR
-Focus: Identify the two known quantities
-First step: Rearrange the formula carefully
-Common mistake: Mixing current, voltage, and resistance`;
+Focus: Identify known quantities
+First step: Rearrange the formula correctly
+Common mistake: Mixing voltage, current, and resistance`;
     }
 
     if (subtopicName.includes("kirchhoffs-law")) {
       return `Topic: Kirchhoff's Laws
-Formula: Junction rule and loop rule
-Focus: Check whether this is about current or potential difference
-First step: Choose the loop or junction carefully
-Common mistake: Sign errors in loops`;
+Formula: Loop rule and junction rule
+Focus: Current balance or voltage loop
+First step: Choose the correct loop or node
+Common mistake: Sign errors`;
     }
 
     if (subtopicName.includes("potentiometer")) {
       return `Topic: Potentiometer
-Formula: Potential gradient and balance condition
-Focus: Think about the null point idea
+Formula: Balance condition and potential gradient
+Focus: Null point idea
 First step: Write the balance relation
 Common mistake: Forgetting proportionality along the wire`;
     }
@@ -575,104 +587,104 @@ Common mistake: Forgetting proportionality along the wire`;
     if (subtopicName.includes("capacit")) {
       return `Topic: Capacitance
 Formula: Q = CV
-Focus: Check whether capacitors are in series or parallel
+Focus: Series or parallel combination
 First step: Find equivalent capacitance first
-Common mistake: Using resistor combination rules by accident`;
+Common mistake: Using wrong combination rule`;
     }
 
     if (subtopicName.includes("electric-field")) {
       return `Topic: Electric Field
 Formula: Field direction and magnitude relations
-Focus: Think about the sign of the charge
-First step: Draw the field direction
-Common mistake: Using force direction instead of field direction`;
+Focus: Sign of charge
+First step: Draw field direction
+Common mistake: Mixing field direction with force direction`;
     }
 
     if (subtopicName.includes("magnetic")) {
       return `Topic: Magnetic Field
 Formula: F = BIL or F = qvB
-Focus: Angle and direction matter
-First step: Apply the correct hand rule
-Common mistake: Ignoring the angle between vectors`;
+Focus: Angle and direction
+First step: Apply hand rule
+Common mistake: Ignoring vector angle`;
     }
 
     if (subtopicName.includes("thermodynamics")) {
       return `Topic: Thermodynamics
-Formula: Choose the correct gas law or thermal relation
-Focus: Check what quantity is constant
-First step: Identify changing and constant variables
-Common mistake: Using the wrong gas-law condition`;
+Formula: Correct gas or thermal relation
+Focus: Check what stays constant
+First step: Identify changing variables
+Common mistake: Using wrong condition`;
     }
 
     if (subtopicName.includes("calorimetry")) {
       return `Topic: Calorimetry
 Formula: Q = mcΔT
 Focus: Heat lost equals heat gained
-First step: Write an energy balance equation
-Common mistake: Missing the sign or wrong temperature change`;
+First step: Write energy balance
+Common mistake: Wrong sign or wrong ΔT`;
     }
 
     if (subtopicName.includes("refraction")) {
       return `Topic: Refraction
 Formula: Snell's law or refractive index relation
 Focus: Identify the media first
-First step: Write the known refractive relation
-Common mistake: Mixing angle with the surface instead of the normal`;
+First step: Write the correct refraction relation
+Common mistake: Using angle with surface instead of normal`;
     }
 
     if (subtopicName.includes("wave-properties")) {
       return `Topic: Wave Properties
 Formula: v = fλ
-Focus: Check which quantity changes and which stays constant
+Focus: What changes and what stays constant
 First step: Write the wave equation
-Common mistake: Confusing frequency with wavelength`;
+Common mistake: Confusing frequency and wavelength`;
     }
 
     if (subtopicName.includes("radioactivity")) {
       return `Topic: Radioactivity
 Formula: Decay law or half-life relation
-Focus: Check what is being asked about decay
-First step: Identify the number of half-lives or decay relation
-Common mistake: Mixing remaining amount with decayed amount`;
+Focus: Remaining amount or decayed amount
+First step: Count the number of half-lives
+Common mistake: Mixing remaining and decayed values`;
     }
 
     if (topicName.includes("mechanics")) {
       return `Topic: Mechanics
-Formula: Use the main force or motion relation
-Focus: Draw the force or motion diagram first
-First step: List the known quantities clearly
-Common mistake: Jumping into calculation before identifying the model`;
+Formula: Use the correct force or motion relation
+Focus: Draw the diagram first
+First step: Write known values clearly
+Common mistake: Rushing before identifying the model`;
     }
 
     if (topicName.includes("current-electricity") || topicName.includes("electric")) {
       return `Topic: Electricity
-Formula: Use V = IR, Q = It, or P = VI as needed
-Focus: Match the correct formula to the known values
-First step: Write all given electrical quantities
-Common mistake: Using a correct formula for the wrong quantity`;
+Formula: Use V = IR, Q = It, or P = VI
+Focus: Match formula to known values
+First step: List given electrical quantities
+Common mistake: Using a correct formula for the wrong target`;
     }
 
     if (topicName.includes("oscillations-waves") || topicName.includes("waves")) {
       return `Topic: Waves
-Formula: v = fλ or the relevant oscillation relation
-Focus: Decide whether this is about speed, frequency, phase, or wavelength
-First step: Identify the exact wave quantity asked
+Formula: v = fλ or the correct oscillation relation
+Focus: Speed, frequency, phase, or wavelength
+First step: Identify exactly what is asked
 Common mistake: Assuming all wave quantities change together`;
     }
 
     if (topicName.includes("thermal-physics") || topicName.includes("thermal")) {
       return `Topic: Thermal Physics
 Formula: Use the heat or gas relation that matches the condition
-Focus: Check what is constant
-First step: Identify the thermal process clearly
-Common mistake: Ignoring the condition stated in the question`;
+Focus: What stays constant
+First step: Identify the thermal process
+Common mistake: Ignoring the stated condition`;
     }
 
     return `Topic: Physics
-Formula: Identify the key relation
-Focus: Use known values and the diagram carefully
-First step: Write the given data before calculating
-Common mistake: Starting the calculation too early`;
+Formula: identify correct relation
+Focus: read question carefully
+First step: write known values
+Common mistake: rushing calculation`;
   }
 
   function updateMotivationBar() {
@@ -723,6 +735,22 @@ Common mistake: Starting the calculation too early`;
       quizTitle.textContent = "Quiz Not Found";
       quizSubtitle.textContent = "Could not load quiz data.";
       return false;
+    }
+
+    try {
+      const hintPath = `/DN_Physics/pp-quiz/data/${topic}/${subtopic}/${setName}-hints.json`;
+      const hintRes = await fetch(hintPath);
+
+      if (hintRes.ok) {
+        hintData = await hintRes.json();
+        console.log("Hints loaded ✅");
+      } else {
+        hintData = {};
+        console.log("No hint file found (fallback active)");
+      }
+    } catch (e) {
+      hintData = {};
+      console.log("Hint loading failed, using fallback");
     }
 
     return true;
