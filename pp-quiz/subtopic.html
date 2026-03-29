@@ -8,7 +8,7 @@
     name="description"
     content="Open quiz sets for a selected A/L Physics subtopic and continue focused past paper MCQ practice."
   />
-  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=22" />
+  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=25" />
 </head>
 <body>
 
@@ -24,20 +24,20 @@
     <div class="container">
 
       <!-- HERO -->
-      <section class="topic-card fade-slide-up" style="margin-bottom: 20px; min-height: auto;">
-        <div class="topic-card-top">
+      <section class="topic-card quiz-home-hero fade-slide-up" aria-label="Subtopic introduction">
+        <div class="topic-card-top quiz-home-hero-top">
           <div class="topic-body">
             <div class="topic-pill">PP Quiz • Set Selection</div>
-            <h2 id="subtopicHeroTitle" class="topic-title" style="font-size: 34px; margin-top: 10px;">Loading Subtopic...</h2>
-            <p id="subtopicHeroText" class="topic-desc" style="max-width: 760px;">
+            <h2 id="subtopicHeroTitle" class="topic-title quiz-home-title">Loading Subtopic...</h2>
+            <p id="subtopicHeroText" class="topic-desc quiz-home-desc">
               Choose a set and start your focused practice instantly.
             </p>
           </div>
 
-          <div class="topic-icon" aria-hidden="true">🧠</div>
+          <div class="topic-icon quiz-home-icon" aria-hidden="true">🧠</div>
         </div>
 
-        <div class="topic-stats">
+        <div class="topic-stats quiz-home-stats" aria-label="Set features">
           <span class="stat-pill">Set-wise Practice</span>
           <span class="stat-pill">Retry Wrong Answers</span>
           <span class="stat-pill">Progress Tracking</span>
@@ -45,11 +45,11 @@
       </section>
 
       <!-- SECTION HEAD -->
-      <section class="fade-slide-up" style="margin-bottom: 16px;">
-        <div style="display: flex; align-items: end; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+      <section class="quiz-home-section-head fade-slide-up" aria-label="Set selection intro">
+        <div class="quiz-home-section-row">
           <div>
-            <h3 style="margin: 0 0 6px; font-size: 26px;">Available Quiz Sets</h3>
-            <p style="margin: 0; color: var(--muted);">
+            <h3 class="quiz-home-section-title">Available Quiz Sets</h3>
+            <p class="quiz-home-section-subtitle">
               Tap a set to begin and improve your accuracy.
             </p>
           </div>
@@ -57,10 +57,10 @@
       </section>
 
       <!-- QUIZ SETS GRID -->
-      <section id="quizSetsGrid" class="topics-grid fade-in" aria-live="polite">
+      <section id="quizSetsGrid" class="topics-grid fade-in" aria-live="polite" aria-label="Available quiz sets">
 
         <!-- Skeleton loading -->
-        <article class="skeleton-card">
+        <article class="skeleton-card" aria-hidden="true">
           <div class="skeleton-avatar"></div>
           <div class="skeleton-line lg"></div>
           <div class="skeleton-line md"></div>
@@ -68,7 +68,7 @@
           <div class="skeleton-box"></div>
         </article>
 
-        <article class="skeleton-card">
+        <article class="skeleton-card" aria-hidden="true">
           <div class="skeleton-avatar"></div>
           <div class="skeleton-line lg"></div>
           <div class="skeleton-line md"></div>
@@ -76,7 +76,7 @@
           <div class="skeleton-box"></div>
         </article>
 
-        <article class="skeleton-card">
+        <article class="skeleton-card" aria-hidden="true">
           <div class="skeleton-avatar"></div>
           <div class="skeleton-line lg"></div>
           <div class="skeleton-line md"></div>
@@ -84,7 +84,7 @@
           <div class="skeleton-box"></div>
         </article>
 
-        <article class="skeleton-card">
+        <article class="skeleton-card" aria-hidden="true">
           <div class="skeleton-avatar"></div>
           <div class="skeleton-line lg"></div>
           <div class="skeleton-line md"></div>
@@ -101,9 +101,18 @@
   <audio id="bgMusic" loop></audio>
 
   <div id="musicPlayerFloating" class="music-floating">
-    <button id="musicToggleBtn" class="music-float-btn" type="button" aria-label="Open music player">🎧</button>
+    <button
+      id="musicToggleBtn"
+      class="music-float-btn"
+      type="button"
+      aria-label="Open music player"
+      aria-expanded="false"
+      aria-controls="musicPanel"
+    >
+      🎧
+    </button>
 
-    <div id="musicPanel" class="music-panel">
+    <div id="musicPanel" class="music-panel" aria-hidden="true">
       <div class="music-header">Focus Music</div>
 
       <div class="music-row">
