@@ -48,6 +48,7 @@ body {
   color: var(--text);
   line-height: 1.6;
   min-height: 100vh;
+  overscroll-behavior-y: none;
 }
 
 a {
@@ -123,6 +124,7 @@ button {
 /* MAIN */
 .quiz-main {
   padding: 28px 0 40px;
+  animation: fadeIn 0.3s ease;
 }
 
 /* SHARED PREMIUM CARD STYLE */
@@ -278,6 +280,55 @@ button {
   border: 1px solid rgba(255, 107, 107, 0.18);
   font-size: 12px;
   font-weight: 700;
+}
+
+/* HOME PAGE HELPERS */
+.quiz-home-hero {
+  margin-bottom: 20px;
+  min-height: auto;
+}
+
+.quiz-home-hero-top {
+  align-items: center;
+}
+
+.quiz-home-title {
+  font-size: 34px;
+  margin-top: 10px;
+}
+
+.quiz-home-desc {
+  max-width: 760px;
+}
+
+.quiz-home-icon {
+  flex-shrink: 0;
+}
+
+.quiz-home-stats {
+  margin-top: 18px;
+}
+
+.quiz-home-section-head {
+  margin-bottom: 16px;
+}
+
+.quiz-home-section-row {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.quiz-home-section-title {
+  margin: 0 0 6px;
+  font-size: 26px;
+}
+
+.quiz-home-section-subtitle {
+  margin: 0;
+  color: var(--muted);
 }
 
 /* EMPTY / LOADING STATES */
@@ -540,7 +591,7 @@ button {
   border-radius: 999px;
   background: linear-gradient(90deg, var(--accent), var(--accent-2));
   box-shadow: 0 0 14px rgba(78, 161, 255, 0.32);
-  transition: width 0.28s ease;
+  transition: width 0.35s ease;
 }
 
 .progress-text {
@@ -641,6 +692,7 @@ button {
   gap: 14px;
   justify-content: center;
   margin-top: 22px;
+  padding: 4px 0;
 }
 
 .answer-btn {
@@ -654,13 +706,14 @@ button {
   font-weight: 700;
   cursor: pointer;
   transition:
-    transform 0.18s ease,
-    border-color 0.18s ease,
-    background 0.18s ease,
-    box-shadow 0.18s ease,
-    color 0.18s ease,
-    opacity 0.18s ease;
+    transform 0.12s ease,
+    border-color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease,
+    color 0.15s ease,
+    opacity 0.15s ease;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+  will-change: transform;
 }
 
 .answer-btn:hover {
@@ -675,6 +728,7 @@ button {
   border-color: #8fd0ff;
   box-shadow: 0 0 0 4px rgba(78, 161, 255, 0.18), 0 12px 22px rgba(0, 0, 0, 0.28);
   transform: scale(1.06);
+  animation: popIn 0.2s ease;
 }
 
 .answer-btn.correct-answer {
@@ -777,7 +831,12 @@ button {
   color: var(--text);
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+  transition:
+    transform 0.12s ease,
+    border-color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+  will-change: transform;
 }
 
 .palette-btn:hover {
@@ -820,6 +879,7 @@ button {
   margin-bottom: 20px;
   position: relative;
   overflow: hidden;
+  padding: 20px;
 }
 
 .result-card::before {
@@ -1067,13 +1127,18 @@ button {
   background: linear-gradient(180deg, rgba(17, 26, 43, 0.98), rgba(8, 14, 26, 0.98));
   box-shadow: 0 20px 46px rgba(0, 0, 0, 0.52);
   display: none;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transform: translateY(10px);
+  opacity: 0;
+  transition: all 0.2s ease;
 }
 
 .music-panel.show {
   display: block;
   animation: fadeSlideUp 0.22s ease;
+  transform: translateY(0);
+  opacity: 1;
 }
 
 .music-header {
@@ -1217,10 +1282,7 @@ button {
   }
 }
 
-/* =========================
-   QUIZ LAYOUT UPGRADE
-   ========================= */
-
+/* QUIZ LAYOUT */
 .quiz-shell {
   display: grid;
   gap: 20px;
@@ -1234,8 +1296,8 @@ button {
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .quiz-status-card {
@@ -1324,6 +1386,8 @@ button {
 .quiz-main-card {
   padding: 20px;
   border-radius: 18px;
+  animation: fadeSlideUp 0.25s ease;
+  transition: transform 0.2s ease;
 }
 
 .quiz-main-image {
@@ -1455,10 +1519,6 @@ button {
   }
 }
 
-/* ========================================
-   FINAL MOBILE FIX
-   ======================================== */
-
 @media (max-width: 768px) {
   .container {
     width: calc(100% - 18px);
@@ -1522,7 +1582,14 @@ button {
     margin-bottom: 10px;
   }
 
-  /* STATUS */
+  .quiz-home-title {
+    font-size: 28px;
+  }
+
+  .quiz-home-section-title {
+    font-size: 22px;
+  }
+
   .quiz-status-card {
     padding: 10px;
   }
@@ -1561,7 +1628,6 @@ button {
     font-size: 14px;
   }
 
-  /* QUESTION FIRST */
   .quiz-main-card {
     padding: 10px;
   }
@@ -1583,15 +1649,14 @@ button {
     border-radius: 10px;
   }
 
-  /* ANSWERS */
   .answer-grid {
     gap: 10px;
     margin-top: 12px;
   }
 
   .answer-btn {
-    width: 48px;
-    height: 48px;
+    width: 52px;
+    height: 52px;
     font-size: 16px;
     border-radius: 12px;
   }
@@ -1608,7 +1673,6 @@ button {
     font-size: 13px;
   }
 
-  /* CONTROLS */
   .quiz-controls-card,
   .quiz-nav-card {
     padding: 12px;
@@ -1645,7 +1709,7 @@ button {
   .tool-row .action-btn {
     width: 100%;
     min-width: unset;
-    min-height: 40px;
+    min-height: 44px;
     font-size: 14px;
   }
 
@@ -1661,19 +1725,17 @@ button {
     padding: 9px 12px;
   }
 
-  /* PALETTE */
   .question-palette {
     grid-template-columns: repeat(auto-fill, minmax(34px, 1fr));
     gap: 6px;
   }
 
   .palette-btn {
-    min-height: 34px;
+    min-height: 40px;
     font-size: 12px;
     border-radius: 10px;
   }
 
-  /* RESULT */
   .result-hero {
     grid-template-columns: 1fr;
     text-align: center;
@@ -1711,7 +1773,6 @@ button {
     gap: 10px;
   }
 
-  /* MUSIC */
   .music-floating {
     right: 10px;
     bottom: 10px;
@@ -1811,90 +1872,69 @@ button {
   .score-inner strong {
     font-size: 17px;
   }
+}
 
-  /* ========================================
-     MOBILE TOUCH PERFORMANCE FIX (IMPORTANT)
-     ======================================== */
+/* TOUCH + PERFORMANCE */
+button,
+.action-btn,
+.answer-btn,
+.palette-btn,
+.music-float-btn {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
 
-  /* 1. Remove tap delay + improve responsiveness */
-  button,
-  .action-btn,
-  .answer-btn,
-  .palette-btn,
-  .music-float-btn {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
+.action-btn:active,
+.answer-btn:active,
+.palette-btn:active,
+.music-float-btn:active {
+  transform: scale(0.93);
+  transition: transform 0.05s ease;
+}
+
+.action-btn,
+.answer-btn,
+.palette-btn {
+  will-change: transform;
+  transition:
+    transform 0.12s ease,
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+html,
+body {
+  touch-action: manipulation;
+}
+
+* {
+  -webkit-overflow-scrolling: touch;
+}
+
+button {
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.action-btn:active,
+.answer-btn:active {
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
+
+.topic-card.card-touch-active {
+  transform: scale(0.985);
+  transition: transform 0.08s ease;
+}
+
+/* DESKTOP HOVER ONLY */
+@media (hover: hover) {
+  .answer-btn:hover {
+    transform: translateY(-2px) scale(1.05);
   }
 
-  /* 2. Strong active feedback (this is KEY for smooth feel) */
-  .action-btn:active,
-  .answer-btn:active,
-  .palette-btn:active,
-  .music-float-btn:active {
-    transform: scale(0.95);
-    transition: transform 0.05s ease;
+  .action-btn:hover {
+    transform: translateY(-2px);
   }
-
-  /* 3. Faster button response (reduce lag feel) */
-  .action-btn,
-  .answer-btn,
-  .palette-btn {
-    transition:
-      transform 0.1s ease,
-      background 0.15s ease,
-      border-color 0.15s ease,
-      box-shadow 0.15s ease;
-  }
-
-  /* 4. Improve tap size for mobile (critical UX) */
-  @media (max-width: 768px) {
-    .action-btn {
-      min-height: 44px; /* Apple/Google standard */
-    }
-
-    .answer-btn {
-      width: 52px;
-      height: 52px;
-    }
-
-    .palette-btn {
-      min-height: 40px;
-    }
-  }
-
-  /* 5. Prevent accidental double-tap zoom */
-  html, body {
-    touch-action: manipulation;
-  }
-
-  /* 6. Smooth scroll behavior for interactions */
-  * {
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* 7. Remove long press menu (feels more app-like) */
-  button {
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
-  }
-
-  /* 8. Instant visual press feedback (premium feel) */
-  .action-btn:active,
-  .answer-btn:active {
-    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-  }
-
-  /* 9. Improve grid tap spacing */
-  .answer-grid {
-    padding: 4px 0;
-  }
-
-  /* 10. Optional: smoother question transitions */
-  .quiz-main-card {
-    transition: transform 0.2s ease;
-
-  .topic-card.card-touch-active {
-    transform: scale(0.985);
-    transition: transform 0.08s ease;
 }
