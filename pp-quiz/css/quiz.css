@@ -1938,3 +1938,115 @@ button {
     transform: translateY(-2px);
   }
 }
+
+/* =========================
+   💡 HINT + IMAGE ACTIONS
+========================= */
+
+.question-image-actions {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.question-image-actions .action-btn {
+  pointer-events: auto;
+  min-height: 36px;
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  background: rgba(20, 30, 50, 0.65);
+  border: 1px solid rgba(124, 196, 255, 0.18);
+}
+
+/* Remove old zoom position */
+#zoomBtn {
+  margin-top: 0 !important;
+  align-self: auto !important;
+}
+
+/* =========================
+   💡 HINT BOX
+========================= */
+
+.hint-box {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(124, 196, 255, 0.18);
+  background:
+    linear-gradient(180deg, rgba(78, 161, 255, 0.08), rgba(78, 161, 255, 0.03));
+  box-shadow: 0 10px 26px rgba(0,0,0,0.25);
+  animation: fadeSlideUp 0.25s ease;
+}
+
+.hint-box-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.hint-box-head strong {
+  color: var(--accent-2);
+  font-size: 14px;
+}
+
+.hint-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.hint-close-btn:hover {
+  border-color: var(--accent);
+  transform: scale(1.05);
+}
+
+#hintText {
+  margin: 0;
+  color: #dce7ff;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* =========================
+   📱 MOBILE OPTIMIZATION
+========================= */
+
+@media (max-width: 768px) {
+
+  .question-image-actions {
+    top: 6px;
+    left: 6px;
+    right: 6px;
+  }
+
+  .question-image-actions .action-btn {
+    min-height: 32px;
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 9px;
+  }
+
+  .hint-box {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  #hintText {
+    font-size: 13px;
+  }
+}
