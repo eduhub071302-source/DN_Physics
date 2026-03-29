@@ -1,80 +1,80 @@
 {
   "1": {
-    "f": "$v = \sqrt{\frac{\gamma RT}{M}}$",
-    "focus": "The difference between a variable ($T, M$) and its square root ($\sqrt{T}, \sqrt{M}$).",
-    "step": "Check if $v$ is proportional to the variable itself or the square root of the variable.$v \propto \sqrt{T}$$v \propto \frac{1}{\sqrt{M}}$$v \propto \sqrt{\gamma}$",
-    "mistake": "$v$ is proportional to the square root of temperature/molar mass, so saying it is "proportional to temperature" is mathematically false."
+    "f": "v = sqrt(gamma*R*T/M)",
+    "focus": "Speed depends on square-root relationships, not direct proportionality.",
+    "step": "Check whether v is proportional to T, sqrt(T), sqrt(gamma), or 1/sqrt(M).",
+    "mistake": "Saying v is directly proportional to temperature or molar mass."
   },
   "2": {
-    "f": "$v = \sqrt{\frac{\gamma P}{\rho}} = \sqrt{\frac{\gamma RT}{M}}$",
-    "focus": "The fact that speed ($v$) depends only on temperature for a specific gas.",
-    "step": "Constant $T$: $v$ remains constant (regardless of pressure/altitude).",
-    "mistake": "Thinking pressure alone changes the speed of sound. If pressure decreases but temperature stays the same, the density decreases proportionally, leaving the speed unchanged."
+    "f": "v = sqrt(gamma*P/rho) = sqrt(gamma*R*T/M)",
+    "focus": "For a given gas, speed depends mainly on temperature.",
+    "step": "If temperature stays constant, test whether changing pressure alone changes v.",
+    "mistake": "Thinking pressure alone changes sound speed when temperature is fixed."
   },
   "3": {
-    "f": "No specific equation",
-    "focus": "Pitch: Depends on frequency.Loudness: Depends on intensity/amplitude.",
-    "step": "No specific step",
-    "mistake": "Confusing Quality with Pitch."
+    "f": "No single formula",
+    "focus": "Pitch depends on frequency; loudness depends on intensity or amplitude.",
+    "step": "Identify whether the question is testing pitch, loudness, or quality.",
+    "mistake": "Confusing quality with pitch."
   },
   "4": {
-    "f": "$u_{mix} = \sqrt{\frac{\gamma P}{\rho_{mix}}}$  where $\rho_{mix} = \frac{\text{total mass}}{\text{total volume}} = \frac{m_A + m_B}{V_A + V_B}$",
-    "focus": "The relationship between speed and density. Since pressure ($P$) and $\gamma$ (diatomic) are constant, $u^2 = \frac{\gamma P}{\rho} \implies \rho = \frac{\gamma P}{u^2}$",
-    "step": "Express the total mass of the mixture using individual densities:$m_A = \rho_A V_A$ and $m_B = \rho_B V_B$.",
-    "mistake": "Trying to use a simple weighted average of speeds (like option 3)."
+    "f": "u_mix = sqrt(gamma*P/rho_mix)",
+    "focus": "At fixed pressure, speed depends on mixture density.",
+    "step": "Find mixture density from total mass divided by total volume.",
+    "mistake": "Using a simple average of speeds instead of working through density."
   },
   "5": {
-    "f": "$v \propto \sqrt{T}$",
-    "focus": "The fact that temperature decreases as you move upward.",
-    "step": "Visualize the distance a wave travels in a fixed time.",
-    "mistake": "Picking option (2)"
+    "f": "v is proportional to sqrt(T)",
+    "focus": "Temperature changes with height, so sound speed changes too.",
+    "step": "Think about what happens to temperature as you go upward.",
+    "mistake": "Treating speed as constant with altitude without checking temperature."
   },
   "6": {
-    "f": "For air: $v = \sqrt{\frac{\gamma RT}{M}}$, For solids: $v = \sqrt{\frac{Y}{\rho}}$ (where $Y$ is Young's Modulus)",
-    "focus": "Medium density vs. Elasticity: Sound travels much faster in solids than in gases",
-    "step": "Check the validity of each statement",
-    "mistake": "Thinking that higher frequency sound travels "faster" (C)."
+    "f": "In gases: v = sqrt(gamma*R*T/M); in solids: v = sqrt(Y/rho)",
+    "focus": "Sound speed depends on elasticity and density of the medium.",
+    "step": "Compare different media by considering both rigidity and density.",
+    "mistake": "Thinking higher-frequency sound travels faster in the same medium."
   },
   "7": {
-    "f": "$v = \sqrt{\frac{\gamma RT}{M}}$",
-    "focus": "he variables in the formula. For a specific gas (constant $\gamma, R, M$),",
-    "step": "Examine how each action affects $T$",
-    "mistake": "Thinking that adding more gas (increasing pressure) automatically increases the speed."
+    "f": "v = sqrt(gamma*R*T/M)",
+    "focus": "For a specific gas, only temperature changes v directly.",
+    "step": "Check which action changes temperature, not just pressure or amount of gas.",
+    "mistake": "Thinking adding more gas automatically increases sound speed."
   },
   "8": {
-    "f": "$v = \sqrt{\frac{\gamma RT}{M}} = \sqrt{\frac{\gamma P}{\rho}}$",
-    "focus": "The "constant temperature" condition.",
-    "step": "Evaluate each statement",
-    "mistake": "Thinking that higher density always means lower speed (C)."
+    "f": "v = sqrt(gamma*R*T/M) = sqrt(gamma*P/rho)",
+    "focus": "Constant temperature is the key condition.",
+    "step": "Test each statement assuming T stays fixed.",
+    "mistake": "Thinking higher density always means lower speed without checking the full relation."
   },
   "9": {
-    "f": "$v = \sqrt{\frac{\gamma RT}{M}}$",
-    "focus": "The medium properties vs. the wave properties.",
-    "step": "Evaluate the three factors",
-    "mistake": "Thinking that higher frequency sound waves travel faster."
+    "f": "v = sqrt(gamma*R*T/M)",
+    "focus": "Speed is determined by the medium, not by wave frequency.",
+    "step": "Separate medium properties from wave properties.",
+    "mistake": "Assuming higher frequency means higher sound speed."
   },
   "10": {
-    "f": "$v \propto \sqrt{T}$  (where $T$ must be in Kelvin)",
-    "focus": "The relationship between velocity and absolute temperature.",
-    "step": "Convert the initial temperature to Kelvin:$T_1 = 27 + 273 = 300\text{ K}$",
-    "mistake": "Not converting to Kelvin: Calculating with $27^\circ\text{C}$ directly (leads to $108^\circ\text{C}$)."
+    "f": "v is proportional to sqrt(T in kelvin)",
+    "focus": "Temperature must be converted to kelvin before using the ratio.",
+    "step": "Convert the initial Celsius temperature to kelvin first.",
+    "mistake": "Using Celsius directly in the square-root relationship."
   },
   "11": {
-    "f": "$v = \sqrt{\frac{E}{\rho}}$, (Where $E$ is the Elastic Modulus—Young's modulus for solids or Bulk modulus for fluids—and $\rho$ is density).",
-    "focus": "The phase of the medium. Sound travels fastest in solids, then liquids, and slowest in gases.",
-    "step": "Categorize the choices",
-    "mistake": "Picking Steel because it is "denser.""
+    "f": "v = sqrt(E/rho)",
+    "focus": "Sound generally travels fastest in solids, then liquids, then gases.",
+    "step": "Identify the phase of each medium before comparing.",
+    "mistake": "Choosing only by density and ignoring elasticity."
   },
   "12": {
-    "f": "$v \propto \sqrt{T}$ (where $T$ must be in Kelvin)",
-    "focus": "The relationship between velocity and absolute temperature.",
-    "step": "Convert the initial temperature to Kelvin:$T_1 = 0 + 273 = 273\text{ K}$",
-    "mistake": "Not converting back to Celsius: Selecting option (5) directly from the Kelvin result."
+    "f": "v is proportional to sqrt(T in kelvin)",
+    "focus": "Convert to kelvin, apply the ratio, then convert back if needed.",
+    "step": "Start with the temperature in kelvin, not Celsius.",
+    "mistake": "Forgetting to convert the final result back to Celsius."
   },
   "13": {
-    "f": "No specific equation",
-    "focus": "Pitch: Linked to frequency.Loudness: Linked to amplitude/intensity.",
-    "step": "Identify what makes two different instruments",
-    "mistake": "Changing frequency only changes how high or low the note is (pitch)."
+    "f": "No single formula",
+    "focus": "Different instruments differ mainly by quality or timbre.",
+    "step": "Ask what distinguishes two sounds with the same pitch and loudness.",
+    "mistake": "Thinking a change in frequency alone explains instrument difference."
   }
 }
