@@ -272,18 +272,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (mastery === "Mastered") {
-      return `Excellent work. Keep sharpening this area with revision attempts.`;
+      return "Excellent work. Keep sharpening this area with revision attempts.";
     }
 
     if (mastery === "Strong") {
-      return `You already have strong progress here. Push toward full mastery.`;
+      return "You already have strong progress here. Push toward full mastery.";
     }
 
     if (mastery === "Improving") {
-      return `Solid foundation built. More focused practice can lift accuracy fast.`;
+      return "Solid foundation built. More focused practice can lift accuracy fast.";
     }
 
-    return `Build confidence step by step with repeated practice on this subtopic.`;
+    return "Build confidence step by step with repeated practice on this subtopic.";
   }
 
   function attachSmoothCardTouch(card) {
@@ -343,8 +343,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function createSubtopicCard(topicSlugValue, subtopic, index) {
     const summary = calculateSubtopicSummary(topicSlugValue, subtopic.slug);
     const badge = summary.bestFull !== null ? getBadgeData(summary.bestFull) : null;
-    const card = document.createElement("a");
 
+    const card = document.createElement("a");
     card.className = "topic-card fade-slide-up";
     card.href = `/DN_Physics/pp-quiz/subtopic.html?topic=${encodeURIComponent(topicSlugValue)}&subtopic=${encodeURIComponent(subtopic.slug)}`;
     card.setAttribute("aria-label", `Open ${subtopic.title}`);
@@ -375,8 +375,8 @@ document.addEventListener("DOMContentLoaded", () => {
         ${badge ? `<span class="stat-pill ${badge.className}">${badge.label}</span>` : ``}
       </div>
 
-      <div style="margin-top: 14px;">
-        <div style="display:flex; justify-content:space-between; gap:12px; margin-bottom:8px; font-size:13px; color: var(--muted);">
+      <div class="subtopic-progress-block">
+        <div class="subtopic-progress-head">
           <span>Progress</span>
           <span>${summary.progress.toFixed(1)}%</span>
         </div>
@@ -385,7 +385,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </div>
 
-      <div class="topic-stats" style="margin-top: 14px;">
+      <div class="topic-stats subtopic-meta-stats">
         <span class="stat-pill">Last: ${escapeHtml(summary.lastPlayed)}</span>
         <span class="stat-pill">Streak: ${summary.streak} day${summary.streak === 1 ? "" : "s"}</span>
       </div>
@@ -395,6 +395,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     attachSmoothCardTouch(card);
     return card;
+  }
+
+  function renderEmptyState(title, message) {
+    subtopicsGrid.innerHTML = `
+      <div class="empty-state fade-in">
+        <h3>${escapeHtml(title)}</h3>
+        <p>${escapeHtml(message)}</p>
+      </div>
+    `;
   }
 
   if (!topicTitle || !subtopicsGrid) {
@@ -410,12 +419,7 @@ document.addEventListener("DOMContentLoaded", () => {
       topicHeroText.textContent = "The topic you selected is invalid or missing.";
     }
 
-    subtopicsGrid.innerHTML = `
-      <div class="empty-state fade-in">
-        <h3>Invalid topic selected</h3>
-        <p>Please go back and choose a valid topic.</p>
-      </div>
-    `;
+    renderEmptyState("Invalid topic selected", "Please go back and choose a valid topic.");
     return;
   }
 
@@ -434,12 +438,7 @@ document.addEventListener("DOMContentLoaded", () => {
   subtopicsGrid.innerHTML = "";
 
   if (!Array.isArray(currentTopic.subtopics) || currentTopic.subtopics.length === 0) {
-    subtopicsGrid.innerHTML = `
-      <div class="empty-state fade-in">
-        <h3>No subtopics found yet</h3>
-        <p>Add subtopics for this topic to start building quiz sets.</p>
-      </div>
-    `;
+    renderEmptyState("No subtopics found yet", "Add subtopics for this topic to start building quiz sets.");
     return;
   }
 
