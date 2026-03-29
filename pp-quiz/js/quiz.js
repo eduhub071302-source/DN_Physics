@@ -137,6 +137,38 @@ document.addEventListener("DOMContentLoaded", async () => {
   let pendingServiceWorkerUpdate = false;
   let isQuizActive = true;
 
+  let renderScheduled = false;
+  let saveTimeout = null;
+
+  function showToast(message = "Done") {
+    let toast = document.getElementById("globalToast");
+
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.id = "globalToast";
+      toast.className = "toast";
+      document.body.appendChild(toast);
+    }
+
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    setTimeout(() => {
+      toast.classList.remove("show");
+    }, 2200);
+  }
+
+  function scheduleRender(fn) {
+    if (renderScheduled) return;
+
+    renderScheduled = true;
+
+    requestAnimationFrame(() => {
+      fn();
+      renderScheduled = false;
+    });
+  }
+
   function isMobileView() {
     return window.innerWidth <= 768;
   }
@@ -324,6 +356,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     saveSessionStore(store);
   }
 
+  function smartSaveSession() {
+    if (saveTimeout) clearTimeout(saveTimeout);
+
+    saveTimeout = setTimeout(() => {
+      saveCurrentSession();
+    }, 800);
+  }
+
   function clearSavedSession() {
     const store = getSessionStore();
     const sessionId = getQuizProgressId(topic, subtopic, setName);
@@ -333,7 +373,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function showJumpWrap(show) {
     if (!jumpWrap) return;
-    jumpWrap.style.display = show ? "flex" : "none";
     jumpWrap.classList.toggle("show", show);
   }
 
@@ -670,6 +709,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     updatePalette();
   }
 
+  function animateQuestionChange() {
+    const card = document.querySelector(".quiz-main-card");
+    if (!card) return;
+
+    card.classList.remove("fade-slide-up");
+    void card.offsetWidth;
+    card.classList.add("fade-slide-up");
+
+    setTimeout(() => {
+      card.classList.remove("fade-slide-up");
+    }, 250);
+  }
+
   function updateQuestionView() {
     const questionNumber = getCurrentQuestionNumber();
     const totalCount = getCurrentTotalCount();
@@ -687,7 +739,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateSubmitVisibility();
     updateMotivationBar();
     resetQuestionTimer();
-    saveCurrentSession();
+    animateQuestionChange();
+    smartSaveSession();
   }
 
   function stopTimers() {
@@ -721,7 +774,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     quizTimerInterval = setInterval(() => {
       quizElapsedSeconds++;
       updateTimerDisplays();
-      saveCurrentSession();
+      smartSaveSession();
 
       if (quizTimeLimitSeconds && quizElapsedSeconds >= quizTimeLimitSeconds && !reviewMode) {
         showResult("full");
@@ -765,7 +818,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else {
         currentQuestion++;
       }
-      updateQuestionView();
+      scheduleRender(updateQuestionView);
       return;
     }
 
@@ -807,7 +860,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     closeJumpWrap();
     clearSavedSession();
-    updateQuestionView();
+    scheduleRender(updateQuestionView);
     updateTimerDisplays();
     startTimers();
     window.scrollTo(0, 0);
@@ -837,7 +890,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     answerExplanation.style.display = "none";
 
     closeJumpWrap();
-    updateQuestionView();
+    scheduleRender(updateQuestionView);
     startTimers();
     scrollQuestionIntoView();
   }
@@ -981,7 +1034,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     closeJumpWrap();
     stopTimers();
-    updateQuestionView();
+    scheduleRender(updateQuestionView);
     scrollQuestionIntoView();
 
     if (pendingServiceWorkerUpdate) {
@@ -1048,12 +1101,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       currentQuestion = target;
     }
 
-    updateQuestionView();
+    scheduleRender(updateQuestionView);
     scrollQuestionIntoView();
   }
 
   function promptJumpToQuestion() {
-    const willShow = jumpWrap.style.display === "none";
+    const willShow = !jumpWrap.classList.contains("show");
     showJumpWrap(willShow);
 
     if (willShow) {
@@ -1089,7 +1142,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     answerExplanation.style.display = "none";
 
     closeJumpWrap();
-    updateQuestionView();
+    scheduleRender(updateQuestionView);
     updateTimerDisplays();
     startTimers();
     scrollQuestionIntoView("auto");
@@ -1127,7 +1180,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateAnswerButtons();
       updateSubmitVisibility();
       updateMotivationBar();
-      saveCurrentSession();
+      smartSaveSession();
+
+      const total = getCurrentTotalCount();
+      const index = getCurrentShownIndex();
+
+      if (index < total) {
+        setTimeout(() => {
+          if (!reviewMode) nextBtn.click();
+        }, 300);
+      }
     });
   });
 
@@ -1140,7 +1202,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else {
         currentQuestion--;
       }
-      updateQuestionView();
+      scheduleRender(updateQuestionView);
       scrollQuestionIntoView();
     }
   });
@@ -1155,7 +1217,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else {
         currentQuestion++;
       }
-      updateQuestionView();
+      scheduleRender(updateQuestionView);
       scrollQuestionIntoView();
     }
   });
@@ -1213,7 +1275,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     updateSubmitVisibility();
-    saveCurrentSession();
+    smartSaveSession();
   });
 
   jumpBtn.addEventListener("click", promptJumpToQuestion);
@@ -1226,14 +1288,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       const actualQuestion = retryQuestionList[value - 1];
       if (actualQuestion) {
         currentDisplayIndex = value;
-        updateQuestionView();
+        scheduleRender(updateQuestionView);
         closeJumpWrap();
         jumpInput.blur();
         scrollQuestionIntoView();
       }
     } else if (value >= 1 && value <= totalQuestions) {
       currentQuestion = value;
-      updateQuestionView();
+      scheduleRender(updateQuestionView);
       closeJumpWrap();
       jumpInput.blur();
       scrollQuestionIntoView();
@@ -1347,7 +1409,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (quizUpdateBanner) {
           quizUpdateBanner.classList.add("show");
         }
-        
+
         if (quizUpdateText) {
           quizUpdateText.innerHTML =
             `<strong>New version available 🚀</strong> Finish your quiz to update safely.`;
@@ -1360,7 +1422,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (updateAfterBtn) {
       updateAfterBtn.addEventListener("click", async () => {
         if (!canApplyUpdateNow()) {
-          alert("Finish the quiz first before updating ⚠️");
+          showToast("Finish quiz first ⚠️");
           return;
         }
 
