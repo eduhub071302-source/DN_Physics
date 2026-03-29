@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quiz | PP Quiz</title>
 
-  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=26" />
+  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=27" />
 </head>
 
 <body>
@@ -85,8 +85,24 @@
 
           <div class="quiz-main-image">
             <div class="question-image-wrap">
+
+              <!-- 🔥 BUTTONS -->
+              <div class="question-image-actions">
+                <button id="hintBtn" class="action-btn" type="button">💡 Hint</button>
+                <button id="zoomBtn" class="action-btn" type="button">🔍 Zoom</button>
+              </div>
+
               <img id="questionImage" src="" alt="Question image" />
-              <button id="zoomBtn" class="action-btn" type="button">🔍 Zoom</button>
+
+              <!-- 💡 HINT BOX -->
+              <div id="hintBox" class="hint-box" style="display:none;">
+                <div class="hint-box-head">
+                  <strong>AI Hint</strong>
+                  <button id="closeHintBtn" class="hint-close-btn" type="button">✕</button>
+                </div>
+                <p id="hintText">Hint will appear here.</p>
+              </div>
+
             </div>
           </div>
 
