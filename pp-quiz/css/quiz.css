@@ -1983,8 +1983,45 @@ button {
   border: 1px solid rgba(124, 196, 255, 0.18);
   background:
     linear-gradient(180deg, rgba(78, 161, 255, 0.08), rgba(78, 161, 255, 0.03));
-  box-shadow: 0 10px 26px rgba(0,0,0,0.25);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25);
   animation: fadeSlideUp 0.25s ease;
+}
+
+.hint-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent-2);
+  margin-bottom: 12px;
+  letter-spacing: 0.2px;
+}
+
+.hint-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hint-section {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.hint-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.hint-value {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #dce7ff;
+  word-break: break-word;
 }
 
 .hint-box-head {
@@ -2004,7 +2041,7 @@ button {
   height: 32px;
   border-radius: 10px;
   border: 1px solid var(--line);
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text);
   cursor: pointer;
   transition: all 0.18s ease;
