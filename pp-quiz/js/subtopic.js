@@ -18,6 +18,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   backToTopic.href = `/DN_Physics/pp-quiz/topic.html?topic=${encodeURIComponent(topic || "")}`;
 
+  /* =========================
+     HELPERS
+  ========================= */
+
   function makeNiceTitle(slug) {
     return (slug || "")
       .split("-")
@@ -97,6 +101,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     return normalizeStats(null);
   }
 
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, (char) => {
+      const map = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#39;"
+      };
+      return map[char];
+    });
+  }
+
+  function getSetDescription(mastery, attempts) {
+    if (attempts === 0) return "Start solving and build your accuracy step by step.";
+    if (mastery === "Mastered") return "Excellent performance. Maintain your mastery.";
+    if (mastery === "Strong") return "Strong understanding. Push for full mastery.";
+    if (mastery === "Improving") return "Good progress. More practice will boost results.";
+    return "Keep practicing to improve your fundamentals.";
+  }
+
+  /* =========================
+     LOAD SETS
+  ========================= */
+
   async function loadQuizSets() {
     const manifestPath = `/DN_Physics/pp-quiz/data/${topic}/${subtopic}/sets.json`;
 
@@ -116,60 +145,43 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  /* 🔥 TOUCH FIX (same as other pages) */
+  /* =========================
+     TOUCH FIX
+  ========================= */
+
   function attachSmoothCardTouch(card) {
     let startX = 0;
     let startY = 0;
     let moved = false;
-    let touching = false;
 
-    const MOVE_LIMIT = 10;
-
-    card.addEventListener("touchstart", (event) => {
-      if (!event.touches || event.touches.length !== 1) return;
-
-      const touch = event.touches[0];
-      startX = touch.clientX;
-      startY = touch.clientY;
+    card.addEventListener("touchstart", (e) => {
+      const t = e.touches[0];
+      startX = t.clientX;
+      startY = t.clientY;
       moved = false;
-      touching = true;
-
       card.classList.add("card-touch-active");
     }, { passive: true });
 
-    card.addEventListener("touchmove", (event) => {
-      if (!touching || !event.touches) return;
-
-      const touch = event.touches[0];
-      const dx = Math.abs(touch.clientX - startX);
-      const dy = Math.abs(touch.clientY - startY);
-
-      if (dx > MOVE_LIMIT || dy > MOVE_LIMIT) {
+    card.addEventListener("touchmove", (e) => {
+      const t = e.touches[0];
+      if (Math.abs(t.clientX - startX) > 10 || Math.abs(t.clientY - startY) > 10) {
         moved = true;
         card.classList.remove("card-touch-active");
       }
     }, { passive: true });
 
     card.addEventListener("touchend", () => {
-      touching = false;
-      setTimeout(() => {
-        card.classList.remove("card-touch-active");
-      }, 80);
-    }, { passive: true });
+      setTimeout(() => card.classList.remove("card-touch-active"), 80);
+    });
 
-    card.addEventListener("touchcancel", () => {
-      touching = false;
-      moved = true;
-      card.classList.remove("card-touch-active");
-    }, { passive: true });
-
-    card.addEventListener("click", (event) => {
-      if (moved) {
-        event.preventDefault();
-        moved = false;
-      }
+    card.addEventListener("click", (e) => {
+      if (moved) e.preventDefault();
     });
   }
+
+  /* =========================
+     CARD BUILDER (CLEAN)
+  ========================= */
 
   function buildSetCard(set, index) {
     const stats = getSavedStats(topic, subtopic, set.slug);
@@ -184,24 +196,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     card.href = `/DN_Physics/pp-quiz/quiz.html?topic=${encodeURIComponent(topic)}&subtopic=${encodeURIComponent(subtopic)}&set=${encodeURIComponent(set.slug)}`;
 
+    const description = getSetDescription(mastery, stats.attempts);
+
     card.innerHTML = `
       <div class="topic-card-top">
         <div class="topic-body">
           <div class="topic-pill">Quiz Set</div>
-          <h2 class="topic-title">${set.title}</h2>
-          <p class="topic-desc">${mastery} • ${stats.attempts} attempts</p>
+          <h2 class="topic-title">${escapeHtml(set.title)}</h2>
+          <p class="topic-desc">${escapeHtml(description)}</p>
         </div>
         <div class="topic-icon">🧠</div>
       </div>
 
       <div class="topic-stats">
-        <span class="stat-pill">Best: ${stats.bestPercentage}%</span>
+        <span class="stat-pill">Attempts: ${stats.attempts}</span>
         <span class="stat-pill">Mastery: ${mastery}</span>
         ${badge ? `<span class="stat-pill ${badge.className}">${badge.label}</span>` : ""}
       </div>
 
-      <div style="margin-top:12px;">
-        <div style="display:flex; justify-content:space-between; font-size:13px; color:var(--muted);">
+      <div class="subtopic-progress-block">
+        <div class="subtopic-progress-head">
           <span>Progress</span>
           <span>${progress}%</span>
         </div>
@@ -210,24 +224,36 @@ document.addEventListener("DOMContentLoaded", async () => {
         </div>
       </div>
 
-      <div class="topic-stats" style="margin-top:12px;">
+      <div class="topic-stats subtopic-meta-stats">
         <span class="stat-pill">Last: ${stats.lastPlayedAt}</span>
         <span class="stat-pill">Streak: ${stats.streak} day${stats.streak === 1 ? "" : "s"}</span>
       </div>
 
-      <span class="action-btn primary-btn enter-topic-btn" style="margin-top:12px;">
-        ${stats.attempts > 0 ? "Continue" : "Start"}
+      <span class="action-btn primary-btn enter-topic-btn">
+        ${stats.attempts > 0 ? "Continue Practice" : "Start Practice"}
       </span>
     `;
 
-    attachSmoothCardTouch(card); // 🔥 APPLY FIX HERE
-
+    attachSmoothCardTouch(card);
     return card;
   }
 
+  function renderEmpty(message) {
+    quizSetsGrid.innerHTML = `
+      <div class="empty-state fade-in">
+        <h3>No quiz sets found</h3>
+        <p>${escapeHtml(message)}</p>
+      </div>
+    `;
+  }
+
+  /* =========================
+     INIT
+  ========================= */
+
   if (!topic || !subtopic) {
     subtopicTitle.textContent = "Subtopic Not Found";
-    quizSetsGrid.innerHTML = `<div class="empty-state">Missing topic or subtopic.</div>`;
+    renderEmpty("Missing topic or subtopic.");
     return;
   }
 
@@ -235,11 +261,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   subtopicTitle.textContent = niceName;
   if (heroTitle) heroTitle.textContent = niceName;
-  if (heroText) heroText.textContent = `Practice ${niceName} with structured MCQ sets and track your progress.`;
+  if (heroText) {
+    heroText.textContent = `Practice ${niceName} with structured MCQ sets and track your progress.`;
+  }
 
   const sets = await loadQuizSets();
 
   quizSetsGrid.innerHTML = "";
+
+  if (!sets || sets.length === 0) {
+    renderEmpty("Add sets.json for this subtopic to display quiz sets.");
+    return;
+  }
 
   sets.forEach((set, index) => {
     quizSetsGrid.appendChild(buildSetCard(set, index));
