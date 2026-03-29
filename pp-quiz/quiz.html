@@ -10,13 +10,6 @@
 
 <body>
 
-  <!-- UPDATE BANNER -->
-  <div id="quizUpdateBanner" class="quiz-update-banner">
-    <span id="quizUpdateText">New update available. Apply after finishing quiz.</span>
-    <button id="updateAfterBtn" type="button">Update Now</button>
-  </div>
-
-  <!-- HEADER -->
   <header class="quiz-header">
     <div class="container">
       <a id="backToSubtopic" class="back-link">← Back</a>
@@ -25,18 +18,15 @@
     </div>
   </header>
 
-  <!-- MAIN -->
   <main class="quiz-main">
     <div class="container">
 
       <div class="quiz-shell">
 
-        <!-- MOTIVATION -->
         <div class="motivation-bar" id="motivationBar">
           Stay focused. Every question improves your rank.
         </div>
 
-        <!-- TOP CARDS -->
         <section class="quiz-top-cards">
           <div class="info-card">
             <h3>Attempt Info</h3>
@@ -49,17 +39,15 @@
           </div>
         </section>
 
-        <!-- RESUME -->
         <section id="resumeCard" class="resume-card" style="display:none;">
           <h3>Resume Previous Session</h3>
           <p id="resumeSummary">Saved quiz session found.</p>
           <div class="resume-actions">
-            <button id="resumeQuizBtn" class="action-btn primary-btn">Resume</button>
-            <button id="discardResumeBtn" class="action-btn">Discard</button>
+            <button id="resumeQuizBtn" class="action-btn primary-btn" type="button">Resume</button>
+            <button id="discardResumeBtn" class="action-btn" type="button">Discard</button>
           </div>
         </section>
 
-        <!-- STATUS -->
         <section class="quiz-status-card">
           <div class="quiz-status-top">
             <span id="questionCounter" class="quiz-status-pill">Question 1 of 1</span>
@@ -93,22 +81,21 @@
           </div>
         </section>
 
-        <!-- QUESTION -->
         <section class="quiz-main-card">
 
           <div class="quiz-main-image">
             <div class="question-image-wrap">
               <img id="questionImage" src="" alt="Question image" />
-              <button id="zoomBtn" class="action-btn">🔍 Zoom</button>
+              <button id="zoomBtn" class="action-btn" type="button">🔍 Zoom</button>
             </div>
           </div>
 
           <div class="answer-grid">
-            <button class="answer-btn" data-answer="1">1</button>
-            <button class="answer-btn" data-answer="2">2</button>
-            <button class="answer-btn" data-answer="3">3</button>
-            <button class="answer-btn" data-answer="4">4</button>
-            <button class="answer-btn" data-answer="5">5</button>
+            <button class="answer-btn" data-answer="1" type="button">1</button>
+            <button class="answer-btn" data-answer="2" type="button">2</button>
+            <button class="answer-btn" data-answer="3" type="button">3</button>
+            <button class="answer-btn" data-answer="4" type="button">4</button>
+            <button class="answer-btn" data-answer="5" type="button">5</button>
           </div>
 
           <div id="answerExplanation" class="answer-explanation" style="display:none;">
@@ -122,7 +109,6 @@
 
         </section>
 
-        <!-- CONTROLS -->
         <section class="quiz-controls-card">
           <div class="quiz-section-head">
             <div>
@@ -132,16 +118,15 @@
           </div>
 
           <div class="quiz-primary-actions">
-            <button id="prevBtn" class="action-btn">← Previous</button>
-            <button id="nextBtn" class="action-btn">Next →</button>
-            <button id="finishQuizBtn" class="action-btn">Finish Now</button>
-            <button id="submitQuizBtn" class="action-btn primary-btn" style="display:none;">
+            <button id="prevBtn" class="action-btn" type="button">← Previous</button>
+            <button id="nextBtn" class="action-btn" type="button">Next →</button>
+            <button id="finishQuizBtn" class="action-btn" type="button">Finish Now</button>
+            <button id="submitQuizBtn" class="action-btn primary-btn" type="button" style="display:none;">
               Submit Full Quiz
             </button>
           </div>
         </section>
 
-        <!-- NAVIGATION -->
         <section class="quiz-nav-card">
           <div class="quiz-section-head">
             <div>
@@ -151,21 +136,20 @@
           </div>
 
           <div class="quiz-nav-top">
-            <button id="markReviewBtn" class="action-btn">☆ Mark for Review</button>
-            <button id="jumpBtn" class="action-btn">Jump</button>
+            <button id="markReviewBtn" class="action-btn" type="button">☆ Mark for Review</button>
+            <button id="jumpBtn" class="action-btn" type="button">Jump</button>
           </div>
 
           <div class="quiz-nav-row">
             <div id="jumpWrap" class="jump-wrap">
               <input id="jumpInput" type="number" min="1" value="1" />
-              <button id="jumpConfirmBtn" class="action-btn primary-btn">Go</button>
+              <button id="jumpConfirmBtn" class="action-btn primary-btn" type="button">Go</button>
             </div>
           </div>
 
           <div id="questionPalette" class="question-palette"></div>
         </section>
 
-        <!-- RESULT -->
         <section id="resultCard" class="result-card" style="display:none;">
           <div class="result-hero">
             <div class="score-circle">
@@ -183,16 +167,14 @@
           <div id="resultSummary"></div>
         </section>
 
-        <!-- POST ACTIONS -->
         <section id="postResultActions" class="post-result-actions" style="display:none;">
-          <button id="retryQuizBtn" class="action-btn primary-btn">Retry Full Quiz</button>
-          <button id="retryWrongBtn" class="action-btn" style="display:none;">Retry Wrong</button>
-          <button id="retryUnansweredBtn" class="action-btn" style="display:none;">Retry Unanswered</button>
-          <button id="retryMarkedBtn" class="action-btn" style="display:none;">Retry Marked</button>
-          <button id="wrongOnlyBtn" class="action-btn" style="display:none;">Review Wrong</button>
+          <button id="retryQuizBtn" class="action-btn primary-btn" type="button">Retry Full Quiz</button>
+          <button id="retryWrongBtn" class="action-btn" type="button" style="display:none;">Retry Wrong</button>
+          <button id="retryUnansweredBtn" class="action-btn" type="button" style="display:none;">Retry Unanswered</button>
+          <button id="retryMarkedBtn" class="action-btn" type="button" style="display:none;">Retry Marked</button>
+          <button id="wrongOnlyBtn" class="action-btn" type="button" style="display:none;">Review Wrong</button>
         </section>
 
-        <!-- HISTORY -->
         <section id="historyCard" class="history-card" style="display:none;">
           <h3>History</h3>
           <div id="historySummary"></div>
@@ -202,19 +184,17 @@
     </div>
   </main>
 
-  <!-- IMAGE MODAL -->
   <div id="imageModal" class="image-modal" style="display:none;">
-    <div class="image-modal-viewport">
-      <button id="closeImageModal" class="close-modal-btn">✕</button>
+    <div id="imageModalViewport" class="image-modal-viewport">
+      <button id="closeImageModal" class="close-modal-btn" type="button">✕</button>
       <img id="modalImage" src="" alt="Zoomed question" />
     </div>
   </div>
 
-  <!-- MUSIC -->
   <audio id="bgMusic" loop></audio>
 
   <div id="musicPlayerFloating" class="music-floating">
-    <button id="musicToggleBtn" class="music-float-btn">🎧</button>
+    <button id="musicToggleBtn" class="music-float-btn" type="button">🎧</button>
 
     <div id="musicPanel" class="music-panel">
       <div class="music-header">Focus Music</div>
@@ -224,8 +204,8 @@
       </div>
 
       <div class="music-row">
-        <button id="playPauseBtn">▶ Play</button>
-        <button id="stopMusicBtn">⏹ Stop</button>
+        <button id="playPauseBtn" type="button">▶ Play</button>
+        <button id="stopMusicBtn" type="button">⏹ Stop</button>
       </div>
 
       <div class="music-row">
