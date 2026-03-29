@@ -1,194 +1,80 @@
 {
   "1": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
+    "f": "$v = \sqrt{\frac{\gamma RT}{M}}$",
+    "focus": "The difference between a variable ($T, M$) and its square root ($\sqrt{T}, \sqrt{M}$).",
+    "step": "Check if $v$ is proportional to the variable itself or the square root of the variable.$v \propto \sqrt{T}$$v \propto \frac{1}{\sqrt{M}}$$v \propto \sqrt{\gamma}$",
+    "mistake": "$v$ is proportional to the square root of temperature/molar mass, so saying it is "proportional to temperature" is mathematically false."
   },
   "2": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
+    "f": "$v = \sqrt{\frac{\gamma P}{\rho}} = \sqrt{\frac{\gamma RT}{M}}$",
+    "focus": "The fact that speed ($v$) depends only on temperature for a specific gas.",
+    "step": "Constant $T$: $v$ remains constant (regardless of pressure/altitude).",
+    "mistake": "Thinking pressure alone changes the speed of sound. If pressure decreases but temperature stays the same, the density decreases proportionally, leaving the speed unchanged."
   },
   "3": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
+    "f": "No specific equation",
+    "focus": "Pitch: Depends on frequency.Loudness: Depends on intensity/amplitude.",
+    "step": "No specific step",
+    "mistake": "Confusing Quality with Pitch."
   },
   "4": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
+    "f": "$u_{mix} = \sqrt{\frac{\gamma P}{\rho_{mix}}}$  where $\rho_{mix} = \frac{\text{total mass}}{\text{total volume}} = \frac{m_A + m_B}{V_A + V_B}$",
+    "focus": "The relationship between speed and density. Since pressure ($P$) and $\gamma$ (diatomic) are constant, $u^2 = \frac{\gamma P}{\rho} \implies \rho = \frac{\gamma P}{u^2}$",
+    "step": "Express the total mass of the mixture using individual densities:$m_A = \rho_A V_A$ and $m_B = \rho_B V_B$.",
+    "mistake": "Trying to use a simple weighted average of speeds (like option 3)."
   },
   "5": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
+    "f": "$v \propto \sqrt{T}$",
+    "focus": "The fact that temperature decreases as you move upward.",
+    "step": "Visualize the distance a wave travels in a fixed time.",
+    "mistake": "Picking option (2)"
   },
   "6": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
+    "f": "For air: $v = \sqrt{\frac{\gamma RT}{M}}$, For solids: $v = \sqrt{\frac{Y}{\rho}}$ (where $Y$ is Young's Modulus)",
+    "focus": "Medium density vs. Elasticity: Sound travels much faster in solids than in gases",
+    "step": "Check the validity of each statement",
+    "mistake": "Thinking that higher frequency sound travels "faster" (C)."
   },
   "7": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
+    "f": "$v = \sqrt{\frac{\gamma RT}{M}}$",
+    "focus": "he variables in the formula. For a specific gas (constant $\gamma, R, M$),",
+    "step": "Examine how each action affects $T$",
+    "mistake": "Thinking that adding more gas (increasing pressure) automatically increases the speed."
   },
   "8": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
+    "f": "$v = \sqrt{\frac{\gamma RT}{M}} = \sqrt{\frac{\gamma P}{\rho}}$",
+    "focus": "The "constant temperature" condition.",
+    "step": "Evaluate each statement",
+    "mistake": "Thinking that higher density always means lower speed (C)."
   },
   "9": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
+    "f": "$v = \sqrt{\frac{\gamma RT}{M}}$",
+    "focus": "The medium properties vs. the wave properties.",
+    "step": "Evaluate the three factors",
+    "mistake": "Thinking that higher frequency sound waves travel faster."
   },
   "10": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
+    "f": "$v \propto \sqrt{T}$  (where $T$ must be in Kelvin)",
+    "focus": "The relationship between velocity and absolute temperature.",
+    "step": "Convert the initial temperature to Kelvin:$T_1 = 27 + 273 = 300\text{ K}$",
+    "mistake": "Not converting to Kelvin: Calculating with $27^\circ\text{C}$ directly (leads to $108^\circ\text{C}$)."
   },
   "11": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
+    "f": "$v = \sqrt{\frac{E}{\rho}}$, (Where $E$ is the Elastic Modulus—Young's modulus for solids or Bulk modulus for fluids—and $\rho$ is density).",
+    "focus": "The phase of the medium. Sound travels fastest in solids, then liquids, and slowest in gases.",
+    "step": "Categorize the choices",
+    "mistake": "Picking Steel because it is "denser.""
   },
   "12": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
+    "f": "$v \propto \sqrt{T}$ (where $T$ must be in Kelvin)",
+    "focus": "The relationship between velocity and absolute temperature.",
+    "step": "Convert the initial temperature to Kelvin:$T_1 = 0 + 273 = 273\text{ K}$",
+    "mistake": "Not converting back to Celsius: Selecting option (5) directly from the Kelvin result."
   },
   "13": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
-  },
-  "14": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
-  },
-  "15": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
-  },
-  "16": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
-  },
-  "17": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
-  },
-  "18": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
-  },
-  "19": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
-  },
-  "20": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
-  },
-  "21": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
-  },
-  "22": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
-  },
-  "23": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
-  },
-  "24": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
-  },
-  "25": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
-  },
-  "26": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
-  },
-  "27": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
-  },
-  "28": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
-  },
-  "29": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
-  },
-  "30": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
-  },
-  "31": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
-  },
-  "32": {
-    "f": "Add formula or law here",
-    "focus": "Add what to focus on",
-    "step": "Add first step",
-    "mistake": "Add common mistake"
+    "f": "No specific equation",
+    "focus": "Pitch: Linked to frequency.Loudness: Linked to amplitude/intensity.",
+    "step": "Identify what makes two different instruments",
+    "mistake": "Changing frequency only changes how high or low the note is (pitch)."
   }
 }
