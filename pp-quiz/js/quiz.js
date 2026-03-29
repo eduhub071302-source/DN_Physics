@@ -205,7 +205,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function showHintBox(message) {
     if (!hintBox || !hintText) return;
-    hintText.textContent = message;
+    hintText.innerHTML = message;
     hintBox.style.display = "block";
   }
 
@@ -502,189 +502,469 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (hintData && hintData[q]) {
       const h = hintData[q];
 
-      return `Topic: ${makeNiceTitle(subtopic)}
-Formula: ${h.f || "-"}
-Focus: ${h.focus || "-"}
-First step: ${h.step || "-"}
-Common mistake: ${h.mistake || "-"}`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">${h.f || "-"}</div>
+</div>
+
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">${h.focus || "-"}</div>
+</div>
+
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">${h.step || "-"}</div>
+</div>
+
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">${h.mistake || "-"}</div>
+</div>
+`;
     }
 
     const topicName = (topic || "").toLowerCase();
     const subtopicName = (subtopic || "").toLowerCase();
 
     if (subtopicName.includes("projectile")) {
-      return `Topic: Projectile Motion
-Formula: Resolve into horizontal and vertical motion
-Focus: Treat x and y directions separately
-First step: Write vertical motion first
-Common mistake: Mixing x and y`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">Resolve into horizontal and vertical motion</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">Treat x and y directions separately</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">Write vertical motion first</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Mixing x and y</div>
+</div>`;
     }
 
     if (subtopicName.includes("circular")) {
-      return `Topic: Circular Motion
-Formula: F = mv²/r
-Focus: inward force
-First step: identify centripetal force
-Common mistake: wrong direction`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">F = mv²/r</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">Inward force</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">Identify centripetal force</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Wrong direction</div>
+</div>`;
     }
 
     if (subtopicName.includes("simple-harmonic")) {
-      return `Topic: Simple Harmonic Motion
-Formula: Restoring force and acceleration toward equilibrium
-Focus: Direction relative to equilibrium
-First step: Identify displacement from mean position
-Common mistake: Forgetting restoring direction`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">Restoring force and acceleration toward equilibrium</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">Direction relative to equilibrium</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">Identify displacement from mean position</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Forgetting restoring direction</div>
+</div>`;
     }
 
     if (subtopicName.includes("friction")) {
-      return `Topic: Friction
-Formula: F = μR
-Focus: Static or kinetic friction
-First step: Check whether motion has started
-Common mistake: Using wrong friction type`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">F = μR</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">Static or kinetic friction</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">Check whether motion has started</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Using wrong friction type</div>
+</div>`;
     }
 
     if (subtopicName.includes("newtons-laws")) {
-      return `Topic: Newton's Laws
-Formula: F = ma
-Focus: Free body diagram
-First step: Draw every force with direction
-Common mistake: Missing a force or wrong sign`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">F = ma</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">Free body diagram</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">Draw every force with direction</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Missing a force or wrong sign</div>
+</div>`;
     }
 
     if (subtopicName.includes("work-power-energy")) {
-      return `Topic: Work, Power and Energy
-Formula: Energy conservation or P = W/t
-Focus: Pick the best relation
-First step: Identify initial and final states
-Common mistake: Ignoring energy loss`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">Energy conservation or P = W/t</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">Pick the best relation</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">Identify initial and final states</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Ignoring energy loss</div>
+</div>`;
     }
 
     if (subtopicName.includes("ohms-law")) {
-      return `Topic: Ohm's Law
-Formula: V = IR
-Focus: Identify known quantities
-First step: Rearrange the formula correctly
-Common mistake: Mixing voltage, current, and resistance`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">V = IR</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">Identify known quantities</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">Rearrange the formula correctly</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Mixing voltage, current, and resistance</div>
+</div>`;
     }
 
     if (subtopicName.includes("kirchhoffs-law")) {
-      return `Topic: Kirchhoff's Laws
-Formula: Loop rule and junction rule
-Focus: Current balance or voltage loop
-First step: Choose the correct loop or node
-Common mistake: Sign errors`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">Loop rule and junction rule</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">Current balance or voltage loop</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">Choose the correct loop or node</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Sign errors</div>
+</div>`;
     }
 
     if (subtopicName.includes("potentiometer")) {
-      return `Topic: Potentiometer
-Formula: Balance condition and potential gradient
-Focus: Null point idea
-First step: Write the balance relation
-Common mistake: Forgetting proportionality along the wire`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">Balance condition and potential gradient</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">Null point idea</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">Write the balance relation</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Forgetting proportionality along the wire</div>
+</div>`;
     }
 
     if (subtopicName.includes("capacit")) {
-      return `Topic: Capacitance
-Formula: Q = CV
-Focus: Series or parallel combination
-First step: Find equivalent capacitance first
-Common mistake: Using wrong combination rule`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">Q = CV</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">Series or parallel combination</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">Find equivalent capacitance first</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Using wrong combination rule</div>
+</div>`;
     }
 
     if (subtopicName.includes("electric-field")) {
-      return `Topic: Electric Field
-Formula: Field direction and magnitude relations
-Focus: Sign of charge
-First step: Draw field direction
-Common mistake: Mixing field direction with force direction`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">Field direction and magnitude relations</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">Sign of charge</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">Draw field direction</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Mixing field direction with force direction</div>
+</div>`;
     }
 
     if (subtopicName.includes("magnetic")) {
-      return `Topic: Magnetic Field
-Formula: F = BIL or F = qvB
-Focus: Angle and direction
-First step: Apply hand rule
-Common mistake: Ignoring vector angle`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">F = BIL or F = qvB</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">Angle and direction</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">Apply hand rule</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Ignoring vector angle</div>
+</div>`;
     }
 
     if (subtopicName.includes("thermodynamics")) {
-      return `Topic: Thermodynamics
-Formula: Correct gas or thermal relation
-Focus: Check what stays constant
-First step: Identify changing variables
-Common mistake: Using wrong condition`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">Correct gas or thermal relation</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">Check what stays constant</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">Identify changing variables</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Using wrong condition</div>
+</div>`;
     }
 
     if (subtopicName.includes("calorimetry")) {
-      return `Topic: Calorimetry
-Formula: Q = mcΔT
-Focus: Heat lost equals heat gained
-First step: Write energy balance
-Common mistake: Wrong sign or wrong ΔT`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">Q = mcΔT</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">Heat lost equals heat gained</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">Write energy balance</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Wrong sign or wrong ΔT</div>
+</div>`;
     }
 
     if (subtopicName.includes("refraction")) {
-      return `Topic: Refraction
-Formula: Snell's law or refractive index relation
-Focus: Identify the media first
-First step: Write the correct refraction relation
-Common mistake: Using angle with surface instead of normal`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">Snell's law or refractive index relation</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">Identify the media first</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">Write the correct refraction relation</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Using angle with surface instead of normal</div>
+</div>`;
     }
 
     if (subtopicName.includes("wave-properties")) {
-      return `Topic: Wave Properties
-Formula: v = fλ
-Focus: What changes and what stays constant
-First step: Write the wave equation
-Common mistake: Confusing frequency and wavelength`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">v = fλ</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">What changes and what stays constant</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">Write the wave equation</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Confusing frequency and wavelength</div>
+</div>`;
     }
 
     if (subtopicName.includes("radioactivity")) {
-      return `Topic: Radioactivity
-Formula: Decay law or half-life relation
-Focus: Remaining amount or decayed amount
-First step: Count the number of half-lives
-Common mistake: Mixing remaining and decayed values`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">Decay law or half-life relation</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">Remaining amount or decayed amount</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">Count the number of half-lives</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Mixing remaining and decayed values</div>
+</div>`;
     }
 
     if (topicName.includes("mechanics")) {
-      return `Topic: Mechanics
-Formula: Use the correct force or motion relation
-Focus: Draw the diagram first
-First step: Write known values clearly
-Common mistake: Rushing before identifying the model`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">Use the correct force or motion relation</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">Draw the diagram first</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">Write known values clearly</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Rushing before identifying the model</div>
+</div>`;
     }
 
     if (topicName.includes("current-electricity") || topicName.includes("electric")) {
-      return `Topic: Electricity
-Formula: Use V = IR, Q = It, or P = VI
-Focus: Match formula to known values
-First step: List given electrical quantities
-Common mistake: Using a correct formula for the wrong target`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">Use V = IR, Q = It, or P = VI</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">Match formula to known values</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">List given electrical quantities</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Using a correct formula for the wrong target</div>
+</div>`;
     }
 
     if (topicName.includes("oscillations-waves") || topicName.includes("waves")) {
-      return `Topic: Waves
-Formula: v = fλ or the correct oscillation relation
-Focus: Speed, frequency, phase, or wavelength
-First step: Identify exactly what is asked
-Common mistake: Assuming all wave quantities change together`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">v = fλ or the correct oscillation relation</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">Speed, frequency, phase, or wavelength</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">Identify exactly what is asked</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Assuming all wave quantities change together</div>
+</div>`;
     }
 
     if (topicName.includes("thermal-physics") || topicName.includes("thermal")) {
-      return `Topic: Thermal Physics
-Formula: Use the heat or gas relation that matches the condition
-Focus: What stays constant
-First step: Identify the thermal process
-Common mistake: Ignoring the stated condition`;
+      return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">Use the heat or gas relation that matches the condition</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">What stays constant</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">Identify the thermal process</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Ignoring the stated condition</div>
+</div>`;
     }
 
-    return `Topic: Physics
-Formula: identify correct relation
-Focus: read question carefully
-First step: write known values
-Common mistake: rushing calculation`;
+    return `
+<div class="hint-section">
+  <div class="hint-label">Formula</div>
+  <div class="hint-value">Identify the correct relation</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Focus</div>
+  <div class="hint-value">Read the question carefully</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">First Step</div>
+  <div class="hint-value">Write known values</div>
+</div>
+<div class="hint-section">
+  <div class="hint-label">Common Mistake</div>
+  <div class="hint-value">Rushing calculation</div>
+</div>`;
   }
 
   function updateMotivationBar() {
