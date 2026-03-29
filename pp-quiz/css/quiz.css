@@ -2083,7 +2083,27 @@ button {
     border-radius: 12px;
   }
 
+  .hint-title {
+    font-size: 15px;
+    margin-bottom: 10px;
+  }
+
+  .hint-content {
+    gap: 8px;
+  }
+
+  .hint-section {
+    padding: 9px 10px;
+    border-radius: 10px;
+  }
+
+  .hint-label {
+    font-size: 11px;
+  }
+
+  .hint-value,
   #hintText {
     font-size: 13px;
+    line-height: 1.65;
   }
 }
