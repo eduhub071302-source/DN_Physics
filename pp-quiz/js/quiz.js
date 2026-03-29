@@ -231,6 +231,30 @@ document.addEventListener("DOMContentLoaded", async () => {
       .join(" ");
   }
 
+  function escapeHtml(value) {
+    return String(value ?? "-")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function formatHintMath(value) {
+    let text = escapeHtml(value);
+
+    text = text
+      .replace(/sqrt\((.*?)\)/gi, "√($1)")
+      .replace(/gamma/gi, "γ")
+      .replace(/lambda/gi, "λ")
+      .replace(/rho/gi, "ρ")
+      .replace(/theta/gi, "θ")
+      .replace(/pi/gi, "π")
+      .replace(/\^2/g, "²")
+      .replace(/\^3/g, "³")
+      .replace(/\*/g, "");
+
+    return text;
+  }
+
   function formatTime(totalSeconds) {
     const safe = Math.max(0, Math.floor(Number(totalSeconds) || 0));
     const mins = Math.floor(safe / 60);
@@ -428,12 +452,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function scrollQuestionIntoView(behavior = "smooth") {
-    const target = document.querySelector(".quiz-main-card") || questionImage;
+    const target =
+      document.querySelector(".quiz-status-card") ||
+      document.querySelector(".quiz-main-card") ||
+      questionImage;
+
     if (!target) return;
 
-    const headerOffset = isMobileView() ? 78 : 96;
+    const header = document.querySelector(".quiz-header");
+    const headerOffset = (header ? header.offsetHeight : 78) + 8;
+
     const y = target.getBoundingClientRect().top + window.scrollY - headerOffset;
-    window.scrollTo({ top: Math.max(0, y), behavior });
+    indow.scrollTo({ top: Math.max(0, y), behavior });
   }
 
   function renderAttemptInfo() {
@@ -503,26 +533,26 @@ document.addEventListener("DOMContentLoaded", async () => {
       const h = hintData[q];
 
       return `
-<div class="hint-section">
-  <div class="hint-label">Formula</div>
-  <div class="hint-value">${h.f || "-"}</div>
-</div>
+      <div class="hint-section">
+        <div class="hint-label">Formula</div>
+        <div class="hint-value">${formatHintMath(h.f || "-")}</div>
+      </div>
 
-<div class="hint-section">
-  <div class="hint-label">Focus</div>
-  <div class="hint-value">${h.focus || "-"}</div>
-</div>
+      <div class="hint-section">
+        <div class="hint-label">Focus</div>
+        <div class="hint-value">${escapeHtml(h.focus || "-")}</div>
+      </div>
 
-<div class="hint-section">
-  <div class="hint-label">First Step</div>
-  <div class="hint-value">${h.step || "-"}</div>
-</div>
+      <div class="hint-section">
+        <div class="hint-label">First Step</div>
+        <div class="hint-value">${formatHintMath(h.step || "-")}</div>
+      </div>
 
-<div class="hint-section">
-  <div class="hint-label">Common Mistake</div>
-  <div class="hint-value">${h.mistake || "-"}</div>
-</div>
-`;
+      <div class="hint-section">
+        <div class="hint-label">Common Mistake</div>
+        <div class="hint-value">${escapeHtml(h.mistake || "-")}</div>
+      </div>
+      `;
     }
 
     const topicName = (topic || "").toLowerCase();
@@ -531,20 +561,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (subtopicName.includes("projectile")) {
       return `
 <div class="hint-section">
-  <div class="hint-label">Formula</div>
-  <div class="hint-value">Resolve into horizontal and vertical motion</div>
+    <div class="hint-label">Formula</div>
+    <div class="hint-value">Resolve into horizontal and vertical motion</div>
 </div>
 <div class="hint-section">
-  <div class="hint-label">Focus</div>
-  <div class="hint-value">Treat x and y directions separately</div>
+    <div class="hint-label">Focus</div>
+    <div class="hint-value">Treat x and y directions separately</div>
 </div>
 <div class="hint-section">
-  <div class="hint-label">First Step</div>
-  <div class="hint-value">Write vertical motion first</div>
+    <div class="hint-label">First Step</div>
+    <div class="hint-value">Write vertical motion first</div>
 </div>
 <div class="hint-section">
-  <div class="hint-label">Common Mistake</div>
-  <div class="hint-value">Mixing x and y</div>
+    <div class="hint-label">Common Mistake</div>
+    <div class="hint-value">Mixing x and y</div>
 </div>`;
     }
 
