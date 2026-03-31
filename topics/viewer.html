@@ -804,10 +804,6 @@
       const targetPage = Math.min(pdfDoc.numPages, Math.max(INITIAL_PAGE_BATCH, visiblePage + 1));
 
       await renderPdfPages(true, targetPage);
-
-      setTimeout(() => {
-        scrollToRenderedPage(visiblePage);
-      }, 50);
     }
 
     async function renderPdf() {
