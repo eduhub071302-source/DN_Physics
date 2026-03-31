@@ -85,14 +85,14 @@
 
         <div class="actions">
           <button id="installBtn" class="btn btn-install is-hidden" type="button">
-            🏆 Install App
+            📲 Install App
           </button>
 
-          <a class="btn btn-primary" href="/DN_Physics/pp-quiz/index.html">
+          <a id="onboardPractice" class="btn btn-primary" href="/DN_Physics/pp-quiz/index.html">
             💯 Practice Past Paper MCQs
           </a>
           
-          <a class="btn" href="#subjectGrid">
+          <a id="onboardNotes" class="btn" href="#subjectGrid">
             📚 Explore Notes
           </a>
         </div>
@@ -102,7 +102,7 @@
     <section class="section dashboard-section">
       <div class="container">
         <div class="rank-badge">🎯 Target: Island Rank</div>
-        <h2>📊 Your Progress System</h2>
+        <h2>📊 Your Progress</h2>
         <p class="section-sub">
           Continue where you left off and stay consistent.
         </p>
@@ -137,9 +137,6 @@
     <section class="section pinned-section is-hidden" id="pinnedSection">
       <div class="container">
         <h2>Pinned Topics</h2>
-        <p class="section-sub">
-          Your saved quick-access subjects will appear here.
-        </p>
 
         <div class="grid" id="pinnedGrid"></div>
       </div>
@@ -148,9 +145,6 @@
     <section class="section">
       <div class="container">
         <h2>📚 All Physics Topics</h2>
-        <p class="section-sub">
-          Open a topic and start revising.
-        </p>
 
         <div class="grid" id="subjectGrid">
           <div class="empty-state">Loading subjects...</div>
@@ -161,7 +155,7 @@
 
   <footer class="footer">
     <div class="container">
-      © 2026 DinuuNOVA Physics · Built for serious A/L students · Email: eduhub071302@gmail.com
+      © 2026 DinuuNOVA Physics · Email: eduhub071302@gmail.com
     </div>
   </footer>
 
@@ -203,6 +197,24 @@
   </div>
 
   <audio id="bgMusic" loop></audio>
+
+  <div id="onboardingOverlay" class="onboarding-overlay is-hidden" aria-hidden="true">
+    <div class="onboarding-backdrop"></div>
+    <div id="onboardingSpotlight" class="onboarding-spotlight"></div>
+
+    <div id="onboardingCard" class="onboarding-card" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+      <div class="onboarding-step">Quick Guide</div>
+      <h3 id="onboardingTitle">Welcome to DinuuNOVA Physics</h3>
+      <p id="onboardingText">Let’s take a quick look around.</p>
+
+      <div class="onboarding-actions">
+        <button id="onboardingSkipBtn" class="btn" type="button">Skip</button>
+        <button id="onboardingNextBtn" class="btn btn-primary" type="button">Next</button>
+      </div>
+    </div>
+    
+    <div id="onboardingArrow" class="onboarding-arrow" aria-hidden="true">➜</div>
+  </div>
 
   <script>
     let deferredPrompt = null;
@@ -608,7 +620,7 @@
       const link = document.createElement("a");
       link.className = "btn";
       link.href = subject.link;
-      link.textContent = "Open Subject";
+      link.textContent = "Explore";
 
       actions.appendChild(link);
       wrapper.appendChild(actions);
@@ -973,7 +985,7 @@
               <h3>${subjectName}</h3>
               <p>${description}</p>
               <div class="actions">
-                <a class="btn" href="${link}">Open Subject</a>
+                <a class="btn" href="${link}">Explore</a>
               </div>
             </div>
           `;
@@ -1013,6 +1025,10 @@
             appSplash.classList.add("hide");
           }
           document.body.classList.add("app-ready");
+
+          setTimeout(() => {
+            startOnboarding();
+          }, 300);
         }, 1200);
       });
     }
@@ -1022,6 +1038,7 @@
       setupRefreshActions();
       setupPullToRefresh();
       setupSearchAndFilter();
+      setupOnboarding();
       setupSplash();
       await loadSubjectsFromCatalog();
     }
@@ -1029,6 +1046,183 @@
     window.addEventListener("load", async () => {
       await registerServiceWorker();
     });
+
+    const onboardingOverlay = document.getElementById("onboardingOverlay");
+    const onboardingSpotlight = document.getElementById("onboardingSpotlight");
+    const onboardingCard = document.getElementById("onboardingCard");
+    const onboardingArrow = document.getElementById("onboardingArrow");
+    const onboardingTitle = document.getElementById("onboardingTitle");
+    const onboardingText = document.getElementById("onboardingText");
+    const onboardingNextBtn = document.getElementById("onboardingNextBtn");
+    const onboardingSkipBtn = document.getElementById("onboardingSkipBtn");
+
+    let onboardingSteps = [];
+    let onboardingIndex = 0;
+
+    function isMobileDevice() {
+      return window.matchMedia("(max-width: 768px)").matches;
+    }
+
+    function buildOnboardingSteps() {
+      const mobile = isMobileDevice();
+
+      const baseSteps = [
+        {
+          target: "#onboardNotes",
+          title: "Explore Notes",
+          text: "Open topics and start revising quickly."
+        },
+        {
+          target: "#onboardPractice",
+          title: "Practice MCQs",
+          text: "Jump into past paper practice here."
+        },
+        {
+          target: "#musicToggleBtn",
+          title: "Focus Mode",
+          text: "Play study music while learning."
+        }
+      ];
+
+      if (mobile) {
+        baseSteps.push({
+          target: "#refreshBtn",
+          title: "Refresh the App",
+          text: "You can also swipe down from the top to refresh."
+        });
+      } else {
+        baseSteps.push({
+          target: "#refreshBtn",
+          title: "Refresh the App",
+          text: "Click refresh here, or use Ctrl + R."
+        });
+      }
+
+      if (installBtn && !installBtn.classList.contains("is-hidden")) {
+        baseSteps.push({
+          target: "#installBtn",
+          title: "Install App",
+          text: "Install for faster access like a real app."
+        });
+      }
+
+      return baseSteps;
+    }
+
+    function setOnboardingSeen() {
+      localStorage.setItem("dnPhysicsOnboardingSeen", "true");
+    }
+
+    function hasSeenOnboarding() {
+      return localStorage.getItem("dnPhysicsOnboardingSeen") === "true";
+    }
+
+    function hideOnboarding() {
+      if (!onboardingOverlay) return;
+      onboardingOverlay.classList.add("is-hidden");
+      onboardingOverlay.setAttribute("aria-hidden", "true");
+      setOnboardingSeen();
+    }
+
+    function positionOnboarding(targetEl) {
+      if (!targetEl || !onboardingSpotlight || !onboardingCard || !onboardingArrow) return;
+
+      const rect = targetEl.getBoundingClientRect();
+      const padding = 10;
+
+      onboardingSpotlight.style.top = `${rect.top - padding + window.scrollY}px`;
+      onboardingSpotlight.style.left = `${rect.left - padding + window.scrollX}px`;
+      onboardingSpotlight.style.width = `${rect.width + padding * 2}px`;
+      onboardingSpotlight.style.height = `${rect.height + padding * 2}px`;
+
+      const cardWidth = Math.min(window.innerWidth - 24, 320);
+      const cardHeight = 150;
+
+      let cardLeft = rect.left + window.scrollX;
+      let cardTop = rect.bottom + window.scrollY + 16;
+
+      if (cardLeft + cardWidth > window.scrollX + window.innerWidth - 12) {
+        cardLeft = window.scrollX + window.innerWidth - cardWidth - 12;
+      }
+
+      if (cardLeft < window.scrollX + 12) {
+        cardLeft = window.scrollX + 12;
+      }
+
+      if (cardTop + cardHeight > window.scrollY + window.innerHeight - 12) {
+        cardTop = rect.top + window.scrollY - cardHeight - 20;
+      }
+
+      if (cardTop < window.scrollY + 12) {
+        cardTop = window.scrollY + 12;
+      }
+
+      onboardingCard.style.top = `${cardTop}px`;
+      onboardingCard.style.left = `${cardLeft}px`;
+
+      onboardingArrow.style.top = `${rect.top + window.scrollY + rect.height / 2 - 10}px`;
+      onboardingArrow.style.left = `${Math.max(window.scrollX + 12, rect.left + window.scrollX - 28)}px`;
+    }
+
+    function showOnboardingStep(index) {
+      const step = onboardingSteps[index];
+      if (!step) {
+        hideOnboarding();
+        return;
+      }
+
+      const targetEl = document.querySelector(step.target);
+      if (!targetEl) {
+        onboardingIndex += 1;
+        showOnboardingStep(onboardingIndex);
+        return;
+      }
+
+      targetEl.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+
+      onboardingTitle.textContent = step.title;
+      onboardingText.textContent = step.text;
+      onboardingNextBtn.textContent = index === onboardingSteps.length - 1 ? "Done" : "Next";
+
+      setTimeout(() => {
+        positionOnboarding(targetEl);
+      }, 260);
+    }
+
+    function startOnboarding() {
+      if (!onboardingOverlay) return;
+      if (hasSeenOnboarding()) return;
+
+      onboardingSteps = buildOnboardingSteps();
+      onboardingIndex = 0;
+
+      onboardingOverlay.classList.remove("is-hidden");
+      onboardingOverlay.setAttribute("aria-hidden", "false");
+
+      showOnboardingStep(onboardingIndex);
+    }
+
+    function setupOnboarding() {
+      if (!onboardingNextBtn || !onboardingSkipBtn) return;
+
+      onboardingNextBtn.addEventListener("click", () => {
+        onboardingIndex += 1;
+        showOnboardingStep(onboardingIndex);
+      });
+
+      onboardingSkipBtn.addEventListener("click", () => {
+        hideOnboarding();
+      });
+
+      window.addEventListener("resize", () => {
+        if (!onboardingOverlay.classList.contains("is-hidden")) {
+          showOnboardingStep(onboardingIndex);
+        }
+      });
+    }
 
     initPage();
 
