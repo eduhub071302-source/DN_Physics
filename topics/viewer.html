@@ -75,6 +75,57 @@
       font-weight: 700;
     }
 
+    #pdfViewer {
+      scroll-behavior: smooth;
+      position: relative;
+    }
+
+    .pdf-page {
+      max-width: 100%;
+      height: auto;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.28s ease, transform 0.28s ease;
+    }
+
+    .pdf-page.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .page-skeleton-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    .page-skeleton {
+      width: min(100%, 820px);
+      aspect-ratio: 1 / 1.414;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background:
+        linear-gradient(
+          90deg,
+          rgba(255,255,255,0.04) 0%,
+          rgba(255,255,255,0.08) 50%,
+          rgba(255,255,255,0.04) 100%
+        );
+      background-size: 200% 100%;
+      animation: skeletonWave 1.2s linear infinite;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+    }
+
+    @keyframes skeletonWave {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .load-sentinel {
+      width: 100%;
+      height: 8px;
+    }
+
     @media (max-width: 768px) {
       .zoom-controls {
         width: 100%;
@@ -86,6 +137,56 @@
 
       .zoom-readout {
         width: 100%;
+      }
+
+      .viewer-topbar {
+        align-items: stretch;
+      }
+
+      #viewerActions {
+        width: 100%;
+      }
+
+      #viewerActions .btn {
+        flex: 1 1 calc(50% - 10px);
+      }
+
+      .pdf-page-wrap,
+      .page-skeleton-wrap {
+        margin-bottom: 14px;
+      }
+
+      .pdf-page-label {
+        font-size: 0.82rem;
+        margin-bottom: 8px;
+      }
+
+      .helper {
+        font-size: 0.88rem;
+        line-height: 1.5;
+      }
+
+      .pdf-shell {
+        padding: 12px;
+      }
+
+      .zoom-controls {
+        gap: 8px;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      #pdfViewer {
+        padding: 24px;
+      }
+
+      .pdf-page-wrap,
+      .page-skeleton-wrap {
+        margin-bottom: 26px;
+      }
+
+      .pdf-page-label {
+        font-size: 0.95rem;
       }
     }
   </style>
@@ -136,8 +237,7 @@
         <section id="librarySection" class="hidden" aria-label="PDF library">
           <div class="pdf-shell">
             <div class="pdf-toolbar">
-              <div class="pdf-toolbar-text">Physics PDF Library</div>
-              <div class="pdf-toolbar-text">Select a note to start revising</div>
+              <div class="pdf-toolbar-text">Physics Library</div>
             </div>
 
             <div class="library-grid" id="libraryGrid"></div>
@@ -148,7 +248,6 @@
           <div class="pdf-shell">
             <div class="pdf-toolbar">
               <div class="pdf-toolbar-text" id="fileLabel">Loading file...</div>
-              <div class="pdf-toolbar-text" id="viewerStatusText">Best for phone and PC viewing.</div>
             </div>
 
             <div class="pdf-toolbar">
@@ -167,7 +266,7 @@
           </div>
 
           <p class="helper" id="viewerHelper">
-            If the PDF does not load, check your internet connection first. If you are offline and the PDF was not opened before, preview may not work. PDFs can work offline after they have been opened once with internet. You can also try <strong>Open PDF</strong>, <strong>Download PDF</strong>, or the <strong>🔄 Refresh</strong> button.
+            If preview fails, use Open, Download, or Refresh 🔄
           </p>
         </section>
       </div>
@@ -190,7 +289,7 @@
     </button>
 
     <div id="musicPanel" class="music-panel" aria-hidden="true">
-      <div class="music-panel-title">Focus Mode 🎧</div>
+      <div class="music-panel-title">🎧 Deep Focus Mode</div>
 
       <label for="trackSelect" class="music-label">Select Track</label>
       <select id="trackSelect" class="music-select"></select>
@@ -217,7 +316,6 @@
 
   <audio id="bgMusic" loop></audio>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
   <script type="module">
     import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
 
@@ -226,7 +324,7 @@
 
     const params = new URLSearchParams(window.location.search);
 
-    const DEFAULT_SITE = "https://eduhub071302-source.github.io";
+    const DEFAULT_SITE = window.location.origin;
     const SITE_BASE = `${DEFAULT_SITE}/DN_Physics`;
 
     const directPdf = params.get("pdf");
@@ -258,7 +356,6 @@
     const refreshBtn = document.getElementById("refreshBtn");
     const offlineBanner = document.getElementById("offlineBanner");
     const viewerHelper = document.getElementById("viewerHelper");
-    const viewerStatusText = document.getElementById("viewerStatusText");
 
     const zoomOutBtn = document.getElementById("zoomOutBtn");
     const zoomInBtn = document.getElementById("zoomInBtn");
@@ -279,6 +376,14 @@
     const MIN_ZOOM = 0.6;
     const MAX_ZOOM = 3;
     const ZOOM_STEP = 0.2;
+
+    let renderedPages = 0;
+    let isRenderingBatch = false;
+    let allPagesRendered = false;
+    let loadObserver = null;
+
+    const INITIAL_PAGE_BATCH = window.innerWidth >= 1024 ? 3 : 2;
+    const NEXT_PAGE_BATCH = window.innerWidth >= 1024 ? 3 : 2;
 
     function safeDecode(value, fallback = "") {
       try {
@@ -328,22 +433,14 @@
       offlineBanner.classList.toggle("show", !navigator.onLine);
 
       if (!navigator.onLine) {
-        if (viewerStatusText) {
-          viewerStatusText.textContent = "Offline mode. Cached PDFs may still work.";
-        }
-
         if (viewerHelper) {
           viewerHelper.innerHTML =
-            'You are offline. PDFs can only open offline if they were opened once before with internet. You can still try <strong>Open PDF</strong>, <strong>Download PDF</strong>, or the <strong>🔄 Refresh</strong> button after reconnecting.';
+            'Offline mode: only previously opened PDFs may work. Reconnect and tap <strong>Refresh</strong> if needed.';
         }
       } else {
-        if (viewerStatusText) {
-          viewerStatusText.textContent = "Best for phone and PC viewing.";
-        }
-
         if (viewerHelper) {
           viewerHelper.innerHTML =
-            'If the PDF does not load, check your internet connection first. If you are offline and the PDF was not opened before, preview may not work. PDFs can work offline after they have been opened once with internet. You can also try <strong>Open PDF</strong>, <strong>Download PDF</strong>, or the <strong>🔄 Refresh</strong> button.';
+            'If preview fails, use <strong>Open PDF</strong>, <strong>Download PDF</strong>, or <strong>Refresh</strong> 🔄';
         }
       }
     }
@@ -483,7 +580,7 @@
         libraryGrid.innerHTML = items.map(item => `
           <div class="pdf-card">
             <h3>${item.title || item.file}</h3>
-            <p>${prettifyFolderName(item.subject)} · ${item.file}</p>
+            <p>${prettifyFolderName(item.subject)}</p>
             <div class="card-actions">
               <a class="btn btn-primary" href="${buildViewerUrl(item)}">View PDF</a>
               <a class="btn" href="/DN_Physics/pdfs/${item.subject}/${item.file}" target="_blank" rel="noopener">Open</a>
@@ -512,49 +609,205 @@
       return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom));
     }
 
-    async function renderPdfPages() {
-      if (!pdfDoc) return;
+    function getCurrentVisiblePage() {
+      const pageEls = Array.from(container.querySelectorAll(".pdf-page-wrap"));
+      if (!pageEls.length) return 1;
 
-      container.innerHTML = `<div class="loading">Rendering PDF...</div>`;
+      let bestPage = 1;
+      let smallestDistance = Infinity;
 
-      const pagesFragment = document.createDocumentFragment();
-      const totalPages = pdfDoc.numPages;
+      for (const el of pageEls) {
+        const rect = el.getBoundingClientRect();
+        const distance = Math.abs(rect.top - 120);
+        const pageNum = Number(el.dataset.page || "1");
 
-      container.innerHTML = "";
-
-      for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
-        const page = await pdfDoc.getPage(pageNum);
-        const viewport = page.getViewport({ scale: currentZoom });
-
-        const pageWrap = document.createElement("div");
-        pageWrap.className = "pdf-page-wrap";
-
-        const pageInner = document.createElement("div");
-
-        const pageLabel = document.createElement("div");
-        pageLabel.className = "pdf-page-label";
-        pageLabel.textContent = `Page ${pageNum} / ${totalPages}`;
-
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        canvas.className = "pdf-page";
-
-        await page.render({
-          canvasContext: context,
-          viewport
-        }).promise;
-
-        pageInner.appendChild(pageLabel);
-        pageInner.appendChild(canvas);
-        pageWrap.appendChild(pageInner);
-        pagesFragment.appendChild(pageWrap);
+        if (distance < smallestDistance) {
+          smallestDistance = distance;
+          bestPage = pageNum;
+        }
       }
 
-      container.appendChild(pagesFragment);
-      updateZoomReadout();
+      return bestPage;
+    }
+
+    function scrollToRenderedPage(pageNum) {
+      const target = container.querySelector(`.pdf-page-wrap[data-page="${pageNum}"]`);
+      if (!target) return;
+
+      const y = window.scrollY + target.getBoundingClientRect().top - 90;
+      window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+    }
+
+    function createSkeletons(count) {
+      const fragment = document.createDocumentFragment();
+
+      for (let i = 0; i < count; i++) {
+        const wrap = document.createElement("div");
+        wrap.className = "page-skeleton-wrap";
+
+        const skeleton = document.createElement("div");
+        skeleton.className = "page-skeleton";
+
+        wrap.appendChild(skeleton);
+        fragment.appendChild(wrap);
+      }
+
+      return fragment;
+    }
+
+    function removeSkeletons() {
+      container.querySelectorAll(".page-skeleton-wrap").forEach(el => el.remove());
+    }
+
+    function ensureLoadSentinel() {
+      let sentinel = document.getElementById("pdfLoadSentinel");
+
+      if (!sentinel) {
+        sentinel = document.createElement("div");
+        sentinel.id = "pdfLoadSentinel";
+        sentinel.className = "load-sentinel";
+      }
+
+      container.appendChild(sentinel);
+      return sentinel;
+    }
+
+    function setupLoadObserver() {
+      if (loadObserver) {
+        loadObserver.disconnect();
+      }
+
+      const sentinel = ensureLoadSentinel();
+
+      loadObserver = new IntersectionObserver(
+        async (entries) => {
+          const entry = entries[0];
+          if (!entry || !entry.isIntersecting) return;
+          await loadMorePagesIfNeeded();
+        },
+        {
+          root: null,
+          rootMargin: "700px 0px",
+          threshold: 0
+        }
+      );
+
+      loadObserver.observe(sentinel);
+    }
+
+    async function renderSinglePage(pageNum, totalPages, fragment = null) {
+      if (!pdfDoc) return null;
+
+      const page = await pdfDoc.getPage(pageNum);
+      const viewport = page.getViewport({ scale: currentZoom });
+
+      const pageWrap = document.createElement("div");
+      pageWrap.className = "pdf-page-wrap";
+      pageWrap.dataset.page = String(pageNum);
+
+      const pageInner = document.createElement("div");
+
+      const pageLabel = document.createElement("div");
+      pageLabel.className = "pdf-page-label";
+      pageLabel.textContent = `Page ${pageNum} / ${totalPages}`;
+
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      canvas.className = "pdf-page";
+
+      await page.render({
+        canvasContext: context,
+        viewport
+      }).promise;
+
+      pageInner.appendChild(pageLabel);
+      pageInner.appendChild(canvas);
+      pageWrap.appendChild(pageInner);
+
+      requestAnimationFrame(() => {
+        canvas.classList.add("is-visible");
+      });
+
+      if (fragment) {
+        fragment.appendChild(pageWrap);
+      }
+
+      return pageWrap;
+    }
+
+    async function renderPdfPages(reset = true, targetEndPage = null) {
+      if (!pdfDoc || isRenderingBatch) return;
+
+      isRenderingBatch = true;
+
+      try {
+        const totalPages = pdfDoc.numPages;
+
+        if (reset) {
+          container.innerHTML = "";
+          renderedPages = 0;
+          allPagesRendered = false;
+        }
+
+        const startPage = renderedPages + 1;
+        const defaultBatchSize = reset ? INITIAL_PAGE_BATCH : NEXT_PAGE_BATCH;
+        let endPage = Math.min(startPage + defaultBatchSize - 1, totalPages);
+
+        if (targetEndPage !== null) {
+          endPage = Math.min(Math.max(endPage, targetEndPage), totalPages);
+        }
+
+        const pagesToRender = Math.max(0, endPage - startPage + 1);
+        if (pagesToRender <= 0) {
+          ensureLoadSentinel();
+          setupLoadObserver();
+          return;
+        }
+
+        const sentinel = document.getElementById("pdfLoadSentinel");
+        if (sentinel) sentinel.remove();
+
+        container.appendChild(createSkeletons(pagesToRender));
+
+        const fragment = document.createDocumentFragment();
+
+        for (let pageNum = startPage; pageNum <= endPage; pageNum++) {
+          await renderSinglePage(pageNum, totalPages, fragment);
+        }
+
+        removeSkeletons();
+        container.appendChild(fragment);
+
+        renderedPages = endPage;
+        allPagesRendered = renderedPages >= totalPages;
+
+        ensureLoadSentinel();
+        setupLoadObserver();
+        updateZoomReadout();
+      } finally {
+        isRenderingBatch = false;
+      }
+    }
+
+    async function loadMorePagesIfNeeded() {
+      if (!pdfDoc || isRenderingBatch || allPagesRendered) return;
+      await renderPdfPages(false);
+    }
+
+    async function rerenderPreservingView() {
+      if (!pdfDoc) return;
+
+      const visiblePage = getCurrentVisiblePage();
+      const targetPage = Math.min(pdfDoc.numPages, Math.max(INITIAL_PAGE_BATCH, visiblePage + 1));
+
+      await renderPdfPages(true, targetPage);
+
+      setTimeout(() => {
+        scrollToRenderedPage(visiblePage);
+      }, 50);
     }
 
     async function renderPdf() {
@@ -566,7 +819,7 @@
         const firstViewport = firstPage.getViewport({ scale: 1 });
         currentZoom = getFitWidthZoom(firstViewport.width);
 
-        await renderPdfPages();
+        await renderPdfPages(true);
         saveRecentPdf();
         addExtraButtons();
       } catch (error) {
@@ -651,19 +904,19 @@
     async function zoomIn() {
       if (!pdfDoc) return;
       currentZoom = Math.min(MAX_ZOOM, +(currentZoom + ZOOM_STEP).toFixed(2));
-      await renderPdfPages();
+      await rerenderPreservingView();
     }
 
     async function zoomOut() {
       if (!pdfDoc) return;
       currentZoom = Math.max(MIN_ZOOM, +(currentZoom - ZOOM_STEP).toFixed(2));
-      await renderPdfPages();
+      await rerenderPreservingView();
     }
 
     async function resetZoom() {
       if (!pdfDoc) return;
       currentZoom = 1;
-      await renderPdfPages();
+      await rerenderPreservingView();
     }
 
     async function fitWidth() {
@@ -671,7 +924,29 @@
       const firstPage = await pdfDoc.getPage(1);
       const firstViewport = firstPage.getViewport({ scale: 1 });
       currentZoom = getFitWidthZoom(firstViewport.width);
-      await renderPdfPages();
+      await rerenderPreservingView();
+    }
+
+    function handleKeyboardShortcuts(event) {
+      const tag = (document.activeElement?.tagName || "").toLowerCase();
+      if (tag === "input" || tag === "textarea" || tag === "select") return;
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+
+      const key = event.key;
+
+      if (key === "+" || key === "=") {
+        event.preventDefault();
+        zoomIn();
+      } else if (key === "-" || key === "_") {
+        event.preventDefault();
+        zoomOut();
+      } else if (key === "0") {
+        event.preventDefault();
+        resetZoom();
+      } else if (key.toLowerCase() === "f") {
+        event.preventDefault();
+        fitWidth();
+      }
     }
 
     function setupViewerEvents() {
@@ -718,6 +993,8 @@
       window.addEventListener("resize", () => {
         updateZoomReadout();
       });
+
+      window.addEventListener("keydown", handleKeyboardShortcuts);
     }
 
     async function initViewer() {
@@ -759,7 +1036,7 @@
         : "/DN_Physics/index.html";
 
       viewerTitleEl.textContent = shareTitle;
-      fileLabelEl.textContent = `File: ${fileName}`;
+      fileLabelEl.textContent = `${shareTitle} · ${fileName}`;
       subjectLinkEl.textContent = subjectDisplayName;
       subjectLinkEl.href = subjectPageUrl;
       backLinkEl.href = backUrl;
