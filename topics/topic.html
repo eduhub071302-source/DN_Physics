@@ -12,6 +12,116 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
   <link rel="stylesheet" href="/DN_Physics/css/style.css" />
+
+  <style>
+    .topic-hero-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .topic-hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top right, rgba(78, 161, 255, 0.10), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(124, 196, 255, 0.08), transparent 24%);
+      pointer-events: none;
+    }
+
+    .topic-hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .topic-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 14px;
+    }
+
+    .topic-main-actions .btn,
+    .topic-share-actions .btn {
+      min-height: 44px;
+    }
+
+    .topic-main-actions {
+      margin-top: 18px;
+    }
+
+    .topic-share-actions {
+      margin-top: 12px;
+    }
+
+    .topic-share-actions .btn {
+      padding-inline: 14px;
+    }
+
+    .topic-helper-box {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(124, 196, 255, 0.16);
+      background: rgba(78, 161, 255, 0.06);
+      color: var(--text);
+    }
+
+    .topic-helper-box p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .topic-quick-tip {
+      margin-top: 10px;
+      color: var(--accent-2);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    @media (max-width: 600px) {
+      .topic-main-actions {
+        flex-direction: row !important;
+        gap: 8px;
+      }
+
+      .topic-main-actions .btn {
+        width: auto !important;
+        flex: 1 1 calc(50% - 8px);
+        min-width: 0;
+        min-height: 38px;
+        height: 38px;
+        padding: 0 10px;
+        font-size: 0.82rem;
+      }
+
+      .topic-main-actions .btn:first-child {
+        flex-basis: 100%;
+      }
+
+      .topic-share-actions {
+        flex-direction: row !important;
+        gap: 8px;
+      }
+
+      .topic-share-actions .btn {
+        width: auto !important;
+        flex: 1 1 calc(33.333% - 8px);
+        min-width: 0;
+        min-height: 36px;
+        height: 36px;
+        padding: 0 10px;
+        font-size: 0.8rem;
+      }
+
+      .topic-helper-box {
+        padding: 12px 14px;
+        border-radius: 14px;
+      }
+    }
+  </style>
 </head>
 <body>
   <header class="site-header">
@@ -42,33 +152,44 @@
       <div class="container">
         <a class="back-link" id="backLink" href="/DN_Physics/index.html">← Back</a>
         <h1 id="topicTitle">Topic</h1>
-        <p>Formula-only note page for quick revision.</p>
+        <p>Fast revision page for this formula note.</p>
       </div>
     </section>
 
     <section class="section">
       <div class="container">
-        <div class="note-box">
-          <div class="badge">PDF Note</div>
+        <div class="note-box topic-hero-card">
+          <div class="topic-hero-content">
+            <div class="badge">PDF Note</div>
 
-          <h2 id="sheetTitle">Formula Sheet</h2>
-          <p>View, download, or share this formula sheet.</p>
+            <h2 id="sheetTitle">Formula Sheet</h2>
+            <p>Open this note, download it, or share it quickly.</p>
 
-          <div class="actions">
-            <a class="btn" id="viewBtn" href="/DN_Physics/index.html">📖 View PDF</a>
-            <a class="btn btn-primary" id="downloadBtn" href="/DN_Physics/index.html" download>⬇ Download PDF</a>
-            <button class="btn" id="shareBtn" type="button">📤 Share PDF</button>
+            <div class="topic-meta-row">
+              <div class="meta-pill" id="topicSubjectPill">Subject</div>
+              <div class="meta-pill">Quick Revision</div>
+            </div>
+
+            <div class="actions topic-main-actions">
+              <a class="btn btn-primary" id="viewBtn" href="/DN_Physics/index.html">📖 View PDF</a>
+              <a class="btn" id="downloadBtn" href="/DN_Physics/index.html" download>⬇ Download PDF</a>
+              <button class="btn" id="shareBtn" type="button">📤 Share PDF</button>
+            </div>
+
+            <div class="actions topic-share-actions">
+              <a class="btn" id="waShare" target="_blank" rel="noopener">WhatsApp</a>
+              <a class="btn" id="tgShare" target="_blank" rel="noopener">Telegram</a>
+              <a class="btn" id="mailShare">Email</a>
+            </div>
+
+            <div class="topic-helper-box">
+              <p>
+                For the smoothest reading experience, use <strong>View PDF</strong>.
+                If your phone is slow, use <strong>Download PDF</strong>.
+              </p>
+              <div class="topic-quick-tip">⚡ Best for quick A/L revision</div>
+            </div>
           </div>
-
-          <div class="actions topic-share-actions">
-            <a class="btn" id="waShare" target="_blank" rel="noopener">WhatsApp</a>
-            <a class="btn" id="tgShare" target="_blank" rel="noopener">Telegram</a>
-            <a class="btn" id="mailShare">Email</a>
-          </div>
-
-          <p class="topic-helper-text">
-            If preview is slow on your phone, use <strong>Download PDF</strong>.
-          </p>
         </div>
       </div>
     </section>
@@ -81,14 +202,39 @@
   </footer>
 
   <div class="music-player-wrap">
-    <button id="musicToggleBtn" class="btn music-toggle-btn" type="button">🎧 Focus</button>
-    <div id="musicPanel" class="music-panel">
-      <div class="music-panel-title">Focus Mode 🎧</div>
-      <select id="trackSelect"></select>
-      <button id="playPauseBtn">▶ Play</button>
-      <button id="stopMusicBtn">■ Stop</button>
-      <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.35" />
-      <div id="currentTrackLabel">Current: None</div>
+    <button
+      id="musicToggleBtn"
+      class="btn music-toggle-btn"
+      type="button"
+      aria-expanded="false"
+      aria-controls="musicPanel"
+    >
+      🎧 Focus
+    </button>
+
+    <div id="musicPanel" class="music-panel" aria-hidden="true">
+      <div class="music-panel-title">🎧 Deep Focus Mode</div>
+
+      <label for="trackSelect" class="music-label">Select Track</label>
+      <select id="trackSelect" class="music-select"></select>
+
+      <div class="music-controls">
+        <button id="playPauseBtn" class="btn btn-primary" type="button">▶ Play</button>
+        <button id="stopMusicBtn" class="btn" type="button">■ Stop</button>
+      </div>
+
+      <label for="volumeSlider" class="music-label">Volume 🔊</label>
+      <input
+        id="volumeSlider"
+        class="volume-slider"
+        type="range"
+        min="0"
+        max="1"
+        step="0.01"
+        value="0.35"
+      />
+
+      <div id="currentTrackLabel" class="music-track-label">Current: None</div>
     </div>
   </div>
 
@@ -106,6 +252,7 @@
     const backLink = document.getElementById("backLink");
     const topicTitle = document.getElementById("topicTitle");
     const sheetTitle = document.getElementById("sheetTitle");
+    const topicSubjectPill = document.getElementById("topicSubjectPill");
     const viewBtn = document.getElementById("viewBtn");
     const downloadBtn = document.getElementById("downloadBtn");
     const shareBtn = document.getElementById("shareBtn");
@@ -120,7 +267,7 @@
     }
 
     const prettySubject = prettifySubject(subject);
-    const title = rawTitle.trim();
+    const title = rawTitle.trim() || "Topic";
 
     const hasValidParams = Boolean(subject && file);
 
@@ -138,6 +285,7 @@
 
     topicTitle.textContent = title;
     sheetTitle.textContent = `${title} Formula Sheet`;
+    topicSubjectPill.textContent = prettySubject;
 
     backLink.href = subjectPage;
     subjectNavLink.href = subjectPage;
@@ -154,12 +302,16 @@
 
       waShare.href = "https://wa.me/?text=" + encodeURIComponent(fullPdfUrl);
       tgShare.href = "https://t.me/share/url?url=" + encodeURIComponent(fullPdfUrl);
-      mailShare.href = "mailto:?body=" + encodeURIComponent(fullPdfUrl);
+      mailShare.href = "mailto:?subject=" + encodeURIComponent(title) + "&body=" + encodeURIComponent(fullPdfUrl);
     }
 
     async function copyFallback(text) {
       const ta = document.createElement("textarea");
       ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      ta.style.pointerEvents = "none";
       document.body.appendChild(ta);
       ta.select();
       document.execCommand("copy");
@@ -179,16 +331,31 @@
             url: fullPdfUrl
           });
           return;
-        } catch {}
+        } catch (error) {}
       }
 
       try {
         await navigator.clipboard.writeText(fullPdfUrl);
         showToast("Link copied ✅");
-      } catch {
+      } catch (error) {
         await copyFallback(fullPdfUrl);
         showToast("Link copied ✅");
       }
+    }
+
+    async function refreshPage() {
+      try {
+        if ("serviceWorker" in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (const registration of registrations) {
+            await registration.update();
+          }
+        }
+      } catch (error) {
+        console.log("Refresh warning:", error);
+      }
+
+      location.reload();
     }
 
     if (shareBtn) {
@@ -196,11 +363,12 @@
     }
 
     if (refreshBtn) {
-      refreshBtn.addEventListener("click", () => location.reload());
+      refreshBtn.addEventListener("click", refreshPage);
     }
 
     function showToast(message) {
       let toast = document.getElementById("globalToast");
+
       if (!toast) {
         toast = document.createElement("div");
         toast.id = "globalToast";
