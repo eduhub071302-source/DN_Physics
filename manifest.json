@@ -2,7 +2,9 @@
   "id": "/DN_Physics/",
   "name": "DN Physics",
   "short_name": "DN Physics",
-  "description": "A/L Physics digital notes and formula viewer by DinuuNOVA.",
+  "description": "Premium A/L Physics notes, formula sheets, and past paper MCQ practice by DinuuNOVA.",
+  "lang": "en",
+  "dir": "ltr",
   "start_url": "/DN_Physics/index.html",
   "scope": "/DN_Physics/",
   "display": "standalone",
@@ -10,6 +12,8 @@
   "background_color": "#0b1220",
   "theme_color": "#4ea1ff",
   "orientation": "portrait-primary",
+  "categories": ["education", "productivity", "books", "reference"],
+  "prefer_related_applications": false,
 
   "icons": [
     {
@@ -21,20 +25,38 @@
       "src": "/DN_Physics/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "/DN_Physics/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/DN_Physics/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
 
   "shortcuts": [
     {
       "name": "All Notes",
+      "short_name": "Notes",
+      "description": "Open the full Physics PDF library.",
       "url": "/DN_Physics/topics/viewer.html"
     },
     {
       "name": "Units",
+      "short_name": "Units",
+      "description": "Open Units revision notes.",
       "url": "/DN_Physics/subjects/units/index.html"
     },
     {
       "name": "Current Electricity",
+      "short_name": "Electricity",
+      "description": "Open Current Electricity revision notes.",
       "url": "/DN_Physics/subjects/current-electricity/index.html"
     }
   ]
