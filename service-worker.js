@@ -1,7 +1,6 @@
-const CACHE_NAME = "dn-physics-v115";
+const CACHE_NAME = "dn-physics-v113";
 const META_CACHE = "dn-physics-meta";
 
-// ================= CORE FILES =================
 const CORE_FILES = [
   "/DN_Physics/",
   "/DN_Physics/index.html",
@@ -16,16 +15,13 @@ const CORE_FILES = [
   "/DN_Physics/pdfs/catalog.json"
 ];
 
-// ================= INSTALL =================
 self.addEventListener("install", (event) => {
-  self.skipWaiting(); // 🔥 IMPORTANT FIX
-
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_FILES))
   );
+  self.skipWaiting();
 });
 
-// ================= ACTIVATE =================
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {
@@ -39,36 +35,30 @@ self.addEventListener("activate", (event) => {
         })
       );
 
-      await self.clients.claim();
-
-      // ===== VERSION CHECK =====
       const metaCache = await caches.open(META_CACHE);
       const oldVersionRes = await metaCache.match("version");
-
-      let oldVersion = null;
-      if (oldVersionRes) oldVersion = await oldVersionRes.text();
+      const oldVersion = oldVersionRes ? await oldVersionRes.text() : null;
 
       await metaCache.put("version", new Response(CACHE_NAME));
 
-      if (oldVersion && oldVersion !== CACHE_NAME) {
-        const clients = await self.clients.matchAll({
-          type: "window",
-          includeUncontrolled: true
-        });
+      await self.clients.claim();
 
-        for (const client of clients) {
-          client.postMessage({
-            type: "SW_UPDATED",
-            version: CACHE_NAME,
-            safe: true
-          });
-        }
+      const clients = await self.clients.matchAll({
+        type: "window",
+        includeUncontrolled: true
+      });
+
+      for (const client of clients) {
+        client.postMessage({
+          type: "SW_UPDATED",
+          version: CACHE_NAME,
+          changed: oldVersion && oldVersion !== CACHE_NAME
+        });
       }
     })()
   );
 });
 
-// ================= MESSAGE =================
 self.addEventListener("message", (event) => {
   if (!event.data) return;
 
@@ -84,7 +74,6 @@ self.addEventListener("message", (event) => {
   }
 });
 
-// ================= FETCH =================
 self.addEventListener("fetch", (event) => {
   const request = event.request;
 
@@ -97,16 +86,9 @@ self.addEventListener("fetch", (event) => {
   const isPDF = url.pathname.endsWith(".pdf");
   const isCSS = url.pathname.endsWith(".css");
   const isJS = url.pathname.endsWith(".js");
-  const isImage = url.pathname.match(/\.(png|jpg|jpeg|webp|svg|gif|ico)$/);
+  const isImage = /\.(png|jpg|jpeg|webp|svg|gif|ico)$/.test(url.pathname);
+  const isAudio = /\.(mp3|wav|ogg)$/.test(url.pathname);
 
-  const network = await Promise.race([
-    fetch(request),
-    new Promise((_, reject) =>
-      setTimeout(() => reject("timeout"), 4000)
-    )
-  ]);
-
-  // ===== HTML (NETWORK FIRST + CACHE SAVE) =====
   if (isNavigate) {
     event.respondWith(
       (async () => {
@@ -114,11 +96,9 @@ self.addEventListener("fetch", (event) => {
 
         try {
           const network = await fetch(request);
-
           if (network && network.ok) {
             cache.put(request, network.clone());
           }
-
           return network;
         } catch {
           return (
@@ -131,44 +111,47 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // ===== CSS / JS (STALE-WHILE-REVALIDATE) =====
+  // CRITICAL APP FILES: network first
   if (isCSS || isJS) {
     event.respondWith(
       (async () => {
         const cache = await caches.open(CACHE_NAME);
-        const cached = await cache.match(request);
 
-        const networkFetch = fetch(request).then((res) => {
-          if (res && res.ok) cache.put(request, res.clone());
-          return res;
-        });
-
-        return cached || await networkFetch;
-      })()
-    );
-    return;
-  }
-
-  // ===== JSON =====
-  if (isJSON) {
-    event.respondWith(
-      (async () => {
         try {
           const network = await fetch(request);
-
-          const cache = await caches.open(CACHE_NAME);
-          cache.put(request, network.clone());
-
+          if (network && network.ok) {
+            cache.put(request, network.clone());
+          }
           return network;
         } catch {
-          return caches.match(request);
+          const cached = await cache.match(request);
+          if (cached) return cached;
+          throw new Error("Asset unavailable");
         }
       })()
     );
     return;
   }
 
-  // ===== PDF (LIMITED CACHE) =====
+  if (isJSON) {
+    event.respondWith(
+      (async () => {
+        const cache = await caches.open(CACHE_NAME);
+
+        try {
+          const network = await fetch(request);
+          if (network && network.ok) {
+            cache.put(request, network.clone());
+          }
+          return network;
+        } catch {
+          return await cache.match(request);
+        }
+      })()
+    );
+    return;
+  }
+
   if (isPDF) {
     event.respondWith(
       (async () => {
@@ -178,15 +161,16 @@ self.addEventListener("fetch", (event) => {
 
         try {
           const network = await fetch(request);
+          if (network && network.ok) {
+            const keys = await cache.keys();
+            const pdfKeys = keys.filter((r) => r.url.endsWith(".pdf"));
 
-          const keys = await cache.keys();
-          const pdfKeys = keys.filter(r => r.url.endsWith(".pdf"));
+            if (pdfKeys.length > 20) {
+              await cache.delete(pdfKeys[0]);
+            }
 
-          if (pdfKeys.length > 20) {
-            await cache.delete(pdfKeys[0]); // remove oldest
+            cache.put(request, network.clone());
           }
-
-          cache.put(request, network.clone());
           return network;
         } catch {
           return new Response("PDF not available offline", { status: 503 });
@@ -196,23 +180,22 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // ===== AUDIO (NO CACHE) =====
-  if (url.pathname.match(/\.(mp3|wav|ogg)$/)) {
+  if (isAudio) {
     return;
   }
 
-  // ===== IMAGES =====
   if (isImage) {
     event.respondWith(
       (async () => {
         const cache = await caches.open(CACHE_NAME);
         const cached = await cache.match(request);
-
         if (cached) return cached;
 
         try {
           const network = await fetch(request);
-          cache.put(request, network.clone());
+          if (network && network.ok) {
+            cache.put(request, network.clone());
+          }
           return network;
         } catch {
           return new Response("Offline", { status: 503 });
@@ -222,7 +205,6 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // ===== DEFAULT =====
   event.respondWith(
     caches.match(request).then((res) => res || fetch(request))
   );
