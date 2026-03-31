@@ -1516,3 +1516,31 @@ main {
     font-weight: 800;
   }
 }
+
+/* ===== FORCE SAME SIZE AS ZOOM BUTTONS ===== */
+@media (max-width: 768px) {
+
+  /* Match zoom button size exactly */
+  #viewerActions .btn,
+  .zoom-controls .btn {
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 0 10px !important;
+    font-size: 0.78rem !important;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Grid layout for 6 buttons */
+  #viewerActions {
+    gap: 6px;
+  }
+
+  #viewerActions .btn {
+    flex: 1 1 calc(33.333% - 6px);
+    width: auto !important;
+    min-width: 0;
+  }
+}
