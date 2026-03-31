@@ -1492,15 +1492,23 @@ main {
 
 @media (max-width: 768px) {
   #viewerActions {
-    gap: 8px;
+    gap: 6px;
+    width: 100%;
   }
 
   #viewerActions .btn {
-    min-height: 38px;
-    padding: 7px 10px;
-    font-size: 0.84rem;
+    min-height: 36px;
+    padding: 6px 8px;
+    font-size: 0.78rem;
     border-radius: 10px;
-    flex: 1 1 calc(50% - 8px);
+    flex: 1 1 calc(33.333% - 6px);
+    width: auto;
+    min-width: 0;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+
+  #viewerActions .btn.btn-primary {
+    font-weight: 800;
   }
 }
-
