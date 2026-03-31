@@ -18,13 +18,30 @@
     }
 
     .offline-card {
-      width: min(100%, 560px);
+      width: min(100%, 580px);
       background: linear-gradient(180deg, rgba(17, 26, 43, 0.96), rgba(12, 18, 31, 0.96));
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 24px;
       padding: 28px 24px;
       box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
       text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .offline-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top right, rgba(78, 161, 255, 0.10), transparent 26%),
+        radial-gradient(circle at bottom left, rgba(124, 196, 255, 0.06), transparent 22%);
+      pointer-events: none;
+    }
+
+    .offline-card-inner {
+      position: relative;
+      z-index: 1;
     }
 
     .offline-icon {
@@ -39,6 +56,20 @@
       background: linear-gradient(135deg, var(--accent), var(--accent-2));
       color: #04101f;
       box-shadow: 0 10px 30px rgba(78, 161, 255, 0.28);
+    }
+
+    .offline-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(78, 161, 255, 0.08);
+      border: 1px solid rgba(124, 196, 255, 0.22);
+      color: var(--accent-2);
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 12px;
     }
 
     .offline-title {
@@ -64,6 +95,11 @@
       color: var(--text);
       font-size: 0.96rem;
       line-height: 1.6;
+      text-align: left;
+    }
+
+    .offline-tip strong {
+      color: var(--accent-2);
     }
 
     .offline-actions {
@@ -74,10 +110,33 @@
       margin-top: 22px;
     }
 
+    .offline-status {
+      margin-top: 14px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .offline-status.online {
+      color: var(--accent-2);
+      font-weight: 700;
+    }
+
     @media (max-width: 600px) {
       .offline-card {
         padding: 22px 18px;
         border-radius: 20px;
+      }
+
+      .offline-actions {
+        flex-direction: column;
+      }
+
+      .offline-actions .btn {
+        width: 100%;
+      }
+
+      .offline-tip {
+        font-size: 0.92rem;
       }
     }
   </style>
@@ -85,26 +144,56 @@
 <body>
   <div class="offline-page">
     <div class="offline-card">
-      <div class="offline-icon">📡</div>
-      <h1 class="offline-title">You are offline</h1>
+      <div class="offline-card-inner">
+        <div class="offline-icon">📡</div>
+        <div class="offline-badge">Offline Mode</div>
 
-      <p class="offline-text">
-        The app cannot load new content right now because your internet is turned off or unavailable.
-      </p>
+        <h1 class="offline-title">You are offline</h1>
 
-      <p class="offline-text">
-        Some pages and PDFs may still work only if they were opened earlier while connected to the internet.
-      </p>
+        <p class="offline-text">
+          New content cannot be loaded right now.
+        </p>
 
-      <div class="offline-tip">
-        After turning on the internet, press the <strong>Refresh</strong> button.
-      </div>
+        <p class="offline-text">
+          Previously opened notes and PDFs may still work offline.
+        </p>
 
-      <div class="offline-actions">
-        <button class="btn btn-primary" type="button" onclick="location.reload()">🔄 Refresh</button>
-        <a class="btn" href="/DN_Physics/index.html">Go Home</a>
+        <div class="offline-tip">
+          <strong>What you can do now:</strong><br>
+          • Try <strong>Refresh</strong> after reconnecting<br>
+          • Go to <strong>Home</strong><br>
+          • Open the <strong>Notes Library</strong> to check cached content
+        </div>
+
+        <div class="offline-actions">
+          <button class="btn btn-primary" type="button" onclick="location.reload()">🔄 Refresh</button>
+          <a class="btn" href="/DN_Physics/index.html">Go Home</a>
+          <a class="btn" href="/DN_Physics/topics/viewer.html">Open Notes</a>
+        </div>
+
+        <div id="offlineStatus" class="offline-status">Waiting for connection…</div>
       </div>
     </div>
   </div>
+
+  <script>
+    const statusEl = document.getElementById("offlineStatus");
+
+    function updateStatus() {
+      if (!statusEl) return;
+
+      if (navigator.onLine) {
+        statusEl.textContent = "Internet is back. You can refresh now ✅";
+        statusEl.classList.add("online");
+      } else {
+        statusEl.textContent = "Waiting for connection…";
+        statusEl.classList.remove("online");
+      }
+    }
+
+    window.addEventListener("online", updateStatus);
+    window.addEventListener("offline", updateStatus);
+    updateStatus();
+  </script>
 </body>
 </html>
