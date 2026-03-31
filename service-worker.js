@@ -1,4 +1,4 @@
-const CACHE_NAME = "dn-physics-v113";
+const CACHE_NAME = "dn-physics-v114";
 const META_CACHE = "dn-physics-meta";
 
 // ================= CORE FILES =================
@@ -99,17 +99,30 @@ self.addEventListener("fetch", (event) => {
   const isJS = url.pathname.endsWith(".js");
   const isImage = url.pathname.match(/\.(png|jpg|jpeg|webp|svg|gif|ico)$/);
 
-  // ===== HTML (NETWORK FIRST) =====
+  const network = await Promise.race([
+    fetch(request),
+    new Promise((_, reject) =>
+      setTimeout(() => reject("timeout"), 4000)
+    )
+  ]);
+
+  // ===== HTML (NETWORK FIRST + CACHE SAVE) =====
   if (isNavigate) {
     event.respondWith(
       (async () => {
+        const cache = await caches.open(CACHE_NAME);
+
         try {
           const network = await fetch(request);
+
+          if (network && network.ok) {
+            cache.put(request, network.clone());
+          }
 
           return network;
         } catch {
           return (
-            (await caches.match(request)) ||
+            (await cache.match(request)) ||
             (await caches.match("/DN_Physics/offline.html"))
           );
         }
@@ -130,7 +143,7 @@ self.addEventListener("fetch", (event) => {
           return res;
         });
 
-        return cached || networkFetch;
+        return cached || await networkFetch;
       })()
     );
     return;
@@ -155,19 +168,25 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // ===== PDF =====
+  // ===== PDF (LIMITED CACHE) =====
   if (isPDF) {
     event.respondWith(
       (async () => {
-        const cached = await caches.match(request);
+        const cache = await caches.open(CACHE_NAME);
+        const cached = await cache.match(request);
         if (cached) return cached;
 
         try {
           const network = await fetch(request);
 
-          const cache = await caches.open(CACHE_NAME);
-          cache.put(request, network.clone());
+          const keys = await cache.keys();
+          const pdfKeys = keys.filter(r => r.url.endsWith(".pdf"));
 
+          if (pdfKeys.length > 20) {
+            await cache.delete(pdfKeys[0]); // remove oldest
+          }
+
+          cache.put(request, network.clone());
           return network;
         } catch {
           return new Response("PDF not available offline", { status: 503 });
