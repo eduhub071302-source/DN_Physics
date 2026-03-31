@@ -1490,26 +1490,34 @@ main {
   100% { transform: translateX(0); opacity: 0.7; }
 }
 
+/* ===== FORCE SAME SIZE AS ZOOM BUTTONS ===== */
 @media (max-width: 768px) {
-
-  #viewerActions {
+  #viewerActions.actions {
+    display: flex;
+    flex-direction: row !important;
+    flex-wrap: wrap;
     gap: 6px;
     width: 100%;
+    margin-top: 12px;
+  }
+
+  #viewerActions .btn,
+  .zoom-controls .btn {
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 0 10px !important;
+    font-size: 0.78rem !important;
+    border-radius: 10px !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
   }
 
   #viewerActions .btn {
-    min-height: 36px;          /* ✅ same as zoom buttons */
-    height: 36px;              /* ✅ force equal height */
-    padding: 0 8px;            /* ✅ remove vertical padding */
-    font-size: 0.78rem;
-    border-radius: 10px;
     flex: 1 1 calc(33.333% - 6px);
-    width: auto;
-    min-width: 0;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: auto !important;
+    min-width: 0 !important;
   }
 
   #viewerActions .btn.btn-primary {
@@ -1517,30 +1525,12 @@ main {
   }
 }
 
-/* ===== FORCE SAME SIZE AS ZOOM BUTTONS ===== */
-@media (max-width: 768px) {
-
-  /* Match zoom button size exactly */
-  #viewerActions .btn,
-  .zoom-controls .btn {
-    height: 36px !important;
-    min-height: 36px !important;
-    padding: 0 10px !important;
-    font-size: 0.78rem !important;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Grid layout for 6 buttons */
-  #viewerActions {
-    gap: 6px;
+@media (max-width: 600px) {
+  #viewerActions.actions {
+    flex-direction: row !important;
   }
 
   #viewerActions .btn {
-    flex: 1 1 calc(33.333% - 6px);
     width: auto !important;
-    min-width: 0;
   }
 }
