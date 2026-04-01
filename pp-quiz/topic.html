@@ -12,13 +12,17 @@
     content="Choose a subtopic and start A/L Physics past paper MCQ practice with DinuuNOVA Physics."
   />
   <meta name="theme-color" content="#0b1220" />
-  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=31" />
+  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=32" />
 </head>
+
 <body>
+  <!-- SKIP LINK -->
   <a class="skip-link" href="#topicMainContent">Skip to content</a>
 
+  <!-- HEADER -->
   <header class="quiz-header">
     <div class="container">
+
       <div class="quiz-header-top">
         <a
           id="backToTopics"
@@ -28,39 +32,51 @@
         >
           ← Back to Topics
         </a>
-        <div class="quiz-header-badge">DN Physics • PP Quiz</div>
+
+        <div class="quiz-header-badge">
+          DN Physics • Topic View
+        </div>
       </div>
 
       <h1 id="topicTitle">Topic</h1>
-      <p id="topicSubtitle">Select a subtopic to begin practice.</p>
+      <p id="topicSubtitle">
+        Select a subtopic to begin focused MCQ practice.
+      </p>
     </div>
   </header>
 
+  <!-- MAIN -->
   <main id="topicMainContent" class="quiz-main">
     <div class="container">
+
       <!-- HERO -->
       <section
         class="topic-card quiz-home-hero fade-slide-up"
         aria-label="Topic introduction"
       >
         <div class="topic-card-top quiz-home-hero-top">
+
           <div class="topic-body">
             <div class="topic-pill">PP Quiz • Subtopic Selection</div>
-            <h2 class="topic-title quiz-home-title" id="topicHeroTitle">
+
+            <h2 id="topicHeroTitle" class="topic-title quiz-home-title">
               Loading Topic...
             </h2>
-            <p class="topic-desc quiz-home-desc" id="topicHeroText">
+
+            <p id="topicHeroText" class="topic-desc quiz-home-desc">
               Choose a subtopic and start practicing instantly.
             </p>
           </div>
 
-          <div class="topic-icon quiz-home-icon" aria-hidden="true">📘</div>
+          <div class="topic-icon quiz-home-icon" aria-hidden="true">
+            📘
+          </div>
         </div>
 
         <div class="topic-stats quiz-home-stats" aria-label="Topic features">
-          <span class="stat-pill">Subtopic Practice</span>
-          <span class="stat-pill">Progress Tracking</span>
-          <span class="stat-pill">Focused Revision</span>
+          <span class="stat-pill">Structured Practice</span>
+          <span class="stat-pill">Track Progress</span>
+          <span class="stat-pill">Master Concepts</span>
         </div>
       </section>
 
@@ -71,22 +87,24 @@
       >
         <div class="quiz-home-section-row">
           <div>
-            <h3 class="quiz-home-section-title">Available Subtopics</h3>
+            <h3 class="quiz-home-section-title">
+              Available Subtopics
+            </h3>
             <p class="quiz-home-section-subtitle">
-              Tap a subtopic to continue your revision.
+              Tap a subtopic and continue your revision journey.
             </p>
           </div>
         </div>
       </section>
 
-      <!-- SUBTOPICS GRID -->
+      <!-- GRID -->
       <section
         id="subtopicsGrid"
         class="topics-grid fade-in"
         aria-live="polite"
         aria-label="Available subtopics"
       >
-        <!-- Skeleton loading -->
+        <!-- Skeletons -->
         <article class="skeleton-card" aria-hidden="true">
           <div class="skeleton-avatar"></div>
           <div class="skeleton-line lg"></div>
@@ -124,12 +142,12 @@
       <section
         id="topicEmptyState"
         class="empty-state"
-        style="display: none;"
+        style="display:none;"
         aria-live="polite"
       >
         <h3>No subtopics found</h3>
         <p>
-          This topic does not have subtopics yet. Add them in your topic data file and reload this page.
+          This topic does not have subtopics yet. Add them in your data file.
         </p>
       </section>
 
@@ -137,18 +155,19 @@
       <section
         id="topicErrorState"
         class="quiz-error-card"
-        style="display: none;"
+        style="display:none;"
         aria-live="assertive"
       >
         <h2>Topic could not be loaded</h2>
         <p id="topicErrorText">
-          Something went wrong while loading this topic. Please try again or go back.
+          Something went wrong while loading this topic.
         </p>
 
         <div class="question-error-actions">
-          <button id="retryTopicBtn" class="action-btn primary-btn" type="button">
+          <button id="retryTopicBtn" class="action-btn primary-btn">
             Retry
           </button>
+
           <a
             id="backToTopicsBtn"
             class="action-btn"
@@ -158,17 +177,17 @@
           </a>
         </div>
       </section>
+
     </div>
   </main>
 
-  <!-- GLOBAL MUSIC PLAYER -->
+  <!-- MUSIC PLAYER -->
   <audio id="bgMusic" loop></audio>
 
   <div id="musicPlayerFloating" class="music-floating">
     <button
       id="musicToggleBtn"
       class="music-float-btn"
-      type="button"
       aria-label="Open music player"
       aria-expanded="false"
       aria-controls="musicPanel"
@@ -180,17 +199,15 @@
       <div class="music-header">Focus Music</div>
 
       <div class="music-row">
-        <label class="sr-only" for="trackSelect">Select music track</label>
-        <select id="trackSelect" aria-label="Select music track"></select>
+        <select id="trackSelect"></select>
       </div>
 
       <div class="music-row">
-        <button id="playPauseBtn" type="button">▶ Play</button>
-        <button id="stopMusicBtn" type="button">⏹ Stop</button>
+        <button id="playPauseBtn">▶ Play</button>
+        <button id="stopMusicBtn">⏹ Stop</button>
       </div>
 
       <div class="music-row">
-        <label class="sr-only" for="volumeSlider">Music volume</label>
         <input
           id="volumeSlider"
           type="range"
@@ -198,20 +215,23 @@
           max="1"
           step="0.01"
           value="0.35"
-          aria-label="Music volume"
         />
       </div>
 
-      <div id="currentTrackLabel" class="music-label">Current: None</div>
+      <div id="currentTrackLabel" class="music-label">
+        Current: None
+      </div>
     </div>
   </div>
 
+  <!-- NOSCRIPT -->
   <noscript>
-    <div class="container" style="padding: 20px;">
-      JavaScript is required to load the DN Physics topic subtopics.
+    <div class="container" style="padding:20px;">
+      JavaScript is required to load this page.
     </div>
   </noscript>
 
+  <!-- SCRIPTS -->
   <script src="/DN_Physics/js/music-player.js"></script>
   <script src="/DN_Physics/pp-quiz/js/topic.js"></script>
 </body>
