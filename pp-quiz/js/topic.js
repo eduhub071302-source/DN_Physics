@@ -144,6 +144,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const topicHeroText = document.getElementById("topicHeroText");
   const subtopicsGrid = document.getElementById("subtopicsGrid");
 
+  const refreshTopicBtn = document.getElementById("refreshTopicBtn");
+
   function getBadgeData(percentage) {
     const value = Number(percentage) || 0;
 
@@ -445,4 +447,13 @@ document.addEventListener("DOMContentLoaded", () => {
   currentTopic.subtopics.forEach((subtopic, index) => {
     subtopicsGrid.appendChild(createSubtopicCard(topicSlug, subtopic, index));
   });
+
+  if (refreshTopicBtn) {
+    refreshTopicBtn.addEventListener("click", () => {
+      document.body.classList.add("page-is-refreshing");
+      setTimeout(() => {
+        window.location.reload();
+      }, 120);
+    });
+  }
 });
