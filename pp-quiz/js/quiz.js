@@ -1691,8 +1691,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   answerButtons.forEach((button) => {
     button.addEventListener("click", () => {
       if (reviewMode) return;
+      
       const questionNumber = getCurrentQuestionNumber();
       userAnswers[questionNumber] = Number(button.dataset.answer);
+      
       updateAnswerButtons();
       updateSubmitVisibility();
       updateMotivationBar();
@@ -1705,10 +1707,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         setTimeout(() => {
           if (!reviewMode) {
             nextBtn.click();
-
-            setTimeout(() => {
-              scrollQuestionIntoView("auto");
-            }, 50);
           }
         }, 250);
       }
