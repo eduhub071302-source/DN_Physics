@@ -1488,10 +1488,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.querySelectorAll(".collapse-header").forEach((btn) => {
     btn.addEventListener("click", () => {
       const targetId = btn.dataset.target;
+
+      if (!targetId) return; // 🔥 protect
+
       const content = document.getElementById(targetId);
       const card = btn.closest(".collapsible-card");
 
-      if (!content || !card) return;
+      if (!content || !card) return; // 🔥 protect
 
       const isOpen = card.classList.contains("open");
 
