@@ -12,6 +12,8 @@ const topics = [
   { slug: "matter-radiations", title: "Matter & Radiations", icon: "☢️", desc: "Atomic structure, radiation, quantum ideas, and modern physics." }
 ];
 
+const refreshQuizHomeBtn = document.getElementById("refreshQuizHomeBtn");
+
 document.addEventListener("DOMContentLoaded", () => {
   const topicsGrid = document.getElementById("topicsGrid");
 
@@ -32,6 +34,15 @@ function renderTopics(container, topicList) {
       </div>
     `;
     return;
+  }
+
+  if (refreshQuizHomeBtn) {
+    refreshQuizHomeBtn.addEventListener("click", () => {
+      document.body.classList.add("page-is-refreshing");
+      setTimeout(() => {
+        window.location.reload();
+      }, 120);
+    });
   }
 
   container.innerHTML = "";
