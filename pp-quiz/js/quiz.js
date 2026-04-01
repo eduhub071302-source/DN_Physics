@@ -72,7 +72,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const resultHeadline = document.getElementById("resultHeadline");
   const resultMotivation = document.getElementById("resultMotivation");
 
+  const refreshQuizBtn = document.getElementById("refreshQuizBtn");
+
   const requiredElements = [
+    refreshQuizBtn,
     quizTitle,
     quizSubtitle,
     backToSubtopic,
