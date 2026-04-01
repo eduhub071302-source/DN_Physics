@@ -2,100 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-  />
-  <title>Quiz | DN Physics PP Quiz</title>
-  <meta
-    name="description"
-    content="DN Physics premium past paper quiz experience with progress tracking, resume, review, and focused practice mode."
-  />
-  <meta name="theme-color" content="#0b1220" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz | PP Quiz</title>
 
-  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=29" />
+  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=28" />
 </head>
 
 <body>
-  <a class="skip-link" href="#quizMainContent">Skip to quiz content</a>
 
   <header class="quiz-header">
     <div class="container">
-      <div class="quiz-header-top">
-        <a id="backToSubtopic" class="back-link" href="#" aria-label="Back to subtopic page">← Back</a>
-        <div class="quiz-header-badge">DN Physics • PP Quiz</div>
-      </div>
-
+      <a id="backToSubtopic" class="back-link">← Back</a>
       <h1 id="quizTitle">Quiz</h1>
       <p id="quizSubtitle">Focused Practice Mode</p>
     </div>
   </header>
 
-  <main id="quizMainContent" class="quiz-main">
+  <main class="quiz-main">
     <div class="container">
+
       <div class="quiz-shell">
-        <div class="motivation-bar" id="motivationBar" role="status" aria-live="polite">
+
+        <div class="motivation-bar" id="motivationBar">
           Stay focused. Every question improves your rank.
         </div>
 
-        <!-- START / LOADING / ERROR STATE -->
-        <section id="quizEntryCard" class="entry-card" aria-labelledby="entryTitle">
-          <div class="entry-card-head">
-            <div>
-              <p class="eyebrow">Ready to begin?</p>
-              <h2 id="entryTitle">Start Your Quiz</h2>
-              <p id="entryDescription" class="entry-copy">
-                Review the set details, then start when you are ready.
-              </p>
-            </div>
-            <div class="entry-status-pill" id="entryStatusPill">Preparing...</div>
-          </div>
-
-          <div class="entry-grid">
-            <div class="entry-info-box">
-              <span class="entry-label">Questions</span>
-              <strong id="entryQuestionCount">--</strong>
-            </div>
-            <div class="entry-info-box">
-              <span class="entry-label">Mode</span>
-              <strong id="entryModeLabel">Focused Practice</strong>
-            </div>
-            <div class="entry-info-box">
-              <span class="entry-label">Best Score</span>
-              <strong id="entryBestScore">--</strong>
-            </div>
-            <div class="entry-info-box">
-              <span class="entry-label">Attempts</span>
-              <strong id="entryAttempts">--</strong>
-            </div>
-          </div>
-
-          <div class="entry-notes">
-            <div class="entry-note">
-              <strong>Tip:</strong> Use mark for review on hard questions and come back later.
-            </div>
-            <div class="entry-note">
-              <strong>Resume:</strong> If a previous session exists, you can continue from where you stopped.
-            </div>
-          </div>
-
-          <div class="entry-actions">
-            <button id="startQuizBtn" class="action-btn primary-btn" type="button">
-              Start Quiz
-            </button>
-          </div>
-        </section>
-
-        <section id="resumeCard" class="resume-card" style="display:none;" aria-labelledby="resumeTitle">
-          <h3 id="resumeTitle">Resume Previous Session</h3>
-          <p id="resumeSummary">Saved quiz session found.</p>
-          <div class="resume-actions">
-            <button id="resumeQuizBtn" class="action-btn primary-btn" type="button">Resume</button>
-            <button id="discardResumeBtn" class="action-btn" type="button">Discard</button>
-          </div>
-        </section>
-
-        <section class="quiz-top-cards" id="quizOverviewCards">
+        <section class="quiz-top-cards">
           <div class="info-card">
             <h3>Attempt Info</h3>
             <div id="attemptInfo">Loading...</div>
@@ -107,7 +39,16 @@
           </div>
         </section>
 
-        <section class="quiz-status-card" id="quizStatusCard" aria-label="Quiz status">
+        <section id="resumeCard" class="resume-card" style="display:none;">
+          <h3>Resume Previous Session</h3>
+          <p id="resumeSummary">Saved quiz session found.</p>
+          <div class="resume-actions">
+            <button id="resumeQuizBtn" class="action-btn primary-btn" type="button">Resume</button>
+            <button id="discardResumeBtn" class="action-btn" type="button">Discard</button>
+          </div>
+        </section>
+
+        <section class="quiz-status-card">
           <div class="quiz-status-top">
             <span id="questionCounter" class="quiz-status-pill">Question 1 of 1</span>
             <span id="answeredCounter" class="quiz-status-pill">Answered: 0 / 1</span>
@@ -122,86 +63,53 @@
               </div>
 
               <div class="quiz-progress-inline">
-                <div
-                  class="progress-bar"
-                  role="progressbar"
-                  aria-label="Quiz progress"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                  aria-valuenow="0"
-                >
+                <div class="progress-bar">
                   <div id="quizProgressFill" class="progress-fill"></div>
                 </div>
               </div>
             </div>
 
-            <div class="quiz-mini-timer" aria-live="polite">
+            <div class="quiz-mini-timer">
               <span>Total Time</span>
               <strong id="quizTimerDisplay">00:00</strong>
             </div>
 
-            <div class="quiz-mini-timer" aria-live="polite">
+            <div class="quiz-mini-timer">
               <span>Question Time</span>
               <strong id="questionTimerDisplay">00:00</strong>
             </div>
           </div>
         </section>
 
-        <section class="quiz-main-card" id="quizMainCard">
+        <section class="quiz-main-card">
+
           <div class="quiz-main-image">
             <div class="question-image-wrap">
+
               <div class="question-toolbar">
                 <button id="hintBtn" class="action-btn" type="button">💡 Hint</button>
                 <button id="zoomBtn" class="action-btn" type="button">🔍 Zoom</button>
               </div>
 
-              <div id="questionImageStage" class="question-image-stage">
-                <div id="questionImageSkeleton" class="question-image-skeleton" aria-hidden="true">
-                  <div class="skeleton-shimmer"></div>
-                </div>
-
-                <img
-                  id="questionImage"
-                  src=""
-                  alt="Question image"
-                  loading="eager"
-                  decoding="async"
-                  draggable="false"
-                />
-
-                <div id="questionImageError" class="question-image-error" style="display:none;" role="alert">
-                  <h3>Question could not be loaded</h3>
-                  <p>Please refresh, go back, or try again after checking the quiz files.</p>
-                  <div class="question-error-actions">
-                    <button id="retryImageBtn" class="action-btn primary-btn" type="button">Retry</button>
-                    <button id="goBackFromErrorBtn" class="action-btn" type="button">Back</button>
-                  </div>
-                </div>
-              </div>
+              <img id="questionImage" src="" alt="Question image" />
 
               <div id="hintBox" class="hint-box" style="display:none;">
                 <div class="hint-box-head">
                   <div class="hint-title">💡 Hint</div>
-                  <button
-                    id="closeHintBtn"
-                    class="hint-close-btn"
-                    type="button"
-                    aria-label="Close hint"
-                  >
-                    ✕
-                  </button>
+                  <button id="closeHintBtn" class="hint-close-btn" type="button" aria-label="Close hint">✕</button>
                 </div>
                 <div id="hintText" class="hint-content"></div>
               </div>
+
             </div>
           </div>
 
-          <div class="answer-grid" aria-label="Answer choices">
-            <button class="answer-btn" data-answer="1" type="button" aria-label="Answer 1">1</button>
-            <button class="answer-btn" data-answer="2" type="button" aria-label="Answer 2">2</button>
-            <button class="answer-btn" data-answer="3" type="button" aria-label="Answer 3">3</button>
-            <button class="answer-btn" data-answer="4" type="button" aria-label="Answer 4">4</button>
-            <button class="answer-btn" data-answer="5" type="button" aria-label="Answer 5">5</button>
+          <div class="answer-grid">
+            <button class="answer-btn" data-answer="1" type="button">1</button>
+            <button class="answer-btn" data-answer="2" type="button">2</button>
+            <button class="answer-btn" data-answer="3" type="button">3</button>
+            <button class="answer-btn" data-answer="4" type="button">4</button>
+            <button class="answer-btn" data-answer="5" type="button">5</button>
           </div>
 
           <div id="answerExplanation" class="answer-explanation" style="display:none;">
@@ -212,9 +120,10 @@
           <div id="reviewNote" class="review-note" style="display:none;">
             Review mode enabled.
           </div>
+
         </section>
 
-        <section class="quiz-controls-card" id="quizControlsCard">
+        <section class="quiz-controls-card">
           <div class="quiz-section-head">
             <div>
               <h3>Quiz Controls</h3>
@@ -224,24 +133,15 @@
 
           <div class="quiz-primary-actions">
             <button id="prevBtn" class="action-btn" type="button">← Previous</button>
-            <button id="nextBtn" class="action-btn primary-btn" type="button">Next →</button>
+            <button id="nextBtn" class="action-btn" type="button">Next →</button>
             <button id="finishQuizBtn" class="action-btn" type="button">Finish Now</button>
-            <button
-              id="submitQuizBtn"
-              class="action-btn primary-btn"
-              type="button"
-              style="display:none;"
-            >
+            <button id="submitQuizBtn" class="action-btn primary-btn" type="button" style="display:none;">
               Submit Full Quiz
             </button>
           </div>
-
-          <div class="quiz-secondary-note" id="quizSecondaryNote">
-            Finish Now can calculate your current performance even before all questions are answered.
-          </div>
         </section>
 
-        <section class="quiz-nav-card" id="quizNavCard">
+        <section class="quiz-nav-card">
           <div class="quiz-section-head">
             <div>
               <h3>Question Navigator</h3>
@@ -256,13 +156,12 @@
 
           <div class="quiz-nav-row">
             <div id="jumpWrap" class="jump-wrap">
-              <label class="sr-only" for="jumpInput">Jump to question number</label>
-              <input id="jumpInput" type="number" min="1" value="1" inputmode="numeric" />
+              <input id="jumpInput" type="number" min="1" value="1" />
               <button id="jumpConfirmBtn" class="action-btn primary-btn" type="button">Go</button>
             </div>
           </div>
 
-          <div id="questionPalette" class="question-palette" aria-label="Question navigator palette"></div>
+          <div id="questionPalette" class="question-palette"></div>
         </section>
 
         <section id="resultCard" class="result-card" style="display:none;">
@@ -295,38 +194,26 @@
           <div id="historySummary"></div>
         </section>
 
-        <section id="quizErrorCard" class="quiz-error-card" style="display:none;" role="alert">
-          <h2>Quiz data could not be loaded</h2>
-          <p id="quizErrorText">
-            Something went wrong while loading this quiz. Please try again or go back.
-          </p>
-          <div class="question-error-actions">
-            <button id="retryQuizLoadBtn" class="action-btn primary-btn" type="button">Retry Quiz</button>
-            <button id="goBackToSubtopicBtn" class="action-btn" type="button">Back to Subtopic</button>
-          </div>
-        </section>
       </div>
     </div>
   </main>
 
-  <div id="imageModal" class="image-modal" style="display:none;" aria-hidden="true">
+  <div id="imageModal" class="image-modal" style="display:none;">
     <div id="imageModalViewport" class="image-modal-viewport">
-      <button id="closeImageModal" class="close-modal-btn" type="button" aria-label="Close zoomed image">✕</button>
-      <img id="modalImage" src="" alt="Zoomed question" draggable="false" />
+      <button id="closeImageModal" class="close-modal-btn" type="button">✕</button>
+      <img id="modalImage" src="" alt="Zoomed question" />
     </div>
   </div>
 
-  <!-- GLOBAL MUSIC PLAYER -->
   <audio id="bgMusic" loop></audio>
 
   <div id="musicPlayerFloating" class="music-floating">
-    <button id="musicToggleBtn" class="music-float-btn" type="button" aria-label="Open focus music player">🎧</button>
+    <button id="musicToggleBtn" class="music-float-btn" type="button">🎧</button>
 
     <div id="musicPanel" class="music-panel">
       <div class="music-header">Focus Music</div>
 
       <div class="music-row">
-        <label class="sr-only" for="trackSelect">Choose music track</label>
         <select id="trackSelect"></select>
       </div>
 
@@ -336,7 +223,6 @@
       </div>
 
       <div class="music-row">
-        <label class="sr-only" for="volumeSlider">Volume</label>
         <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.35" />
       </div>
 
@@ -344,13 +230,8 @@
     </div>
   </div>
 
-  <noscript>
-    <div class="container" style="padding: 20px;">
-      JavaScript is required to run the DN Physics quiz system.
-    </div>
-  </noscript>
-
   <script src="/DN_Physics/js/music-player.js"></script>
   <script src="/DN_Physics/pp-quiz/js/quiz.js"></script>
+
 </body>
 </html>
