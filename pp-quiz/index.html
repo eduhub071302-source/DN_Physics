@@ -2,34 +2,57 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
   <title>PP Quiz | DN Physics</title>
   <meta
     name="description"
     content="Practice A/L Physics past paper MCQs topic by topic with progress tracking, resume support, and focused revision."
   />
+  <meta name="theme-color" content="#0b1220" />
   <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=23" />
 </head>
 <body>
+  <a class="skip-link" href="#quizMainContent">Skip to content</a>
 
   <header class="quiz-header">
     <div class="container">
-      <a class="back-link" href="/DN_Physics/index.html">← Back to Home</a>
-      <h1>PP Quiz</h1>
-      <p>Practice A/L Physics past paper MCQs topic by topic with a clean, focused quiz workflow.</p>
+      <div class="quiz-header-top">
+        <a
+          class="back-link"
+          href="/DN_Physics/index.html"
+          aria-label="Back to DN Physics home"
+        >
+          ← Back to Home
+        </a>
+
+        <div class="quiz-header-badge">DN Physics • PP Quiz</div>
+      </div>
+
+      <h1 id="quizHomeTitle">PP Quiz</h1>
+      <p id="quizHomeSubtitle">
+        Practice A/L Physics past paper MCQs topic by topic with a clean, focused quiz workflow.
+      </p>
     </div>
   </header>
 
-  <main class="quiz-main">
+  <main id="quizMainContent" class="quiz-main">
     <div class="container">
 
       <!-- HERO -->
-      <section class="topic-card quiz-home-hero fade-slide-up" aria-label="Quiz introduction">
+      <section
+        class="topic-card quiz-home-hero fade-slide-up"
+        aria-label="Quiz introduction"
+      >
         <div class="topic-card-top quiz-home-hero-top">
           <div class="topic-body">
             <div class="topic-pill">DinuuNOVA Physics • Past Paper Practice</div>
-            <h2 class="topic-title quiz-home-title">Train Like a Real Exam App</h2>
-            <p class="topic-desc quiz-home-desc">
+            <h2 id="quizHomeHeroTitle" class="topic-title quiz-home-title">
+              Train Like a Real Exam App
+            </h2>
+            <p id="quizHomeHeroText" class="topic-desc quiz-home-desc">
               Choose a topic and start practicing instantly. Build speed, accuracy, and confidence with a smooth revision-focused workflow.
             </p>
           </div>
@@ -45,7 +68,10 @@
       </section>
 
       <!-- SECTION HEAD -->
-      <section class="quiz-home-section-head fade-slide-up" aria-label="Topic selection intro">
+      <section
+        class="quiz-home-section-head fade-slide-up"
+        aria-label="Topic selection intro"
+      >
         <div class="quiz-home-section-row">
           <div>
             <h3 class="quiz-home-section-title">Select a Topic</h3>
@@ -57,8 +83,12 @@
       </section>
 
       <!-- TOPICS GRID -->
-      <section id="topicsGrid" class="topics-grid fade-in" aria-live="polite" aria-label="Quiz topics">
-
+      <section
+        id="topicsGrid"
+        class="topics-grid fade-in"
+        aria-live="polite"
+        aria-label="Quiz topics"
+      >
         <!-- Skeleton loading -->
         <article class="skeleton-card" aria-hidden="true">
           <div class="skeleton-avatar"></div>
@@ -91,7 +121,39 @@
           <div class="skeleton-line sm"></div>
           <div class="skeleton-box"></div>
         </article>
+      </section>
 
+      <!-- EMPTY STATE -->
+      <section
+        id="topicsEmptyState"
+        class="empty-state"
+        style="display: none;"
+        aria-live="polite"
+      >
+        <h3>No topics found</h3>
+        <p>Please add topics and try again.</p>
+      </section>
+
+      <!-- ERROR STATE -->
+      <section
+        id="topicsErrorState"
+        class="quiz-error-card"
+        style="display: none;"
+        aria-live="assertive"
+      >
+        <h2>Topics could not be loaded</h2>
+        <p id="topicsErrorText">
+          Something went wrong while loading quiz topics. Please try again.
+        </p>
+
+        <div class="question-error-actions">
+          <button id="retryTopicsBtn" class="action-btn primary-btn" type="button">
+            Retry
+          </button>
+          <a class="action-btn" href="/DN_Physics/index.html">
+            Back to Home
+          </a>
+        </div>
       </section>
 
     </div>
@@ -116,6 +178,7 @@
       <div class="music-header">Focus Music</div>
 
       <div class="music-row">
+        <label class="sr-only" for="trackSelect">Select music track</label>
         <select id="trackSelect" aria-label="Select music track"></select>
       </div>
 
@@ -125,6 +188,7 @@
       </div>
 
       <div class="music-row">
+        <label class="sr-only" for="volumeSlider">Music volume</label>
         <input
           id="volumeSlider"
           type="range"
@@ -139,6 +203,12 @@
       <div id="currentTrackLabel" class="music-label">Current: None</div>
     </div>
   </div>
+
+  <noscript>
+    <div class="container" style="padding: 20px;">
+      JavaScript is required to load the PP Quiz topics.
+    </div>
+  </noscript>
 
   <script src="/DN_Physics/js/music-player.js"></script>
   <script src="/DN_Physics/pp-quiz/js/quiz-home.js"></script>
