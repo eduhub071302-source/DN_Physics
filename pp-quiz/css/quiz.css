@@ -2157,3 +2157,100 @@ button {
   box-shadow: 0 12px 30px rgba(0,0,0,0.4);
   z-index: 100000;
 }
+
+/* =========================
+   COLLAPSIBLE TOP CARDS
+========================= */
+
+.collapsible-top-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.collapsible-card {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 18px;
+}
+
+.collapse-header {
+  width: 100%;
+  min-height: 64px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: none;
+  background:
+    linear-gradient(180deg, rgba(18, 28, 45, 0.98), rgba(10, 18, 32, 0.98));
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 700;
+  text-align: left;
+}
+
+.collapse-header:hover {
+  background:
+    linear-gradient(180deg, rgba(24, 37, 60, 0.98), rgba(12, 21, 36, 0.98));
+}
+
+.collapse-title {
+  font-size: 17px;
+  letter-spacing: -0.2px;
+}
+
+.collapse-arrow {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(78, 161, 255, 0.10);
+  border: 1px solid rgba(124, 196, 255, 0.18);
+  color: var(--accent-2);
+  font-size: 18px;
+  transition: transform 0.25s ease, background 0.2s ease, border-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.collapsible-card.open .collapse-arrow {
+  transform: rotate(180deg);
+}
+
+.collapse-content {
+  padding: 0 18px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255,255,255,0.015);
+}
+
+.collapse-content[hidden] {
+  display: none !important;
+}
+
+.collapse-content #attemptInfo,
+.collapse-content #performanceSummary {
+  padding-top: 14px;
+}
+
+@media (max-width: 768px) {
+  .collapsible-top-cards {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .collapse-header {
+    min-height: 56px;
+    padding: 14px 14px;
+  }
+
+  .collapse-title {
+    font-size: 15px;
+  }
+
+  .collapse-content {
+    padding: 0 14px 14px;
+  }
+}
