@@ -1484,11 +1484,27 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (resumeCard.style.display === "none") {
     startTimers();
   }
-});
 
-document.querySelectorAll(".collapse-header").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const card = btn.closest(".collapsible-card");
-    card.classList.toggle("open");
+  document.querySelectorAll(".collapse-header").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const targetId = btn.dataset.target;
+      const content = document.getElementById(targetId);
+      const card = btn.closest(".collapsible-card");
+
+      if (!content || !card) return;
+
+      const isOpen = card.classList.contains("open");
+
+      if (isOpen) {
+        card.classList.remove("open");
+        content.hidden = true;
+        btn.setAttribute("aria-expanded", "false");
+      } else {
+        card.classList.add("open");
+        content.hidden = false;
+        btn.setAttribute("aria-expanded", "true");
+      }
+    });
   });
 });
+
