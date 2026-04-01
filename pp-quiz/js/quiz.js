@@ -1273,7 +1273,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   refreshQuizBtn.addEventListener("click", () => {
-    window.location.reload();
+    document.body.classList.add("page-is-refreshing");
+    setTimeout(() => {
+      window.location.reload();
+    }, 120);
   });
 
   retryQuizBtn.addEventListener("click", resetCurrentQuizState);
