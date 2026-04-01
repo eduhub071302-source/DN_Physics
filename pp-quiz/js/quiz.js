@@ -35,10 +35,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const retryMarkedBtn = document.getElementById("retryMarkedBtn");
   const wrongOnlyBtn = document.getElementById("wrongOnlyBtn");
 
-  const hintBtn = document.getElementById("hintBtn");
-  const hintBox = document.getElementById("hintBox");
-  const hintText = document.getElementById("hintText");
-  const closeHintBtn = document.getElementById("closeHintBtn");
+  const hintBtn = null;
+  const hintBox = null;
+  const hintText = null;
+  const closeHintBtn = null;
 
   const zoomBtn = document.getElementById("zoomBtn");
   const imageModal = document.getElementById("imageModal");
@@ -97,10 +97,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     retryUnansweredBtn,
     retryMarkedBtn,
     wrongOnlyBtn,
-    hintBtn,
-    hintBox,
-    hintText,
-    closeHintBtn,
     zoomBtn,
     imageModal,
     modalImage,
@@ -200,13 +196,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function hideHintBox() {
-    if (hintBox) hintBox.style.display = "none";
+    // Hint system disabled
   }
 
-  function showHintBox(message) {
-    if (!hintBox || !hintText) return;
-    hintText.innerHTML = message;
-    hintBox.style.display = "block";
+  function showHintBox() {
+    // Hint system disabled (Exam Mode)
   }
 
   function scheduleRender(fn) {
@@ -1045,25 +1039,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       quizTitle.textContent = "Quiz Not Found";
       quizSubtitle.textContent = "Could not load quiz data.";
       return false;
-    }
-
-    try {
-      const hintPath = `/DN_Physics/pp-quiz/data/${topic}/${subtopic}/${setName}-hints.json`;
-      const hintRes = await fetch(hintPath);
-
-      if (hintRes.ok) {
-        hintData = await hintRes.json();
-        console.log("Hints loaded ✅");
-      } else {
-        hintData = {};
-        console.log("No hint file found (fallback active)");
-      }
-    } catch (e) {
-      hintData = {};
-      console.log("Hint loading failed, using fallback");
-    }
-
-    return true;
   }
 
   backToSubtopic.href = `/DN_Physics/pp-quiz/subtopic.html?topic=${encodeURIComponent(topic)}&subtopic=${encodeURIComponent(subtopic)}`;
@@ -1735,21 +1710,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }, 250);
       }
     });
-  });
-
-  hintBtn.addEventListener("click", () => {
-    if (reviewMode) {
-      showToast("Hints are disabled in review mode");
-      return;
-    }
-
-    const hintMessage = getHintForCurrentQuestion();
-    showHintBox(hintMessage);
-    showToast("Hint loaded 💡");
-  });
-
-  closeHintBtn.addEventListener("click", () => {
-    hideHintBox();
   });
 
   prevBtn.addEventListener("click", () => {
