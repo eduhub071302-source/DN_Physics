@@ -1723,7 +1723,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         currentQuestion--;
       }
       scheduleRender(updateQuestionView);
-      scrollQuestionIntoView();
     }
   });
 
@@ -1738,7 +1737,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         currentQuestion++;
       }
       scheduleRender(updateQuestionView);
-      scrollQuestionIntoView();
     }
   });
 
