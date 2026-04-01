@@ -16,13 +16,77 @@ const QUIZ_PROGRESS_KEY = "dnPhysicsQuizProgress";
 
 document.addEventListener("DOMContentLoaded", () => {
   const topicsGrid = document.getElementById("topicsGrid");
+  const emptyState = document.getElementById("topicsEmptyState");
+  const errorState = document.getElementById("topicsErrorState");
+  const errorText = document.getElementById("topicsErrorText");
+  const retryBtn = document.getElementById("retryTopicsBtn");
 
   if (!topicsGrid) {
     console.error("topicsGrid element not found.");
     return;
   }
 
-  renderTopics(topicsGrid, topics);
+  function showGrid() {
+    topicsGrid.style.display = "";
+    if (emptyState) emptyState.style.display = "none";
+    if (errorState) errorState.style.display = "none";
+  }
+
+  function showEmpty(message) {
+    topicsGrid.style.display = "none";
+    if (errorState) errorState.style.display = "none";
+
+    if (emptyState) {
+      emptyState.style.display = "block";
+      const p = emptyState.querySelector("p");
+      if (p) p.textContent = message;
+    } else {
+      topicsGrid.innerHTML = `
+        <div class="empty-state fade-in">
+          <h3>No topics found</h3>
+          <p>${escapeHtml(message)}</p>
+        </div>
+      `;
+      topicsGrid.style.display = "";
+    }
+  }
+
+  function showError(message) {
+    topicsGrid.style.display = "none";
+    if (emptyState) emptyState.style.display = "none";
+
+    if (errorState && errorText) {
+      errorState.style.display = "block";
+      errorText.textContent = message;
+    } else {
+      topicsGrid.innerHTML = `
+        <div class="empty-state fade-in">
+          <h3>Error</h3>
+          <p>${escapeHtml(message)}</p>
+        </div>
+      `;
+      topicsGrid.style.display = "";
+    }
+  }
+
+  if (retryBtn) {
+    retryBtn.addEventListener("click", () => {
+      window.location.reload();
+    });
+  }
+
+  try {
+    if (!Array.isArray(topics) || topics.length === 0) {
+      showEmpty("Please add topics and try again.");
+      return;
+    }
+
+    renderTopics(topicsGrid, topics);
+    showGrid();
+  } catch (err) {
+    console.error("Topic render error:", err);
+    showError("Failed to load topics. Please refresh.");
+  }
 });
 
 function getProgressStore() {
