@@ -1534,3 +1534,50 @@ main {
     width: auto !important;
   }
 }
+
+/* =========================
+   🔽 COLLAPSIBLE CARDS
+========================= */
+
+.collapsible-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.collapse-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: transparent;
+  border: none;
+  padding: 16px 18px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.collapse-header:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+.collapse-icon {
+  transition: transform 0.25s ease;
+}
+
+.collapsible-card.open .collapse-icon {
+  transform: rotate(180deg);
+}
+
+.collapse-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+  padding: 0 18px;
+}
+
+.collapsible-card.open .collapse-content {
+  max-height: 500px;
+  padding-bottom: 14px;
+}
