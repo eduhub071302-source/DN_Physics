@@ -11,12 +11,23 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const QUIZ_PROGRESS_KEY = "dnPhysicsQuizProgress";
 
+  const refreshSubtopicBtn = document.getElementById("refreshSubtopicBtn");
+
   if (!subtopicTitle || !quizSetsGrid || !backToTopic) {
     console.error("Subtopic page elements not found.");
     return;
   }
 
   backToTopic.href = `/DN_Physics/pp-quiz/topic.html?topic=${encodeURIComponent(topic || "")}`;
+
+  if (refreshSubtopicBtn) {
+    refreshSubtopicBtn.addEventListener("click", () => {
+      document.body.classList.add("page-is-refreshing");
+      setTimeout(() => {
+        window.location.reload();
+      }, 120);
+    });
+  }
 
   /* =========================
      HELPERS
