@@ -13,6 +13,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const flaggedCounter = document.getElementById("flaggedCounter");
 
   const questionImage = document.getElementById("questionImage");
+  const questionImageSkeleton = document.getElementById("questionImageSkeleton");
+  const questionImageError = document.getElementById("questionImageError");
+  const retryImageBtn = document.getElementById("retryImageBtn");
+  const goBackFromErrorBtn = document.getElementById("goBackFromErrorBtn");
+
   const prevBtn = document.getElementById("prevBtn");
   const nextBtn = document.getElementById("nextBtn");
   const submitQuizBtn = document.getElementById("submitQuizBtn");
@@ -72,6 +77,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   const resultHeadline = document.getElementById("resultHeadline");
   const resultMotivation = document.getElementById("resultMotivation");
 
+  const quizEntryCard = document.getElementById("quizEntryCard");
+  const startQuizBtn = document.getElementById("startQuizBtn");
+  const entryQuestionCount = document.getElementById("entryQuestionCount");
+  const entryBestScore = document.getElementById("entryBestScore");
+  const entryAttempts = document.getElementById("entryAttempts");
+  const entryStatusPill = document.getElementById("entryStatusPill");
+  const entryDescription = document.getElementById("entryDescription");
+
+  const quizErrorCard = document.getElementById("quizErrorCard");
+  const quizErrorText = document.getElementById("quizErrorText");
+  const retryQuizLoadBtn = document.getElementById("retryQuizLoadBtn");
+  const goBackToSubtopicBtn = document.getElementById("goBackToSubtopicBtn");
+
+  const quizStatusCard = document.getElementById("quizStatusCard");
+  const quizMainCard = document.getElementById("quizMainCard");
+  const quizControlsCard = document.getElementById("quizControlsCard");
+  const quizNavCard = document.getElementById("quizNavCard");
+  const quizOverviewCards = document.getElementById("quizOverviewCards");
+
   const requiredElements = [
     quizTitle,
     quizSubtitle,
@@ -121,13 +145,32 @@ document.addEventListener("DOMContentLoaded", async () => {
     resumeCard,
     resumeSummary,
     resumeQuizBtn,
-    discardResumeBtn
+    discardResumeBtn,
+    quizEntryCard,
+    startQuizBtn,
+    entryQuestionCount,
+    entryBestScore,
+    entryAttempts,
+    entryStatusPill,
+    entryDescription,
+    quizErrorCard,
+    quizErrorText,
+    retryQuizLoadBtn,
+    goBackToSubtopicBtn,
+    quizStatusCard,
+    quizMainCard,
+    quizControlsCard,
+    quizNavCard,
+    quizOverviewCards
   ];
 
   if (!topic || !subtopic) {
     console.error("Missing topic or subtopic in URL.");
     if (quizTitle) quizTitle.textContent = "Quiz Not Found";
     if (quizSubtitle) quizSubtitle.textContent = "Missing topic or subtopic.";
+    if (quizErrorCard) quizErrorCard.style.display = "block";
+    if (quizErrorText) quizErrorText.textContent = "Missing topic or subtopic in the page URL.";
+    hideQuizRuntimeSections();
     return;
   }
 
@@ -140,11 +183,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const QUIZ_SESSION_KEY = "dnPhysicsQuizSessions";
 
   let pendingServiceWorkerUpdate = false;
-  let isQuizActive = true;
-
   let renderScheduled = false;
   let saveTimeout = null;
-
   let currentQuestion = 1;
   let totalQuestions = 1;
   let answerKey = {};
@@ -159,17 +199,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   let pinchStartDistance = 0;
   let modalScale = 1;
   let flaggedQuestions = new Set();
-
   let quizTimerInterval = null;
   let questionTimerInterval = null;
   let quizElapsedSeconds = 0;
   let questionElapsedSeconds = 0;
-
   let quizTimeLimitSeconds = null;
   let questionTimeLimitSeconds = null;
-
   let retryModeType = "full";
   let retryQuestionList = [];
+  let hasQuizStarted = false;
+  let currentImageRequestToken = 0;
 
   const MOTIVATION_LINES = [
     "Stay focused. Every question improves your rank.",
@@ -180,6 +219,46 @@ document.addEventListener("DOMContentLoaded", async () => {
     "Every correct answer builds your confidence.",
     "You vs yesterday. That is the real battle."
   ];
+
+  function hideQuizRuntimeSections() {
+    quizOverviewCards.style.display = "none";
+    quizStatusCard.style.display = "none";
+    quizMainCard.style.display = "none";
+    quizControlsCard.style.display = "none";
+    quizNavCard.style.display = "none";
+    resultCard.style.display = "none";
+    historyCard.style.display = "none";
+    postResultActions.style.display = "none";
+    reviewNote.style.display = "none";
+  }
+
+  function showQuizRuntimeSections() {
+    quizOverviewCards.style.display = "";
+    quizStatusCard.style.display = "";
+    quizMainCard.style.display = "";
+    quizControlsCard.style.display = "";
+    quizNavCard.style.display = "";
+  }
+
+  function hideEntryCard() {
+    quizEntryCard.style.display = "none";
+  }
+
+  function showEntryCard() {
+    quizEntryCard.style.display = "";
+  }
+
+  function showQuizError(message) {
+    hideQuizRuntimeSections();
+    hideEntryCard();
+    stopTimers();
+    quizErrorCard.style.display = "block";
+    quizErrorText.textContent = message || "Something went wrong while loading this quiz.";
+  }
+
+  function hideQuizError() {
+    quizErrorCard.style.display = "none";
+  }
 
   function showToast(message = "Done") {
     let toast = document.getElementById("globalToast");
@@ -200,11 +279,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function hideHintBox() {
-    if (hintBox) hintBox.style.display = "none";
+    hintBox.style.display = "none";
   }
 
   function showHintBox(message) {
-    if (!hintBox || !hintText) return;
     hintText.innerHTML = message;
     hintBox.style.display = "block";
   }
@@ -213,7 +291,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (renderScheduled) return;
 
     renderScheduled = true;
-
     requestAnimationFrame(() => {
       fn();
       renderScheduled = false;
@@ -381,7 +458,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         return normalized;
       }
     } catch {
-      // ignore
+      // ignore legacy parse errors
     }
 
     return null;
@@ -401,7 +478,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function saveCurrentSession() {
-    if (reviewMode) return;
+    if (reviewMode || !hasQuizStarted) return;
 
     const store = getSessionStore();
     const sessionId = getQuizProgressId(topic, subtopic, setName);
@@ -428,7 +505,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     saveTimeout = setTimeout(() => {
       saveCurrentSession();
-    }, 800);
+    }, 700);
   }
 
   function clearSavedSession() {
@@ -439,7 +516,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function showJumpWrap(show) {
-    if (!jumpWrap) return;
     jumpWrap.classList.toggle("show", show);
   }
 
@@ -457,7 +533,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const header = document.querySelector(".quiz-header");
     const headerOffset = (header ? header.offsetHeight : 78) + 8;
-
     const y = target.getBoundingClientRect().top + window.scrollY - headerOffset;
 
     window.scrollTo({
@@ -524,6 +599,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         `;
       })
       .join("");
+  }
+
+  function updateEntryCard() {
+    const saved = loadAttemptData() || getDefaultAttemptData();
+    entryQuestionCount.textContent = String(totalQuestions);
+    entryBestScore.textContent = saved.attempts > 0 ? `${saved.bestPercentage}%` : "--";
+    entryAttempts.textContent = String(saved.attempts || 0);
+    entryStatusPill.textContent = "Ready";
+    entryDescription.textContent = `This set contains ${totalQuestions} question${totalQuestions === 1 ? "" : "s"}. Start when you are ready.`;
   }
 
   function getHintForCurrentQuestion() {
@@ -998,8 +1082,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function updateMotivationBar() {
-    if (!motivationBar) return;
-
     const total = getCurrentTotalCount();
     const answered = getAnsweredCount();
     const progress = total > 0 ? (answered / total) * 100 : 0;
@@ -1026,12 +1108,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     const jsonPath = `/DN_Physics/pp-quiz/data/${topic}/${subtopic}/${setName}.json`;
 
     try {
-      const response = await fetch(jsonPath);
+      const response = await fetch(jsonPath, { cache: "no-store" });
       if (!response.ok) {
         throw new Error(`Failed to load quiz JSON: ${jsonPath}`);
       }
 
       const data = await response.json();
+
       totalQuestions = Number(data.totalQuestions) || 1;
       answerKey = data.answers || {};
       explanations = data.explanations || {};
@@ -1042,25 +1125,21 @@ document.addEventListener("DOMContentLoaded", async () => {
       quizSubtitle.textContent = `${makeNiceTitle(topic)} / ${makeNiceTitle(subtopic)}`;
     } catch (error) {
       console.error(error);
-      quizTitle.textContent = "Quiz Not Found";
-      quizSubtitle.textContent = "Could not load quiz data.";
+      showQuizError("Quiz data could not be loaded. Please check the JSON file, path, or internet connection.");
       return false;
     }
 
     try {
       const hintPath = `/DN_Physics/pp-quiz/data/${topic}/${subtopic}/${setName}-hints.json`;
-      const hintRes = await fetch(hintPath);
+      const hintRes = await fetch(hintPath, { cache: "no-store" });
 
       if (hintRes.ok) {
         hintData = await hintRes.json();
-        console.log("Hints loaded ✅");
       } else {
         hintData = {};
-        console.log("No hint file found (fallback active)");
       }
-    } catch (e) {
+    } catch {
       hintData = {};
-      console.log("Hint loading failed, using fallback");
     }
 
     return true;
@@ -1135,7 +1214,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       answerExplanationText.textContent = explanation;
     } else {
       answerExplanation.style.display = "none";
-      answerExplanationText.textContent = "No explanation available.";
+      answerExplanationText.textContent = "";
     }
   }
 
@@ -1179,6 +1258,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     quizProgressFill.style.width = `${percent}%`;
     quizProgressText.textContent = `${percent}%`;
+
+    const parentProgressBar = quizProgressFill.parentElement;
+    if (parentProgressBar) {
+      parentProgressBar.setAttribute("aria-valuenow", String(Number(percent)));
+    }
 
     const percentNum = Number(percent);
 
@@ -1251,20 +1335,78 @@ document.addEventListener("DOMContentLoaded", async () => {
     }, 250);
   }
 
+  function showImageLoading() {
+    if (questionImageSkeleton) questionImageSkeleton.style.display = "block";
+    if (questionImageError) questionImageError.style.display = "none";
+    questionImage.style.display = "none";
+  }
+
+  function showImageReady(src, alt) {
+    questionImage.src = src;
+    questionImage.alt = alt;
+    questionImage.style.display = "block";
+    if (questionImageSkeleton) questionImageSkeleton.style.display = "none";
+    if (questionImageError) questionImageError.style.display = "none";
+    modalImage.src = src;
+  }
+
+  function showImageFailure() {
+    questionImage.style.display = "none";
+    if (questionImageSkeleton) questionImageSkeleton.style.display = "none";
+    if (questionImageError) questionImageError.style.display = "block";
+  }
+
+  function loadQuestionImage(questionNumber) {
+    const requestToken = ++currentImageRequestToken;
+    const src = getImagePath(questionNumber);
+    const alt = `${makeNiceTitle(subtopic)} question ${questionNumber}`;
+
+    showImageLoading();
+
+    const preload = new Image();
+    preload.onload = () => {
+      if (requestToken !== currentImageRequestToken) return;
+      showImageReady(src, alt);
+    };
+    preload.onerror = () => {
+      if (requestToken !== currentImageRequestToken) return;
+      showImageFailure();
+    };
+    preload.src = src;
+  }
+
+  function preloadUpcomingQuestion() {
+    const shownIndex = getCurrentShownIndex();
+    const totalCount = getCurrentTotalCount();
+    if (shownIndex >= totalCount) return;
+
+    let nextActualQuestion = null;
+
+    if (retryModeType === "list" || practiceWrongOnlyMode) {
+      nextActualQuestion = retryQuestionList[shownIndex];
+    } else {
+      nextActualQuestion = currentQuestion + 1;
+    }
+
+    if (!nextActualQuestion) return;
+
+    const preload = new Image();
+    preload.src = getImagePath(nextActualQuestion);
+  }
+
   function updateQuestionView() {
     const questionNumber = getCurrentQuestionNumber();
     const totalCount = getCurrentTotalCount();
     const shownIndex = getCurrentShownIndex();
 
     hideHintBox();
-
     questionCounter.textContent = `Question ${shownIndex} of ${totalCount}`;
-    questionImage.src = getImagePath(questionNumber);
-    questionImage.alt = `${makeNiceTitle(subtopic)} question ${questionNumber}`;
-    modalImage.src = questionImage.src;
 
     prevBtn.disabled = shownIndex === 1;
     nextBtn.disabled = shownIndex === totalCount;
+
+    loadQuestionImage(questionNumber);
+    preloadUpcomingQuestion();
 
     updateAnswerButtons();
     updateSubmitVisibility();
@@ -1374,7 +1516,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     flaggedQuestions = new Set();
     quizElapsedSeconds = 0;
     questionElapsedSeconds = 0;
-    isQuizActive = true;
+    hasQuizStarted = true;
 
     reviewNote.style.display = "none";
     resultCard.style.display = "none";
@@ -1395,6 +1537,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     closeJumpWrap();
     clearSavedSession();
+    showQuizRuntimeSections();
+    hideQuizError();
+    hideEntryCard();
     scheduleRender(updateQuestionView);
     updateTimerDisplays();
     startTimers();
@@ -1410,7 +1555,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     reviewMode = false;
     userAnswers = {};
     questionElapsedSeconds = 0;
-    isQuizActive = true;
+    hasQuizStarted = true;
 
     reviewNote.style.display = "none";
     resultCard.style.display = "none";
@@ -1426,6 +1571,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     hideHintBox();
 
     closeJumpWrap();
+    showQuizRuntimeSections();
+    hideEntryCard();
     scheduleRender(updateQuestionView);
     startTimers();
     scrollQuestionIntoView();
@@ -1493,6 +1640,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderAttemptInfo();
     renderPerformanceCard();
     renderHistoryCard();
+    updateEntryCard();
 
     const earnedBadge = mode === "full" ? getBadgeData(fullQuizPercentage) : null;
     const masteryLevel = getMasteryLevel(newData.bestFullBadgePercentage);
@@ -1508,22 +1656,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const scoreValue = Number(mode === "full" ? fullQuizPercentage : scorePercent);
 
-    if (finalScoreEl) finalScoreEl.textContent = `${scoreValue}%`;
+    finalScoreEl.textContent = `${scoreValue}%`;
 
-    if (resultHeadline && resultMotivation) {
-      if (scoreValue >= 90) {
-        resultHeadline.textContent = "Excellent 🔥";
-        resultMotivation.textContent = "This is island-rank level performance.";
-      } else if (scoreValue >= 75) {
-        resultHeadline.textContent = "Strong 💪";
-        resultMotivation.textContent = "You're close to top level. Keep pushing.";
-      } else if (scoreValue >= 50) {
-        resultHeadline.textContent = "Improving 📈";
-        resultMotivation.textContent = "You're building the foundation. Stay consistent.";
-      } else {
-        resultHeadline.textContent = "Keep Going ⚡";
-        resultMotivation.textContent = "Every mistake is training. Don't stop now.";
-      }
+    if (scoreValue >= 90) {
+      resultHeadline.textContent = "Excellent 🔥";
+      resultMotivation.textContent = "This is island-rank level performance.";
+    } else if (scoreValue >= 75) {
+      resultHeadline.textContent = "Strong 💪";
+      resultMotivation.textContent = "You're close to top level. Keep pushing.";
+    } else if (scoreValue >= 50) {
+      resultHeadline.textContent = "Improving 📈";
+      resultMotivation.textContent = "You're building the foundation. Stay consistent.";
+    } else {
+      resultHeadline.textContent = "Keep Going ⚡";
+      resultMotivation.textContent = "Every mistake is training. Don't stop now.";
     }
 
     resultSummary.innerHTML = `
@@ -1556,7 +1702,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     reviewMode = true;
     wrongQuestionsGlobal = [...wrongQuestions];
     wrongQuestionPointer = 0;
-    isQuizActive = false;
 
     reviewNote.style.display = "block";
     resultCard.style.display = "block";
@@ -1671,7 +1816,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     reviewMode = false;
     wrongQuestionsGlobal = [];
     wrongQuestionPointer = 0;
-    isQuizActive = true;
+    hasQuizStarted = true;
 
     reviewNote.style.display = "none";
     resultCard.style.display = "none";
@@ -1679,6 +1824,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     answerExplanation.style.display = "none";
     hideHintBox();
 
+    showQuizRuntimeSections();
+    hideEntryCard();
     closeJumpWrap();
     scheduleRender(updateQuestionView);
     updateTimerDisplays();
@@ -1710,11 +1857,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
   }
 
+  function startFreshQuiz() {
+    resumeCard.style.display = "none";
+    resetCurrentQuizState();
+  }
+
   answerButtons.forEach((button) => {
     button.addEventListener("click", () => {
       if (reviewMode) return;
+
       const questionNumber = getCurrentQuestionNumber();
       userAnswers[questionNumber] = Number(button.dataset.answer);
+
       updateAnswerButtons();
       updateSubmitVisibility();
       updateMotivationBar();
@@ -1732,7 +1886,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               scrollQuestionIntoView("auto");
             }, 50);
           }
-        }, 250);
+        }, 220);
       }
     });
   });
@@ -1868,20 +2022,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  retryImageBtn?.addEventListener("click", () => {
+    loadQuestionImage(getCurrentQuestionNumber());
+  });
+
+  goBackFromErrorBtn?.addEventListener("click", () => {
+    window.location.href = backToSubtopic.href;
+  });
+
   questionImage.addEventListener("error", () => {
-    questionImage.alt = "Question image not found";
+    showImageFailure();
   });
 
   function openImageModal() {
+    if (!questionImage.src || questionImage.style.display === "none") return;
     modalImage.src = questionImage.src;
     modalScale = 1;
     modalImage.style.transform = "scale(1)";
     imageModal.style.display = "flex";
+    imageModal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
   }
 
   function closeModal() {
     imageModal.style.display = "none";
+    imageModal.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
     modalScale = 1;
     modalImage.style.transform = `scale(${modalScale})`;
@@ -1968,10 +2133,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (event.data && event.data.type === "SW_UPDATED") {
         pendingServiceWorkerUpdate = true;
         showToast("New update available after quiz 🚀");
-        console.log("Update will apply after quiz.");
       }
     });
   }
+
+  startQuizBtn.addEventListener("click", startFreshQuiz);
+  retryQuizLoadBtn.addEventListener("click", () => window.location.reload());
+  goBackToSubtopicBtn.addEventListener("click", () => {
+    window.location.href = backToSubtopic.href;
+  });
+
+  hideQuizRuntimeSections();
+  hideQuizError();
+  showEntryCard();
+  entryStatusPill.textContent = "Loading...";
 
   const loaded = await loadQuizData();
   if (!loaded) return;
@@ -1979,11 +2154,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderAttemptInfo();
   renderPerformanceCard();
   renderHistoryCard();
+  updateEntryCard();
   updateTimerDisplays();
   updateQuestionView();
   checkResumeCard();
 
-  if (resumeCard.style.display === "none") {
-    startTimers();
+  if (getSavedSession() && resumeCard.style.display !== "none") {
+    hideQuizRuntimeSections();
+    showEntryCard();
+    entryStatusPill.textContent = "Resume Available";
+  } else {
+    hideQuizRuntimeSections();
+    showEntryCard();
+    entryStatusPill.textContent = "Ready";
   }
 });
