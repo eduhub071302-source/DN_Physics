@@ -2127,3 +2127,33 @@ button {
     padding-bottom: 110px;
   }
 }
+
+/* =========================
+   🔄 PAGE REFRESH LOADING
+========================= */
+
+.page-is-refreshing::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 10, 18, 0.85);
+  backdrop-filter: blur(6px);
+  z-index: 99999;
+}
+
+.page-is-refreshing::after {
+  content: "Refreshing...";
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 14px 22px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent-2);
+  background: rgba(20, 30, 50, 0.95);
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+  z-index: 100000;
+}
