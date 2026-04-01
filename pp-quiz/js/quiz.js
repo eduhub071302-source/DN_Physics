@@ -1485,3 +1485,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     startTimers();
   }
 });
+
+document.querySelectorAll(".collapse-header").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const card = btn.closest(".collapsible-card");
+    card.classList.toggle("open");
+  });
+});
