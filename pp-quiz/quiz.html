@@ -33,26 +33,26 @@
 
         <section class="quiz-top-cards">
 
-          <!-- Attempt Info -->
-          <div class="info-card collapsible-card">
-            <button class="collapse-header" data-target="attemptContent">
-              <span>Attempt Info</span>
-              <span class="collapse-icon">▼</span>
+        <section class="quiz-top-cards collapsible-top-cards">
+
+          <div class="info-card collapsible-card" id="attemptCard">
+            <button class="collapse-header" type="button" data-target="attemptContent" aria-expanded="false">
+              <span class="collapse-title">Attempt Info</span>
+              <span class="collapse-arrow">⌄</span>
             </button>
 
-            <div id="attemptContent" class="collapse-content">
+            <div id="attemptContent" class="collapse-content" hidden>
               <div id="attemptInfo">Loading...</div>
             </div>
           </div>
 
-          <!-- Performance -->
-          <div class="info-card collapsible-card">
-            <button class="collapse-header" data-target="performanceContent">
-              <span>Performance</span>
-              <span class="collapse-icon">▼</span>
+          <div class="info-card collapsible-card" id="performanceCard">
+            <button class="collapse-header" type="button" data-target="performanceContent" aria-expanded="false">
+              <span class="collapse-title">Performance</span>
+              <span class="collapse-arrow">⌄</span>
             </button>
 
-            <div id="performanceContent" class="collapse-content">
+            <div id="performanceContent" class="collapse-content" hidden>
               <div id="performanceSummary">Loading...</div>
             </div>
           </div>
