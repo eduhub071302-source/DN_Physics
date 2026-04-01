@@ -32,15 +32,31 @@
         </div>
 
         <section class="quiz-top-cards">
-          <div class="info-card">
-            <h3>Attempt Info</h3>
-            <div id="attemptInfo">Loading...</div>
+
+          <!-- Attempt Info -->
+          <div class="info-card collapsible-card">
+            <button class="collapse-header" data-target="attemptContent">
+              <span>Attempt Info</span>
+              <span class="collapse-icon">▼</span>
+            </button>
+
+            <div id="attemptContent" class="collapse-content">
+              <div id="attemptInfo">Loading...</div>
+            </div>
           </div>
 
-          <div class="info-card">
-            <h3>Performance</h3>
-            <div id="performanceSummary">Loading...</div>
+          <!-- Performance -->
+          <div class="info-card collapsible-card">
+            <button class="collapse-header" data-target="performanceContent">
+              <span>Performance</span>
+              <span class="collapse-icon">▼</span>
+            </button>
+
+            <div id="performanceContent" class="collapse-content">
+              <div id="performanceSummary">Loading...</div>
+            </div>
           </div>
+
         </section>
 
         <section id="resumeCard" class="resume-card" style="display:none;">
