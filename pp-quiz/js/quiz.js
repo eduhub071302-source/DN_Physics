@@ -1039,6 +1039,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       quizTitle.textContent = "Quiz Not Found";
       quizSubtitle.textContent = "Could not load quiz data.";
       return false;
+    }
+
+    return true;
   }
 
   backToSubtopic.href = `/DN_Physics/pp-quiz/subtopic.html?topic=${encodeURIComponent(topic)}&subtopic=${encodeURIComponent(subtopic)}`;
