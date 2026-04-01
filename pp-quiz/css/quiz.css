@@ -2254,3 +2254,32 @@ button {
     padding: 0 14px 14px;
   }
 }
+
+.collapsible-card h3 {
+  display: none;
+}
+
+.collapse-header {
+  border-bottom: 1px solid var(--line);
+}
+
+.collapsible-card.open .collapse-header {
+  border-bottom: none;
+}
+
+.collapsible-card {
+  transition: all 0.25s ease;
+}
+
+.collapsible-card.open {
+  background: linear-gradient(
+    180deg,
+    rgba(20, 30, 50, 0.98),
+    rgba(10, 18, 32, 0.98)
+  );
+  box-shadow: var(--shadow-blue);
+}
+
+.collapse-header:active {
+  transform: scale(0.98);
+}
