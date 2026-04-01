@@ -4,59 +4,23 @@ document.addEventListener("DOMContentLoaded", async () => {
   const subtopic = params.get("subtopic");
 
   const subtopicTitle = document.getElementById("subtopicTitle");
-  const subtopicSubtitle = document.getElementById("subtopicSubtitle");
   const heroTitle = document.getElementById("subtopicHeroTitle");
   const heroText = document.getElementById("subtopicHeroText");
   const quizSetsGrid = document.getElementById("quizSetsGrid");
   const backToTopic = document.getElementById("backToTopic");
-  const backToTopicBtn = document.getElementById("backToTopicBtn");
-
-  const emptyState = document.getElementById("subtopicEmptyState");
-  const errorState = document.getElementById("subtopicErrorState");
-  const errorText = document.getElementById("subtopicErrorText");
-  const retrySubtopicBtn = document.getElementById("retrySubtopicBtn");
 
   const QUIZ_PROGRESS_KEY = "dnPhysicsQuizProgress";
 
-  if (
-    !subtopicTitle ||
-    !quizSetsGrid ||
-    !backToTopic ||
-    !emptyState ||
-    !errorState ||
-    !errorText ||
-    !retrySubtopicBtn
-  ) {
+  if (!subtopicTitle || !quizSetsGrid || !backToTopic) {
     console.error("Subtopic page elements not found.");
     return;
   }
 
-  const topicPageHref = `/DN_Physics/pp-quiz/topic.html?topic=${encodeURIComponent(topic || "")}`;
-  backToTopic.href = topicPageHref;
-  if (backToTopicBtn) backToTopicBtn.href = topicPageHref;
+  backToTopic.href = `/DN_Physics/pp-quiz/topic.html?topic=${encodeURIComponent(topic || "")}`;
 
-  function showGrid() {
-    quizSetsGrid.style.display = "";
-    emptyState.style.display = "none";
-    errorState.style.display = "none";
-  }
-
-  function showEmpty(message) {
-    quizSetsGrid.style.display = "none";
-    emptyState.style.display = "block";
-    errorState.style.display = "none";
-
-    const p = emptyState.querySelector("p");
-    if (p) p.textContent = message || "No quiz sets found.";
-  }
-
-  function showError(message) {
-    quizSetsGrid.style.display = "none";
-    emptyState.style.display = "none";
-    errorState.style.display = "block";
-    errorText.textContent =
-      message || "Something went wrong while loading this subtopic. Please try again.";
-  }
+  /* =========================
+     HELPERS
+  ========================= */
 
   function makeNiceTitle(slug) {
     return (slug || "")
@@ -66,18 +30,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function getBadgeData(p) {
-    const value = Number(p) || 0;
-    if (value >= 90) return { label: "🥇 Gold", className: "badge-gold" };
-    if (value >= 75) return { label: "🥈 Silver", className: "badge-silver" };
-    if (value >= 50) return { label: "🥉 Bronze", className: "badge-bronze" };
+    if (p >= 90) return { label: "🥇 Gold", className: "badge-gold" };
+    if (p >= 75) return { label: "🥈 Silver", className: "badge-silver" };
+    if (p >= 50) return { label: "🥉 Bronze", className: "badge-bronze" };
     return null;
   }
 
   function getMasteryLevel(p) {
-    const value = Number(p) || 0;
-    if (value >= 90) return "Mastered";
-    if (value >= 75) return "Strong";
-    if (value >= 50) return "Improving";
+    if (p >= 90) return "Mastered";
+    if (p >= 75) return "Strong";
+    if (p >= 50) return "Improving";
     return "Beginner";
   }
 
@@ -160,63 +122,53 @@ document.addEventListener("DOMContentLoaded", async () => {
     return "Keep practicing to improve your fundamentals.";
   }
 
+  /* =========================
+     LOAD SETS
+  ========================= */
+
   async function loadQuizSets() {
     const manifestPath = `/DN_Physics/pp-quiz/data/${topic}/${subtopic}/sets.json`;
 
     try {
       const res = await fetch(manifestPath, { cache: "no-store" });
-
-      if (!res.ok) {
-        throw new Error(`Failed to load sets manifest: ${manifestPath}`);
-      }
+      if (!res.ok) throw new Error();
 
       const data = await res.json();
       const sets = Array.isArray(data) ? data : data.sets;
 
-      if (!Array.isArray(sets)) {
-        throw new Error("Invalid sets manifest format.");
-      }
-
-      return sets
-        .filter((s) => s && typeof s === "object" && s.slug)
-        .map((s, i) => ({
-          slug: s.slug,
-          title: s.title || `Set ${i + 1}`
-        }));
-    } catch (error) {
-      console.warn("sets.json could not be loaded, using fallback set-1.", error);
+      return sets.map((s, i) => ({
+        slug: s.slug,
+        title: s.title || `Set ${i + 1}`
+      }));
+    } catch {
       return [{ slug: "set-1", title: "Set 1" }];
     }
   }
+
+  /* =========================
+     TOUCH FIX
+  ========================= */
 
   function attachSmoothCardTouch(card) {
     let startX = 0;
     let startY = 0;
     let moved = false;
 
-    card.addEventListener(
-      "touchstart",
-      (e) => {
-        const t = e.touches[0];
-        startX = t.clientX;
-        startY = t.clientY;
-        moved = false;
-        card.classList.add("card-touch-active");
-      },
-      { passive: true }
-    );
+    card.addEventListener("touchstart", (e) => {
+      const t = e.touches[0];
+      startX = t.clientX;
+      startY = t.clientY;
+      moved = false;
+      card.classList.add("card-touch-active");
+    }, { passive: true });
 
-    card.addEventListener(
-      "touchmove",
-      (e) => {
-        const t = e.touches[0];
-        if (Math.abs(t.clientX - startX) > 10 || Math.abs(t.clientY - startY) > 10) {
-          moved = true;
-          card.classList.remove("card-touch-active");
-        }
-      },
-      { passive: true }
-    );
+    card.addEventListener("touchmove", (e) => {
+      const t = e.touches[0];
+      if (Math.abs(t.clientX - startX) > 10 || Math.abs(t.clientY - startY) > 10) {
+        moved = true;
+        card.classList.remove("card-touch-active");
+      }
+    }, { passive: true });
 
     card.addEventListener("touchend", () => {
       setTimeout(() => card.classList.remove("card-touch-active"), 80);
@@ -227,20 +179,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  /* =========================
+     CARD BUILDER (CLEAN)
+  ========================= */
+
   function buildSetCard(set, index) {
     const stats = getSavedStats(topic, subtopic, set.slug);
+
     const progress = stats.bestFullBadgePercentage || 0;
     const mastery = getMasteryLevel(progress);
     const badge = getBadgeData(progress);
-    const description = getSetDescription(mastery, stats.attempts);
 
     const card = document.createElement("a");
     card.className = "topic-card fade-slide-up";
     card.style.animationDelay = `${index * 0.04}s`;
 
-    card.href = `/DN_Physics/pp-quiz/quiz.html?topic=${encodeURIComponent(
-      topic
-    )}&subtopic=${encodeURIComponent(subtopic)}&set=${encodeURIComponent(set.slug)}`;
+    card.href = `/DN_Physics/pp-quiz/quiz.html?topic=${encodeURIComponent(topic)}&subtopic=${encodeURIComponent(subtopic)}&set=${encodeURIComponent(set.slug)}`;
+
+    const description = getSetDescription(mastery, stats.attempts);
 
     card.innerHTML = `
       <div class="topic-card-top">
@@ -249,7 +205,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           <h2 class="topic-title">${escapeHtml(set.title)}</h2>
           <p class="topic-desc">${escapeHtml(description)}</p>
         </div>
-        <div class="topic-icon" aria-hidden="true">🧠</div>
+        <div class="topic-icon">🧠</div>
       </div>
 
       <div class="topic-stats">
@@ -269,7 +225,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       </div>
 
       <div class="topic-stats subtopic-meta-stats">
-        <span class="stat-pill">Last: ${escapeHtml(stats.lastPlayedAt)}</span>
+        <span class="stat-pill">Last: ${stats.lastPlayedAt}</span>
         <span class="stat-pill">Streak: ${stats.streak} day${stats.streak === 1 ? "" : "s"}</span>
       </div>
 
@@ -282,43 +238,43 @@ document.addEventListener("DOMContentLoaded", async () => {
     return card;
   }
 
-  async function renderPage() {
-    if (!topic || !subtopic) {
-      subtopicTitle.textContent = "Subtopic Not Found";
-      if (subtopicSubtitle) subtopicSubtitle.textContent = "Missing topic or subtopic.";
-      showError("Missing topic or subtopic in the page URL.");
-      return;
-    }
-
-    const niceName = makeNiceTitle(subtopic);
-
-    subtopicTitle.textContent = niceName;
-    if (subtopicSubtitle) {
-      subtopicSubtitle.textContent = "Choose a quiz set to start practicing.";
-    }
-    if (heroTitle) heroTitle.textContent = niceName;
-    if (heroText) {
-      heroText.textContent = `Practice ${niceName} with structured MCQ sets and track your progress.`;
-    }
-
-    const sets = await loadQuizSets();
-
-    if (!sets || sets.length === 0) {
-      showEmpty("Add sets.json for this subtopic to display quiz sets.");
-      return;
-    }
-
-    quizSetsGrid.innerHTML = "";
-    sets.forEach((set, index) => {
-      quizSetsGrid.appendChild(buildSetCard(set, index));
-    });
-
-    showGrid();
+  function renderEmpty(message) {
+    quizSetsGrid.innerHTML = `
+      <div class="empty-state fade-in">
+        <h3>No quiz sets found</h3>
+        <p>${escapeHtml(message)}</p>
+      </div>
+    `;
   }
 
-  retrySubtopicBtn.addEventListener("click", () => {
-    window.location.reload();
-  });
+  /* =========================
+     INIT
+  ========================= */
 
-  await renderPage();
+  if (!topic || !subtopic) {
+    subtopicTitle.textContent = "Subtopic Not Found";
+    renderEmpty("Missing topic or subtopic.");
+    return;
+  }
+
+  const niceName = makeNiceTitle(subtopic);
+
+  subtopicTitle.textContent = niceName;
+  if (heroTitle) heroTitle.textContent = niceName;
+  if (heroText) {
+    heroText.textContent = `Practice ${niceName} with structured MCQ sets and track your progress.`;
+  }
+
+  const sets = await loadQuizSets();
+
+  quizSetsGrid.innerHTML = "";
+
+  if (!sets || sets.length === 0) {
+    renderEmpty("Add sets.json for this subtopic to display quiz sets.");
+    return;
+  }
+
+  sets.forEach((set, index) => {
+    quizSetsGrid.appendChild(buildSetCard(set, index));
+  });
 });
