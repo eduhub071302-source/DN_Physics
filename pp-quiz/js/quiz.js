@@ -75,6 +75,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const refreshQuizBtn = document.getElementById("refreshQuizBtn");
 
   const requiredElements = [
+    refreshSubtopicBtn
+    refreshTopicBtn
+    refreshQuizHomeBtn
     refreshQuizBtn,
     quizTitle,
     quizSubtitle,
