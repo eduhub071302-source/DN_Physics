@@ -2,62 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-  />
-  <title>Subtopic | DN Physics PP Quiz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subtopic | PP Quiz</title>
   <meta
     name="description"
     content="Open quiz sets for a selected A/L Physics subtopic and continue focused past paper MCQ practice."
   />
-  <meta name="theme-color" content="#0b1220" />
-  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=30" />
+  <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=22" />
 </head>
 <body>
-  <a class="skip-link" href="#subtopicMainContent">Skip to content</a>
 
   <header class="quiz-header">
     <div class="container">
-      <div class="quiz-header-top">
-        <a
-          id="backToTopic"
-          class="back-link"
-          href="/DN_Physics/pp-quiz/index.html"
-          aria-label="Back to topic page"
-        >
-          ← Back
-        </a>
-        <div class="quiz-header-badge">DN Physics • PP Quiz</div>
-      </div>
-
+      <a id="backToTopic" class="back-link" href="/DN_Physics/pp-quiz/index.html">← Back</a>
       <h1 id="subtopicTitle">Subtopic</h1>
-      <p id="subtopicSubtitle">Choose a quiz set to start practicing.</p>
+      <p>Choose a quiz set to start practicing.</p>
     </div>
   </header>
 
-  <main id="subtopicMainContent" class="quiz-main">
+  <main class="quiz-main">
     <div class="container">
+
       <!-- HERO -->
-      <section
-        class="topic-card quiz-home-hero fade-slide-up"
-        aria-label="Subtopic introduction"
-      >
-        <div class="topic-card-top quiz-home-hero-top">
+      <section class="topic-card fade-slide-up" style="margin-bottom: 20px; min-height: auto;">
+        <div class="topic-card-top">
           <div class="topic-body">
             <div class="topic-pill">PP Quiz • Set Selection</div>
-            <h2 id="subtopicHeroTitle" class="topic-title quiz-home-title">
-              Loading Subtopic...
-            </h2>
-            <p id="subtopicHeroText" class="topic-desc quiz-home-desc">
+            <h2 id="subtopicHeroTitle" class="topic-title" style="font-size: 34px; margin-top: 10px;">Loading Subtopic...</h2>
+            <p id="subtopicHeroText" class="topic-desc" style="max-width: 760px;">
               Choose a set and start your focused practice instantly.
             </p>
           </div>
 
-          <div class="topic-icon quiz-home-icon" aria-hidden="true">🧠</div>
+          <div class="topic-icon" aria-hidden="true">🧠</div>
         </div>
 
-        <div class="topic-stats quiz-home-stats" aria-label="Set features">
+        <div class="topic-stats">
           <span class="stat-pill">Set-wise Practice</span>
           <span class="stat-pill">Retry Wrong Answers</span>
           <span class="stat-pill">Progress Tracking</span>
@@ -65,29 +45,22 @@
       </section>
 
       <!-- SECTION HEAD -->
-      <section
-        class="quiz-home-section-head fade-slide-up"
-        aria-label="Set selection intro"
-      >
-        <div class="quiz-home-section-row">
+      <section class="fade-slide-up" style="margin-bottom: 16px;">
+        <div style="display: flex; align-items: end; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
           <div>
-            <h3 class="quiz-home-section-title">Available Quiz Sets</h3>
-            <p class="quiz-home-section-subtitle">
-              Tap a set to begin, improve your accuracy, and build mastery step by step.
+            <h3 style="margin: 0 0 6px; font-size: 26px;">Available Quiz Sets</h3>
+            <p style="margin: 0; color: var(--muted);">
+              Tap a set to begin and improve your accuracy.
             </p>
           </div>
         </div>
       </section>
 
-      <!-- GRID -->
-      <section
-        id="quizSetsGrid"
-        class="topics-grid fade-in"
-        aria-live="polite"
-        aria-label="Available quiz sets"
-      >
+      <!-- QUIZ SETS GRID -->
+      <section id="quizSetsGrid" class="topics-grid fade-in" aria-live="polite">
+
         <!-- Skeleton loading -->
-        <article class="skeleton-card" aria-hidden="true">
+        <article class="skeleton-card">
           <div class="skeleton-avatar"></div>
           <div class="skeleton-line lg"></div>
           <div class="skeleton-line md"></div>
@@ -95,7 +68,7 @@
           <div class="skeleton-box"></div>
         </article>
 
-        <article class="skeleton-card" aria-hidden="true">
+        <article class="skeleton-card">
           <div class="skeleton-avatar"></div>
           <div class="skeleton-line lg"></div>
           <div class="skeleton-line md"></div>
@@ -103,7 +76,7 @@
           <div class="skeleton-box"></div>
         </article>
 
-        <article class="skeleton-card" aria-hidden="true">
+        <article class="skeleton-card">
           <div class="skeleton-avatar"></div>
           <div class="skeleton-line lg"></div>
           <div class="skeleton-line md"></div>
@@ -111,54 +84,16 @@
           <div class="skeleton-box"></div>
         </article>
 
-        <article class="skeleton-card" aria-hidden="true">
+        <article class="skeleton-card">
           <div class="skeleton-avatar"></div>
           <div class="skeleton-line lg"></div>
           <div class="skeleton-line md"></div>
           <div class="skeleton-line sm"></div>
           <div class="skeleton-box"></div>
         </article>
+
       </section>
 
-      <!-- EMPTY STATE -->
-      <section
-        id="subtopicEmptyState"
-        class="empty-state"
-        style="display: none;"
-        aria-live="polite"
-      >
-        <h3>No quiz sets found</h3>
-        <p>
-          This subtopic does not have quiz sets yet. Add a set JSON file and question
-          images, then reload this page.
-        </p>
-      </section>
-
-      <!-- ERROR STATE -->
-      <section
-        id="subtopicErrorState"
-        class="quiz-error-card"
-        style="display: none;"
-        aria-live="assertive"
-      >
-        <h2>Subtopic could not be loaded</h2>
-        <p id="subtopicErrorText">
-          Something went wrong while loading this subtopic. Please try again or go back.
-        </p>
-
-        <div class="question-error-actions">
-          <button id="retrySubtopicBtn" class="action-btn primary-btn" type="button">
-            Retry
-          </button>
-          <a
-            id="backToTopicBtn"
-            class="action-btn"
-            href="/DN_Physics/pp-quiz/index.html"
-          >
-            Back to Topic
-          </a>
-        </div>
-      </section>
     </div>
   </main>
 
@@ -166,22 +101,12 @@
   <audio id="bgMusic" loop></audio>
 
   <div id="musicPlayerFloating" class="music-floating">
-    <button
-      id="musicToggleBtn"
-      class="music-float-btn"
-      type="button"
-      aria-label="Open music player"
-      aria-expanded="false"
-      aria-controls="musicPanel"
-    >
-      🎧
-    </button>
+    <button id="musicToggleBtn" class="music-float-btn" type="button" aria-label="Open music player">🎧</button>
 
-    <div id="musicPanel" class="music-panel" aria-hidden="true">
+    <div id="musicPanel" class="music-panel">
       <div class="music-header">Focus Music</div>
 
       <div class="music-row">
-        <label class="sr-only" for="trackSelect">Select music track</label>
         <select id="trackSelect" aria-label="Select music track"></select>
       </div>
 
@@ -191,7 +116,6 @@
       </div>
 
       <div class="music-row">
-        <label class="sr-only" for="volumeSlider">Music volume</label>
         <input
           id="volumeSlider"
           type="range"
@@ -206,12 +130,6 @@
       <div id="currentTrackLabel" class="music-label">Current: None</div>
     </div>
   </div>
-
-  <noscript>
-    <div class="container" style="padding: 20px;">
-      JavaScript is required to load the DN Physics subtopic quiz sets.
-    </div>
-  </noscript>
 
   <script src="/DN_Physics/js/music-player.js"></script>
   <script src="/DN_Physics/pp-quiz/js/subtopic.js"></script>
