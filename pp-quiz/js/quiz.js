@@ -170,6 +170,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   let retryModeType = "full";
   let retryQuestionList = [];
 
+  const imageCache = {};
+
   const MOTIVATION_LINES = [
     "Stay focused. Every question improves your rank.",
     "Small improvements create big rank jumps.",
@@ -764,8 +766,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   function preloadQuestionImage(questionNumber) {
     if (!Number.isFinite(questionNumber) || questionNumber < 1) return;
 
+    const path = getImagePath(questionNumber);
+
+    if (imageCache[path]) return;
+
     const img = new Image();
-    img.src = getImagePath(questionNumber);
+    img.src = path;
+
+    imageCache[path] = img;
   }
 
   function updateQuestionView() {
@@ -776,16 +784,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     hideHintBox();
 
     questionCounter.textContent = `Question ${shownIndex} of ${totalCount}`;
-    questionImage.src = getImagePath(questionNumber);
+    const imgPath = getImagePath(questionNumber);
+
+    if (imageCache[imgPath]) {
+      questionImage.src = imageCache[imgPath].src;
+    } else {
+      questionImage.src = imgPath;
+    }
     questionImage.alt = `${makeNiceTitle(subtopic)} question ${questionNumber}`;
     modalImage.src = questionImage.src;
 
     if (shownIndex < totalCount) {
       if (retryModeType === "list" || practiceWrongOnlyMode) {
         const nextActualQuestion = retryQuestionList[currentDisplayIndex];
+        const nextNextActualQuestion = retryQuestionList[currentDisplayIndex + 1];
+
         preloadQuestionImage(nextActualQuestion);
+        preloadQuestionImage(nextNextActualQuestion);
       } else {
         preloadQuestionImage(currentQuestion + 1);
+        preloadQuestionImage(currentQuestion + 2);
       }
     }
 
