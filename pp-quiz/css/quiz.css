@@ -1296,8 +1296,6 @@ button {
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
 }
 
 .quiz-status-card {
@@ -2282,4 +2280,28 @@ button {
 
 .collapse-header:active {
   transform: scale(0.98);
+}
+
+.answer-btn,
+.palette-btn,
+.action-btn {
+  transition:
+    background 0.1s ease,
+    border-color 0.1s ease,
+    box-shadow 0.1s ease,
+    color 0.1s ease;
+}
+
+@media (max-width: 768px) {
+  .answer-btn:hover,
+  .action-btn:hover,
+  .palette-btn:hover {
+    transform: none;
+  }
+
+  .answer-btn:active,
+  .action-btn:active,
+  .palette-btn:active {
+    transform: scale(0.97);
+  }
 }
