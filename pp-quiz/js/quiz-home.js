@@ -1,15 +1,15 @@
 const topics = [
-  { slug: "units", title: "Units", icon: "📏", desc: "SI units, dimensions, prefixes, and measurement basics." },
-  { slug: "mechanics", title: "Mechanics", icon: "⚙️", desc: "Motion, forces, energy, momentum, and circular motion." },
-  { slug: "oscillations-waves", title: "Oscillations & Waves", icon: "🌊", desc: "SHM, wave motion, properties, and sound concepts." },
-  { slug: "thermal-physics", title: "Thermal Physics", icon: "🔥", desc: "Temperature, gases, heat transfer, and thermal laws." },
-  { slug: "gravitational-field", title: "Gravitational Field", icon: "🌍", desc: "Gravitation, field strength, potential, and motion." },
-  { slug: "electrostatics-field", title: "Electrostatics Field", icon: "⚡", desc: "Charges, electric fields, potential, and capacitance basics." },
-  { slug: "magnetic-field", title: "Magnetic Field", icon: "🧲", desc: "Magnetic effects, forces, fields, and electromagnetic ideas." },
-  { slug: "current-electricity", title: "Current Electricity", icon: "🔋", desc: "Current, resistance, circuits, power, and electrical laws." },
-  { slug: "electronics", title: "Electronics", icon: "💻", desc: "Diodes, transistors, logic, and core electronic systems." },
-  { slug: "mechanical-properties", title: "Mechanical Properties", icon: "🏗️", desc: "Elasticity, stress, strain, viscosity, and material behavior." },
-  { slug: "matter-radiations", title: "Matter & Radiations", icon: "☢️", desc: "Atomic structure, radiation, quantum ideas, and modern physics." }
+  { slug: "units", title: "Units", icon: "📏" },
+  { slug: "mechanics", title: "Mechanics", icon: "⚙️" },
+  { slug: "oscillations-waves", title: "Oscillations & Waves", icon: "🌊" },
+  { slug: "thermal-physics", title: "Thermal Physics", icon: "🔥" },
+  { slug: "gravitational-field", title: "Gravitational Field", icon: "🌍" },
+  { slug: "electrostatics-field", title: "Electrostatics Field", icon: "⚡" },
+  { slug: "magnetic-field", title: "Magnetic Field", icon: "🧲" },
+  { slug: "current-electricity", title: "Current Electricity", icon: "🔋" },
+  { slug: "electronics", title: "Electronics", icon: "💻" },
+  { slug: "mechanical-properties", title: "Mechanical Properties", icon: "🏗️" },
+  { slug: "matter-radiations", title: "Matter & Radiations", icon: "☢️" }
 ];
 
 const refreshQuizHomeBtn = document.getElementById("refreshQuizHomeBtn");
