@@ -1270,6 +1270,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       const index = getCurrentShownIndex();
 
       if (index < total) {
+
+        // 🔥 PRELOAD NEXT BEFORE SWITCH
+        if (retryModeType === "list" || practiceWrongOnlyMode) {
+          const nextActualQuestion = retryQuestionList[currentDisplayIndex];
+          const nextNextActualQuestion = retryQuestionList[currentDisplayIndex + 1];
+
+          preloadQuestionImage(nextActualQuestion);
+          preloadQuestionImage(nextNextActualQuestion);
+        } else {
+          preloadQuestionImage(currentQuestion + 1);
+          preloadQuestionImage(currentQuestion + 2);
+        }
+
         setTimeout(() => {
           if (!reviewMode) {
             nextBtn.click();
