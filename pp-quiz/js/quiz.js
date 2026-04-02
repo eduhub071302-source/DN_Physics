@@ -761,6 +761,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     }, 250);
   }
 
+  function preloadQuestionImage(questionNumber) {
+    if (!Number.isFinite(questionNumber) || questionNumber < 1) return;
+
+    const img = new Image();
+    img.src = getImagePath(questionNumber);
+  }
+
   function updateQuestionView() {
     const questionNumber = getCurrentQuestionNumber();
     const totalCount = getCurrentTotalCount();
@@ -773,6 +780,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     questionImage.alt = `${makeNiceTitle(subtopic)} question ${questionNumber}`;
     modalImage.src = questionImage.src;
 
+    if (shownIndex < totalCount) {
+      if (retryModeType === "list" || practiceWrongOnlyMode) {
+        const nextActualQuestion = retryQuestionList[currentDisplayIndex];
+        preloadQuestionImage(nextActualQuestion);
+      } else {
+        preloadQuestionImage(currentQuestion + 1);
+      }
+    }
+
     prevBtn.disabled = shownIndex === 1;
     nextBtn.disabled = shownIndex === totalCount;
 
@@ -780,8 +796,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateSubmitVisibility();
     updateMotivationBar();
     resetQuestionTimer();
-    animateQuestionChange();
-    smartSaveSession();
+    // animateQuestionChange();
+    // smartSaveSession();
   }
 
   function stopTimers() {
@@ -1240,7 +1256,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           if (!reviewMode) {
             nextBtn.click();
           }
-        }, 250);
+        }, 50);
       }
     });
   });
