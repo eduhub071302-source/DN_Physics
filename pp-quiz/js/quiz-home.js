@@ -58,17 +58,9 @@ function renderTopics(container, topicList) {
     card.innerHTML = `
       <div class="topic-card-top">
         <div class="topic-body">
-          <div class="topic-pill">PP Quiz Topic</div>
           <h2 class="topic-title">${escapeHtml(topic.title)}</h2>
-          <p class="topic-desc">${escapeHtml(topic.desc || "Open subtopics and begin practicing.")}</p>
         </div>
         <div class="topic-icon" aria-hidden="true">${escapeHtml(topic.icon || "📘")}</div>
-      </div>
-
-      <div class="topic-stats">
-        <span class="stat-pill">Subtopics</span>
-        <span class="stat-pill">MCQ Sets</span>
-        <span class="stat-pill">Progress Ready</span>
       </div>
 
       <span class="action-btn primary-btn enter-topic-btn">Open Topic</span>
