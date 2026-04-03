@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Success | DN Physics</title>
+  <link rel="stylesheet" href="/DN_Physics/css/style.css" />
+</head>
+<body>
+  <main class="section">
+    <div class="container">
+      <div class="card">
+        <h1>Verifying payment...</h1>
+        <p id="statusText">Please wait while we unlock your app.</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="/DN_Physics/js/app-config.js"></script>
+  <script src="/DN_Physics/js/unlock.js"></script>
+  <script>
+    (async () => {
+      const params = new URLSearchParams(window.location.search);
+      const orderId = params.get("order_id") || getPendingOrderId();
+      const statusText = document.getElementById("statusText");
+
+      if (!orderId) {
+        statusText.textContent = "No order found.";
+        return;
+      }
+
+      const result = await checkServerUnlockStatus(orderId);
+      if (result.ok && result.paid) {
+        applyServerUnlock(orderId);
+        statusText.textContent = "Payment verified. Redirecting...";
+        setTimeout(() => {
+          window.location.href = "/DN_Physics/index.html";
+        }, 1200);
+      } else {
+        statusText.textContent = "Payment is not verified yet. Please refresh this page in a few seconds.";
+      }
+    })();
+  </script>
+</body>
+</html>     
