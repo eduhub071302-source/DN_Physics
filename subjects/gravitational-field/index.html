@@ -28,7 +28,7 @@
   <section class="page-title">
     <div class="container">
       <a class="back-link" href="../../index.html">← Back to Home</a>
-      <h1 id="subjectTitle">Gravitational Filed</h1>
+      <h1 id="subjectTitle">Gravitational Field</h1>
       <p id="subjectDesc">Choose a subtopic to view formula notes.</p>
     </div>
   </section>
@@ -71,6 +71,9 @@
 
   <audio id="bgMusic" loop></audio>
 
+  <script src="/DN_Physics/js/app-config.js"></script>
+  <script src="/DN_Physics/js/unlock.js"></script>
+
   <script>
     const grid = document.getElementById("subjectGrid");
     const refreshBtn = document.getElementById("refreshBtn");
@@ -109,6 +112,8 @@
         grid.innerHTML = subjectItems.map((item, index) => {
           const topicTitle = item.title || prettifyTopicName(item.file);
           const topicPage = `../../topics/topic.html?subject=${encodeURIComponent(item.subject)}&file=${encodeURIComponent(item.file)}&title=${encodeURIComponent(topicTitle)}`;
+          const viewerPage = `../../topics/viewer.html?pdf=${encodeURIComponent(`/DN_Physics/pdfs/${item.subject}/${item.file}`)}&title=${encodeURIComponent(topicTitle)}&back=${encodeURIComponent(window.location.pathname)}&subjectName=${encodeURIComponent(document.getElementById('subjectTitle').textContent)}`;
+          const isAllowed = canAccessPdf(item.subject);
 
           return `
             <div class="card">
@@ -116,9 +121,16 @@
               <h3>${topicTitle}</h3>
               <p>Core formulas and revision notes for ${topicTitle.toLowerCase()}.</p>
               <div class="actions">
-                <a class="btn" href="${topicPage}">Open ${topicTitle}</a>
-                <a class="btn btn-primary" href="../../topics/viewer.html?pdf=${encodeURIComponent(`/DN_Physics/pdfs/${item.subject}/${item.file}`)}&title=${encodeURIComponent(topicTitle)}&back=${encodeURIComponent(window.location.pathname)}&subjectName=${encodeURIComponent(document.getElementById('subjectTitle').textContent)}">
-                  View PDF
+                <a class="btn ${isAllowed ? "" : "locked-btn"}"
+                  href="${isAllowed ? topicPage : "#"}"
+                  ${isAllowed ? "" : `onclick="event.preventDefault(); lockAlert();"`}>
+                 ${isAllowed ? `Open ${topicTitle}` : "🔒 Locked"}
+                </a>
+
+                <a class="btn btn-primary ${isAllowed ? "" : "locked-btn"}"
+                   href="${isAllowed ? viewerPage : "#"}"
+                   ${isAllowed ? "" : `onclick="event.preventDefault(); lockAlert();"`}>
+                  ${isAllowed ? "View PDF" : "🔒 Locked"}
                 </a>
               </div>
             </div>
