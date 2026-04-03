@@ -183,10 +183,6 @@ function showDnMessage(message = "Done") {
   }, 2200);
 }
 
-function lockAlert() {
-  showDnMessage(`🔒 Locked content • Unlock all for Rs.${DN_CONFIG.PRODUCT.PRICE}`);
-}
-
 // ----------------------------
 // Future PayHere integration
 // ----------------------------
@@ -282,9 +278,14 @@ function applyServerUnlock(orderId = "") {
 
 function openUnlockModal() {
   const modal = document.getElementById("unlockModal");
-  if (modal) {
-    modal.classList.add("show");
+
+  if (!modal) {
+    console.warn("unlockModal not found on this page");
+    showDnMessage(`🔒 Locked • Unlock all for Rs.${DN_CONFIG.PRODUCT.PRICE}`);
+    return;
   }
+
+  modal.classList.add("show");
 }
 
 function closeUnlockModal() {
@@ -294,7 +295,7 @@ function closeUnlockModal() {
   }
 }
 
-// Replace old alert
+// FINAL lock function
 function lockAlert() {
   openUnlockModal();
 }
