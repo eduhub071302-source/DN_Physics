@@ -240,6 +240,9 @@
 
   <audio id="bgMusic" loop></audio>
 
+  <script src="/DN_Physics/js/app-config.js"></script>
+  <script src="/DN_Physics/js/unlock.js"></script>
+
   <script>
     const params = new URLSearchParams(window.location.search);
 
@@ -271,6 +274,8 @@
 
     const hasValidParams = Boolean(subject && file);
 
+    const isPdfAllowed = canAccessPdf(subject);
+
     const pdfPath = hasValidParams
       ? `/DN_Physics/pdfs/${subject}/${file}`
       : "/DN_Physics/index.html";
@@ -291,7 +296,7 @@
     subjectNavLink.href = subjectPage;
     subjectNavLink.textContent = prettySubject;
 
-    if (hasValidParams) {
+    if (hasValidParams && isPdfAllowed) {
       viewBtn.href =
         `/DN_Physics/topics/viewer.html?pdf=${encodeURIComponent(pdfPath)}` +
         `&title=${encodeURIComponent(title + " Formula Sheet")}` +
@@ -303,6 +308,49 @@
       waShare.href = "https://wa.me/?text=" + encodeURIComponent(fullPdfUrl);
       tgShare.href = "https://t.me/share/url?url=" + encodeURIComponent(fullPdfUrl);
       mailShare.href = "mailto:?subject=" + encodeURIComponent(title) + "&body=" + encodeURIComponent(fullPdfUrl);
+    }
+
+    if (hasValidParams && !isPdfAllowed) {
+      // 🔒 Lock UI
+      viewBtn.textContent = "🔒 Locked";
+      downloadBtn.textContent = "🔒 Locked";
+      shareBtn.textContent = "🔒 Locked";
+
+      viewBtn.href = "#";
+      downloadBtn.href = "#";
+      waShare.href = "#";
+      tgShare.href = "#";
+      mailShare.href = "#";
+
+      viewBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        lockAlert();
+      });
+    
+      downloadBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        lockAlert();
+      });
+
+      shareBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        lockAlert();
+      });
+
+      waShare.addEventListener("click", (e) => {
+        e.preventDefault();
+        lockAlert();
+      });
+
+      tgShare.addEventListener("click", (e) => {
+        e.preventDefault();
+        lockAlert();
+      });
+
+      mailShare.addEventListener("click", (e) => {
+        e.preventDefault();
+        lockAlert();
+      });
     }
 
     async function copyFallback(text) {
@@ -319,6 +367,11 @@
     }
 
     async function sharePdf() {
+      if (!isPdfAllowed) {
+        lockAlert();
+        return;
+      }
+      
       if (!hasValidParams) {
         showToast("Invalid PDF link ⚠️");
         return;
