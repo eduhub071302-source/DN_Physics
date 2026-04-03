@@ -3,6 +3,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   const topic = params.get("topic");
   const subtopic = params.get("subtopic");
 
+  // 🔒 ACCESS CONTROL
+  if (!canAccessQuiz(topic)) {
+    subtopicTitle.textContent = "🔒 Locked";
+
+    if (heroTitle) heroTitle.textContent = "Premium Content";
+    if (heroText) {
+      heroText.textContent = "Buy full access for Rs.100 to unlock all quiz sets.";
+    }
+
+    quizSetsGrid.innerHTML = `
+      <div class="empty-state fade-in">
+        <h3>This subtopic is locked 🔒</h3>
+        <p>Only Units is free. Unlock all for Rs.100.</p>
+      </div>
+    `;
+
+    return;
+  }
+
   const subtopicTitle = document.getElementById("subtopicTitle");
   const heroTitle = document.getElementById("subtopicHeroTitle");
   const heroText = document.getElementById("subtopicHeroText");
