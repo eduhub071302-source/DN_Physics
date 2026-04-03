@@ -56,6 +56,10 @@ function renderTopics(container, topicList) {
       ? `/DN_Physics/pp-quiz/topic.html?topic=${encodeURIComponent(topic.slug)}`
       : "#";
 
+    if (!isAllowed) {
+      card.classList.add("is-locked");
+    }
+
     card.setAttribute(
       "aria-label",
       isAllowed ? `Open ${topic.title}` : `${topic.title} is locked`
@@ -66,13 +70,14 @@ function renderTopics(container, topicList) {
     card.innerHTML = `
       <div class="topic-card-top">
         <div class="topic-body">
+          <div class="topic-pill">${isAllowed ? "Free" : "Premium"}</div>
           <h2 class="topic-title">${escapeHtml(topic.title)}</h2>
         </div>
         <div class="topic-icon" aria-hidden="true">${escapeHtml(topic.icon || "📘")}</div>
       </div>
 
       <span class="action-btn primary-btn enter-topic-btn">
-        ${isAllowed ? "Open Topic" : "🔒 Locked • Rs.100"}
+        ${isAllowed ? "Open Topic" : "🔒 Locked"}
       </span>
     `;
 
