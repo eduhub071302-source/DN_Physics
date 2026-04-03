@@ -316,6 +316,9 @@
 
   <audio id="bgMusic" loop></audio>
 
+  <script src="/DN_Physics/js/app-config.js"></script>
+  <script src="/DN_Physics/js/unlock.js"></script>
+
   <script type="module">
     import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
 
@@ -867,6 +870,11 @@
     }
 
     async function shareCurrentPdf() {
+      if (!canAccessPdf(subjectSlug)) {
+        lockAlert();
+        return;
+      }
+      
       const shareUrl = absolutePdfUrl || window.location.href;
       const shareData = {
         title: shareTitle,
@@ -1027,6 +1035,22 @@
         ? normalizePath(safeDecode(rawBack))
         : (subjectSlug ? `/DN_Physics/subjects/${subjectSlug}/index.html` : "/DN_Physics/index.html");
 
+      if (!canAccessPdf(subjectSlug)) {
+        viewerTitleEl.textContent = "Locked PDF";
+        fileLabelEl.textContent = "🔒 Premium note";
+        subjectLinkEl.textContent = subjectDisplayName || "Locked";
+        backLinkEl.href = backUrl;
+        backBtnEl.href = backUrl;
+
+        blockViewerAccess();
+        return;
+      }
+
+      shareTitle = safeDecode(rawTitle, fileName.replace(/\.pdf$/i, ""));
+      backUrl = rawBack
+        ? normalizePath(safeDecode(rawBack))
+        : (subjectSlug ? `/DN_Physics/subjects/${subjectSlug}/index.html` : "/DN_Physics/index.html");
+
       const subjectPageUrl = subjectSlug
         ? `/DN_Physics/subjects/${subjectSlug}/index.html`
         : "/DN_Physics/index.html";
@@ -1041,6 +1065,25 @@
       downloadBtnEl.href = pdfUrl;
 
       await renderPdf();
+    }
+
+    function blockViewerAccess() {
+      container.innerHTML = `
+        <div class="loading">
+          🔒 This PDF is locked.<br><br>
+          Buy full access for Rs.100 to unlock all notes.
+        </div>
+      `;
+
+      if (openBtnEl) openBtnEl.href = "#";
+      if (downloadBtnEl) downloadBtnEl.href = "#";
+
+      if (shareBtnEl) {
+        shareBtnEl.addEventListener("click", (e) => {
+          e.preventDefault();
+          lockAlert();
+        });
+      }
     }
 
     initViewer();
