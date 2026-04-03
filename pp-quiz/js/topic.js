@@ -139,6 +139,20 @@ document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
   const topicSlug = params.get("topic");
 
+  // 🔒 ACCESS CONTROL
+  if (!canAccessQuiz(topicSlug)) {
+    topicTitle.textContent = "🔒 Locked Topic";
+
+    if (topicHeroTitle) topicHeroTitle.textContent = "Premium Content";
+    if (topicHeroText) {
+      topicHeroText.textContent = "Buy full access for Rs.100 to unlock all quiz topics.";
+    }
+
+    renderEmptyState("This topic is locked 🔒", "Only Units is free. Unlock all for Rs.100.");
+
+    return;
+  }
+
   const topicTitle = document.getElementById("topicTitle");
   const topicHeroTitle = document.getElementById("topicHeroTitle");
   const topicHeroText = document.getElementById("topicHeroText");
