@@ -268,119 +268,6 @@ function applyServerUnlock(orderId = "") {
   clearPendingOrderId();
 }
 
-// ----------------------------
-// Global injected unlock modal
-// ----------------------------
-
-function injectUnlockModalStyles() {
-  if (document.getElementById("dn-unlock-modal-styles")) return;
-
-  const style = document.createElement("style");
-  style.id = "dn-unlock-modal-styles";
-  style.textContent = `
-    .unlock-modal {
-      position: fixed;
-      inset: 0;
-      display: none;
-      z-index: 100000;
-    }
-
-    .unlock-modal.show {
-      display: block;
-    }
-
-    .unlock-backdrop {
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(3px);
-    }
-
-    .unlock-box {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: min(92vw, 360px);
-      background: #111a2b;
-      border: 1px solid #24314f;
-      border-radius: 20px;
-      padding: 22px 18px 18px;
-      text-align: center;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-      color: #e8eefc;
-    }
-
-    .unlock-box h2 {
-      margin: 0 0 8px;
-      font-size: 24px;
-    }
-
-    .unlock-box p {
-      margin: 0 0 14px;
-      color: #a8b3cf;
-      line-height: 1.5;
-    }
-
-    .unlock-price {
-      margin: 10px 0 14px;
-      font-size: 20px;
-      font-weight: 800;
-      color: #4ea1ff;
-    }
-
-    .unlock-divider {
-      margin: 14px 0 10px;
-      color: #7f8dab;
-      font-size: 13px;
-    }
-
-    .unlock-input {
-      width: 100%;
-      min-height: 44px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid #24314f;
-      background: #0b1220;
-      color: #ffffff;
-      outline: none;
-      box-sizing: border-box;
-      margin-bottom: 10px;
-    }
-
-    .unlock-actions {
-      display: grid;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .unlock-close {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 34px;
-      height: 34px;
-      border-radius: 999px;
-      border: none;
-      background: rgba(255,255,255,0.06);
-      color: #c8d3ee;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    .unlock-close:hover {
-      background: rgba(255,255,255,0.1);
-    }
-
-    .unlock-note {
-      margin-top: 12px;
-      font-size: 12px;
-      color: #7f8dab;
-    }
-  `;
-  document.head.appendChild(style);
-}
-
 function injectUnlockModalHtml() {
   if (document.getElementById("unlockModal")) return;
 
@@ -426,7 +313,6 @@ function injectUnlockModalHtml() {
 }
 
 function ensureUnlockModal() {
-  injectUnlockModalStyles();
   injectUnlockModalHtml();
 }
 
