@@ -1290,7 +1290,12 @@
       <h2 id="authTitle">Login</h2>
 
       <input id="authEmail" placeholder="Email" />
-      <input id="authPassword" type="password" placeholder="Password" />
+      <div class="auth-password-wrap">
+        <input id="authPassword" type="password" placeholder="Password" />
+        <button id="togglePasswordBtn" class="auth-eye-btn" type="button" aria-label="Show password">
+          👁
+        </button>
+      </div>
 
       <button id="authSubmitBtn" class="btn btn-primary">Login</button>
 
