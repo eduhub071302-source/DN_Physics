@@ -13,19 +13,6 @@
 
   <link rel="stylesheet" href="css/style.css" />
 </head>
-
-<footer style="
-  margin-top:40px;
-  padding:20px;
-  text-align:center;
-  font-size:14px;
-  color:#a8b3cf;
-  border-top:1px solid #24314f;
-">
-  <a href="/DN_Physics/privacy.html">Privacy Policy</a> |
-  <a href="/DN_Physics/terms.html">Terms</a> |
-  <a href="/DN_Physics/contact.html">Contact</a>
-</footer>
   
 <body>
   <div id="appSplash" class="app-splash" aria-hidden="true">
@@ -230,6 +217,19 @@
     <div id="onboardingArrow" class="onboarding-arrow" aria-hidden="true">➜</div>
   </div>
 
+  <footer style="
+    margin-top:40px;
+    padding:20px;
+    text-align:center;
+    font-size:14px;
+    color:#a8b3cf;
+    border-top:1px solid #24314f;
+  ">
+    <a href="/DN_Physics/privacy.html">Privacy Policy</a> |
+    <a href="/DN_Physics/terms.html">Terms</a> |
+    <a href="/DN_Physics/contact.html">Contact</a>
+  </footer>
+  
   <script>
     let deferredPrompt = null;
 
@@ -1260,5 +1260,26 @@
   </script>
 
   <script src="/DN_Physics/js/music-player.js"></script>
+
+  <!-- 🔓 UNLOCK POPUP -->
+  <div id="unlockModal" class="unlock-modal" aria-hidden="true">
+    <div class="unlock-backdrop"></div>
+
+    <div class="unlock-box">
+      <h2>🔒 Premium Content</h2>
+      <p>Unlock all notes & quizzes</p>
+
+      <div class="unlock-price">Rs.100 • One-Time</div>
+
+      <button id="buyUnlockBtn" class="btn btn-primary">💳 Unlock Now</button>
+
+      <div class="unlock-divider">or</div>
+
+      <input id="ownerCodeInput" type="text" placeholder="Enter owner code" />
+      <button id="ownerUnlockBtn" class="btn">Unlock</button>
+
+      <button id="closeUnlockBtn" class="unlock-close">✕</button>
+    </div>
+  </div>
 </body>
 </html>
