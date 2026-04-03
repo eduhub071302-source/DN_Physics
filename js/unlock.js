@@ -221,19 +221,55 @@ function hasPaymentConfigReady() {
 }
 
 async function startFullUnlockCheckout() {
-  if (!hasPaymentConfigReady()) {
+  if (!DN_CONFIG.BACKEND.CREATE_ORDER_URL) {
     showDnMessage("Payment setup not added yet.");
     return;
   }
 
-  if (!DN_CONFIG.BACKEND.CREATE_ORDER_URL) {
-    showDnMessage("Create-order URL is missing.");
-    return;
+  try {
+    const res = await fetch(DN_CONFIG.BACKEND.CREATE_ORDER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        first_name: "DN",
+        last_name: "Physics User",
+        email: "student@example.com",
+        phone: "0770000000",
+        address: "Sri Lanka",
+        city: "Colombo",
+        country: "Sri Lanka"
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.ok) {
+      showDnMessage(data.message || "Failed to start payment.");
+      return;
+    }
+
+    const fields = data.fields || {};
+    setPendingOrderId(fields.order_id || "");
+
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = data.checkout_url;
+    form.style.display = "none";
+
+    Object.entries(fields).forEach(([key, value]) => {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = key;
+      input.value = String(value ?? "");
+      form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+  } catch (error) {
+    showDnMessage(error.message || "Payment start failed.");
   }
-
-  showDnMessage("Checkout integration placeholder is ready.");
 }
-
 async function checkServerUnlockStatus(orderId = "") {
   const finalOrderId = orderId || getPendingOrderId();
 
