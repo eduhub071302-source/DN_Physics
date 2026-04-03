@@ -1534,3 +1534,64 @@ main {
     width: auto !important;
   }
 }
+
+.unlock-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  z-index: 99999;
+}
+
+.unlock-modal.show {
+  display: block;
+}
+
+.unlock-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+}
+
+.unlock-box {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #111a2b;
+  padding: 24px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 320px;
+  text-align: center;
+  border: 1px solid #24314f;
+}
+
+.unlock-price {
+  margin: 12px 0;
+  font-size: 18px;
+  color: #4ea1ff;
+  font-weight: bold;
+}
+
+.unlock-divider {
+  margin: 12px 0;
+  color: #a8b3cf;
+}
+
+.unlock-box input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border-radius: 8px;
+  border: 1px solid #24314f;
+  background: #0b1220;
+  color: white;
+}
+
+.unlock-close {
+  margin-top: 12px;
+  background: none;
+  border: none;
+  color: #a8b3cf;
+  cursor: pointer;
+}
