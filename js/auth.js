@@ -44,14 +44,16 @@ function showAuthMessage(title, message) {
   titleEl.textContent = title;
   textEl.textContent = message;
 
-  cancelBtn.classList.add("hidden");
+  cancelBtn.style.display = "none";
   okBtn.textContent = "OK";
 
   okBtn.onclick = () => {
     modal.classList.add("hidden");
+    modal.style.display = "none";
   };
 
   modal.classList.remove("hidden");
+  modal.style.display = "flex";
 }
 
 function showAuthConfirm(title, message, onOk) {
@@ -68,7 +70,7 @@ function showAuthConfirm(title, message, onOk) {
   titleEl.textContent = title;
   textEl.textContent = message;
 
-  cancelBtn.classList.remove("hidden");
+  cancelBtn.style.display = "inline-flex";
   okBtn.textContent = "Logout";
 
   cancelBtn.onclick = () => {
