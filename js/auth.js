@@ -44,18 +44,12 @@ function showAuthMessage(title, message) {
   titleEl.textContent = title;
   textEl.textContent = message;
 
-  cancelBtn.style.display = "inline-flex";
-  okBtn.textContent = "Logout";
-
-  cancelBtn.onclick = () => {
-    modal.classList.add("hidden");
-    modal.style.display = "none";
-  };
+  cancelBtn.style.display = "none";
+  okBtn.textContent = "OK";
 
   okBtn.onclick = () => {
     modal.classList.add("hidden");
     modal.style.display = "none";
-    if (typeof onOk === "function") onOk();
   };
 
   modal.classList.remove("hidden");
@@ -76,16 +70,21 @@ function showAuthConfirm(title, message, onOk) {
   titleEl.textContent = title;
   textEl.textContent = message;
 
-  cancelBtn.style.display = "none";
+  cancelBtn.style.display = "inline-flex";
   okBtn.textContent = "Logout";
 
   cancelBtn.onclick = () => {
     modal.classList.add("hidden");
+    modal.style.display = "none";
   };
 
   okBtn.onclick = () => {
     modal.classList.add("hidden");
     modal.style.display = "none";
+
+    if (typeof onOk === "function") {
+      onOk();
+    }
   };
 
   modal.classList.remove("hidden");
