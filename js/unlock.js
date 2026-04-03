@@ -98,6 +98,7 @@ function disableOwnerMode() {
 function unlockWithOwnerCode(code) {
   if (code === DN_CONFIG.ACCESS.OWNER_CODE) {
     enableOwnerMode();
+    closeUnlockModal();
     showDnMessage("Owner mode activated 🔓");
     setTimeout(() => location.reload(), 300);
   } else {
@@ -108,6 +109,7 @@ function unlockWithOwnerCode(code) {
 // 🔥 Temporary local test only
 function simulatePurchase() {
   activatePaidAccess({ source: "local-test" });
+  closeUnlockModal();
   showDnMessage("Full app unlocked 🎉");
   setTimeout(() => location.reload(), 300);
 }
@@ -137,7 +139,7 @@ function getUnlockMeta() {
 }
 
 // ----------------------------
-// UI helpers
+// Small toast message
 // ----------------------------
 
 function showDnMessage(message = "Done") {
@@ -158,7 +160,7 @@ function showDnMessage(message = "Done") {
   box.style.left = "50%";
   box.style.bottom = "20px";
   box.style.transform = "translateX(-50%)";
-  box.style.zIndex = "99999";
+  box.style.zIndex = "100001";
   box.style.padding = "12px 16px";
   box.style.borderRadius = "12px";
   box.style.background = "rgba(11,18,32,0.96)";
@@ -206,7 +208,6 @@ function getCheckoutPayloadSkeleton() {
     country: "Sri Lanka",
     custom_1: DN_CONFIG.PRODUCT.FULL_UNLOCK_ID,
     custom_2: ""
-    // hash will come from backend later if needed by your chosen integration flow
   };
 }
 
@@ -219,10 +220,7 @@ function hasPaymentConfigReady() {
   );
 }
 
-// This is the function your future popup/button should call.
 async function startFullUnlockCheckout() {
-  // For now, no real payment is started.
-  // Later this will call your backend CREATE_ORDER_URL.
   if (!hasPaymentConfigReady()) {
     showDnMessage("Payment setup not added yet.");
     return;
@@ -233,14 +231,9 @@ async function startFullUnlockCheckout() {
     return;
   }
 
-  // Placeholder for later backend integration:
-  // 1. POST to CREATE_ORDER_URL
-  // 2. backend returns order_id + checkout fields
-  // 3. frontend submits form to PayHere
   showDnMessage("Checkout integration placeholder is ready.");
 }
 
-// This will be used on payment-success.html later.
 async function checkServerUnlockStatus(orderId = "") {
   const finalOrderId = orderId || getPendingOrderId();
 
@@ -267,7 +260,6 @@ async function checkServerUnlockStatus(orderId = "") {
   }
 }
 
-// Call this after success page confirms payment from backend.
 function applyServerUnlock(orderId = "") {
   activatePaidAccess({
     source: "server-verified",
@@ -276,49 +268,241 @@ function applyServerUnlock(orderId = "") {
   clearPendingOrderId();
 }
 
-function openUnlockModal() {
-  const modal = document.getElementById("unlockModal");
+// ----------------------------
+// Global injected unlock modal
+// ----------------------------
 
+function injectUnlockModalStyles() {
+  if (document.getElementById("dn-unlock-modal-styles")) return;
+
+  const style = document.createElement("style");
+  style.id = "dn-unlock-modal-styles";
+  style.textContent = `
+    .unlock-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      z-index: 100000;
+    }
+
+    .unlock-modal.show {
+      display: block;
+    }
+
+    .unlock-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(3px);
+    }
+
+    .unlock-box {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(92vw, 360px);
+      background: #111a2b;
+      border: 1px solid #24314f;
+      border-radius: 20px;
+      padding: 22px 18px 18px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+      color: #e8eefc;
+    }
+
+    .unlock-box h2 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+
+    .unlock-box p {
+      margin: 0 0 14px;
+      color: #a8b3cf;
+      line-height: 1.5;
+    }
+
+    .unlock-price {
+      margin: 10px 0 14px;
+      font-size: 20px;
+      font-weight: 800;
+      color: #4ea1ff;
+    }
+
+    .unlock-divider {
+      margin: 14px 0 10px;
+      color: #7f8dab;
+      font-size: 13px;
+    }
+
+    .unlock-input {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid #24314f;
+      background: #0b1220;
+      color: #ffffff;
+      outline: none;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+
+    .unlock-actions {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .unlock-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: none;
+      background: rgba(255,255,255,0.06);
+      color: #c8d3ee;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .unlock-close:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .unlock-note {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #7f8dab;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function injectUnlockModalHtml() {
+  if (document.getElementById("unlockModal")) return;
+
+  const wrapper = document.createElement("div");
+  wrapper.id = "unlockModal";
+  wrapper.className = "unlock-modal";
+  wrapper.setAttribute("aria-hidden", "true");
+
+  wrapper.innerHTML = `
+    <div class="unlock-backdrop"></div>
+
+    <div class="unlock-box" role="dialog" aria-modal="true" aria-labelledby="unlockModalTitle">
+      <button id="closeUnlockBtn" class="unlock-close" type="button" aria-label="Close unlock popup">✕</button>
+
+      <h2 id="unlockModalTitle">🔒 Premium Content</h2>
+      <p>Unlock all notes and quizzes with one payment.</p>
+
+      <div class="unlock-price">Rs.${DN_CONFIG.PRODUCT.PRICE} • One-Time</div>
+
+      <div class="unlock-actions">
+        <button id="buyUnlockBtn" class="btn btn-primary" type="button">💳 Unlock Now</button>
+      </div>
+
+      <div class="unlock-divider">or owner access</div>
+
+      <input
+        id="ownerCodeInput"
+        class="unlock-input"
+        type="text"
+        placeholder="Enter owner code"
+        autocomplete="off"
+      />
+
+      <div class="unlock-actions">
+        <button id="ownerUnlockBtn" class="btn" type="button">Unlock</button>
+      </div>
+
+      <div class="unlock-note">Only Units quiz and Gravitational Field notes are free.</div>
+    </div>
+  `;
+
+  document.body.appendChild(wrapper);
+}
+
+function ensureUnlockModal() {
+  injectUnlockModalStyles();
+  injectUnlockModalHtml();
+}
+
+function openUnlockModal() {
+  ensureUnlockModal();
+
+  const modal = document.getElementById("unlockModal");
   if (!modal) {
-    console.warn("unlockModal not found on this page");
     showDnMessage(`🔒 Locked • Unlock all for Rs.${DN_CONFIG.PRODUCT.PRICE}`);
     return;
   }
 
   modal.classList.add("show");
+  modal.setAttribute("aria-hidden", "false");
 }
 
 function closeUnlockModal() {
   const modal = document.getElementById("unlockModal");
   if (modal) {
     modal.classList.remove("show");
+    modal.setAttribute("aria-hidden", "true");
   }
 }
 
-// FINAL lock function
 function lockAlert() {
   openUnlockModal();
 }
 
-// Setup events
-document.addEventListener("DOMContentLoaded", () => {
+function bindUnlockModalEvents() {
+  const modal = document.getElementById("unlockModal");
+  if (!modal) return;
+
   const closeBtn = document.getElementById("closeUnlockBtn");
   const ownerBtn = document.getElementById("ownerUnlockBtn");
   const buyBtn = document.getElementById("buyUnlockBtn");
+  const ownerInput = document.getElementById("ownerCodeInput");
+  const backdrop = modal.querySelector(".unlock-backdrop");
 
-  if (closeBtn) closeBtn.onclick = closeUnlockModal;
+  if (closeBtn && !closeBtn.dataset.bound) {
+    closeBtn.dataset.bound = "true";
+    closeBtn.onclick = closeUnlockModal;
+  }
 
-  if (ownerBtn) {
+  if (backdrop && !backdrop.dataset.bound) {
+    backdrop.dataset.bound = "true";
+    backdrop.onclick = closeUnlockModal;
+  }
+
+  if (ownerBtn && !ownerBtn.dataset.bound) {
+    ownerBtn.dataset.bound = "true";
     ownerBtn.onclick = () => {
-      const code = document.getElementById("ownerCodeInput").value.trim();
+      const code = ownerInput ? ownerInput.value.trim() : "";
       unlockWithOwnerCode(code);
     };
   }
 
-  if (buyBtn) {
+  if (ownerInput && !ownerInput.dataset.bound) {
+    ownerInput.dataset.bound = "true";
+    ownerInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        const code = ownerInput.value.trim();
+        unlockWithOwnerCode(code);
+      }
+    });
+  }
+
+  if (buyBtn && !buyBtn.dataset.bound) {
+    buyBtn.dataset.bound = "true";
     buyBtn.onclick = () => {
-      simulatePurchase(); // TEMP
-      // later → startFullUnlockCheckout()
+      simulatePurchase(); // later change to startFullUnlockCheckout()
     };
   }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  ensureUnlockModal();
+  bindUnlockModalEvents();
 });
