@@ -470,10 +470,70 @@ function injectUnlockModalStyles() {
       color: #8a97b4;
     }
 
-    .unlock-input:focus {
+        .unlock-input:focus {
       border-color: rgba(124, 196, 255, 0.32);
       background: rgba(255,255,255,0.05);
       box-shadow: 0 0 0 4px rgba(78, 161, 255, 0.10);
+    }
+
+    .unlock-box .btn,
+    .unlock-box button:not(.unlock-close) {
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, #17253d, #0f182a);
+      color: #e8eefc;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition:
+        transform 0.18s ease,
+        border-color 0.18s ease,
+        background 0.18s ease,
+        box-shadow 0.18s ease,
+        color 0.18s ease;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+    }
+
+    .unlock-box .btn:hover,
+    .unlock-box button:not(.unlock-close):hover {
+      transform: translateY(-2px);
+      border-color: rgba(124, 196, 255, 0.24);
+      box-shadow:
+        0 12px 24px rgba(0, 0, 0, 0.28),
+        0 0 0 1px rgba(124, 196, 255, 0.04);
+    }
+
+    .unlock-box .btn.btn-primary,
+    .unlock-box #buyUnlockBtn {
+      background: linear-gradient(135deg, #4ea1ff, #7cc4ff);
+      color: #04101f;
+      border-color: transparent;
+      box-shadow:
+        0 12px 26px rgba(78, 161, 255, 0.28),
+        inset 0 1px 0 rgba(255,255,255,0.22);
+    }
+
+    .unlock-box .btn.btn-primary:hover,
+    .unlock-box #buyUnlockBtn:hover {
+      color: #04101f;
+      filter: brightness(1.03);
+      box-shadow:
+        0 14px 30px rgba(78, 161, 255, 0.34),
+        inset 0 1px 0 rgba(255,255,255,0.22);
+    }
+
+    .unlock-box #ownerUnlockBtn {
+      background: linear-gradient(180deg, #16233a, #10192c);
+      color: #e8eefc;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .unlock-box #ownerUnlockBtn:hover {
+      color: #7cc4ff;
+      border-color: rgba(124, 196, 255, 0.24);
     }
 
     .unlock-close {
