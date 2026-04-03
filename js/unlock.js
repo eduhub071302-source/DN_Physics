@@ -724,7 +724,7 @@ function bindUnlockModalEvents() {
   if (buyBtn && !buyBtn.dataset.bound) {
     buyBtn.dataset.bound = "true";
     buyBtn.onclick = () => {
-      simulatePurchase(); // later change to startFullUnlockCheckout()
+      startFullUnlockCheckout(); // later change to startFullUnlockCheckout()
     };
   }
 }
