@@ -8,6 +8,81 @@ function closeAuthModal() {
   if (modal) modal.classList.add("hidden");
 }
 
+function ensureAuthMessageModal() {
+  if (document.getElementById("authMessageModal")) return;
+
+  const wrapper = document.createElement("div");
+  wrapper.id = "authMessageModal";
+  wrapper.className = "auth-modal hidden";
+
+  wrapper.innerHTML = `
+    <div class="auth-box auth-message-box">
+      <h2 id="authMessageTitle">Notice</h2>
+      <p id="authMessageText" class="auth-message-text"></p>
+
+      <div id="authMessageActions" class="auth-message-actions">
+        <button id="authMessageCancelBtn" class="btn" type="button">Cancel</button>
+        <button id="authMessageOkBtn" class="btn btn-primary" type="button">OK</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(wrapper);
+}
+
+function showAuthMessage(title, message) {
+  ensureAuthMessageModal();
+
+  const modal = document.getElementById("authMessageModal");
+  const titleEl = document.getElementById("authMessageTitle");
+  const textEl = document.getElementById("authMessageText");
+  const cancelBtn = document.getElementById("authMessageCancelBtn");
+  const okBtn = document.getElementById("authMessageOkBtn");
+
+  if (!modal || !titleEl || !textEl || !cancelBtn || !okBtn) return;
+
+  titleEl.textContent = title;
+  textEl.textContent = message;
+
+  cancelBtn.classList.add("hidden");
+  okBtn.textContent = "OK";
+
+  okBtn.onclick = () => {
+    modal.classList.add("hidden");
+  };
+
+  modal.classList.remove("hidden");
+}
+
+function showAuthConfirm(title, message, onOk) {
+  ensureAuthMessageModal();
+
+  const modal = document.getElementById("authMessageModal");
+  const titleEl = document.getElementById("authMessageTitle");
+  const textEl = document.getElementById("authMessageText");
+  const cancelBtn = document.getElementById("authMessageCancelBtn");
+  const okBtn = document.getElementById("authMessageOkBtn");
+
+  if (!modal || !titleEl || !textEl || !cancelBtn || !okBtn) return;
+
+  titleEl.textContent = title;
+  textEl.textContent = message;
+
+  cancelBtn.classList.remove("hidden");
+  okBtn.textContent = "Logout";
+
+  cancelBtn.onclick = () => {
+    modal.classList.add("hidden");
+  };
+
+  okBtn.onclick = () => {
+    modal.classList.add("hidden");
+    if (typeof onOk === "function") onOk();
+  };
+
+  modal.classList.remove("hidden");
+}
+
 function setUser(user) {
   localStorage.setItem("dn_user", JSON.stringify(user));
 }
@@ -79,8 +154,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const user = getUser();
 
       if (user) {
-        const shouldLogout = confirm(`Logged in as ${user.email}\n\nPress OK to logout.\nPress Cancel to stay logged in.`);
-        if (shouldLogout) logout();
+        showAuthConfirm(
+          "Account",
+          `Logged in as ${user.email}`,
+          () => logout()
+        );
         return;
       }
 
@@ -105,12 +183,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const password = authPassword ? authPassword.value.trim() : "";
 
       if (!email || !password) {
-        alert("Please fill email and password.");
+        showAuthMessage("Missing Details", "Please fill email and password.");
         return;
       }
 
       if (!email.includes("@")) {
-        alert("Enter a valid email.");
+        showAuthMessage("Invalid Email", "Please enter a valid email address.");
         return;
       }
 
