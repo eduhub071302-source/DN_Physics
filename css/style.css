@@ -1658,3 +1658,7 @@ main {
 .auth-message-actions .btn {
   flex: 1;
 }
+
+#authMessageModal {
+  display: none;
+}
