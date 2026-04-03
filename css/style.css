@@ -1637,3 +1637,24 @@ main {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+.auth-message-box {
+  text-align: center;
+}
+
+.auth-message-text {
+  margin: 10px 0 18px;
+  color: var(--muted);
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.auth-message-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.auth-message-actions .btn {
+  flex: 1;
+}
