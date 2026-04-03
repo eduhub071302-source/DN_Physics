@@ -89,6 +89,10 @@
             📲 Install App
           </button>
 
+          <button id="unlockProBtn" class="btn btn-primary" type="button">
+            🔓 Unlock DN Physics Pro
+          </button>
+
           <a id="onboardPractice" class="btn btn-primary" href="/DN_Physics/pp-quiz/index.html">
             💯 Practice Past Paper MCQs
           </a>
@@ -234,6 +238,7 @@
     let deferredPrompt = null;
 
     const installBtn = document.getElementById("installBtn");
+    const unlockProBtn = document.getElementById("unlockProBtn");
     const refreshBtn = document.getElementById("refreshBtn");
 
     const loadingOverlay = document.getElementById("loadingOverlay");
@@ -1054,12 +1059,25 @@
       setupSearchAndFilter();
       setupOnboarding();
       setupSplash();
+      updateUnlockButton();
       await loadSubjectsFromCatalog();
     }
 
-    window.addEventListener("load", async () => {
-      await registerServiceWorker();
-    });
+    if (unlockProBtn) {
+      unlockProBtn.addEventListener("click", () => {
+        lockAlert();
+      });
+    }
+
+    function updateUnlockButton() {
+      if (!unlockProBtn) return;
+
+      if (hasPaidAccess && hasPaidAccess()) {
+        unlockProBtn.classList.add("is-hidden");
+      } else {
+        unlockProBtn.classList.remove("is-hidden");
+      }
+    }
 
     const onboardingOverlay = document.getElementById("onboardingOverlay");
     const onboardingSpotlight = document.getElementById("onboardingSpotlight");
