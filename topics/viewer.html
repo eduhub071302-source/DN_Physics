@@ -566,8 +566,21 @@
         const quizBtn = document.createElement("a");
         quizBtn.className = "btn btn-primary";
         quizBtn.id = "relatedQuizBtn";
-        quizBtn.textContent = "🎯 Practice Quiz";
-        quizBtn.href = `/DN_Physics/pp-quiz/topic.html?topic=${encodeURIComponent(subjectSlug || "")}`;
+
+        const quizAllowed = canAccessQuiz(subjectSlug || "");
+
+        quizBtn.textContent = quizAllowed ? "🎯 Practice Quiz" : "🔒 Quiz Locked";
+        quizBtn.href = quizAllowed
+          ? `/DN_Physics/pp-quiz/topic.html?topic=${encodeURIComponent(subjectSlug || "")}`
+          : "#";
+ 
+        if (!quizAllowed) {
+          quizBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            lockAlert();
+          });
+        }
+ 
         viewerActions.appendChild(quizBtn);
       }
 
