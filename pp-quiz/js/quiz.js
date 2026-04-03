@@ -2,6 +2,46 @@ document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
   const topic = params.get("topic");
   const subtopic = params.get("subtopic");
+
+  // 🔒 ACCESS CONTROL
+  if (!canAccessQuiz(topic)) {
+    if (quizTitle) quizTitle.textContent = "🔒 Locked Quiz";
+    if (quizSubtitle) {
+      quizSubtitle.textContent = "Buy full access for Rs.100 to unlock all quizzes.";
+    }
+
+    document.body.innerHTML = `
+      <div style="
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        height:100vh;
+        background:#0b1220;
+        color:#fff;
+        text-align:center;
+        padding:20px;
+        font-family:sans-serif;
+      ">
+        <h1>🔒 Premium Content</h1>
+        <p>This quiz is locked.</p>
+        <p>Only Units is free.</p>
+        <p>Unlock full access for Rs.100</p>
+        <button onclick="history.back()" style="
+          margin-top:20px;
+          padding:10px 20px;
+          border:none;
+          background:#4ea1ff;
+          color:#fff;
+          border-radius:8px;
+          cursor:pointer;
+        ">Go Back</button>
+      </div>
+    `;
+
+    return;
+  }
+  
   const setName = params.get("set") || "set-1";
 
   const quizTitle = document.getElementById("quizTitle");
