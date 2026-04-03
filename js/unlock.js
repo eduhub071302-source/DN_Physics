@@ -538,16 +538,24 @@ function injectUnlockModalStyles() {
 
     .unlock-close {
       position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 38px;
-      height: 38px;
+      top: 14px;
+      right: 14px;
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      min-height: 48px;
       border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.06);
-      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.06);
       color: #c8d3ee;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
       transition:
         transform 0.16s ease,
         background 0.16s ease,
@@ -560,6 +568,10 @@ function injectUnlockModalStyles() {
       background: rgba(255,255,255,0.08);
       border-color: rgba(124, 196, 255, 0.18);
       color: #ffffff;
+    }
+
+    .unlock-close:active {
+      transform: scale(0.94);
     }
 
     .unlock-note {
@@ -618,6 +630,14 @@ function injectUnlockModalStyles() {
         font-size: 1rem;
         min-height: 44px;
         padding: 9px 14px;
+      }
+
+      .unlock-close {
+        top: 12px;
+        right: 12px;
+        width: 50px;
+        height: 50px;
+        font-size: 22px;
       }
 
       .unlock-input,
