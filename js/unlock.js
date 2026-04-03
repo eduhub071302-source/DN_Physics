@@ -312,7 +312,267 @@ function injectUnlockModalHtml() {
   document.body.appendChild(wrapper);
 }
 
+function injectUnlockModalStyles() {
+  if (document.getElementById("dn-unlock-style")) return;
+
+  const style = document.createElement("style");
+  style.id = "dn-unlock-style";
+
+  style.textContent = `
+    .unlock-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      z-index: 100000;
+    }
+
+    .unlock-modal.show {
+      display: block;
+      animation: dnUnlockFadeIn 0.22s ease;
+    }
+
+    .unlock-backdrop {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top, rgba(78, 161, 255, 0.10), transparent 30%),
+        rgba(6, 12, 22, 0.82);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .unlock-box {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.96);
+      width: min(92vw, 380px);
+      padding: 24px 20px 18px;
+      border-radius: 24px;
+      text-align: center;
+      color: #e8eefc;
+
+      background:
+        radial-gradient(circle at top right, rgba(124, 196, 255, 0.12), transparent 34%),
+        linear-gradient(180deg, rgba(17, 26, 43, 0.98), rgba(12, 18, 31, 0.98));
+
+      border: 1px solid rgba(124, 196, 255, 0.14);
+
+      box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.52),
+        0 0 0 1px rgba(124, 196, 255, 0.03),
+        0 0 36px rgba(78, 161, 255, 0.10);
+
+      animation: dnUnlockPopIn 0.28s ease forwards;
+    }
+
+    .unlock-box::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.06), transparent 30%),
+        linear-gradient(180deg, transparent 65%, rgba(255,255,255,0.02));
+    }
+
+    .unlock-box > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .unlock-box h2 {
+      margin: 0 0 8px;
+      font-size: 1.55rem;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    .unlock-box p {
+      margin: 0 0 14px;
+      color: #a8b3cf;
+      line-height: 1.65;
+      font-size: 0.96rem;
+    }
+
+    .unlock-price {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 10px 18px;
+      margin: 8px 0 18px;
+      border-radius: 999px;
+      background: rgba(78, 161, 255, 0.10);
+      border: 1px solid rgba(124, 196, 255, 0.22);
+      color: #7cc4ff;
+      font-size: 1.1rem;
+      font-weight: 900;
+      letter-spacing: 0.01em;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.06),
+        0 0 18px rgba(78, 161, 255, 0.10);
+    }
+
+    .unlock-actions {
+      display: grid;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .unlock-divider {
+      margin: 16px 0 12px;
+      color: #8290ae;
+      font-size: 0.84rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      position: relative;
+    }
+
+    .unlock-divider::before,
+    .unlock-divider::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 32%;
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .unlock-divider::before {
+      left: 0;
+    }
+
+    .unlock-divider::after {
+      right: 0;
+    }
+
+    .unlock-input {
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: #ffffff;
+      outline: none;
+      box-sizing: border-box;
+      margin-bottom: 8px;
+      transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease,
+        background 0.18s ease;
+    }
+
+    .unlock-input::placeholder {
+      color: #8a97b4;
+    }
+
+    .unlock-input:focus {
+      border-color: rgba(124, 196, 255, 0.32);
+      background: rgba(255,255,255,0.05);
+      box-shadow: 0 0 0 4px rgba(78, 161, 255, 0.10);
+    }
+
+    .unlock-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.04);
+      color: #c8d3ee;
+      cursor: pointer;
+      font-size: 16px;
+      transition:
+        transform 0.16s ease,
+        background 0.16s ease,
+        border-color 0.16s ease,
+        color 0.16s ease;
+    }
+
+    .unlock-close:hover {
+      transform: scale(1.06);
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(124, 196, 255, 0.18);
+      color: #ffffff;
+    }
+
+    .unlock-note {
+      margin-top: 14px;
+      font-size: 12px;
+      color: #8290ae;
+      line-height: 1.6;
+    }
+
+    #buyUnlockBtn,
+    #ownerUnlockBtn {
+      min-height: 48px;
+      border-radius: 14px;
+    }
+
+    #buyUnlockBtn {
+      box-shadow:
+        0 10px 24px rgba(78, 161, 255, 0.24),
+        inset 0 1px 0 rgba(255,255,255,0.20);
+    }
+
+    #buyUnlockBtn:hover {
+      box-shadow:
+        0 14px 28px rgba(78, 161, 255, 0.30),
+        inset 0 1px 0 rgba(255,255,255,0.20);
+    }
+
+    @keyframes dnUnlockFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes dnUnlockPopIn {
+      0% {
+        transform: translate(-50%, -50%) scale(0.92);
+        opacity: 0;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .unlock-box {
+        width: min(94vw, 380px);
+        padding: 22px 16px 16px;
+        border-radius: 20px;
+      }
+
+      .unlock-box h2 {
+        font-size: 1.35rem;
+      }
+
+      .unlock-price {
+        font-size: 1rem;
+        min-height: 44px;
+        padding: 9px 14px;
+      }
+
+      .unlock-input,
+      #buyUnlockBtn,
+      #ownerUnlockBtn {
+        min-height: 44px;
+      }
+    }
+  `;
+
+  document.head.appendChild(style);
+}
+
 function ensureUnlockModal() {
+  injectUnlockModalStyles();
   injectUnlockModalHtml();
 }
 
