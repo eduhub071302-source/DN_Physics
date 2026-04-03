@@ -136,8 +136,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const authEmail = document.getElementById("authEmail");
   const authPassword = document.getElementById("authPassword");
   const authToggleText = document.getElementById("authToggleText");
+  const togglePasswordBtn = document.getElementById("togglePasswordBtn");
 
   let isLoginMode = true;
+
+    if (togglePasswordBtn && authPassword) {
+      togglePasswordBtn.onclick = () => {
+        const isHidden = authPassword.type === "password";
+        authPassword.type = isHidden ? "text" : "password";
+        togglePasswordBtn.textContent = isHidden ? "🙈" : "👁";
+        togglePasswordBtn.setAttribute(
+          "aria-label",
+          isHidden ? "Hide password" : "Show password"
+        );
+      };
+    }
 
   function updateAuthMode() {
     if (!authTitle || !authSubmitBtn || !authToggleText) return;
