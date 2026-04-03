@@ -62,6 +62,10 @@
           <a href="index.html" class="active" aria-current="page">Home</a>
         </nav>
 
+        <button id="loginBtn" class="btn" type="button">
+          👤 Login
+        </button>      
+
         <button
           id="refreshBtn"
           class="btn refresh-top-btn"
@@ -236,6 +240,7 @@
 
   <script src="/DN_Physics/js/app-config.js"></script>
   <script src="/DN_Physics/js/unlock.js"></script>
+  <script src="/DN_Physics/js/auth.js"></script>
   
   <script>
     let deferredPrompt = null;
@@ -1279,5 +1284,23 @@
       }, 2200);
     }
   </script>
+
+  <div id="authModal" class="auth-modal hidden">
+    <div class="auth-box">
+      <h2 id="authTitle">Login</h2>
+
+      <input id="authEmail" placeholder="Email" />
+      <input id="authPassword" type="password" placeholder="Password" />
+
+      <button id="authSubmitBtn" class="btn btn-primary">Login</button>
+
+      <p id="authToggleText">
+        Don't have an account?
+        <span id="authToggleBtn">Sign up</span>
+      </p>
+
+      <button id="authCloseBtn" class="btn">Close</button>
+    </div>
+  </div>
 
   <script src="/DN_Physics/js/music-player.js"></script>
