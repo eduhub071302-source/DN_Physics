@@ -578,6 +578,7 @@ function ensureUnlockModal() {
 
 function openUnlockModal() {
   ensureUnlockModal();
+  bindUnlockModalEvents();
 
   const modal = document.getElementById("unlockModal");
   if (!modal) {
