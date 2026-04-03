@@ -279,3 +279,45 @@ function applyServerUnlock(orderId = "") {
   });
   clearPendingOrderId();
 }
+
+function openUnlockModal() {
+  const modal = document.getElementById("unlockModal");
+  if (modal) {
+    modal.classList.add("show");
+  }
+}
+
+function closeUnlockModal() {
+  const modal = document.getElementById("unlockModal");
+  if (modal) {
+    modal.classList.remove("show");
+  }
+}
+
+// Replace old alert
+function lockAlert() {
+  openUnlockModal();
+}
+
+// Setup events
+document.addEventListener("DOMContentLoaded", () => {
+  const closeBtn = document.getElementById("closeUnlockBtn");
+  const ownerBtn = document.getElementById("ownerUnlockBtn");
+  const buyBtn = document.getElementById("buyUnlockBtn");
+
+  if (closeBtn) closeBtn.onclick = closeUnlockModal;
+
+  if (ownerBtn) {
+    ownerBtn.onclick = () => {
+      const code = document.getElementById("ownerCodeInput").value.trim();
+      unlockWithOwnerCode(code);
+    };
+  }
+
+  if (buyBtn) {
+    buyBtn.onclick = () => {
+      simulatePurchase(); // TEMP
+      // later → startFullUnlockCheckout()
+    };
+  }
+});
