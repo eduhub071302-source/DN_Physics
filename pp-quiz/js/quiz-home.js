@@ -48,10 +48,18 @@ function renderTopics(container, topicList) {
   container.innerHTML = "";
 
   topicList.forEach((topic, index) => {
+    const isAllowed = canAccessQuiz(topic.slug);
+
     const card = document.createElement("a");
     card.className = "topic-card fade-slide-up";
-    card.href = `/DN_Physics/pp-quiz/topic.html?topic=${encodeURIComponent(topic.slug)}`;
-    card.setAttribute("aria-label", `Open ${topic.title}`);
+    card.href = isAllowed
+      ? `/DN_Physics/pp-quiz/topic.html?topic=${encodeURIComponent(topic.slug)}`
+      : "#";
+
+    card.setAttribute(
+      "aria-label",
+      isAllowed ? `Open ${topic.title}` : `${topic.title} is locked`
+    );
 
     card.style.animationDelay = `${index * 0.04}s`;
 
@@ -63,8 +71,17 @@ function renderTopics(container, topicList) {
         <div class="topic-icon" aria-hidden="true">${escapeHtml(topic.icon || "📘")}</div>
       </div>
 
-      <span class="action-btn primary-btn enter-topic-btn">Open Topic</span>
+      <span class="action-btn primary-btn enter-topic-btn">
+        ${isAllowed ? "Open Topic" : "🔒 Locked • Rs.100"}
+      </span>
     `;
+
+    if (!isAllowed) {
+      card.addEventListener("click", (e) => {
+        e.preventDefault();
+        lockAlert();
+      });
+    }
 
     container.appendChild(card);
   });
