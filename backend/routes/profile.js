@@ -19,7 +19,14 @@ router.patch("/me", requireAuth, async (req, res) => {
     }
 
     const nextName = typeof req.body?.name === "string" ? req.body.name.trim() : user.name;
-    const nextAvatarUrl = typeof req.body?.avatar_url === "string" ? req.body.avatar_url.trim() : user.avatar_url;
+    const nextAvatarUrl =
+      typeof req.body?.avatar_url === "string"
+        ? req.body.avatar_url.trim()
+        : user.avatar_url;
+
+    if (nextAvatarUrl && !/^https?:\/\/.+/i.test(nextAvatarUrl)) {
+      return res.status(400).json({ ok: false, message: "Avatar URL must be a valid http or https link." });
+    }
 
     if (!validateName(nextName)) {
       return res.status(400).json({ ok: false, message: "Name must have at least 2 characters." });
