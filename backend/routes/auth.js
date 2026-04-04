@@ -167,8 +167,7 @@ router.post("/reset-password", async (req, res) => {
     const newPassword = String(req.body?.new_password || "");
 
     if (!validateEmail(email)) {
-      return res.status(400).json({ ok: false, message: "Enter a valid email 
-address." });
+      return res.status(400).json({ ok: false, message: "Enter a valid email address." });
     }
 
     if (!validatePassword(newPassword)) {
