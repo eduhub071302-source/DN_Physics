@@ -48,10 +48,10 @@ const DN_CONFIG = {
     AUTH_LOGIN_URL: "http://localhost:8787/api/auth/login",
     AUTH_LOGOUT_URL: "http://localhost:8787/api/auth/logout",
     AUTH_ME_URL: "http://localhost:8787/api/auth/me",
-    AUTH_FORGOT_PASSWORD_URL: "",
-    AUTH_RESET_PASSWORD_URL: "",
-    PROFILE_ME_URL: "",
-    PROFILE_UPDATE_URL: ""
+    AUTH_FORGOT_PASSWORD_URL: "http://localhost:8787/api/auth/forgot-password",
+    AUTH_RESET_PASSWORD_URL: "http://localhost:8787/api/auth/reset-password",
+    PROFILE_ME_URL: "http://localhost:8787/api/profile/me",
+    PROFILE_UPDATE_URL: "http://localhost:8787/api/profile/me"
   },
 
   STORAGE_KEYS: {
