@@ -129,8 +129,13 @@
             <input
               type="text"
               id="subjectSearch"
-              placeholder="Search subjects..."
-              aria-label="Search subjects"
+              name="topic-search"
+              placeholder="Search topics (e.g. mechanics, waves)..."
+              aria-label="Search topics"
+              autocomplete="off"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
             />
           </div>
 
@@ -157,6 +162,10 @@
 
         <div class="grid" id="subjectGrid">
           <div class="empty-state">Loading subjects...</div>
+        </div>
+
+        <div id="noResults" class="empty-state is-hidden" style="margin-top:16px;">
+          No matching topics found.
         </div>
       </div>
     </section>
@@ -718,6 +727,7 @@
 
       const searchValue = searchInput.value.trim().toLowerCase();
       const selectedCategory = categoryFilter.value;
+      const noResults = document.getElementById("noResults");
 
       let visibleCount = 0;
 
@@ -726,7 +736,7 @@
         const category = (card.dataset.category || "").toLowerCase();
         const keywords = (card.dataset.keywords || "").toLowerCase();
         const description = (card.querySelector("p")?.textContent || "").toLowerCase();
-    
+
         const combinedText = `${title} ${keywords} ${description}`;
 
         const matchesSearch =
@@ -735,27 +745,17 @@
         const matchesCategory =
           selectedCategory === "all" || category === selectedCategory;
 
-        if (matchesSearch && matchesCategory) {
-          card.style.display = "";
+        const shouldShow = matchesSearch && matchesCategory;
+
+        card.style.display = shouldShow ? "" : "none";
+
+        if (shouldShow) {
           visibleCount++;
-        } else {
-          card.style.display = "none";
         }
       });
 
-      // 🔥 NEW PART — handle empty results
-      let empty = document.getElementById("noResults");
-
-      if (visibleCount === 0) {
-        if (!empty) {
-          empty = document.createElement("div");
-          empty.id = "noResults";
-          empty.className = "empty-state";
-          empty.textContent = "No matching topics found.";
-          subjectGrid.appendChild(empty);
-        }
-      } else {
-        if (empty) empty.remove();
+      if (noResults) {
+        noResults.classList.toggle("is-hidden", visibleCount !== 0);
       }
     }
 
