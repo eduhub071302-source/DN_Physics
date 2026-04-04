@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -12,11 +13,20 @@ model User {
   name                String
   email               String               @unique
   passwordHash        String
-  role                String               @default("student")
+  role                UserRole             @default(STUDENT)
   paid                Boolean              @default(false)
+  profileImageUrl     String?
+  phone               String?
+  country             String?
+  isActive            Boolean              @default(true)
+  emailVerified       Boolean              @default(false)
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
+
   passwordResetTokens PasswordResetToken[]
+  orders              Order[]
+  payments            Payment[]
+  unlocks             Unlock[]
 }
 
 model PasswordResetToken {
@@ -33,4 +43,105 @@ model PasswordResetToken {
   @@index([email])
   @@index([userId])
   @@index([expiresAt])
+}
+
+model Order {
+  id              String       @id @default(cuid())
+  userId          String
+  orderCode       String       @unique
+  itemType        ItemType
+  itemKey         String
+  itemTitle       String
+  amount          Decimal      @db.Decimal(10, 2)
+  currency        String       @default("LKR")
+  status          OrderStatus  @default(PENDING)
+  paymentMethod   String?
+  paymentGateway  String?      @default("PAYHERE")
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payment         Payment?
+  unlocks         Unlock[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([itemType, itemKey])
+}
+
+model Payment {
+  id                  String         @id @default(cuid())
+  userId              String
+  orderId             String         @unique
+  gateway             String         @default("PAYHERE")
+  gatewayPaymentId    String?        @unique
+  gatewayOrderId      String?
+  amount              Decimal        @db.Decimal(10, 2)
+  currency            String         @default("LKR")
+  status              PaymentStatus  @default(PENDING)
+  paidAt              DateTime?
+  rawPayload          Json?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  user                User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order               Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([gateway])
+}
+
+model Unlock {
+  id              String       @id @default(cuid())
+  userId          String
+  orderId         String?
+  itemType        ItemType
+  itemKey         String
+  grantedBy       UnlockSource @default(PAYMENT)
+  active          Boolean      @default(true)
+  startsAt        DateTime     @default(now())
+  expiresAt       DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order           Order?       @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([itemType, itemKey])
+  @@unique([userId, itemType, itemKey])
+}
+
+enum UserRole {
+  STUDENT
+  ADMIN
+}
+
+enum ItemType {
+  PDF_TOPIC
+  QUIZ_TOPIC
+  FULL_BUNDLE
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum UnlockSource {
+  PAYMENT
+  ADMIN
+  PROMO
 }
