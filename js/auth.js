@@ -235,12 +235,6 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       };
     }
-        togglePasswordBtn.setAttribute(
-          "aria-label",
-          isHidden ? "Hide password" : "Show password"
-        );
-      };
-    }
 
   function updateAuthMode() {
     if (!authTitle || !authSubmitBtn || !authToggleText) return;
@@ -312,6 +306,9 @@ document.addEventListener("DOMContentLoaded", () => {
         requestUrl = DN_CONFIG.BACKEND.AUTH_REGISTER_URL;
         payload.name = email.split("@")[0];
       }
+
+      console.log("Auth mode:", isLoginMode ? "LOGIN" : "REGISTER");
+      console.log("Request URL:", requestUrl);
 
       if (!requestUrl) {
         showAuthMessage("Setup Missing", "Backend auth URL is not added yet.");
