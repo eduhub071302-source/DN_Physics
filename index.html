@@ -719,12 +719,14 @@
       const searchValue = searchInput.value.trim().toLowerCase();
       const selectedCategory = categoryFilter.value;
 
+      let visibleCount = 0;
+
       subjectCards.forEach((card) => {
         const title = (card.dataset.title || "").toLowerCase();
         const category = (card.dataset.category || "").toLowerCase();
         const keywords = (card.dataset.keywords || "").toLowerCase();
         const description = (card.querySelector("p")?.textContent || "").toLowerCase();
-
+    
         const combinedText = `${title} ${keywords} ${description}`;
 
         const matchesSearch =
@@ -733,8 +735,28 @@
         const matchesCategory =
           selectedCategory === "all" || category === selectedCategory;
 
-        card.style.display = matchesSearch && matchesCategory ? "" : "none";
+        if (matchesSearch && matchesCategory) {
+          card.style.display = "";
+          visibleCount++;
+        } else {
+          card.style.display = "none";
+        }
       });
+
+      // 🔥 NEW PART — handle empty results
+      let empty = document.getElementById("noResults");
+
+      if (visibleCount === 0) {
+        if (!empty) {
+          empty = document.createElement("div");
+          empty.id = "noResults";
+          empty.className = "empty-state";
+          empty.textContent = "No matching topics found.";
+          subjectGrid.appendChild(empty);
+        }
+      } else {
+        if (empty) empty.remove();
+      }
     }
 
     function rebuildPinsAndFilters() {
