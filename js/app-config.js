@@ -46,6 +46,15 @@ const DN_CONFIG = {
     NOTIFY_URL: "",
     VERIFY_UNLOCK_URL: "",
     ACTIVATE_UNLOCK_URL: ""
+
+    AUTH_REGISTER_URL: "",
+    AUTH_LOGIN_URL: "",
+    AUTH_LOGOUT_URL: "",
+    AUTH_ME_URL: "",
+    AUTH_FORGOT_PASSWORD_URL: "",
+    AUTH_RESET_PASSWORD_URL: "",
+    PROFILE_ME_URL: "",
+    PROFILE_UPDATE_URL: ""
   },
 
   STORAGE_KEYS: {
@@ -55,6 +64,8 @@ const DN_CONFIG = {
     UNLOCK_TIME: "dn_unlock_time",
     UNLOCK_ORDER_ID: "dn_unlock_order_id",
     UNLOCK_PENDING_ORDER_ID: "dn_unlock_pending_order_id"
+    USER_SESSION_TOKEN: "dn_user_session_token",
+    USER_PROFILE: "dn_user_profile"
   }
 };
 
