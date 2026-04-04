@@ -1703,3 +1703,7 @@ main {
 .auth-eye-btn svg {
   pointer-events: none;
 }
+
+#subjectGrid {
+  min-height: 120px;
+}
