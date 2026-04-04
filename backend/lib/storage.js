@@ -4,47 +4,61 @@ import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DATA_FILE = path.join(__dirname, "..", "data", "orders.json");
 
-async function ensureDataFile() {
+function getFile(fileName) {
+  return path.join(__dirname, "..", "data", fileName);
+}
+
+async function ensureJsonFile(fileName, fallback) {
+  const filePath = getFile(fileName);
+
   try {
-    await fs.access(DATA_FILE);
+    await fs.access(filePath);
   } catch {
-    await fs.mkdir(path.dirname(DATA_FILE), { recursive: true });
-    await fs.writeFile(DATA_FILE, JSON.stringify({ orders: [] }, null, 2), "utf8");
-  }
-}
-
-export async function readDb() {
-  await ensureDataFile();
-  const raw = await fs.readFile(DATA_FILE, "utf8");
-  const parsed = JSON.parse(raw || "{}");
-  if (!Array.isArray(parsed.orders)) {
-    parsed.orders = [];
-  }
-  return parsed;
-}
-
-export async function writeDb(db) {
-  await ensureDataFile();
-  await fs.writeFile(DATA_FILE, JSON.stringify(db, null, 2), "utf8");
-}
-
-export async function upsertOrder(order) {
-  const db = await readDb();
-  const index = db.orders.findIndex((item) => item.order_id === order.order_id);
-
-  if (index >= 0) {
-    db.orders[index] = { ...db.orders[index], ...order, updated_at: Date.now() };
-  } else {
-    db.orders.push({ ...order, created_at: Date.now(), updated_at: Date.now() });
+    await fs.mkdir(path.dirname(filePath), { recursive: true });
+    await fs.writeFile(filePath, JSON.stringify(fallback, null, 2), "utf8");
   }
 
-  await writeDb(db);
-  return order;
+  return filePath;
 }
 
-export async function getOrder(orderId) {
-  const db = await readDb();
-  return db.orders.find((item) => item.order_id === orderId) || null;
+export async function readJson(fileName, fallback) {
+  const filePath = await ensureJsonFile(fileName, fallback);
+  const raw = await fs.readFile(filePath, "utf8");
+  return JSON.parse(raw || JSON.stringify(fallback));
+}
+
+export async function writeJson(fileName, data, fallback = {}) {
+  const filePath = await ensureJsonFile(fileName, fallback);
+  await fs.writeFile(filePath, JSON.stringify(data, null, 2), "utf8");
+}
+
+export async function readUsersDb() {
+  const db = await readJson("users.json", { users: [] });
+  if (!Array.isArray(db.users)) db.users = [];
+  return db;
+}
+
+export async function writeUsersDb(db) {
+  await writeJson("users.json", db, { users: [] });
+}
+
+export async function readSessionsDb() {
+  const db = await readJson("sessions.json", { sessions: [] });
+  if (!Array.isArray(db.sessions)) db.sessions = [];
+  return db;
+}
+  
+export async function writeSessionsDb(db) {
+  await writeJson("sessions.json", db, { sessions: [] });
+}
+
+export async function readResetDb() {
+  const db = await readJson("password-resets.json", { items: [] });
+  if (!Array.isArray(db.items)) db.items = [];
+  return db;
+}
+
+export async function writeResetDb(db) {
+  await writeJson("password-resets.json", db, { items: [] });
 }
