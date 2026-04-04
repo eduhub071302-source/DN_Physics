@@ -348,3 +348,4 @@ updateAuthMode();
 restoreUserSession().finally(() => {
   updateAccountButton();
 });
+});
