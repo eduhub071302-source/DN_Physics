@@ -44,14 +44,14 @@ const DN_CONFIG = {
     VERIFY_UNLOCK_URL: "",
     ACTIVATE_UNLOCK_URL: "",
 
-    AUTH_REGISTER_URL: "http://localhost:8787/api/auth/register",
-    AUTH_LOGIN_URL: "http://localhost:8787/api/auth/login",
-    AUTH_LOGOUT_URL: "http://localhost:8787/api/auth/logout",
-    AUTH_ME_URL: "http://localhost:8787/api/auth/me",
-    AUTH_FORGOT_PASSWORD_URL: "http://localhost:8787/api/auth/forgot-password",
-    AUTH_RESET_PASSWORD_URL: "http://localhost:8787/api/auth/reset-password",
-    PROFILE_ME_URL: "http://localhost:8787/api/profile/me",
-    PROFILE_UPDATE_URL: "http://localhost:8787/api/profile/me"
+    AUTH_REGISTER_URL: "http://192.168.8.101:8787/api/auth/register",
+    AUTH_LOGIN_URL: "http://192.168.8.101:8787/api/auth/login",
+    AUTH_LOGOUT_URL: "http://192.168.8.101:8787/api/auth/logout",
+    AUTH_ME_URL: "http://192.168.8.101:8787/api/auth/me",
+    AUTH_FORGOT_PASSWORD_URL: "http://192.168.8.101:8787/api/auth/forgot-password",
+    AUTH_RESET_PASSWORD_URL: "http://192.168.8.101:8787/api/auth/reset-password",
+    PROFILE_ME_URL: "http://192.168.8.101:8787/api/profile/me",
+    PROFILE_UPDATE_URL: "http://192.168.8.101:8787/api/profile/me"
   },
 
   STORAGE_KEYS: {
