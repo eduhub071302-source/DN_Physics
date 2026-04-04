@@ -897,7 +897,9 @@
     }
 
     async function shareCurrentPdf() {
-      if (!canAccessPdf(subjectSlug)) {
+      const hasAccess = await canAccessPdf(subjectSlug);
+
+      if (!hasAccess) {
         lockAlert();
         return;
       }
