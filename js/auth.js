@@ -144,7 +144,24 @@ document.addEventListener("DOMContentLoaded", () => {
       togglePasswordBtn.onclick = () => {
         const isHidden = authPassword.type === "password";
         authPassword.type = isHidden ? "text" : "password";
-        togglePasswordBtn.textContent = isHidden ? "🙈" : "👁";
+        if (togglePasswordBtn && authPassword) {
+          togglePasswordBtn.onclick = () => {
+            const isHidden = authPassword.type === "password";
+
+            authPassword.type = isHidden ? "text" : "password";
+
+            togglePasswordBtn.innerHTML = isHidden
+              ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M17.94 17.94C16.19 19.17 14.17 20 12 20C5 20 1 12 1 12C2.06 9.94 3.63 7.96 5.59 6.44M9.9 4.24C10.58 4.08 11.29 4 12 4C19 4 23 12 23 12C22.36 13.18 21.56 14.28 20.64 15.24M1 1L23 23"
+                  stroke="currentColor" stroke-width="2"/>
+                </svg>`
+              : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M1 12C1 12 5 5 12 5C19 5 23 12 23 12C23 12 19 19 12 19C5 19 1 12 1 12Z"
+                  stroke="currentColor" stroke-width="2"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                </svg>`;
+          };
+        }
         togglePasswordBtn.setAttribute(
           "aria-label",
           isHidden ? "Hide password" : "Show password"
