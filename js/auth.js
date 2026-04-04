@@ -91,13 +91,30 @@ function showAuthConfirm(title, message, onOk) {
   modal.style.display = "flex";
 }
 
+function setSessionToken(token) {
+  localStorage.setItem(DN_CONFIG.STORAGE_KEYS.USER_SESSION_TOKEN, token);
+}
+
+function getSessionToken() {
+  return localStorage.getItem(DN_CONFIG.STORAGE_KEYS.USER_SESSION_TOKEN) || "";
+}
+
+function clearSessionToken() {
+  localStorage.removeItem(DN_CONFIG.STORAGE_KEYS.USER_SESSION_TOKEN);
+}
+
 function setUser(user) {
-  localStorage.setItem("dn_user", JSON.stringify(user));
+  localStorage.setItem(
+    DN_CONFIG.STORAGE_KEYS.USER_PROFILE,
+    JSON.stringify(user)
+  );
 }
 
 function getUser() {
   try {
-    return JSON.parse(localStorage.getItem("dn_user")) || null;
+    return JSON.parse(
+      localStorage.getItem(DN_CONFIG.STORAGE_KEYS.USER_PROFILE)
+    ) || null;
   } catch {
     return null;
   }
@@ -107,9 +124,64 @@ function isLoggedIn() {
   return !!getUser();
 }
 
-function logout() {
-  localStorage.removeItem("dn_user");
+async function logout() {
+  try {
+    if (DN_CONFIG.BACKEND.AUTH_LOGOUT_URL) {
+      await authRequest(DN_CONFIG.BACKEND.AUTH_LOGOUT_URL, {
+        method: "POST"
+      });
+    }
+  } catch (error) {
+    console.log("Logout request failed:", error);
+  }
+
+  clearSessionToken();
+  localStorage.removeItem(DN_CONFIG.STORAGE_KEYS.USER_PROFILE);
   location.reload();
+}
+
+async function authRequest(url, options = {}) {
+  const token = getSessionToken();
+
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {})
+  };
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const res = await fetch(url, {
+    ...options,
+    headers
+  });
+
+  const data = await res.json();
+  return { res, data };
+}
+
+async function restoreUserSession() {
+  const token = getSessionToken();
+
+  if (!token || !DN_CONFIG.BACKEND.AUTH_ME_URL) return;
+
+  try {
+    const { res, data } = await authRequest(
+      DN_CONFIG.BACKEND.AUTH_ME_URL,
+      { method: "GET" }
+    );
+
+    if (res.ok && data.ok && data.user) {
+      setUser(data.user);
+      return;
+    }
+  } catch (error) {
+    console.log("Restore session failed:", error);
+  }
+
+  clearSessionToken();
+  localStorage.removeItem(DN_CONFIG.STORAGE_KEYS.USER_PROFILE);
 }
 
 function updateAccountButton() {
@@ -143,25 +215,26 @@ document.addEventListener("DOMContentLoaded", () => {
     if (togglePasswordBtn && authPassword) {
       togglePasswordBtn.onclick = () => {
         const isHidden = authPassword.type === "password";
+
         authPassword.type = isHidden ? "text" : "password";
-        if (togglePasswordBtn && authPassword) {
-          togglePasswordBtn.onclick = () => {
-            const isHidden = authPassword.type === "password";
 
-            authPassword.type = isHidden ? "text" : "password";
+        togglePasswordBtn.innerHTML = isHidden
+          ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M17.94 17.94C16.19 19.17 14.17 20 12 20C5 20 1 12 1 12C2.06 9.94 3.63 7.96 5.59 6.44M9.9 4.24C10.58 4.08 11.29 4 12 4C19 4 23 12 23 12C22.36 13.18 21.56 14.28 20.64 15.24M1 1L23 23"
+              stroke="currentColor" stroke-width="2"/>
+            </svg>`
+          : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M1 12C1 12 5 5 12 5C19 5 23 12 23 12C23 12 19 19 12 19C5 19 1 12 1 12Z"
+              stroke="currentColor" stroke-width="2"/>
+              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+            </svg>`;
 
-            togglePasswordBtn.innerHTML = isHidden
-              ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M17.94 17.94C16.19 19.17 14.17 20 12 20C5 20 1 12 1 12C2.06 9.94 3.63 7.96 5.59 6.44M9.9 4.24C10.58 4.08 11.29 4 12 4C19 4 23 12 23 12C22.36 13.18 21.56 14.28 20.64 15.24M1 1L23 23"
-                  stroke="currentColor" stroke-width="2"/>
-                </svg>`
-              : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M1 12C1 12 5 5 12 5C19 5 23 12 23 12C23 12 19 19 12 19C5 19 1 12 1 12Z"
-                  stroke="currentColor" stroke-width="2"/>
-                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-                </svg>`;
-          };
-        }
+        togglePasswordBtn.setAttribute(
+          "aria-label",
+          isHidden ? "Hide password" : "Show password"
+        );
+      };
+    }
         togglePasswordBtn.setAttribute(
           "aria-label",
           isHidden ? "Hide password" : "Show password"
@@ -216,7 +289,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (authSubmitBtn) {
-    authSubmitBtn.onclick = () => {
+    authSubmitBtn.onclick = async () => {
       const email = authEmail ? authEmail.value.trim() : "";
       const password = authPassword ? authPassword.value.trim() : "";
 
@@ -230,15 +303,51 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // TEMP local system for now
-      setUser({ email });
+      let requestUrl = "";
+      let payload = { email, password };
 
-      closeAuthModal();
-      updateAccountButton();
-      location.reload();
+      if (isLoginMode) {
+        requestUrl = DN_CONFIG.BACKEND.AUTH_LOGIN_URL;
+      } else {
+        requestUrl = DN_CONFIG.BACKEND.AUTH_REGISTER_URL;
+        payload.name = email.split("@")[0];
+      }
+
+      if (!requestUrl) {
+        showAuthMessage("Setup Missing", "Backend auth URL is not added yet.");
+        return;
+      }
+
+      try {
+        const { res, data } = await authRequest(requestUrl, {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok || !data.ok) {
+          showAuthMessage("Auth Failed", data.message || "Authentication failed.");
+          return;
+        }
+
+        if (data.token) {
+          setSessionToken(data.token);
+        }
+
+        if (data.user) {
+          setUser(data.user);
+        }
+
+        closeAuthModal();
+        updateAccountButton();
+        location.reload();
+      } catch (error) {
+        showAuthMessage("Network Error", error.message || "Could not connect to server.");
+      }
     };
   }
 
-  updateAuthMode();
+updateAuthMode();
+
+restoreUserSession().finally(() => {
   updateAccountButton();
 });
