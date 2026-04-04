@@ -55,6 +55,12 @@ router.post("/register", async (req, res) => {
     await writeUsersDb(usersDb);
 
     const sessionsDb = await readSessionsDb();
+
+    // remove old sessions for this user
+    sessionsDb.sessions = sessionsDb.sessions.filter(
+      (s) => s.user_id !== user.id
+    );
+
     const token = randomToken(24);
     sessionsDb.sessions.push({
       token,
@@ -152,8 +158,7 @@ router.post("/forgot-password", async (req, res) => {
 
     return res.json({
       ok: true,
-      message: "Reset code generated.",
-      dev_reset_code: code
+      message: "Reset code generated."
     });
   } catch (error) {
     return res.status(500).json({ ok: false, message: error.message || "Forgot password failed." });
