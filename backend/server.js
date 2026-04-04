@@ -2,7 +2,9 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+
 import authRouter from "./src/routes/auth.routes.js";
+import billingRouter from "./src/routes/billing.routes.js";
 
 dotenv.config();
 
@@ -38,6 +40,7 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/api/auth", authRouter);
+app.use("/api/billing", billingRouter);
 
 app.use((req, res) => {
   res.status(404).json({
