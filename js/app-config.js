@@ -20,7 +20,6 @@ const DN_CONFIG = {
   },
 
   // 🌐 Frontend URLs
-  // Fill these later when your domain is ready
   FRONTEND: {
     SITE_URL: "", // Example: https://yourdomain.com OR https://eduhub071302-source.github.io
     APP_BASE_PATH: "/DN_Physics",
@@ -29,7 +28,6 @@ const DN_CONFIG = {
   },
 
   // 💳 PayHere placeholders
-  // Fill these only after approval
   PAYHERE: {
     MERCHANT_ID: "",
     MERCHANT_SECRET: "", // keep blank here for now; use on backend in production
@@ -39,13 +37,12 @@ const DN_CONFIG = {
   },
 
   // 🖥 Backend placeholders
-  // This is required later for real automatic unlock
   BACKEND: {
     API_BASE_URL: "",
     CREATE_ORDER_URL: "",
     NOTIFY_URL: "",
     VERIFY_UNLOCK_URL: "",
-    ACTIVATE_UNLOCK_URL: ""
+    ACTIVATE_UNLOCK_URL: "",
 
     AUTH_REGISTER_URL: "",
     AUTH_LOGIN_URL: "",
@@ -63,7 +60,7 @@ const DN_CONFIG = {
     UNLOCK_SOURCE: "dn_unlock_source",
     UNLOCK_TIME: "dn_unlock_time",
     UNLOCK_ORDER_ID: "dn_unlock_order_id",
-    UNLOCK_PENDING_ORDER_ID: "dn_unlock_pending_order_id"
+    UNLOCK_PENDING_ORDER_ID: "dn_unlock_pending_order_id",
     USER_SESSION_TOKEN: "dn_user_session_token",
     USER_PROFILE: "dn_user_profile"
   }
