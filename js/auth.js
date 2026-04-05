@@ -127,9 +127,13 @@ function isLoggedIn() {
 async function logout() {
   try {
     if (DN_CONFIG.BACKEND.AUTH_LOGOUT_URL) {
-      await authRequest(DN_CONFIG.BACKEND.AUTH_LOGOUT_URL, {
-        method: "POST"
-      });
+      await authRequest(
+        DN_CONFIG.BACKEND.API_BASE_URL +
+          DN_CONFIG.BACKEND.AUTH_LOGOUT_URL,
+        {
+          method: "POST"
+        }
+      );
     }
   } catch (error) {
     console.log("Logout request failed:", error);
@@ -168,7 +172,8 @@ async function restoreUserSession() {
 
   try {
     const { res, data } = await authRequest(
-      DN_CONFIG.BACKEND.AUTH_ME_URL,
+      DN_CONFIG.BACKEND.API_BASE_URL +
+        DN_CONFIG.BACKEND.AUTH_ME_URL,
       { method: "GET" }
     );
 
@@ -301,9 +306,9 @@ document.addEventListener("DOMContentLoaded", () => {
       let payload = { email, password };
 
       if (isLoginMode) {
-        requestUrl = DN_CONFIG.BACKEND.AUTH_LOGIN_URL;
+        requestUrl = DN_CONFIG.BACKEND.API_BASE_URL + DN_CONFIG.BACKEND.AUTH_LOGIN_URL;
       } else {
-        requestUrl = DN_CONFIG.BACKEND.AUTH_REGISTER_URL;
+        requestUrl = DN_CONFIG.BACKEND.API_BASE_URL + DN_CONFIG.BACKEND.AUTH_REGISTER_URL;
         payload.name = email.split("@")[0];
       }
 
