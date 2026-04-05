@@ -39,20 +39,21 @@ const DN_CONFIG = {
   // 🖥 Backend placeholders
   BACKEND: {
     API_BASE_URL: "",
-    CREATE_ORDER_URL: "",
-    NOTIFY_URL: "",
-    VERIFY_UNLOCK_URL: "",
-    ACTIVATE_UNLOCK_URL: "",
 
-    AUTH_REGISTER_URL: "http://192.168.8.101:8787/api/auth/register",
-    AUTH_LOGIN_URL: "http://192.168.8.101:8787/api/auth/login",
-    AUTH_LOGOUT_URL: "http://192.168.8.101:8787/api/auth/logout",
-    AUTH_ME_URL: "http://192.168.8.101:8787/api/auth/me",
-    AUTH_FORGOT_PASSWORD_URL: "http://192.168.8.101:8787/api/auth/forgot-password",
-    AUTH_RESET_PASSWORD_URL: "http://192.168.8.101:8787/api/auth/reset-password",
-    PROFILE_ME_URL: "http://192.168.8.101:8787/api/profile/me",
-    PROFILE_UPDATE_URL: "http://192.168.8.101:8787/api/profile/me"
-  },
+    CREATE_ORDER_URL: "/api/payments/create-order",
+    NOTIFY_URL: "/api/payments/notify",
+    VERIFY_UNLOCK_URL: "/api/unlock/verify",
+    ACTIVATE_UNLOCK_URL: "/api/unlock/activate",
+  
+    AUTH_REGISTER_URL: "/api/auth/register",
+    AUTH_LOGIN_URL: "/api/auth/login",
+    AUTH_LOGOUT_URL: "/api/auth/logout",
+    AUTH_ME_URL: "/api/auth/me",
+    AUTH_FORGOT_PASSWORD_URL: "/api/auth/forgot-password",
+    AUTH_RESET_PASSWORD_URL: "/api/auth/reset-password",
+    PROFILE_ME_URL: "/api/profile/me",
+    PROFILE_UPDATE_URL: "/api/profile/me"
+  }
 
   STORAGE_KEYS: {
     OWNER_MODE: "dn_owner_mode",
