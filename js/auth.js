@@ -1,4 +1,4 @@
-// 🔐 SUPABASE AUTH SYSTEM
+// 🔐 SUPABASE AUTH SYSTEM — FINAL PREMIUM VERSION
 
 function openAuthModal() {
   const modal = document.getElementById("authModal");
@@ -10,7 +10,6 @@ function closeAuthModal() {
   if (modal) modal.classList.add("hidden");
 }
 
-// 🔥 PREMIUM ERROR UI
 function showAuthError(message, isSuccess = false) {
   let errorBox = document.getElementById("authErrorBox");
 
@@ -19,26 +18,29 @@ function showAuthError(message, isSuccess = false) {
     errorBox.id = "authErrorBox";
 
     const box = document.querySelector(".auth-box");
-    if (box) box.insertBefore(errorBox, box.children[2]);
+    if (box) {
+      box.insertBefore(errorBox, box.children[2]);
+    }
   }
 
   errorBox.style.cssText = `
     margin-top: 10px;
-    padding: 10px;
-    border-radius: 8px;
+    padding: 10px 12px;
+    border-radius: 10px;
     background: ${isSuccess ? "rgba(34,197,94,0.12)" : "rgba(255,0,0,0.10)"};
     color: ${isSuccess ? "#86efac" : "#ff6b6b"};
     font-size: 14px;
     text-align: center;
     border: 1px solid ${isSuccess ? "rgba(34,197,94,0.25)" : "rgba(255,107,107,0.22)"};
+    line-height: 1.45;
   `;
 
   errorBox.textContent = message;
 }
 
 function clearAuthError() {
-  const box = document.getElementById("authErrorBox");
-  if (box) box.remove();
+  const errorBox = document.getElementById("authErrorBox");
+  if (errorBox) errorBox.remove();
 }
 
 // ----------------------------
@@ -67,9 +69,18 @@ function clearUser() {
 // ----------------------------
 
 async function logout() {
-  await supabaseClient.auth.signOut();
+  try {
+    await supabaseClient.auth.signOut();
+  } catch (error) {
+    console.error("Logout error:", error);
+  }
+
   clearUser();
-  if (typeof clearPaidAccess === "function") clearPaidAccess();
+
+  if (typeof clearPaidAccess === "function") {
+    clearPaidAccess();
+  }
+
   location.reload();
 }
 
@@ -78,14 +89,45 @@ async function logout() {
 // ----------------------------
 
 async function loadUserProfile(userId) {
-  const { data } = await supabaseClient
-    .from("profiles")
-    .select("*")
-    .eq("id", userId)
-    .single();
+  try {
+    const { data, error } = await supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
 
-  if (data) {
-    localStorage.setItem("dn_profile", JSON.stringify(data));
+    if (error) {
+      console.warn("Profile load warning:", error.message);
+      return null;
+    }
+
+    if (data) {
+      localStorage.setItem("dn_profile", JSON.stringify(data));
+      return data;
+    }
+
+    return null;
+  } catch (error) {
+    console.warn("Profile fetch warning:", error);
+    return null;
+  }
+}
+
+async function ensureProfile(user) {
+  if (!user?.id || !user?.email) return;
+
+  try {
+    const { error } = await supabaseClient.from("profiles").upsert({
+      id: user.id,
+      email: user.email,
+      name: user.email.split("@")[0]
+    });
+
+    if (error) {
+      console.warn("Profile upsert warning:", error.message);
+    }
+  } catch (error) {
+    console.warn("Profile upsert failed:", error);
   }
 }
 
@@ -94,12 +136,17 @@ async function loadUserProfile(userId) {
 // ----------------------------
 
 async function restoreUserSession() {
-  const { data } = await supabaseClient.auth.getSession();
+  try {
+    const { data } = await supabaseClient.auth.getSession();
 
-  if (data?.session?.user) {
-    setUser(data.session.user);
-    await loadUserProfile(data.session.user.id);
-  } else {
+    if (data?.session?.user) {
+      setUser(data.session.user);
+      await loadUserProfile(data.session.user.id);
+    } else {
+      clearUser();
+    }
+  } catch (error) {
+    console.error("Restore session failed:", error);
     clearUser();
   }
 }
@@ -114,7 +161,13 @@ function updateAccountButton() {
 
   if (!btn) return;
 
-  btn.textContent = user ? `👤 ${user.email}` : "👤 Login";
+  if (user?.email) {
+    btn.textContent = `👤 ${user.email}`;
+    btn.title = user.email;
+  } else {
+    btn.textContent = "👤 Login";
+    btn.title = "Login or sign up";
+  }
 }
 
 // ----------------------------
@@ -135,124 +188,184 @@ document.addEventListener("DOMContentLoaded", () => {
   let isLoginMode = true;
 
   function renderAuthMode() {
-    authTitle.textContent = isLoginMode ? "Login" : "Sign Up";
-    authSubmitBtn.textContent = isLoginMode ? "Login" : "Create Account";
+    if (authTitle) {
+      authTitle.textContent = isLoginMode ? "Login" : "Create Account";
+    }
 
-    authToggleText.innerHTML = isLoginMode
-      ? `Don't have an account? <span id="authToggleBtn">Sign up</span>`
-      : `Already have an account? <span id="authToggleBtn">Login</span>`;
+    if (authSubmitBtn) {
+      authSubmitBtn.textContent = isLoginMode ? "Login" : "Create Account";
+    }
 
-    document.getElementById("authToggleBtn").onclick = () => {
-      isLoginMode = !isLoginMode;
-      clearAuthError();
-      renderAuthMode();
+    if (authToggleText) {
+      authToggleText.innerHTML = isLoginMode
+        ? `Don't have an account? <span id="authToggleBtn">Sign up</span>`
+        : `Already have an account? <span id="authToggleBtn">Login</span>`;
+
+      const toggle = document.getElementById("authToggleBtn");
+      if (toggle) {
+        toggle.onclick = () => {
+          isLoginMode = !isLoginMode;
+          clearAuthError();
+          renderAuthMode();
+        };
+      }
+    }
+  }
+
+  // 👁️ Premium eye toggle
+  if (togglePasswordBtn && authPassword && eyeIcon) {
+    togglePasswordBtn.onclick = () => {
+      const show = authPassword.type === "password";
+      authPassword.type = show ? "text" : "password";
+      togglePasswordBtn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+
+      if (show) {
+        eyeIcon.innerHTML = `
+          <path d="M2 2L22 22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M10.58 10.58A2 2 0 0 0 13.42 13.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M9.88 5.09A10.94 10.94 0 0 1 12 4.9C19 4.9 23 12 23 12C22.39 13.43 21.55 14.72 20.53 15.85" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6.71 6.72C4.42 8.18 2.74 10.35 1 12C1 12 5 19.1 12 19.1C13.8 19.1 15.46 18.63 16.94 17.82" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        `;
+      } else {
+        eyeIcon.innerHTML = `
+          <path d="M1 12C1 12 5 5 12 5C19 5 23 12 23 12C23 12 19 19 12 19C5 19 1 12 1 12Z"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+        `;
+      }
     };
   }
 
-  // 👁️ PASSWORD TOGGLE
-  togglePasswordBtn.onclick = () => {
-    const show = authPassword.type === "password";
-    authPassword.type = show ? "text" : "password";
+  if (authEmail) authEmail.addEventListener("input", clearAuthError);
+  if (authPassword) authPassword.addEventListener("input", clearAuthError);
 
-    eyeIcon.innerHTML = show
-      ? `<path d="M1 1L23 23" stroke="currentColor" stroke-width="2"/>`
-      : `<circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>`;
-  };
+  if (loginBtn) {
+    loginBtn.onclick = () => {
+      const user = getUser();
 
-  authEmail.addEventListener("input", clearAuthError);
-  authPassword.addEventListener("input", clearAuthError);
+      if (user) {
+        if (confirm(`Logged in as ${user.email}\n\nLogout?`)) {
+          logout();
+        }
+        return;
+      }
 
-  // ACCOUNT BUTTON
-  loginBtn.onclick = () => {
-    const user = getUser();
+      clearAuthError();
+      openAuthModal();
+    };
+  }
 
-    if (user) {
-      if (confirm(`Logged in as ${user.email}\nLogout?`)) logout();
-      return;
-    }
+  if (authCloseBtn) {
+    authCloseBtn.onclick = () => {
+      clearAuthError();
+      closeAuthModal();
+    };
+  }
 
-    openAuthModal();
-  };
+  if (authSubmitBtn) {
+    authSubmitBtn.onclick = async () => {
+      const email = authEmail?.value.trim() || "";
+      const password = authPassword?.value.trim() || "";
 
-  authCloseBtn.onclick = closeAuthModal;
+      clearAuthError();
 
-  // 🔐 AUTH SUBMIT
-  authSubmitBtn.onclick = async () => {
-    const email = authEmail.value.trim();
-    const password = authPassword.value.trim();
+      if (!email || !password) {
+        return showAuthError("Please enter your email and password.");
+      }
 
-    if (!email || !password) {
-      return showAuthError("Enter email and password");
-    }
+      try {
+        if (isLoginMode) {
+          // LOGIN ONLY
+          const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email,
+            password
+          });
 
-    try {
-      if (isLoginMode) {
-        // 🔐 LOGIN
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
-          email,
-          password
-        });
+          if (error) {
+            const msg = (error.message || "").toLowerCase();
 
-        if (error) {
-          if (error.message.includes("Invalid login credentials")) {
-            return showAuthError("Password incorrect or account not found");
+            if (msg.includes("invalid login credentials")) {
+              return showAuthError("Email or password is incorrect.");
+            }
+
+            if (msg.includes("email not confirmed")) {
+              return showAuthError("Please verify your email before logging in.");
+            }
+
+            if (msg.includes("rate limit")) {
+              return showAuthError("Too many attempts. Please wait a bit and try again.");
+            }
+
+            return showAuthError("Unable to login right now. Please try again.");
           }
-          return showAuthError("Login failed");
+
+          if (!data?.user) {
+            return showAuthError("Unable to login right now. Please try again.");
+          }
+
+          setUser(data.user);
+
+          // Do not let profile sync break login
+          await ensureProfile(data.user);
+          await loadUserProfile(data.user.id);
+
+          closeAuthModal();
+          updateAccountButton();
+          location.reload();
+          return;
         }
 
-        setUser(data.user);
-
-        await supabaseClient.from("profiles").upsert({
-          id: data.user.id,
-          email: data.user.email,
-          name: data.user.email.split("@")[0]
-        });
-
-        await loadUserProfile(data.user.id);
-
-        closeAuthModal();
-        updateAccountButton();
-        location.reload();
-
-      } else {
-        // 🆕 SIGNUP
+        // SIGNUP ONLY
         const { data, error } = await supabaseClient.auth.signUp({
           email,
           password
         });
 
         if (error) {
-          if (error.message.toLowerCase().includes("already")) {
-            return showAuthError("Account already exists. Please login.");
+          const msg = (error.message || "").toLowerCase();
+
+          if (msg.includes("already registered") || msg.includes("already been registered")) {
+            return showAuthError("An account with this email already exists. Please login.");
           }
-          return showAuthError(error.message);
+
+          if (msg.includes("rate limit")) {
+            return showAuthError("Too many signup attempts. Please wait a little and try again.");
+          }
+
+          if (msg.includes("password")) {
+            return showAuthError("Password is too weak. Use a stronger password.");
+          }
+
+          return showAuthError(error.message || "Unable to create account right now.");
         }
 
-        await supabaseClient.from("profiles").upsert({
-          id: data.user.id,
-          email: data.user.email,
-          name: email.split("@")[0]
-        });
+        if (data?.user) {
+          await ensureProfile(data.user);
+        }
 
-        showAuthError("✅ Account created. Please login.", true);
+        showAuthError("✅ Account created successfully. Please login.", true);
 
-        authPassword.value = "";
+        if (authPassword) authPassword.value = "";
         isLoginMode = true;
         renderAuthMode();
+      } catch (e) {
+        console.error("Auth error:", e);
+        showAuthError("Something went wrong. Please try again.");
       }
-
-    } catch (e) {
-      console.error(e);
-      showAuthError("Something went wrong");
-    }
-  };
+    };
+  }
 
   supabaseClient.auth.onAuthStateChange((event, session) => {
-    if (session?.user) setUser(session.user);
-    else clearUser();
+    if (session?.user) {
+      setUser(session.user);
+    } else {
+      clearUser();
+    }
     updateAccountButton();
   });
 
   renderAuthMode();
-  restoreUserSession();
+  restoreUserSession().then(() => {
+    updateAccountButton();
+  });
 });
