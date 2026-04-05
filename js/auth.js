@@ -329,7 +329,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
 
           if (msg.includes("rate limit")) {
-            return showAuthError("Too many signup attempts. Please wait a little and try again.");
+            return showAuthError("An account with this email likely already exists. Try logging in.");
           }
 
           if (msg.includes("password")) {
@@ -380,7 +380,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin
+        redirectTo: window.location.origin + "/DN_Physics/reset-password.html"
       });
 
       if (error) {
@@ -390,4 +390,23 @@ document.addEventListener("DOMContentLoaded", () => {
       showAuthError("📩 Password reset email sent. Check your inbox.", true);
     };
   }
+  
+  // 🔥 HANDLE EMAIL CONFIRMATION REDIRECT
+  (async () => {
+    const hash = window.location.hash;
+
+    if (hash && hash.includes("access_token")) {
+      const { data, error } = await supabaseClient.auth.getSession();
+
+      if (data?.session?.user) {
+        setUser(data.session.user);
+        await ensureProfile(data.session.user);
+
+        showAuthError("✅ Email verified successfully. You are now logged in.", true);
+
+        // Clean URL (remove token)
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+  })();
 });
