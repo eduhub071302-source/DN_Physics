@@ -19,24 +19,21 @@ const DN_CONFIG = {
     CURRENCY: "LKR"
   },
 
-  // 🌐 Frontend URLs
   FRONTEND: {
-    SITE_URL: "", // Example: https://yourdomain.com OR https://eduhub071302-source.github.io
+    SITE_URL: "",
     APP_BASE_PATH: "/DN_Physics",
     SUCCESS_PATH: "/payment-success.html",
     CANCEL_PATH: "/payment-cancel.html"
   },
 
-  // 💳 PayHere placeholders
   PAYHERE: {
     MERCHANT_ID: "",
-    MERCHANT_SECRET: "", // keep blank here for now; use on backend in production
+    MERCHANT_SECRET: "",
     SANDBOX: false,
     LIVE_CHECKOUT_URL: "https://www.payhere.lk/pay/checkout",
     SANDBOX_CHECKOUT_URL: "https://sandbox.payhere.lk/pay/checkout"
   },
 
-  // 🖥 Backend placeholders
   BACKEND: {
     API_BASE_URL: "",
 
@@ -44,7 +41,7 @@ const DN_CONFIG = {
     NOTIFY_URL: "/api/payments/notify",
     VERIFY_UNLOCK_URL: "/api/unlock/verify",
     ACTIVATE_UNLOCK_URL: "/api/unlock/activate",
-  
+
     AUTH_REGISTER_URL: "/api/auth/register",
     AUTH_LOGIN_URL: "/api/auth/login",
     AUTH_LOGOUT_URL: "/api/auth/logout",
