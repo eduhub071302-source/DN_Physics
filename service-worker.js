@@ -43,7 +43,7 @@ self.addEventListener("activate", (event) => {
 
       await self.clients.claim();
 
-      self.clients.matchAll({ type: "window" }).then(clients => {
+      self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(clients => {
         clients.forEach(client => {
           client.postMessage({
             type: "FORCE_RELOAD"
