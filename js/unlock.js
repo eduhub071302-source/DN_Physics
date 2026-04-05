@@ -312,7 +312,7 @@ async function syncUnlockWithServer() {
     const token = localStorage.getItem(DN_CONFIG.STORAGE_KEYS.USER_SESSION_TOKEN);
 
     if (!token) return;
-    if (!DN_CONFIG.BACKEND.VERIFY_UNLOCK_URL) return;
+    if (!DN_CONFIG.BACKEND.VERIFY_UNLOCK_URL || !DN_CONFIG.BACKEND.API_BASE_URL) return;
 
     const res = await fetch(
       DN_CONFIG.BACKEND.API_BASE_URL +
@@ -801,8 +801,14 @@ function bindUnlockModalEvents() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   ensureUnlockModal();
   bindUnlockModalEvents();
-  await syncUnlockWithServer();
+
+  // 🔥 SAFE CALL (no crash)
+  try {
+    syncUnlockWithServer();
+  } catch (e) {
+    console.log("Unlock sync error:", e);
+  }
 });
