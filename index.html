@@ -989,7 +989,7 @@
         const res = await fetch("/DN_Physics/pdfs/catalog.json");
         if (!res.ok) throw new Error("Failed to load catalog");
 
-        const items = await res.json(); // ✅ MUST COME FIRST
+        const items = await res.json(); // ✅ FIX: define items first
 
         // 🔥 Content update detection
         const lastVersion = localStorage.getItem("dn_catalog_version");
