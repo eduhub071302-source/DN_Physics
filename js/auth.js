@@ -104,6 +104,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const authEmail = document.getElementById("authEmail");
   const authPassword = document.getElementById("authPassword");
 
+  const togglePasswordBtn = document.getElementById("togglePasswordBtn");
+
+  if (togglePasswordBtn && authPassword) {
+    togglePasswordBtn.addEventListener("click", () => {
+      const isPassword = authPassword.type === "password";
+      authPassword.type = isPassword ? "text" : "password";
+    });
+  }
+
   let isLoginMode = true;
 
   loginBtn.onclick = () => {
@@ -151,6 +160,14 @@ document.addEventListener("DOMContentLoaded", () => {
         if (error) return alert(error.message);
 
         setUser(data.user);
+
+        // 🔥 ensure profile exists
+        await supabase.from("profiles").upsert({
+          id: data.user.id,
+          email: data.user.email,
+          name: data.user.email.split("@")[0]
+        });
+
         await loadUserProfile(data.user.id);
 
       } else {
@@ -185,7 +202,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  restoreUserSession().then(() => {
-    updateAccountButton();
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (session?.user) {
+      setUser(session.user);
+    } else {
+      clearUser();
+    }
   });
 });
