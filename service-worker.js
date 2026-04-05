@@ -48,12 +48,13 @@ self.addEventListener("activate", (event) => {
         includeUncontrolled: true
       });
 
-      for (const client of clients) {
-        client.postMessage({
-          type: "SW_UPDATED",
-          version: CACHE_NAME,
-          changed: oldVersion && oldVersion !== CACHE_NAME
-        });
+      if (oldVersion && oldVersion !== CACHE_NAME) {
+        for (const client of clients) {
+          client.postMessage({
+            type: "SW_UPDATED",
+            version: CACHE_NAME
+          });
+        }
       }
     })()
   );
