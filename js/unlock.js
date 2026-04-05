@@ -227,7 +227,10 @@ async function startFullUnlockCheckout() {
   }
 
   try {
-    const res = await fetch(DN_CONFIG.BACKEND.CREATE_ORDER_URL, {
+    const res = await fetch(
+      DN_CONFIG.BACKEND.API_BASE_URL +
+        DN_CONFIG.BACKEND.CREATE_ORDER_URL,
+      {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -302,6 +305,39 @@ function applyServerUnlock(orderId = "") {
     orderId
   });
   clearPendingOrderId();
+}
+
+async function syncUnlockWithServer() {
+  try {
+    const token = localStorage.getItem(DN_CONFIG.STORAGE_KEYS.USER_SESSION_TOKEN);
+
+    if (!token) return;
+    if (!DN_CONFIG.BACKEND.VERIFY_UNLOCK_URL) return;
+
+    const res = await fetch(
+      DN_CONFIG.BACKEND.API_BASE_URL +
+        DN_CONFIG.BACKEND.VERIFY_UNLOCK_URL,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    if (!res.ok) return;
+
+    const data = await res.json();
+
+    if (data.paid === true) {
+      activatePaidAccess({
+        source: "server-sync",
+        orderId: data.order_id || ""
+      });
+    }
+  } catch (error) {
+    console.log("Unlock sync failed:", error);
+  }
 }
 
 function injectUnlockModalHtml() {
@@ -765,7 +801,8 @@ function bindUnlockModalEvents() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   ensureUnlockModal();
   bindUnlockModalEvents();
+  await syncUnlockWithServer();
 });
