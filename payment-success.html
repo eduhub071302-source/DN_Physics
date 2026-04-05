@@ -9,37 +9,137 @@
 <body>
   <main class="section">
     <div class="container">
-      <div class="card">
-        <h1>Verifying payment...</h1>
+      <div class="card" style="max-width:700px; margin:40px auto; text-align:center;">
+        <div style="font-size:48px; margin-bottom:12px;">💳</div>
+        <h1 id="pageTitle">Verifying payment...</h1>
         <p id="statusText">Please wait while we unlock your app.</p>
+
+        <div id="statusMeta" style="margin-top:10px; color:#a8b3cf; font-size:14px;"></div>
+
+        <div id="actionArea" style="margin-top:20px; display:none; gap:12px; justify-content:center; flex-wrap:wrap;">
+          <button id="retryBtn" class="btn btn-primary" type="button">Retry Verification</button>
+          <a href="/DN_Physics/index.html" class="btn">Go Home</a>
+        </div>
       </div>
     </div>
   </main>
 
   <script src="/DN_Physics/js/app-config.js"></script>
   <script src="/DN_Physics/js/unlock.js"></script>
+
   <script>
     (async () => {
       const params = new URLSearchParams(window.location.search);
-      const orderId = params.get("order_id") || getPendingOrderId();
+
+      const orderId =
+        params.get("order_id") ||
+        params.get("merchant_id") ||
+        getPendingOrderId();
+
+      const pageTitle = document.getElementById("pageTitle");
       const statusText = document.getElementById("statusText");
+      const statusMeta = document.getElementById("statusMeta");
+      const actionArea = document.getElementById("actionArea");
+      const retryBtn = document.getElementById("retryBtn");
 
-      if (!orderId) {
-        statusText.textContent = "No order found.";
-        return;
+      const MAX_RETRIES = 8;
+      const RETRY_DELAY_MS = 3000;
+
+      function showActions() {
+        actionArea.style.display = "flex";
       }
 
-      const result = await checkServerUnlockStatus(orderId);
-      if (result.ok && result.paid) {
-        applyServerUnlock(orderId);
-        statusText.textContent = "Payment verified. Redirecting...";
-        setTimeout(() => {
-          window.location.href = "/DN_Physics/index.html";
-        }, 1200);
-      } else {
-        statusText.textContent = "Payment is not verified yet. Please refresh this page in a few seconds.";
+      function setState(title, text, meta = "") {
+        pageTitle.textContent = title;
+        statusText.textContent = text;
+        statusMeta.textContent = meta;
       }
+
+      async function verifyPaymentWithRetry() {
+        if (!orderId) {
+          setState(
+            "No order found",
+            "We could not find a payment order ID for this transaction.",
+            "Please return home and try again if needed."
+          );
+          showActions();
+          return;
+        }
+
+        setState(
+          "Verifying payment...",
+          "Please wait while we confirm your payment and unlock the app.",
+          `Order ID: ${orderId}`
+        );
+
+        for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+          try {
+            const result = await checkServerUnlockStatus(orderId);
+
+            if (result.ok && result.paid) {
+              applyServerUnlock(result.orderId || orderId);
+
+              setState(
+                "Payment verified ✅",
+                "Your app has been unlocked successfully. Redirecting to home...",
+                `Order ID: ${result.orderId || orderId}`
+              );
+
+              setTimeout(() => {
+                window.location.href = "/DN_Physics/index.html";
+              }, 1500);
+
+              return;
+            }
+
+            if (attempt < MAX_RETRIES) {
+              setState(
+                "Still verifying...",
+                "Your payment may still be processing. We are checking again automatically.",
+                `Attempt ${attempt} of ${MAX_RETRIES} • Order ID: ${orderId}`
+              );
+
+              await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+              continue;
+            }
+
+            setState(
+              "Verification delayed",
+              "Your payment is not confirmed yet. This can happen for a short time after payment.",
+              `We checked ${MAX_RETRIES} times. Order ID: ${orderId}`
+            );
+            showActions();
+            return;
+          } catch (error) {
+            if (attempt < MAX_RETRIES) {
+              setState(
+                "Connection issue...",
+                "We had a temporary issue while checking your payment. Retrying automatically...",
+                `Attempt ${attempt} of ${MAX_RETRIES}`
+              );
+
+              await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+              continue;
+            }
+
+            setState(
+              "Verification failed",
+              "We could not confirm the payment right now due to a network or server issue.",
+              "Please retry verification."
+            );
+            showActions();
+            return;
+          }
+        }
+      }
+
+      retryBtn.addEventListener("click", () => {
+        actionArea.style.display = "none";
+        verifyPaymentWithRetry();
+      });
+
+      verifyPaymentWithRetry();
     })();
   </script>
 </body>
-</html>     
+</html>
