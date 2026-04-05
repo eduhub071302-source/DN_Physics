@@ -381,14 +381,7 @@
 
       try {
         if ("serviceWorker" in navigator) {
-          setInterval(async () => {
-            if ("serviceWorker" in navigator) {
-              const reg = await navigator.serviceWorker.getRegistration();
-              if (reg) {
-                reg.update();
-              }
-            }
-          }, 30000); // every 30s
+          const registration = await navigator.serviceWorker.getRegistration();
 
           if (registration) {
             await registration.update();
@@ -436,21 +429,8 @@
           if (!event.data) return;
 
           if (event.data.type === "SW_UPDATED") {
-            if (autoReloadingFromSW) return;
-            showUpdateToast();
-          }
-
-          if (event.data.type === "SW_UPDATED") {
-            // 🔥 AUTO UPDATE (NO USER CLICK)
-            performSafeUpdate();
-          }
-        });
-
-        navigator.serviceWorker.addEventListener("message", (event) => {
-          if (!event.data) return;
-
-          if (event.data.type === "SW_UPDATED") {
             showToast("🚀 Updating app...");
+            performSafeUpdate();
           }
 
           if (event.data.type === "FORCE_RELOAD") {
@@ -1009,6 +989,9 @@
         const res = await fetch("/DN_Physics/pdfs/catalog.json");
         if (!res.ok) throw new Error("Failed to load catalog");
 
+        const items = await res.json(); // ✅ MUST COME FIRST
+
+        // 🔥 Content update detection
         const lastVersion = localStorage.getItem("dn_catalog_version");
         const newVersion = JSON.stringify(items).length;
 
