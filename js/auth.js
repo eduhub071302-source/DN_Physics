@@ -69,7 +69,7 @@ function clearUser() {
 
 async function logout() {
   try {
-    await supabase.auth.signOut();
+    await supabaseClient.auth.signOut();
   } catch (error) {
     console.error("Logout error:", error);
   }
@@ -89,7 +89,7 @@ async function logout() {
 
 async function restoreUserSession() {
   try {
-    const { data, error } = await supabase.auth.getSession();
+    const { data, error } = await supabaseClient.auth.getSession();
 
     if (error) {
       console.error("Restore session error:", error);
@@ -116,7 +116,7 @@ async function restoreUserSession() {
 
 async function loadUserProfile(userId) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from("profiles")
       .select("*")
       .eq("id", userId)
@@ -274,7 +274,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       try {
         if (isLoginMode) {
-          const { data, error } = await supabase.auth.signInWithPassword({
+          const { data, error } = await supabaseClient.auth.signInWithPassword({
             email,
             password
           });
@@ -295,7 +295,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           setUser(data.user);
 
-          await supabase.from("profiles").upsert({
+          await supabaseClient.from("profiles").upsert({
             id: data.user.id,
             email: data.user.email,
             name: data.user.email.split("@")[0]
@@ -309,7 +309,7 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
-        const { data, error } = await supabase.auth.signUp({
+        const { data, error } = await supabaseClient.auth.signUp({
           email,
           password
         });
@@ -331,7 +331,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const user = data?.user;
 
         if (user) {
-          await supabase.from("profiles").upsert({
+          await supabaseClient.from("profiles").upsert({
             id: user.id,
             email: user.email,
             name: email.split("@")[0]
@@ -356,7 +356,7 @@ document.addEventListener("DOMContentLoaded", () => {
       };
     }
 
-  supabase.auth.onAuthStateChange((event, session) => {
+  supabaseClient.auth.onAuthStateChange((event, session) => {
     if (session?.user) {
       setUser(session.user);
     } else {
