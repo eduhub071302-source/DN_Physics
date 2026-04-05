@@ -9,14 +9,60 @@
 <body>
   <main class="section">
     <div class="container">
-      <div class="card">
+      <div class="card" style="max-width:700px; margin:40px auto; text-align:center;">
+        
+        <div style="font-size:48px; margin-bottom:12px;">❌</div>
+
         <h1>Payment Cancelled</h1>
-        <p>Your unlock purchase was cancelled.</p>
-        <div class="actions">
-          <a class="btn btn-primary" href="/DN_Physics/index.html">Back to Home</a>
+        <p>Your unlock purchase was cancelled or not completed.</p>
+
+        <p style="margin-top:10px; color:#a8b3cf; font-size:14px;">
+          No charges were applied. You can try again anytime.
+        </p>
+
+        <div id="orderInfo" style="margin-top:10px; font-size:13px; color:#7cc4ff;"></div>
+
+        <div class="actions" style="margin-top:20px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+          <button id="retryBtn" class="btn btn-primary" type="button">
+            🔁 Try Again
+          </button>
+
+          <a class="btn" href="/DN_Physics/index.html">
+            🏠 Back to Home
+          </a>
         </div>
+
       </div>
     </div>
   </main>
+
+  <script src="/DN_Physics/js/app-config.js"></script>
+  <script src="/DN_Physics/js/unlock.js"></script>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const orderId = params.get("order_id") || getPendingOrderId();
+
+      const orderInfo = document.getElementById("orderInfo");
+      const retryBtn = document.getElementById("retryBtn");
+
+      // 🔥 Clear pending order (VERY IMPORTANT)
+      clearPendingOrderId();
+
+      if (orderId) {
+        orderInfo.textContent = "Order ID: " + orderId;
+      }
+
+      retryBtn.addEventListener("click", async () => {
+        try {
+          await startFullUnlockCheckout();
+        } catch (e) {
+          console.log("Retry failed:", e);
+          alert("Unable to start payment. Please try again.");
+        }
+      });
+    })();
+  </script>
 </body>
-</html>          
+</html>       
