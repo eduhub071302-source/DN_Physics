@@ -92,9 +92,8 @@ async function restoreUserSession() {
     const { data, error } = await supabaseClient.auth.getSession();
 
     if (error) {
-      console.error("Restore session error:", error);
-      clearUser();
-      return;
+      console.error("Signup error:", error);
+      return showAuthError(error.message); // 🔥 show real error
     }
 
     if (data?.session?.user) {
