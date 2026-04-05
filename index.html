@@ -62,9 +62,11 @@
           <a href="index.html" class="active" aria-current="page">Home</a>
         </nav>
 
+        <div id="userEmailDisplay" class="user-email-display" aria-live="polite"></div>
+
         <button id="loginBtn" class="btn" type="button">
           👤 Account
-        </button>      
+        </button>
 
         <button
           id="refreshBtn"
@@ -725,7 +727,8 @@
     function filterSubjects() {
       if (!searchInput || !categoryFilter) return;
 
-      const searchValue = searchInput.value.trim().toLowerCase();
+      const rawSearchValue = searchInput.value.trim().toLowerCase();
+      const searchValue = rawSearchValue.includes("@") ? "" : rawSearchValue;
       const selectedCategory = categoryFilter.value;
       const noResults = document.getElementById("noResults");
 
@@ -1089,6 +1092,12 @@
       setupSearchAndFilter();
       setupOnboarding();
       setupSplash();
+
+      if (searchInput) {
+        searchInput.value = "";
+        searchInput.placeholder = "Search topics (e.g. mechanics, waves)...";
+      }
+
       updateUnlockButton();
       await loadSubjectsFromCatalog();
     }
