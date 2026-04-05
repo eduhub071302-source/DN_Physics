@@ -176,26 +176,30 @@ document.addEventListener("DOMContentLoaded", () => {
   let isLoginMode = true;
 
   function renderAuthMode() {
+    // ✅ update title
     if (authTitle) {
       authTitle.textContent = isLoginMode ? "Login" : "Sign Up";
     }
 
+    // ✅ update button
     if (authSubmitBtn) {
       authSubmitBtn.textContent = isLoginMode ? "Login" : "Create Account";
     }
 
+    // ✅ update toggle text
     if (authToggleText) {
       authToggleText.innerHTML = isLoginMode
         ? `Don't have an account? <span id="authToggleBtn">Sign up</span>`
         : `Already have an account? <span id="authToggleBtn">Login</span>`;
 
       const newToggleBtn = document.getElementById("authToggleBtn");
+
       if (newToggleBtn) {
-        newToggleBtn.onclick = () => {
+        newToggleBtn.addEventListener("click", () => {
           isLoginMode = !isLoginMode;
           clearAuthError();
           renderAuthMode();
-        };
+        });
       }
     }
   }
@@ -339,9 +343,14 @@ document.addEventListener("DOMContentLoaded", () => {
         if (authPassword) authPassword.value = "";
         isLoginMode = true;
         renderAuthMode();
-      } catch (e) {
+      catch (e) {
         console.error("Auth error:", e);
-        showAuthError("Something went wrong. Please try again.");
+
+        if (e.message) {
+          return showAuthError(e.message);
+        }
+
+        showAuthError("Connection issue. Please try again.");
       }
     };
   }
