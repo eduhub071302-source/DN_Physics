@@ -381,7 +381,14 @@
 
       try {
         if ("serviceWorker" in navigator) {
-          const registration = await navigator.serviceWorker.getRegistration();
+          setInterval(async () => {
+            if ("serviceWorker" in navigator) {
+              const reg = await navigator.serviceWorker.getRegistration();
+              if (reg) {
+                reg.update();
+              }
+            }
+          }, 30000); // every 30s
 
           if (registration) {
             await registration.update();
@@ -433,18 +440,22 @@
             showUpdateToast();
           }
 
-          if (event.data.type === "SW_VERSION") {
-            console.log("Service Worker version:", event.data.version);
+          if (event.data.type === "SW_UPDATED") {
+            // 🔥 AUTO UPDATE (NO USER CLICK)
+            performSafeUpdate();
           }
         });
 
-        navigator.serviceWorker.addEventListener("controllerchange", () => {
-          if (autoReloadingFromSW) return;
-          autoReloadingFromSW = true;
-          finishFakeProgress();
-          showLoadingOverlay();
-          setLoadingText("Update complete... 100%");
-          window.location.reload();
+        navigator.serviceWorker.addEventListener("message", (event) => {
+          if (!event.data) return;
+
+          if (event.data.type === "SW_UPDATED") {
+            showToast("🚀 Updating app...");
+          }
+
+          if (event.data.type === "FORCE_RELOAD") {
+            window.location.reload();
+          }
         });
       } catch (error) {
         console.log("❌ Service Worker failed:", error);
@@ -998,7 +1009,14 @@
         const res = await fetch("/DN_Physics/pdfs/catalog.json");
         if (!res.ok) throw new Error("Failed to load catalog");
 
-        const items = await res.json();
+        const lastVersion = localStorage.getItem("dn_catalog_version");
+        const newVersion = JSON.stringify(items).length;
+
+        if (lastVersion && lastVersion !== String(newVersion)) {
+          showToast("📚 New notes added!");
+        }
+
+        localStorage.setItem("dn_catalog_version", String(newVersion));
         const uniqueSubjects = [...new Set(items.map((item) => item.subject).filter(Boolean))];
 
         if (!uniqueSubjects.length) {
