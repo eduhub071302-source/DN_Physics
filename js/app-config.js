@@ -53,7 +53,7 @@ const DN_CONFIG = {
     AUTH_RESET_PASSWORD_URL: "/api/auth/reset-password",
     PROFILE_ME_URL: "/api/profile/me",
     PROFILE_UPDATE_URL: "/api/profile/me"
-  }
+  },
 
   STORAGE_KEYS: {
     OWNER_MODE: "dn_owner_mode",
