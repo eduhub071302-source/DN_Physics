@@ -343,17 +343,18 @@ document.addEventListener("DOMContentLoaded", () => {
         if (authPassword) authPassword.value = "";
         isLoginMode = true;
         renderAuthMode();
-      catch (e) {
-        console.error("Auth error:", e);
 
-        if (e.message) {
-          return showAuthError(e.message);
+        } catch (e) {
+          console.error("Auth error:", e);
+
+          if (e.message) {
+            return showAuthError(e.message);
+          }
+
+          showAuthError("Connection issue. Please try again.");
         }
-
-        showAuthError("Connection issue. Please try again.");
-      }
-    };
-  }
+      };
+    }
 
   supabase.auth.onAuthStateChange((event, session) => {
     if (session?.user) {
