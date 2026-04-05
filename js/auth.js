@@ -245,39 +245,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (user) {
         const logoutModal = document.getElementById("logoutModal");
-        const confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
-        const cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
-
-        if (loginBtn) {
-          loginBtn.onclick = () => {
-            const user = getUser();
-
-            if (user) {
-              logoutModal.classList.remove("hidden");
-              return;
-            }
-
-            clearAuthError();
-            openAuthModal();
-          };
-        }
-
-        if (cancelLogoutBtn) {
-          cancelLogoutBtn.onclick = () => {
-            logoutModal.classList.add("hidden");
-          };
-        }
-
-        if (confirmLogoutBtn) {
-          confirmLogoutBtn.onclick = () => {
-            logout();
-          };
-        }
+        if (logoutModal) logoutModal.classList.remove("hidden");
         return;
       }
 
       clearAuthError();
       openAuthModal();
+    };
+  }
+
+  // logout modal buttons
+  const confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
+  const cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
+
+  if (cancelLogoutBtn) {
+    cancelLogoutBtn.onclick = () => {
+      document.getElementById("logoutModal")?.classList.add("hidden");
+    };
+  }
+
+  if (confirmLogoutBtn) {
+    confirmLogoutBtn.onclick = () => {
+      logout();
     };
   }
 
@@ -351,19 +340,19 @@ document.addEventListener("DOMContentLoaded", () => {
         if (error) {
           const msg = (error.message || "").toLowerCase();
 
-          if (msg.includes("already registered") || msg.includes("already been registered")) {
-            return showAuthError("An account with this email likely already exists. Try logging in instead.");
+          if (msg.includes("invalid login credentials")) {
+            return showAuthError("Incorrect email or password.");
+          }
+ 
+          if (msg.includes("email not confirmed")) {
+            return showAuthError("Please verify your email before logging in.");
           }
 
           if (msg.includes("rate limit")) {
-            return showAuthError("An account with this email likely already exists. Try logging in.");
+            return showAuthError("Too many attempts. Please try again later.");
           }
 
-          if (msg.includes("password")) {
-            return showAuthError("Password is too weak. Use a stronger password.");
-          }
-
-          return showAuthError(error.message || "Unable to create account right now.");
+          return showAuthError("Login failed. Please try again.");
         }
 
         if (data?.user) {
