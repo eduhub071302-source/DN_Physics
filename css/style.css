@@ -1738,3 +1738,18 @@ main {
   position: absolute;
   right: 0;
 }
+
+.auth-forgot {
+  margin-top: 8px;
+  font-size: 13px;
+  text-align: right;
+}
+
+.auth-forgot span {
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.auth-forgot span:hover {
+  text-decoration: underline;
+}

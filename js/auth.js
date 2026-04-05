@@ -289,11 +289,11 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             if (msg.includes("email not confirmed")) {
-              return showAuthError("Please verify your email before logging in.");
+              return showAuthError("Account created. Please check your email inbox and verify your account.");
             }
 
             if (msg.includes("rate limit")) {
-              return showAuthError("Too many attempts. Please wait a bit and try again.");
+              return showAuthError("An account with this email likely already exists. Try logging in instead.");
             }
 
             return showAuthError("Unable to login right now. Please try again.");
@@ -325,7 +325,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const msg = (error.message || "").toLowerCase();
 
           if (msg.includes("already registered") || msg.includes("already been registered")) {
-            return showAuthError("An account with this email already exists. Please login.");
+            return showAuthError("An account with this email likely already exists. Try logging in instead.");
           }
 
           if (msg.includes("rate limit")) {
@@ -368,4 +368,26 @@ document.addEventListener("DOMContentLoaded", () => {
   restoreUserSession().then(() => {
     updateAccountButton();
   });
+
+  const forgotBtn = document.getElementById("forgotPasswordBtn");
+
+  if (forgotBtn) {
+    forgotBtn.onclick = async () => {
+      const email = authEmail?.value.trim();
+
+      if (!email) {
+        return showAuthError("Enter your email first.");
+      }
+
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin
+      });
+
+      if (error) {
+        return showAuthError("Failed to send reset email.");
+      }
+
+      showAuthError("📩 Password reset email sent. Check your inbox.", true);
+    };
+  }
 });
