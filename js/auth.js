@@ -294,18 +294,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
           setUser(data.user);
 
-          await supabaseClient.from("profiles").upsert({
+          const { error: profileError } = await supabaseClient.from("profiles").upsert({
             id: data.user.id,
             email: data.user.email,
             name: data.user.email.split("@")[0]
           });
 
-          await loadUserProfile(data.user.id);
+          if (profileError) {
+            console.error("Profile error:", profileError);
+          };
 
-          closeAuthModal();
-          updateAccountButton();
-          location.reload();
-          return;
+          try {
+            await loadUserProfile(data.user.id);
+          } catch (e) {
+            console.warn("Profile load failed, continuing...");
+          }
         }
 
         const { data, error } = await supabaseClient.auth.signUp({
@@ -316,12 +319,14 @@ document.addEventListener("DOMContentLoaded", () => {
         if (error) {
           console.error("Signup error:", error);
 
-          if (error.message.includes("User already registered")) {
-            return showAuthError("This email is already registered. Try logging in.");
+          const msg = error.message.toLowerCase();
+
+          if (msg.includes("already registered")) {
+            return showAuthError("Account already exists. Please login.");
           }
 
-          if (error.message.toLowerCase().includes("password")) {
-            return showAuthError("Password is too weak. Use a stronger password.");
+          if (msg.includes("password")) {
+            return showAuthError("Password is too weak. Use stronger password.");
           }
 
           return showAuthError("Signup failed. Please try again.");
