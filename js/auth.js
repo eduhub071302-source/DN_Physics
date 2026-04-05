@@ -244,8 +244,34 @@ document.addEventListener("DOMContentLoaded", () => {
       const user = getUser();
 
       if (user) {
-        if (confirm(`Logged in as ${user.email}\n\nLogout?`)) {
-          logout();
+        const logoutModal = document.getElementById("logoutModal");
+        const confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
+        const cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
+
+        if (loginBtn) {
+          loginBtn.onclick = () => {
+            const user = getUser();
+
+            if (user) {
+              logoutModal.classList.remove("hidden");
+              return;
+            }
+
+            clearAuthError();
+            openAuthModal();
+          };
+        }
+
+        if (cancelLogoutBtn) {
+          cancelLogoutBtn.onclick = () => {
+            logoutModal.classList.add("hidden");
+          };
+        }
+
+        if (confirmLogoutBtn) {
+          confirmLogoutBtn.onclick = () => {
+            logout();
+          };
         }
         return;
       }
@@ -284,19 +310,20 @@ document.addEventListener("DOMContentLoaded", () => {
           if (error) {
             const msg = (error.message || "").toLowerCase();
 
-            if (msg.includes("invalid login credentials")) {
-              return showAuthError("Email or password is incorrect.");
+            // 🔥 force duplicate detection
+            if (
+              msg.includes("already") ||
+              msg.includes("registered") ||
+              msg.includes("rate limit")
+            ) {
+              return showAuthError("Account already exists. Please login.");
             }
 
-            if (msg.includes("email not confirmed")) {
-              return showAuthError("Account created. Please check your email inbox and verify your account.");
+            if (msg.includes("password")) {
+              return showAuthError("Password is too weak.");
             }
 
-            if (msg.includes("rate limit")) {
-              return showAuthError("An account with this email likely already exists. Try logging in instead.");
-            }
-
-            return showAuthError("Unable to login right now. Please try again.");
+            return showAuthError("Unable to create account.");
           }
 
           if (!data?.user) {
@@ -379,15 +406,21 @@ document.addEventListener("DOMContentLoaded", () => {
         return showAuthError("Enter your email first.");
       }
 
+      // Optional: simple email format check
+      if (!email.includes("@")) {
+        return showAuthError("Enter a valid email address.");
+      }
+
       const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
         redirectTo: window.location.origin + "/DN_Physics/reset-password.html"
       });
 
       if (error) {
-        return showAuthError("Failed to send reset email.");
+        return showAuthError("Unable to send reset email. Try again later.");
       }
 
-      showAuthError("📩 Password reset email sent. Check your inbox.", true);
+      // 🔥 Premium UX (do NOT reveal if account exists)
+      showAuthError("📩 If an account exists, a reset link has been sent.", true);
     };
   }
   
