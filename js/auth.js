@@ -299,29 +299,27 @@ document.addEventListener("DOMContentLoaded", () => {
           if (error) {
             const msg = (error.message || "").toLowerCase();
 
-            // 🔥 force duplicate detection
-            if (
-              msg.includes("already") ||
-              msg.includes("registered") ||
-              msg.includes("rate limit")
-            ) {
-              return showAuthError("Account already exists. Please login.");
+            if (msg.includes("invalid login credentials")) {
+              return showAuthError("Incorrect email or password.");
             }
 
-            if (msg.includes("password")) {
-              return showAuthError("Password is too weak.");
+            if (msg.includes("email not confirmed")) {
+              return showAuthError("Please verify your email before logging in.");
+            }
+ 
+            if (msg.includes("rate limit")) {
+              return showAuthError("Too many login attempts. Please try again later.");
             }
 
-            return showAuthError("Unable to create account.");
+            return showAuthError("Login failed. Please try again.");
           }
 
           if (!data?.user) {
-            return showAuthError("Unable to login right now. Please try again.");
+            return showAuthError("Login failed. Please try again.");
           }
 
           setUser(data.user);
 
-          // Do not let profile sync break login
           await ensureProfile(data.user);
           await loadUserProfile(data.user.id);
 
@@ -329,7 +327,7 @@ document.addEventListener("DOMContentLoaded", () => {
           updateAccountButton();
           location.reload();
           return;
-        }
+        }  
 
         // SIGNUP ONLY
         const { data, error } = await supabaseClient.auth.signUp({
@@ -340,19 +338,23 @@ document.addEventListener("DOMContentLoaded", () => {
         if (error) {
           const msg = (error.message || "").toLowerCase();
 
-          if (msg.includes("invalid login credentials")) {
-            return showAuthError("Incorrect email or password.");
-          }
- 
-          if (msg.includes("email not confirmed")) {
-            return showAuthError("Please verify your email before logging in.");
+          if (
+            msg.includes("already registered") ||
+            msg.includes("already been registered") ||
+            msg.includes("already exists")
+          ) {
+            return showAuthError("An account with this email already exists. Please login.");
           }
 
           if (msg.includes("rate limit")) {
-            return showAuthError("Too many attempts. Please try again later.");
+            return showAuthError("An account with this email may already exist. Please try logging in.");
           }
 
-          return showAuthError("Login failed. Please try again.");
+          if (msg.includes("password")) {
+            return showAuthError("Password is too weak. Use a stronger password.");
+          }  
+
+          return showAuthError(error.message || "Unable to create account right now.");
         }
 
         if (data?.user) {
@@ -413,21 +415,33 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
   
-  // 🔥 HANDLE EMAIL CONFIRMATION REDIRECT
+  // 🔥 HANDLE EMAIL CONFIRMATION REDIRECT (FIXED)
   (async () => {
     const hash = window.location.hash;
 
     if (hash && hash.includes("access_token")) {
-      const { data, error } = await supabaseClient.auth.getSession();
+      try {
+        // wait for session to be ready
+        await new Promise(r => setTimeout(r, 500));
 
-      if (data?.session?.user) {
-        setUser(data.session.user);
-        await ensureProfile(data.session.user);
+        const { data } = await supabaseClient.auth.getSession();
 
-        showAuthError("✅ Email verified successfully. You are now logged in.", true);
+        if (data?.session?.user) {
+          setUser(data.session.user);
+          await ensureProfile(data.session.user);
 
-        // Clean URL (remove token)
-        window.history.replaceState({}, document.title, window.location.pathname);
+          alert("✅ Email verified successfully! You can now use the app.");
+
+          // clean URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+
+          location.reload();
+        } else {
+        alert("Email verified. Please login now.");
+        }
+
+      } catch (e) {
+        console.error("Verification error:", e);
       }
     }
   })();
