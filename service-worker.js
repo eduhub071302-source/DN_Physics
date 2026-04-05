@@ -43,6 +43,14 @@ self.addEventListener("activate", (event) => {
 
       await self.clients.claim();
 
+      self.clients.matchAll({ type: "window" }).then(clients => {
+        clients.forEach(client => {
+          client.postMessage({
+            type: "FORCE_RELOAD"
+          });
+        });
+      });
+
       const clients = await self.clients.matchAll({
         type: "window",
         includeUncontrolled: true
@@ -120,14 +128,14 @@ self.addEventListener("fetch", (event) => {
 
         try {
           const network = await fetch(request);
+
           if (network && network.ok) {
-            cache.put(request, network.clone());
+            await cache.put(request, network.clone());
           }
+
           return network;
         } catch {
-          const cached = await cache.match(request);
-          if (cached) return cached;
-          throw new Error("Asset unavailable");
+          return await cache.match(request);
         }
       })()
     );
@@ -157,24 +165,17 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       (async () => {
         const cache = await caches.open(CACHE_NAME);
-        const cached = await cache.match(request);
-        if (cached) return cached;
 
         try {
           const network = await fetch(request);
+
           if (network && network.ok) {
-            const keys = await cache.keys();
-            const pdfKeys = keys.filter((r) => r.url.endsWith(".pdf"));
-
-            if (pdfKeys.length > 20) {
-              await cache.delete(pdfKeys[0]);
-            }
-
-            cache.put(request, network.clone());
+            await cache.put(request, network.clone());
           }
+
           return network;
         } catch {
-          return new Response("PDF not available offline", { status: 503 });
+          return await cache.match(request);
         }
       })()
     );
