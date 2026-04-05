@@ -128,16 +128,20 @@
       <div class="container">
         <div class="controls-wrap">
           <div class="search-box">
+            <!-- 🔒 Prevent browser autofill (IMPORTANT) -->
+            <input type="email" style="display:none" autocomplete="username">
+            <input type="password" style="display:none" autocomplete="current-password">
+
             <input
-              type="text"
+              type="search"
               id="subjectSearch"
-              name="topic-search"
+              name="search_topics"
               placeholder="Search topics (e.g. mechanics, waves)..."
-              aria-label="Search topics"
-              autocomplete="off"
-              autocapitalize="off"
+              autocomplete="new-password"
               autocorrect="off"
+              autocapitalize="off"
               spellcheck="false"
+              inputmode="search"
             />
           </div>
 
@@ -1096,6 +1100,10 @@
       if (searchInput) {
         searchInput.value = "";
         searchInput.placeholder = "Search topics (e.g. mechanics, waves)...";
+      }
+
+      if (searchInput) {
+        searchInput.value = "";
       }
 
       updateUnlockButton();
