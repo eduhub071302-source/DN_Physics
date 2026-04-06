@@ -365,15 +365,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const forgotBtn = document.getElementById("forgotPasswordBtn");
 
   if (forgotBtn) {
-    document.addEventListener("click", async (e) => {
-      if (e.target.id === "forgotPasswordBtn") {
+    forgotBtn.onclick = async () => {
       const email = authEmail?.value.trim();
 
       if (!email) {
         return showAuthError("Enter your email first.");
       }
 
-      // Optional: simple email format check
       if (!email.includes("@")) {
         return showAuthError("Enter a valid email address.");
       }
@@ -386,18 +384,16 @@ document.addEventListener("DOMContentLoaded", () => {
         return showAuthError("Unable to send reset email. Try again later.");
       }
 
-      // 🔥 Premium UX (do NOT reveal if account exists)
       showAuthError("📩 If an account exists, a reset link has been sent.", true);
     };
   }
-  
-  // 🔥 HANDLE EMAIL CONFIRMATION REDIRECT (FIXED)
+
+  // 🔥 EMAIL VERIFY HANDLER
   (async () => {
     const hash = window.location.hash;
 
     if (hash && hash.includes("access_token")) {
       try {
-        // wait for session to be ready
         await new Promise(r => setTimeout(r, 500));
 
         const { data } = await supabaseClient.auth.getSession();
@@ -406,14 +402,12 @@ document.addEventListener("DOMContentLoaded", () => {
           setUser(data.session.user);
           await ensureProfile(data.session.user);
 
-          alert("✅ Email verified successfully! You can now use the app.");
+          alert("✅ Email verified successfully!");
 
-          // clean URL
           window.history.replaceState({}, document.title, window.location.pathname);
-
           location.reload();
         } else {
-        alert("Email verified. Please login now.");
+          alert("Email verified. Please login now.");
         }
 
       } catch (e) {
