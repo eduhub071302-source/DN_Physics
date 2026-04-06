@@ -247,8 +247,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (authEmail) authEmail.addEventListener("input", clearAuthError);
   if (authPassword) authPassword.addEventListener("input", clearAuthError);
 
-  if (loginBtn) {
-    loginBtn.onclick = () => {
+  document.addEventListener("click", (e) => {
+    if (e.target.id === "loginBtn") {
       const user = getUser();
 
       if (user) {
@@ -256,11 +256,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (logoutModal) logoutModal.classList.remove("hidden");
         return;
       }
-
+   
       clearAuthError();
       openAuthModal();
-    };
-  }
+    }
+  });
 
   // logout modal buttons
   const confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
@@ -286,7 +286,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (authSubmitBtn) {
-    authSubmitBtn.onclick = async () => {
+    document.addEventListener("click", async (e) => {
+      if (e.target.id === "authSubmitBtn") {
       const email = authEmail?.value.trim() || "";
       const password = authPassword?.value.trim() || "";
 
@@ -432,7 +433,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const forgotBtn = document.getElementById("forgotPasswordBtn");
 
   if (forgotBtn) {
-    forgotBtn.onclick = async () => {
+    document.addEventListener("click", async (e) => {
+      if (e.target.id === "forgotPasswordBtn") {
       const email = authEmail?.value.trim();
 
       if (!email) {
