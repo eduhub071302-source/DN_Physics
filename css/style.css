@@ -1410,8 +1410,8 @@ main {
   position: absolute;
   inset: 0;
   background: rgba(8, 16, 28, 0.75);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+
+  pointer-events: none; /* 🔥 ADD THIS */
 }
 
 /* Highlight box */
