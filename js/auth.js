@@ -20,17 +20,16 @@ function showAuthError(message, isSuccess = false) {
     errorBox = document.createElement("div");
     errorBox.id = "authErrorBox";
 
-    const passwordWrap = document.querySelector("#authModal .auth-password-wrap");
-    if (passwordWrap && passwordWrap.parentNode === authBox) {
-      authBox.insertBefore(errorBox, passwordWrap.nextSibling);
+    const submitBtn = document.getElementById("authSubmitBtn");
+    if (submitBtn && submitBtn.parentNode === authBox) {
+      authBox.insertBefore(errorBox, submitBtn);
     } else {
       authBox.appendChild(errorBox);
     }
   }
 
   errorBox.style.cssText = `
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin: 10px 0 12px;
     padding: 10px 12px;
     border-radius: 10px;
     background: ${isSuccess ? "rgba(34,197,94,0.12)" : "rgba(255,0,0,0.10)"};
@@ -55,14 +54,6 @@ function isOfflineError(error) {
 
 function getOfflineMessage(actionText = "continue") {
   return `No internet connection. Please reconnect and try again to ${actionText}.`;
-}
-
-function redirectIfOffline() {
-  if (!navigator.onLine) {
-    window.location.href = "/DN_Physics/offline.html";
-    return true;
-  }
-  return false;
 }
 
 // ----------------------------
@@ -120,16 +111,22 @@ function clearProfileCache() {
 // ----------------------------
 
 async function logout() {
-  if (redirectIfOffline()) return;
+  if (!navigator.onLine) {
+    window.location.href = "/DN_Physics/offline.html";
+    return;
+  }
 
   try {
     await supabaseClient.auth.signOut();
   } catch (error) {
     console.error("Logout error:", error);
 
-    if (redirectIfOffline()) return;
+    if (!navigator.onLine) {
+      window.location.href = "/DN_Physics/offline.html";
+      return;
+    }
 
-    showAuthError("Unable to log out right now.");
+    showAuthError("Unable to log out right now. Please try again.");
     return;
   }
 
@@ -242,6 +239,28 @@ function updateAccountButton() {
   }
 }
 
+function setEyeState(input, button, icon, show) {
+  if (!input || !button || !icon) return;
+
+  input.type = show ? "text" : "password";
+  button.setAttribute("aria-label", show ? "Hide password" : "Show password");
+
+  if (show) {
+    icon.innerHTML = `
+      <path d="M2 2L22 22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M10.58 10.58A2 2 0 0 0 13.42 13.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M9.88 5.09A10.94 10.94 0 0 1 12 4.9C19 4.9 23 12 23 12C22.39 13.43 21.55 14.72 20.53 15.85" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M6.71 6.72C4.42 8.18 2.74 10.35 1 12C1 12 5 19.1 12 19.1C13.8 19.1 15.46 18.63 16.94 17.82" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    `;
+  } else {
+    icon.innerHTML = `
+      <path d="M1 12C1 12 5 5 12 5C19 5 23 12 23 12C23 12 19 19 12 19C5 19 1 12 1 12Z"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+    `;
+  }
+}
+
 // ----------------------------
 // MAIN
 // ----------------------------
@@ -251,28 +270,33 @@ document.addEventListener("DOMContentLoaded", () => {
   const authCloseBtn = document.getElementById("authCloseBtn");
   const authEmail = document.getElementById("authEmail");
   const authPassword = document.getElementById("authPassword");
+  const authConfirmPassword = document.getElementById("authConfirmPassword");
+  const authConfirmRow = document.getElementById("authConfirmRow");
   const authTitle = document.getElementById("authTitle");
   const authToggleText = document.getElementById("authToggleText");
   const togglePasswordBtn = document.getElementById("togglePasswordBtn");
   const eyeIcon = document.getElementById("eyeIcon");
+  const toggleConfirmPasswordBtn = document.getElementById("toggleConfirmPasswordBtn");
+  const confirmEyeIcon = document.getElementById("confirmEyeIcon");
   const forgotBtn = document.getElementById("forgotPasswordBtn");
 
   let isLoginMode = true;
 
   function renderAuthMode() {
-
-    const confirmInput = document.getElementById("authConfirmPassword");
-
-    if (confirmInput) {
-      confirmInput.classList.toggle("is-hidden", isLoginMode);
-    } 
-
     if (authTitle) {
       authTitle.textContent = isLoginMode ? "Login" : "Create Account";
     }
 
     if (authSubmitBtn) {
       authSubmitBtn.textContent = isLoginMode ? "Login" : "Create Account";
+    }
+
+    if (authConfirmRow) {
+      authConfirmRow.classList.toggle("is-hidden", isLoginMode);
+    }
+
+    if (forgotBtn) {
+      forgotBtn.parentElement?.classList.toggle("is-hidden", !isLoginMode);
     }
 
     if (authToggleText) {
@@ -287,40 +311,32 @@ document.addEventListener("DOMContentLoaded", () => {
           clearAuthError();
 
           if (authPassword) authPassword.value = "";
+          if (authConfirmPassword) authConfirmPassword.value = "";
+
           renderAuthMode();
         };
       }
     }
   }
 
-  // 👁 Password eye toggle
   if (togglePasswordBtn && authPassword && eyeIcon) {
     togglePasswordBtn.onclick = () => {
       const show = authPassword.type === "password";
-      authPassword.type = show ? "text" : "password";
-      togglePasswordBtn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+      setEyeState(authPassword, togglePasswordBtn, eyeIcon, show);
+    };
+  }
 
-      if (show) {
-        eyeIcon.innerHTML = `
-          <path d="M2 2L22 22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M10.58 10.58A2 2 0 0 0 13.42 13.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="M9.88 5.09A10.94 10.94 0 0 1 12 4.9C19 4.9 23 12 23 12C22.39 13.43 21.55 14.72 20.53 15.85" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M6.71 6.72C4.42 8.18 2.74 10.35 1 12C1 12 5 19.1 12 19.1C13.8 19.1 15.46 18.63 16.94 17.82" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        `;
-      } else {
-        eyeIcon.innerHTML = `
-          <path d="M1 12C1 12 5 5 12 5C19 5 23 12 23 12C23 12 19 19 12 19C5 19 1 12 1 12Z"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-        `;
-      }
+  if (toggleConfirmPasswordBtn && authConfirmPassword && confirmEyeIcon) {
+    toggleConfirmPasswordBtn.onclick = () => {
+      const show = authConfirmPassword.type === "password";
+      setEyeState(authConfirmPassword, toggleConfirmPasswordBtn, confirmEyeIcon, show);
     };
   }
 
   if (authEmail) authEmail.addEventListener("input", clearAuthError);
   if (authPassword) authPassword.addEventListener("input", clearAuthError);
+  if (authConfirmPassword) authConfirmPassword.addEventListener("input", clearAuthError);
 
-  // Open auth modal from account button
   document.addEventListener("click", (e) => {
     const loginButton = e.target.closest("#loginBtn");
     if (!loginButton) return;
@@ -332,26 +348,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (user) {
       const logoutModal = document.getElementById("logoutModal");
-      if (logoutModal) {
-        logoutModal.classList.remove("hidden");
-      }
+      if (logoutModal) logoutModal.classList.remove("hidden");
       return;
     }
 
     clearAuthError();
-
-    function isOfflineError(error) {
-      return !navigator.onLine || error instanceof TypeError;
-    }
-
-    function getOfflineMessage(actionText = "continue") {
-      return `No internet connection. Please reconnect and try again to ${actionText}.`;
-    }
-
     openAuthModal();
   });
 
-  // Logout modal buttons
   const confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
   const cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
 
@@ -362,9 +366,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (confirmLogoutBtn) {
-    confirmLogoutBtn.onclick = () => {
-      logout();
-    };
+    confirmLogoutBtn.onclick = () => logout();
   }
 
   if (authCloseBtn) {
@@ -378,8 +380,7 @@ document.addEventListener("DOMContentLoaded", () => {
     authSubmitBtn.onclick = async () => {
       const email = authEmail?.value.trim().toLowerCase() || "";
       const password = authPassword?.value.trim() || "";
-
-      const confirmPassword = document.getElementById("authConfirmPassword")?.value.trim() || "";
+      const confirmPassword = authConfirmPassword?.value.trim() || "";
 
       clearAuthError();
 
@@ -398,13 +399,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       try {
-        // ----------------------------
-        // LOGIN
-        // ----------------------------
         if (isLoginMode) {
-         if (redirectIfOffline()) return;
           if (!navigator.onLine) {
-            return showAuthError(getOfflineMessage("log in"));
+            return window.location.href = "/DN_Physics/offline.html";
           }
 
           const { data, error } = await supabaseClient.auth.signInWithPassword({
@@ -427,38 +424,42 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
-        if (redirectIfOffline()) return;
-
-        // ----------------------------
-        // REGISTER (BACKEND)
-        // ----------------------------
         if (!navigator.onLine) {
-          return showAuthError(getOfflineMessage("create an account"));
+          return window.location.href = "/DN_Physics/offline.html";
         }
 
-        const res = await fetch(
-          DN_CONFIG.BACKEND.API_BASE_URL + DN_CONFIG.BACKEND.AUTH_REGISTER_URL,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ email, password })
-          }
-        );
-
+        let res;
         let result = {};
+
         try {
-          result = await res.json();
-        } catch {
-          result = {};
+          res = await fetch(
+            DN_CONFIG.BACKEND.API_BASE_URL + DN_CONFIG.BACKEND.AUTH_REGISTER_URL,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({ email, password })
+            }
+          );
+
+          result = await res.json().catch(() => ({}));
+
+        } catch (err) {
+          console.error("Fetch failed:", err);
+
+          if (!navigator.onLine) {
+            return showAuthError("No internet connection. Please reconnect and try again.");
+          }
+
+          return showAuthError("Unable to reach server. Please try again.");
         }
 
-        if (!res.ok || !result.ok) {
+        if (!res || !res.ok || !result.ok) {
           const serverCode = result?.code || "";
           const serverMessage = result?.message || "";
 
-          if (serverCode === "ACCOUNT_EXISTS" || res.status === 409) {
+          if (serverCode === "ACCOUNT_EXISTS" || res?.status === 409) {
             return showAuthError("An account with this email already exists. Please login.");
           }
 
@@ -473,33 +474,30 @@ document.addEventListener("DOMContentLoaded", () => {
           if (serverMessage.toLowerCase().includes("already")) {
             return showAuthError("An account with this email already exists. Please login.");
           }
-  
-          return showAuthError(serverMessage || "Unable to create account right now. Please try again.");
+
+          return showAuthError(serverMessage || "Unable to create account right now.");
         }
 
         showAuthError("✅ Account created successfully. Please login.", true);
 
         if (authPassword) authPassword.value = "";
-
-        const confirmInput = document.getElementById("authConfirmPassword");
-        if (confirmInput) confirmInput.value = "";
+        if (authConfirmPassword) authConfirmPassword.value = "";
         isLoginMode = true;
         renderAuthMode();
       } catch (e) {
         console.error("Auth submit error:", e);
 
         if (isOfflineError(e)) {
-          return showAuthError(getOfflineMessage(isLoginMode ? "log in" : "create an account"));
+          window.location.href = "/DN_Physics/offline.html";
+          return;
         }
-  
+
         showAuthError("Something went wrong. Please try again.");
       }
     };
   }
 
-  // Forgot password
   if (forgotBtn) {
-   if (redirectIfOffline()) return; 
     forgotBtn.onclick = async () => {
       const email = authEmail?.value.trim().toLowerCase();
 
@@ -512,7 +510,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (!navigator.onLine) {
-        return showAuthError(getOfflineMessage("reset your password"));
+        window.location.href = "/DN_Physics/offline.html";
+        return;
       }
 
       const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
@@ -530,7 +529,6 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  // Auth state sync
   supabaseClient.auth.onAuthStateChange((event, session) => {
     if (session?.user) {
       setUser(session.user);
@@ -549,7 +547,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateAccountButton();
   });
 
-  // Email verification redirect handler
   (async () => {
     const hash = window.location.hash;
 
@@ -564,12 +561,7 @@ document.addEventListener("DOMContentLoaded", () => {
           setSessionToken(data.session.access_token || "");
           await ensureProfile(data.session.user);
 
-          alert("✅ Email verified successfully!");
-
           window.history.replaceState({}, document.title, window.location.pathname);
-          location.reload();
-        } else {
-          alert("Email verified. Please login now.");
         }
       } catch (e) {
         console.error("Verification error:", e);
