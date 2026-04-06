@@ -230,8 +230,11 @@
         statusEl.textContent = "Internet is back. You can refresh now ✅";
         statusEl.classList.add("online");
 
-        offlineIcon?.classList.add("online-ready");
-        offlineBadge?.classList.add("online-ready");
+        if (offlineIcon) offlineIcon.classList.add("online-ready");
+        if (offlineBadge) {
+          offlineBadge.classList.add("online-ready");
+          offlineBadge.textContent = "Online Mode";
+        }
 
         if (offlineSpinner) offlineSpinner.classList.add("is-hidden");
         if (offlineCheck) offlineCheck.classList.remove("is-hidden");
@@ -247,8 +250,11 @@
         statusEl.textContent = "No internet connection. Reconnecting…";
         statusEl.classList.remove("online");
 
-        offlineIcon?.classList.remove("online-ready");
-        offlineBadge?.classList.remove("online-ready");
+        if (offlineIcon) offlineIcon.classList.remove("online-ready");
+        if (offlineBadge) {
+          offlineBadge.classList.remove("online-ready");
+          offlineBadge.textContent = "Offline Mode";
+        }
 
         if (offlineSpinner) offlineSpinner.classList.remove("is-hidden");
         if (offlineCheck) offlineCheck.classList.add("is-hidden");
@@ -266,6 +272,6 @@
     window.addEventListener("online", updateStatus);
     window.addEventListener("offline", updateStatus);
     updateStatus();
-</script>
+  </script>
 </body>
 </html>
