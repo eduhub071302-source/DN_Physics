@@ -388,19 +388,30 @@ document.addEventListener("DOMContentLoaded", () => {
         const result = await res.json();
 
         if (!res.ok || !result.ok) {
-          if (result.code === "ACCOUNT_EXISTS") {
+          const serverCode = result?.code || "";
+          const serverMessage = result?.message || "";
+
+          if (serverCode === "ACCOUNT_EXISTS") {
             return showAuthError("An account with this email already exists. Please login.");
           }
 
-          if (result.code === "WEAK_PASSWORD") {
+          if (serverCode === "WEAK_PASSWORD") {
             return showAuthError("Password must be at least 6 characters.");
           }
 
-          if (result.code === "INVALID_EMAIL") {
+          if (serverCode === "INVALID_EMAIL") {
             return showAuthError("Enter a valid email address.");
           }
 
-          return showAuthError(result.message || "Unable to create account.");
+          if (res.status === 409) {
+            return showAuthError("An account with this email already exists. Please login.");
+          }
+
+          if (serverMessage.toLowerCase().includes("already")) {
+            return showAuthError("An account with this email already exists. Please login.");
+          }
+
+          return showAuthError(serverMessage || "Unable to create account right now. Please try again.");
         }
 
         showAuthError("✅ Account created. Please login.", true);
@@ -410,7 +421,7 @@ document.addEventListener("DOMContentLoaded", () => {
         renderAuthMode();
       } catch (e) {
         console.error("Auth submit error:", e);
-        showAuthError("Something went wrong.");
+        showAuthError("Unable to connect right now. Please check your internet and try again.");
       }
     };
   }
@@ -436,7 +447,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return showAuthError("Unable to send reset email. Try again later.");
       }
 
-      showAuthError("📩 If an account exists, a reset link has been sent.", true);
+      showAuthError(`📩 If an account exists, a password reset link has been sent to ${email}. Please check your inbox.`, true);
     };
   }
 
