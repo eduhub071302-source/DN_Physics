@@ -457,9 +457,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!res || !res.ok || !result.ok) {
           const serverCode = result?.code || "";
-          const serverMessage = result?.message || "";
+          const serverMessage = String(result?.message || "").toLowerCase();
 
-          if (serverCode === "ACCOUNT_EXISTS" || res?.status === 409) {
+          if (
+            serverCode === "ACCOUNT_EXISTS" ||
+            res?.status === 409 ||
+            serverMessage.includes("already") ||
+            serverMessage.includes("registered") ||
+            serverMessage.includes("exists")
+          ) {
             return showAuthError("An account with this email already exists. Please login.");
           }
 
@@ -471,11 +477,11 @@ document.addEventListener("DOMContentLoaded", () => {
             return showAuthError("Enter a valid email address.");
           }
 
-          if (serverMessage.toLowerCase().includes("already")) {
-            return showAuthError("An account with this email already exists. Please login.");
+          if (serverCode === "MISSING_FIELDS") {
+            return showAuthError("Email and password are required.");
           }
 
-          return showAuthError(serverMessage || "Unable to create account right now.");
+          return showAuthError("Server error. Please try again.");
         }
 
         showAuthError("✅ Account created successfully. Please login.", true);

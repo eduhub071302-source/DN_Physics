@@ -73,6 +73,24 @@
       animation: spin 0.9s linear infinite;
     }
 
+    .offline-check {
+      font-size: 2rem;
+      color: #86efac;
+      line-height: 1;
+    }
+
+    .offline-icon.online-ready {
+      background: rgba(34, 197, 94, 0.12);
+      color: #86efac;
+      box-shadow: 0 10px 30px rgba(34, 197, 94, 0.18);
+    }
+
+    .offline-badge.online-ready {
+      background: rgba(34, 197, 94, 0.12);
+      border-color: rgba(34, 197, 94, 0.24);
+      color: #86efac;
+    }
+
     .offline-badge {
       display: inline-flex;
       align-items: center;
@@ -160,18 +178,20 @@
   <div class="offline-page">
     <div class="offline-card">
       <div class="offline-card-inner">
-        <div class="offline-icon offline-icon-live">
-          <div class="offline-spinner"></div>
+        <div id="offlineIcon" class="offline-icon offline-icon-live">
+          <div id="offlineSpinner" class="offline-spinner"></div>
+          <div id="offlineCheck" class="offline-check is-hidden">✅</div>
         </div>
-        <div class="offline-badge">Offline Mode</div>
 
-        <h1 class="offline-title">No internet connection</h1>
+        <div id="offlineBadge" class="offline-badge">Offline Mode</div>
 
-        <p class="offline-text">
+        <h1 id="offlineTitle" class="offline-title">No internet connection</h1>
+
+        <p id="offlineText1" class="offline-text">
           Your device is currently offline, so new content cannot be loaded right now.
         </p>
 
-        <p class="offline-text">
+        <p id="offlineText2" class="offline-text">
           Previously opened notes and PDFs may still work offline until your connection returns.
         </p>
 
@@ -195,6 +215,13 @@
 
   <script>
     const statusEl = document.getElementById("offlineStatus");
+    const offlineIcon = document.getElementById("offlineIcon");
+    const offlineSpinner = document.getElementById("offlineSpinner");
+    const offlineCheck = document.getElementById("offlineCheck");
+    const offlineBadge = document.getElementById("offlineBadge");
+    const offlineTitle = document.getElementById("offlineTitle");
+    const offlineText1 = document.getElementById("offlineText1");
+    const offlineText2 = document.getElementById("offlineText2");
 
     function updateStatus() {
       if (!statusEl) return;
@@ -202,15 +229,43 @@
       if (navigator.onLine) {
         statusEl.textContent = "Internet is back. You can refresh now ✅";
         statusEl.classList.add("online");
+
+        offlineIcon?.classList.add("online-ready");
+        offlineBadge?.classList.add("online-ready");
+
+        if (offlineSpinner) offlineSpinner.classList.add("is-hidden");
+        if (offlineCheck) offlineCheck.classList.remove("is-hidden");
+
+        if (offlineTitle) offlineTitle.textContent = "Connection restored";
+        if (offlineText1) {
+          offlineText1.textContent = "Your device is back online and the app can load new content again.";
+        }
+        if (offlineText2) {
+          offlineText2.textContent = "You can refresh now or go back to continue using DN Physics.";
+        }
       } else {
         statusEl.textContent = "No internet connection. Reconnecting…";
         statusEl.classList.remove("online");
+
+        offlineIcon?.classList.remove("online-ready");
+        offlineBadge?.classList.remove("online-ready");
+
+        if (offlineSpinner) offlineSpinner.classList.remove("is-hidden");
+        if (offlineCheck) offlineCheck.classList.add("is-hidden");
+
+        if (offlineTitle) offlineTitle.textContent = "No internet connection";
+        if (offlineText1) {
+          offlineText1.textContent = "Your device is currently offline, so new content cannot be loaded right now.";
+        }
+        if (offlineText2) {
+          offlineText2.textContent = "Previously opened notes and PDFs may still work offline until your connection returns.";
+        }
       }
     }
 
     window.addEventListener("online", updateStatus);
     window.addEventListener("offline", updateStatus);
     updateStatus();
-  </script>
+</script>
 </body>
 </html>
