@@ -1394,6 +1394,10 @@ main {
   position: fixed;
   inset: 0;
   z-index: 5000;
+  pointer-events: none;
+}
+
+.onboarding-card {
   pointer-events: auto;
 }
 
