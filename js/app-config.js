@@ -35,7 +35,7 @@ const DN_CONFIG = {
   },
 
   BACKEND: {
-    API_BASE_URL: "",
+    API_BASE_URL: "https://aqhktwashmnqkgvmauxv.supabase.co/functions/v1/me",
 
     CREATE_ORDER_URL: "/api/payments/create-order",
     NOTIFY_URL: "/api/payments/notify",
@@ -45,7 +45,7 @@ const DN_CONFIG = {
     AUTH_REGISTER_URL: "/api/auth/register",
     AUTH_LOGIN_URL: "/api/auth/login",
     AUTH_LOGOUT_URL: "/api/auth/logout",
-    AUTH_ME_URL: "/api/auth/me",
+    AUTH_ME_URL: "/me",
     AUTH_FORGOT_PASSWORD_URL: "/api/auth/forgot-password",
     AUTH_RESET_PASSWORD_URL: "/api/auth/reset-password",
     PROFILE_ME_URL: "/api/profile/me",

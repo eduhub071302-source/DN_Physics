@@ -37,6 +37,8 @@ function isOwnerMode() {
 
 function hasPaidAccess() {
   if (isOwnerMode()) return true;
+
+  // fallback to cache (after server sync)
   return dnStorageGet(getPaidUnlockKey()) === "true";
 }
 
@@ -114,33 +116,55 @@ function clearPendingOrderId() {
 }
 
 // ----------------------------
+// 🔥 GET USER STATE FROM SERVER (/me)
+// ----------------------------
+
+async function fetchUserStateFromServer() {
+  try {
+    const session = await supabaseClient.auth.getSession();
+    const token = session?.data?.session?.access_token;
+
+    if (!token) return null;
+
+    const res = await fetch(
+      DN_CONFIG.BACKEND.API_BASE_URL + DN_CONFIG.BACKEND.AUTH_ME_URL,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    if (!res.ok) return null;
+
+    const data = await res.json();
+
+    return data;
+
+  } catch (e) {
+    console.log("User state fetch failed:", e);
+    return null;
+  }
+}
+
+// ----------------------------
 // Server Sync (IMPORTANT)
 // ----------------------------
 
 async function syncUnlockWithServer() {
   try {
-    const token = localStorage.getItem(DN_CONFIG.STORAGE_KEYS.USER_SESSION_TOKEN);
-    if (!token) return;
+    const data = await fetchUserStateFromServer();
 
-    if (!DN_CONFIG.BACKEND.API_BASE_URL || !DN_CONFIG.BACKEND.VERIFY_UNLOCK_URL) return;
-
-    const res = await fetch(
-      DN_CONFIG.BACKEND.API_BASE_URL + DN_CONFIG.BACKEND.VERIFY_UNLOCK_URL,
-      {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` }
-      }
-    );
-
-    if (!res.ok) return;
-
-    const data = await res.json();
+    if (!data || !data.ok) return;
 
     if (data.paid === true) {
       activatePaidAccess({
-        source: "server-sync",
-        orderId: data.order_id || ""
+        source: "server",
+        orderId: data.entitlement?.order_id || ""
       });
+    } else {
+      clearPaidAccess();
     }
 
   } catch (e) {
@@ -297,9 +321,9 @@ function lockAlert() {
 // INIT
 // ----------------------------
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   try {
-    syncUnlockWithServer();
+    await syncUnlockWithServer();
   } catch {}
 
   // background sync every 60s
