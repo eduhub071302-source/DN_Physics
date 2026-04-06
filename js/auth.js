@@ -49,6 +49,14 @@ function clearAuthError() {
   if (errorBox) errorBox.remove();
 }
 
+function isOfflineError(error) {
+  return !navigator.onLine || error instanceof TypeError;
+}
+
+function getOfflineMessage(actionText = "continue") {
+  return `No internet connection. Please reconnect and try again to ${actionText}.`;
+}
+
 // ----------------------------
 // STORAGE HELPERS
 // ----------------------------
@@ -351,6 +359,10 @@ document.addEventListener("DOMContentLoaded", () => {
         // LOGIN
         // ----------------------------
         if (isLoginMode) {
+          if (!navigator.onLine) {
+            return showAuthError(getOfflineMessage("log in"));
+          }
+
           const { data, error } = await supabaseClient.auth.signInWithPassword({
             email,
             password
@@ -374,6 +386,10 @@ document.addEventListener("DOMContentLoaded", () => {
         // ----------------------------
         // REGISTER (BACKEND)
         // ----------------------------
+        if (!navigator.onLine) {
+          return showAuthError(getOfflineMessage("create an account"));
+        }
+
         const res = await fetch(
           DN_CONFIG.BACKEND.API_BASE_URL + DN_CONFIG.BACKEND.AUTH_REGISTER_URL,
           {
@@ -385,13 +401,18 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         );
 
-        const result = await res.json();
+        let result = {};
+        try {
+          result = await res.json();
+        } catch {
+          result = {};
+        }
 
         if (!res.ok || !result.ok) {
           const serverCode = result?.code || "";
           const serverMessage = result?.message || "";
 
-          if (serverCode === "ACCOUNT_EXISTS") {
+          if (serverCode === "ACCOUNT_EXISTS" || res.status === 409) {
             return showAuthError("An account with this email already exists. Please login.");
           }
 
@@ -402,11 +423,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (serverCode === "INVALID_EMAIL") {
             return showAuthError("Enter a valid email address.");
           }
-
-          if (res.status === 409) {
-            return showAuthError("An account with this email already exists. Please login.");
-          }
-
+ 
           if (serverMessage.toLowerCase().includes("already")) {
             return showAuthError("An account with this email already exists. Please login.");
           }
@@ -414,14 +431,19 @@ document.addEventListener("DOMContentLoaded", () => {
           return showAuthError(serverMessage || "Unable to create account right now. Please try again.");
         }
 
-        showAuthError("✅ Account created. Please login.", true);
+        showAuthError("✅ Account created successfully. Please login.", true);
 
         if (authPassword) authPassword.value = "";
         isLoginMode = true;
         renderAuthMode();
       } catch (e) {
         console.error("Auth submit error:", e);
-        showAuthError("Unable to connect right now. Please check your internet and try again.");
+
+        if (isOfflineError(e)) {
+          return showAuthError(getOfflineMessage(isLoginMode ? "log in" : "create an account"));
+        }
+  
+        showAuthError("Something went wrong. Please try again.");
       }
     };
   }
@@ -439,15 +461,22 @@ document.addEventListener("DOMContentLoaded", () => {
         return showAuthError("Enter a valid email address.");
       }
 
+      if (!navigator.onLine) {
+        return showAuthError(getOfflineMessage("reset your password"));
+      }
+
       const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
         redirectTo: window.location.origin + "/DN_Physics/reset-password.html"
       });
 
       if (error) {
-        return showAuthError("Unable to send reset email. Try again later.");
+        return showAuthError("Unable to send reset email. Please try again.");
       }
 
-      showAuthError(`📩 If an account exists, a password reset link has been sent to ${email}. Please check your inbox.`, true);
+      showAuthError(
+        `📩 If an account exists, a password reset link has been sent to ${email}. Please check your inbox.`,
+        true
+      );
     };
   }
 

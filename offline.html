@@ -58,6 +58,21 @@
       box-shadow: 0 10px 30px rgba(78, 161, 255, 0.28);
     }
 
+    .offline-icon-live {
+      position: relative;
+      background: rgba(78, 161, 255, 0.08);
+      color: var(--accent-2);
+    }
+
+    .offline-spinner {
+      width: 34px;
+      height: 34px;
+      border: 4px solid rgba(255, 255, 255, 0.14);
+      border-top-color: var(--accent-2);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
     .offline-badge {
       display: inline-flex;
       align-items: center;
@@ -145,17 +160,19 @@
   <div class="offline-page">
     <div class="offline-card">
       <div class="offline-card-inner">
-        <div class="offline-icon">📡</div>
+        <div class="offline-icon offline-icon-live">
+          <div class="offline-spinner"></div>
+        </div>
         <div class="offline-badge">Offline Mode</div>
 
-        <h1 class="offline-title">You are offline</h1>
+        <h1 class="offline-title">No internet connection</h1>
 
         <p class="offline-text">
-          New content cannot be loaded right now.
+          Your device is currently offline, so new content cannot be loaded right now.
         </p>
 
         <p class="offline-text">
-          Previously opened notes and PDFs may still work offline.
+          Previously opened notes and PDFs may still work offline until your connection returns.
         </p>
 
         <div class="offline-tip">
@@ -186,7 +203,7 @@
         statusEl.textContent = "Internet is back. You can refresh now ✅";
         statusEl.classList.add("online");
       } else {
-        statusEl.textContent = "Waiting for connection…";
+        statusEl.textContent = "No internet connection. Reconnecting…";
         statusEl.classList.remove("online");
       }
     }
