@@ -260,6 +260,13 @@ document.addEventListener("DOMContentLoaded", () => {
   let isLoginMode = true;
 
   function renderAuthMode() {
+
+    const confirmInput = document.getElementById("authConfirmPassword");
+
+    if (confirmInput) {
+      confirmInput.classList.toggle("is-hidden", isLoginMode);
+    } 
+
     if (authTitle) {
       authTitle.textContent = isLoginMode ? "Login" : "Create Account";
     }
@@ -332,6 +339,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     clearAuthError();
+
+    function isOfflineError(error) {
+      return !navigator.onLine || error instanceof TypeError;
+    }
+
+    function getOfflineMessage(actionText = "continue") {
+      return `No internet connection. Please reconnect and try again to ${actionText}.`;
+    }
+
     openAuthModal();
   });
 
@@ -363,10 +379,22 @@ document.addEventListener("DOMContentLoaded", () => {
       const email = authEmail?.value.trim().toLowerCase() || "";
       const password = authPassword?.value.trim() || "";
 
+      const confirmPassword = document.getElementById("authConfirmPassword")?.value.trim() || "";
+
       clearAuthError();
 
       if (!email || !password) {
         return showAuthError("Please enter your email and password.");
+      }
+
+      if (!isLoginMode) {
+        if (!confirmPassword) {
+          return showAuthError("Please confirm your password.");
+        }
+
+        if (password !== confirmPassword) {
+          return showAuthError("Passwords do not match.");
+        }
       }
 
       try {
@@ -441,17 +469,20 @@ document.addEventListener("DOMContentLoaded", () => {
           if (serverCode === "INVALID_EMAIL") {
             return showAuthError("Enter a valid email address.");
           }
- 
+
           if (serverMessage.toLowerCase().includes("already")) {
             return showAuthError("An account with this email already exists. Please login.");
           }
-
+  
           return showAuthError(serverMessage || "Unable to create account right now. Please try again.");
         }
 
         showAuthError("✅ Account created successfully. Please login.", true);
 
         if (authPassword) authPassword.value = "";
+
+        const confirmInput = document.getElementById("authConfirmPassword");
+        if (confirmInput) confirmInput.value = "";
         isLoginMode = true;
         renderAuthMode();
       } catch (e) {

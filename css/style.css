@@ -1757,3 +1757,11 @@ main {
 .auth-forgot span:hover {
   text-decoration: underline;
 }
+
+.auth-confirm {
+  margin-top: 8px;
+}
+
+.is-hidden {
+  display: none !important;
+}
