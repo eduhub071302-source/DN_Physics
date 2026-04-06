@@ -337,7 +337,18 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }  
 
-        // SIGNUP ONLY
+        // 🔍 CHECK IF ACCOUNT EXISTS FIRST
+        const { data: existingUsers, error: checkError } = await supabaseClient
+          .from("profiles")
+          .select("email")
+          .eq("email", email)
+          .limit(1);
+
+        if (existingUsers && existingUsers.length > 0) {
+          return showAuthError("An account with this email already exists. Please login.");
+        }
+
+        // 🔐 PROCEED WITH SIGNUP
         const { data, error } = await supabaseClient.auth.signUp({
           email,
           password
@@ -348,21 +359,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
           if (
             msg.includes("already registered") ||
-            msg.includes("already been registered") ||
-            msg.includes("already exists")
+            msg.includes("already exists") ||
+            msg.includes("duplicate") ||
+            msg.includes("unique")
           ) {
             return showAuthError("An account with this email already exists. Please login.");
           }
 
           if (msg.includes("rate limit")) {
-            return showAuthError("An account with this email may already exist. Please try logging in.");
+            return showAuthError("Too many attempts. Please try again later.");
           }
 
           if (msg.includes("password")) {
             return showAuthError("Password is too weak. Use a stronger password.");
-          }  
+          }
 
-          return showAuthError(error.message || "Unable to create account right now.");
+          return showAuthError("Unable to create account right now.");
         }
 
         if (data?.user) {
