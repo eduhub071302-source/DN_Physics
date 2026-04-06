@@ -57,6 +57,14 @@ function getOfflineMessage(actionText = "continue") {
   return `No internet connection. Please reconnect and try again to ${actionText}.`;
 }
 
+function redirectIfOffline() {
+  if (!navigator.onLine) {
+    window.location.href = "/DN_Physics/offline.html";
+    return true;
+  }
+  return false;
+}
+
 // ----------------------------
 // STORAGE HELPERS
 // ----------------------------
@@ -112,10 +120,17 @@ function clearProfileCache() {
 // ----------------------------
 
 async function logout() {
+  if (redirectIfOffline()) return;
+
   try {
     await supabaseClient.auth.signOut();
   } catch (error) {
     console.error("Logout error:", error);
+
+    if (redirectIfOffline()) return;
+
+    showAuthError("Unable to log out right now.");
+    return;
   }
 
   clearUser();
@@ -359,6 +374,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // LOGIN
         // ----------------------------
         if (isLoginMode) {
+         if (redirectIfOffline()) return;
           if (!navigator.onLine) {
             return showAuthError(getOfflineMessage("log in"));
           }
@@ -382,6 +398,8 @@ document.addEventListener("DOMContentLoaded", () => {
           location.reload();
           return;
         }
+
+        if (redirectIfOffline()) return;
 
         // ----------------------------
         // REGISTER (BACKEND)
@@ -450,6 +468,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Forgot password
   if (forgotBtn) {
+   if (redirectIfOffline()) return; 
     forgotBtn.onclick = async () => {
       const email = authEmail?.value.trim().toLowerCase();
 
