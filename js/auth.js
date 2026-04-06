@@ -337,16 +337,38 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }  
 
-        // 🔍 CHECK IF ACCOUNT EXISTS FIRST
-        const { data: existingUsers, error: checkError } = await supabaseClient
-          .from("profiles")
-          .select("email")
-          .eq("email", email)
-          .limit(1);
+        // 🔐 TRY LOGIN FIRST (detect existing account)
+        const { data: loginTest } = await supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        });
 
-        if (existingUsers && existingUsers.length > 0) {
-          return showAuthError("An account with this email already exists. Please login.");
+        // If login works → account already exists
+        if (loginTest?.user) {
+          return showAuthError("Account already exists. Please login.");
         }
+
+        // If login fails → proceed signup
+        const { data, error } = await supabaseClient.auth.signUp({
+          email,
+          password
+        });
+
+        if (error) {
+          const msg = (error.message || "").toLowerCase();
+
+          if (msg.includes("already") || msg.includes("registered")) {
+            return showAuthError("Account already exists. Please login.");
+          }
+
+          if (msg.includes("rate limit")) {
+            return showAuthError("Too many attempts. Please try again later.");
+          }
+
+          return showAuthError("Unable to create account.");
+        }
+
+        showAuthError("✅ Account created successfully. Please login.", true);
 
         // 🔐 PROCEED WITH SIGNUP
         const { data, error } = await supabaseClient.auth.signUp({
