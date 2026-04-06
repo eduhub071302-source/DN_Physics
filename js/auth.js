@@ -11,20 +11,26 @@ function closeAuthModal() {
 }
 
 function showAuthError(message, isSuccess = false) {
+  const authBox = document.querySelector("#authModal .auth-box");
+  if (!authBox) return;
+
   let errorBox = document.getElementById("authErrorBox");
 
   if (!errorBox) {
     errorBox = document.createElement("div");
     errorBox.id = "authErrorBox";
 
-    const box = document.querySelector(".auth-box");
-    if (box) {
-      box.insertBefore(errorBox, box.children[2]);
+    const passwordWrap = document.querySelector("#authModal .auth-password-wrap");
+    if (passwordWrap && passwordWrap.parentNode === authBox) {
+      authBox.insertBefore(errorBox, passwordWrap.nextSibling);
+    } else {
+      authBox.appendChild(errorBox);
     }
   }
 
   errorBox.style.cssText = `
     margin-top: 10px;
+    margin-bottom: 10px;
     padding: 10px 12px;
     border-radius: 10px;
     background: ${isSuccess ? "rgba(34,197,94,0.12)" : "rgba(255,0,0,0.10)"};
@@ -40,7 +46,9 @@ function showAuthError(message, isSuccess = false) {
 
 function clearAuthError() {
   const errorBox = document.getElementById("authErrorBox");
-  if (errorBox) errorBox.remove();
+  if (errorBox) {
+    errorBox.remove();
+  }
 }
 
 // ----------------------------
