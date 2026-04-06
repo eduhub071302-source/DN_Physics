@@ -42,7 +42,7 @@ const DN_CONFIG = {
     VERIFY_UNLOCK_URL: "/api/unlock/verify",
     ACTIVATE_UNLOCK_URL: "/api/unlock/activate",
 
-    AUTH_REGISTER_URL: "/api/auth/register",
+    AUTH_REGISTER_URL: "/register",
     AUTH_LOGIN_URL: "/api/auth/login",
     AUTH_LOGOUT_URL: "/api/auth/logout",
     AUTH_ME_URL: "/me",

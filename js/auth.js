@@ -1,4 +1,4 @@
-// 🔐 SUPABASE AUTH SYSTEM — FINAL PREMIUM VERSION
+// 🔐 DN Physics Auth System — Finalized Production Version
 
 function openAuthModal() {
   const modal = document.getElementById("authModal");
@@ -46,13 +46,11 @@ function showAuthError(message, isSuccess = false) {
 
 function clearAuthError() {
   const errorBox = document.getElementById("authErrorBox");
-  if (errorBox) {
-    errorBox.remove();
-  }
+  if (errorBox) errorBox.remove();
 }
 
 // ----------------------------
-// USER
+// STORAGE HELPERS
 // ----------------------------
 
 function setUser(user) {
@@ -72,6 +70,35 @@ function clearUser() {
   localStorage.removeItem("dn_profile");
 }
 
+function setSessionToken(token) {
+  try {
+    localStorage.setItem(DN_CONFIG.STORAGE_KEYS.USER_SESSION_TOKEN, token || "");
+  } catch {}
+}
+
+function clearSessionToken() {
+  try {
+    localStorage.removeItem(DN_CONFIG.STORAGE_KEYS.USER_SESSION_TOKEN);
+  } catch {}
+}
+
+function setProfileCache(profile) {
+  try {
+    localStorage.setItem("dn_profile", JSON.stringify(profile || {}));
+    localStorage.setItem(
+      DN_CONFIG.STORAGE_KEYS.USER_PROFILE,
+      JSON.stringify(profile || {})
+    );
+  } catch {}
+}
+
+function clearProfileCache() {
+  try {
+    localStorage.removeItem("dn_profile");
+    localStorage.removeItem(DN_CONFIG.STORAGE_KEYS.USER_PROFILE);
+  } catch {}
+}
+
 // ----------------------------
 // LOGOUT
 // ----------------------------
@@ -84,6 +111,8 @@ async function logout() {
   }
 
   clearUser();
+  clearSessionToken();
+  clearProfileCache();
 
   if (typeof clearPaidAccess === "function") {
     clearPaidAccess();
@@ -110,7 +139,7 @@ async function loadUserProfile(userId) {
     }
 
     if (data) {
-      localStorage.setItem("dn_profile", JSON.stringify(data));
+      setProfileCache(data);
       return data;
     }
 
@@ -122,20 +151,26 @@ async function loadUserProfile(userId) {
 }
 
 async function ensureProfile(user) {
-  if (!user?.id || !user?.email) return;
+  if (!user?.id || !user?.email) return null;
+
+  const profilePayload = {
+    id: user.id,
+    email: user.email,
+    name: user.email.split("@")[0]
+  };
 
   try {
-    const { error } = await supabaseClient.from("profiles").upsert({
-      id: user.id,
-      email: user.email,
-      name: user.email.split("@")[0]
-    });
+    const { error } = await supabaseClient.from("profiles").upsert(profilePayload);
 
     if (error) {
       console.warn("Profile upsert warning:", error.message);
     }
+
+    setProfileCache(profilePayload);
+    return profilePayload;
   } catch (error) {
     console.warn("Profile upsert failed:", error);
+    return null;
   }
 }
 
@@ -146,16 +181,22 @@ async function ensureProfile(user) {
 async function restoreUserSession() {
   try {
     const { data } = await supabaseClient.auth.getSession();
+    const session = data?.session;
 
-    if (data?.session?.user) {
-      setUser(data.session.user);
-      await loadUserProfile(data.session.user.id);
+    if (session?.user) {
+      setUser(session.user);
+      setSessionToken(session.access_token || "");
+      await loadUserProfile(session.user.id);
     } else {
       clearUser();
+      clearSessionToken();
+      clearProfileCache();
     }
   } catch (error) {
     console.error("Restore session failed:", error);
     clearUser();
+    clearSessionToken();
+    clearProfileCache();
   }
 }
 
@@ -183,7 +224,6 @@ function updateAccountButton() {
 // ----------------------------
 
 document.addEventListener("DOMContentLoaded", () => {
-  const loginBtn = document.getElementById("loginBtn");
   const authSubmitBtn = document.getElementById("authSubmitBtn");
   const authCloseBtn = document.getElementById("authCloseBtn");
   const authEmail = document.getElementById("authEmail");
@@ -192,6 +232,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const authToggleText = document.getElementById("authToggleText");
   const togglePasswordBtn = document.getElementById("togglePasswordBtn");
   const eyeIcon = document.getElementById("eyeIcon");
+  const forgotBtn = document.getElementById("forgotPasswordBtn");
 
   let isLoginMode = true;
 
@@ -214,13 +255,15 @@ document.addEventListener("DOMContentLoaded", () => {
         toggle.onclick = () => {
           isLoginMode = !isLoginMode;
           clearAuthError();
+
+          if (authPassword) authPassword.value = "";
           renderAuthMode();
         };
       }
     }
   }
 
-  // 👁️ Premium eye toggle
+  // 👁 Password eye toggle
   if (togglePasswordBtn && authPassword && eyeIcon) {
     togglePasswordBtn.onclick = () => {
       const show = authPassword.type === "password";
@@ -247,6 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (authEmail) authEmail.addEventListener("input", clearAuthError);
   if (authPassword) authPassword.addEventListener("input", clearAuthError);
 
+  // Open auth modal from account button
   document.addEventListener("click", (e) => {
     const loginButton = e.target.closest("#loginBtn");
     if (!loginButton) return;
@@ -265,14 +309,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     clearAuthError();
-
-    const authModal = document.getElementById("authModal");
-    if (authModal) {
-      authModal.classList.remove("hidden");
-    }
+    openAuthModal();
   });
 
-  // logout modal buttons
+  // Logout modal buttons
   const confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
   const cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
 
@@ -297,27 +337,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (authSubmitBtn) {
     authSubmitBtn.onclick = async () => {
-      const email = authEmail?.value.trim() || "";
+      const email = authEmail?.value.trim().toLowerCase() || "";
       const password = authPassword?.value.trim() || "";
 
       clearAuthError();
 
       if (!email || !password) {
-      return showAuthError("Please enter your email and password.");
+        return showAuthError("Please enter your email and password.");
       }
 
       try {
+        // ----------------------------
+        // LOGIN
+        // ----------------------------
         if (isLoginMode) {
           const { data, error } = await supabaseClient.auth.signInWithPassword({
             email,
             password
           });
 
-          if (error) {
+          if (error || !data?.user) {
             return showAuthError("Incorrect email or password.");
           }
 
           setUser(data.user);
+          setSessionToken(data.session?.access_token || "");
           await ensureProfile(data.user);
           await loadUserProfile(data.user.id);
 
@@ -327,46 +371,54 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
-        const { data, error } = await supabaseClient.auth.signUp({
-          email,
-          password
-        });
+        // ----------------------------
+        // REGISTER (BACKEND)
+        // ----------------------------
+        const res = await fetch(
+          DN_CONFIG.BACKEND.API_BASE_URL + DN_CONFIG.BACKEND.AUTH_REGISTER_URL,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email, password })
+          }
+        );
 
-        if (error) {
-          return showAuthError("Account already exists or invalid.");
+        const result = await res.json();
+
+        if (!res.ok || !result.ok) {
+          if (result.code === "ACCOUNT_EXISTS") {
+            return showAuthError("An account with this email already exists. Please login.");
+          }
+
+          if (result.code === "WEAK_PASSWORD") {
+            return showAuthError("Password must be at least 6 characters.");
+          }
+
+          if (result.code === "INVALID_EMAIL") {
+            return showAuthError("Enter a valid email address.");
+          }
+
+          return showAuthError(result.message || "Unable to create account.");
         }
 
         showAuthError("✅ Account created. Please login.", true);
 
+        if (authPassword) authPassword.value = "";
         isLoginMode = true;
         renderAuthMode();
-
       } catch (e) {
-        console.error(e);
+        console.error("Auth submit error:", e);
         showAuthError("Something went wrong.");
       }
     };
   }
 
-  supabaseClient.auth.onAuthStateChange((event, session) => {
-    if (session?.user) {
-      setUser(session.user);
-    } else {
-      clearUser();
-    }
-    updateAccountButton();
-  });
-
-  renderAuthMode();
-  restoreUserSession().then(() => {
-    updateAccountButton();
-  });
-
-  const forgotBtn = document.getElementById("forgotPasswordBtn");
-
+  // Forgot password
   if (forgotBtn) {
     forgotBtn.onclick = async () => {
-      const email = authEmail?.value.trim();
+      const email = authEmail?.value.trim().toLowerCase();
 
       if (!email) {
         return showAuthError("Enter your email first.");
@@ -388,18 +440,38 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  // 🔥 EMAIL VERIFY HANDLER
+  // Auth state sync
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (session?.user) {
+      setUser(session.user);
+      setSessionToken(session.access_token || "");
+    } else {
+      clearUser();
+      clearSessionToken();
+      clearProfileCache();
+    }
+    updateAccountButton();
+  });
+
+  renderAuthMode();
+
+  restoreUserSession().then(() => {
+    updateAccountButton();
+  });
+
+  // Email verification redirect handler
   (async () => {
     const hash = window.location.hash;
 
     if (hash && hash.includes("access_token")) {
       try {
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise((r) => setTimeout(r, 500));
 
         const { data } = await supabaseClient.auth.getSession();
 
         if (data?.session?.user) {
           setUser(data.session.user);
+          setSessionToken(data.session.access_token || "");
           await ensureProfile(data.session.user);
 
           alert("✅ Email verified successfully!");
@@ -409,7 +481,6 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           alert("Email verified. Please login now.");
         }
-
       } catch (e) {
         console.error("Verification error:", e);
       }
