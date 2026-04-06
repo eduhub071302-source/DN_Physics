@@ -296,49 +296,28 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (authSubmitBtn) {
-    document.addEventListener("click", async (e) => {
-      if (e.target.id === "authSubmitBtn") {
+    authSubmitBtn.onclick = async () => {
       const email = authEmail?.value.trim() || "";
       const password = authPassword?.value.trim() || "";
 
       clearAuthError();
 
       if (!email || !password) {
-        return showAuthError("Please enter your email and password.");
+      return showAuthError("Please enter your email and password.");
       }
 
       try {
         if (isLoginMode) {
-          // LOGIN ONLY
           const { data, error } = await supabaseClient.auth.signInWithPassword({
             email,
             password
           });
 
           if (error) {
-            const msg = (error.message || "").toLowerCase();
-
-            if (msg.includes("invalid login credentials")) {
-              return showAuthError("Incorrect email or password.");
-            }
-
-            if (msg.includes("email not confirmed")) {
-              return showAuthError("Please verify your email before logging in.");
-            }
- 
-            if (msg.includes("rate limit")) {
-              return showAuthError("Too many login attempts. Please try again later.");
-            }
-
-            return showAuthError("Login failed. Please try again.");
-          }
-
-          if (!data?.user) {
-            return showAuthError("Login failed. Please try again.");
+            return showAuthError("Incorrect email or password.");
           }
 
           setUser(data.user);
-
           await ensureProfile(data.user);
           await loadUserProfile(data.user.id);
 
@@ -346,82 +325,25 @@ document.addEventListener("DOMContentLoaded", () => {
           updateAccountButton();
           location.reload();
           return;
-        }  
-
-        // 🔐 TRY LOGIN FIRST (detect existing account)
-        const { data: loginTest } = await supabaseClient.auth.signInWithPassword({
-          email,
-          password
-        });
-
-        // If login works → account already exists
-        if (loginTest?.user) {
-          return showAuthError("Account already exists. Please login.");
         }
 
-        // If login fails → proceed signup
         const { data, error } = await supabaseClient.auth.signUp({
           email,
           password
         });
 
         if (error) {
-          const msg = (error.message || "").toLowerCase();
-
-          if (msg.includes("already") || msg.includes("registered")) {
-            return showAuthError("Account already exists. Please login.");
-          }
-
-          if (msg.includes("rate limit")) {
-            return showAuthError("Too many attempts. Please try again later.");
-          }
-
-          return showAuthError("Unable to create account.");
+          return showAuthError("Account already exists or invalid.");
         }
 
-        showAuthError("✅ Account created successfully. Please login.", true);
+        showAuthError("✅ Account created. Please login.", true);
 
-        // 🔐 PROCEED WITH SIGNUP
-        const { data, error } = await supabaseClient.auth.signUp({
-          email,
-          password
-        });
-
-        if (error) {
-          const msg = (error.message || "").toLowerCase();
-
-          if (
-            msg.includes("already registered") ||
-            msg.includes("already exists") ||
-            msg.includes("duplicate") ||
-            msg.includes("unique")
-          ) {
-            return showAuthError("An account with this email already exists. Please login.");
-          }
-
-          if (msg.includes("rate limit")) {
-            return showAuthError("Too many attempts. Please try again later.");
-          }
-
-          if (msg.includes("password")) {
-            return showAuthError("Password is too weak. Use a stronger password.");
-          }
-
-          return showAuthError("Unable to create account right now.");
-        }
-
-        if (data?.user) {
-          await ensureProfile(data.user);
-        }
-
-        showAuthError("✅ Account created successfully. Please login.", true);
-
-        if (authPassword) authPassword.value = "";
         isLoginMode = true;
         renderAuthMode();
+
       } catch (e) {
-        console.error("Auth error:", e);
-        showAuthError("Something went wrong. Please try again.");
+        console.error(e);
+        showAuthError("Something went wrong.");
       }
     };
   }
