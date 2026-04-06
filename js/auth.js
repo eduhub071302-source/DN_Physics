@@ -248,19 +248,28 @@ document.addEventListener("DOMContentLoaded", () => {
   if (authPassword) authPassword.addEventListener("input", clearAuthError);
 
   document.addEventListener("click", (e) => {
-    const btn = e.target.closest("#loginBtn");
-    if (!btn) return;
+    const loginButton = e.target.closest("#loginBtn");
+    if (!loginButton) return;
+
+    e.preventDefault();
+    e.stopPropagation();
 
     const user = getUser();
 
     if (user) {
       const logoutModal = document.getElementById("logoutModal");
-      if (logoutModal) logoutModal.classList.remove("hidden");
+      if (logoutModal) {
+        logoutModal.classList.remove("hidden");
+      }
       return;
     }
 
     clearAuthError();
-    openAuthModal();
+
+    const authModal = document.getElementById("authModal");
+    if (authModal) {
+      authModal.classList.remove("hidden");
+    }
   });
 
   // logout modal buttons
