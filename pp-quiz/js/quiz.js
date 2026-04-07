@@ -5,6 +5,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const subtopic = params.get("subtopic");
   const setName = params.get("set") || "set-1";
 
+  const isMaths = subject === "maths";
+  const routeSubtopic = isMaths ? "" : (subtopic || "");
+
   const quizTitle = document.getElementById("quizTitle");
   const quizSubtitle = document.getElementById("quizSubtitle");
   const backToSubtopic = document.getElementById("backToSubtopic");
@@ -119,10 +122,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     discardResumeBtn
   ];
 
-  if (!topic || !subtopic) {
+  if (!topic || (!isMaths && !subtopic)) {
     console.error("Missing topic or subtopic in URL.");
     if (quizTitle) quizTitle.textContent = "Quiz Not Found";
-    if (quizSubtitle) quizSubtitle.textContent = "Missing topic or subtopic.";
+    if (quizSubtitle) quizSubtitle.textContent = isMaths ? "Missing topic." : "Missing topic or subtopic.";
     return;
   }
 
@@ -244,8 +247,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const QUIZ_SESSION_KEY = "dnPhysicsQuizSessions";
 
   let pendingServiceWorkerUpdate = false;
-  let isQuizActive = true;
-
   let renderScheduled = false;
   let saveTimeout = null;
 
@@ -395,11 +396,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function getQuizProgressId(subjectSlug, topicSlug, subtopicSlug, currentSetName = "set-1") {
-    return `${subjectSlug}__${topicSlug}__${subtopicSlug}__${currentSetName}`;
+    return `${subjectSlug}__${topicSlug}__${subtopicSlug || ""}__${currentSetName}`;
   }
 
   function getLegacyStorageKey() {
-    return `dn_physics_pp-quiz_${topic}_${subtopic}_${setName}`;
+    return `dn_physics_pp-quiz_${topic}_${routeSubtopic}_${setName}`;
   }
 
   function getDefaultAttemptData() {
@@ -451,13 +452,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function loadAttemptData() {
     const store = getProgressStore();
-    const progressId = getQuizProgressId(subject, topic, subtopic, setName);
+    const progressId = getQuizProgressId(subject, topic, routeSubtopic, setName);
 
     if (store[progressId]) {
       return normalizeAttemptData(store[progressId]);
     }
 
-    if (subject === "physics") {
+    if (subject === "physics" && routeSubtopic) {
       try {
         const legacy = JSON.parse(localStorage.getItem(getLegacyStorageKey()));
         if (legacy) {
@@ -474,14 +475,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function saveAttemptData(data) {
     const store = getProgressStore();
-    const progressId = getQuizProgressId(subject, topic, subtopic, setName);
+    const progressId = getQuizProgressId(subject, topic, routeSubtopic, setName);
     store[progressId] = normalizeAttemptData(data);
     saveProgressStore(store);
   }
 
   function getSavedSession() {
     const store = getSessionStore();
-    const sessionId = getQuizProgressId(subject, topic, subtopic, setName);
+    const sessionId = getQuizProgressId(subject, topic, routeSubtopic, setName);
     return store[sessionId] || null;
   }
 
@@ -489,7 +490,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (reviewMode) return;
 
     const store = getSessionStore();
-    const sessionId = getQuizProgressId(subject, topic, subtopic, setName);
+    const sessionId = getQuizProgressId(subject, topic, routeSubtopic, setName);
 
     store[sessionId] = {
       currentQuestion,
@@ -518,7 +519,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function clearSavedSession() {
     const store = getSessionStore();
-    const sessionId = getQuizProgressId(subject, topic, subtopic, setName);
+    const sessionId = getQuizProgressId(subject, topic, routeSubtopic, setName);
     delete store[sessionId];
     saveSessionStore(store);
   }
@@ -637,7 +638,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   async function loadQuizData() {
-    const jsonPath = `/DN_Physics/pp-quiz/data/${subject}/${topic}/${subtopic}/${setName}.json`;
+    const jsonPath = isMaths
+      ? `/DN_Physics/pp-quiz/data/${subject}/${topic}/${setName}.json`
+      : `/DN_Physics/pp-quiz/data/${subject}/${topic}/${routeSubtopic}/${setName}.json`;
 
     try {
       const response = await fetch(jsonPath);
@@ -652,8 +655,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       quizTimeLimitSeconds = Number(data.quizTimeLimitSeconds) || null;
       questionTimeLimitSeconds = Number(data.questionTimeLimitSeconds) || null;
 
-      quizTitle.textContent = `${makeNiceTitle(subtopic)} - ${data.title || makeNiceTitle(setName)}`;
-      quizSubtitle.textContent = `${makeNiceTitle(subject)} / ${makeNiceTitle(topic)} / ${makeNiceTitle(subtopic)}`;
+      if (isMaths) {
+        quizTitle.textContent = `${makeNiceTitle(topic)} - ${data.title || makeNiceTitle(setName)}`;
+        quizSubtitle.textContent = `${makeNiceTitle(subject)} / ${makeNiceTitle(topic)}`;
+      } else {
+        quizTitle.textContent = `${makeNiceTitle(routeSubtopic)} - ${data.title || makeNiceTitle(setName)}`;
+        quizSubtitle.textContent = `${makeNiceTitle(subject)} / ${makeNiceTitle(topic)} / ${makeNiceTitle(routeSubtopic)}`;
+      }
     } catch (error) {
       console.error(error);
       quizTitle.textContent = "Quiz Not Found";
@@ -664,14 +672,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     return true;
   }
 
-  if (subject === "maths") {
+  if (isMaths) {
     backToSubtopic.href = `/DN_Physics/pp-quiz/topic.html?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topic)}`;
   } else {
-    backToSubtopic.href = `/DN_Physics/pp-quiz/subtopic.html?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topic)}&subtopic=${encodeURIComponent(subtopic)}`;
+    backToSubtopic.href = `/DN_Physics/pp-quiz/subtopic.html?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topic)}&subtopic=${encodeURIComponent(routeSubtopic)}`;
   }
 
   function getImagePath(questionNumber) {
-    return `/DN_Physics/pp-quiz/images/${subject}/${topic}/${subtopic}/q${questionNumber}.jpg`;
+    return isMaths
+      ? `/DN_Physics/pp-quiz/images/${subject}/${topic}/q${questionNumber}.jpg`
+      : `/DN_Physics/pp-quiz/images/${subject}/${topic}/${routeSubtopic}/q${questionNumber}.jpg`;
   }
 
   function getAnsweredCount() {
@@ -868,7 +878,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
       questionImage.src = imgPath;
     }
-    questionImage.alt = `${makeNiceTitle(subtopic)} question ${questionNumber}`;
+
+    const titleForAlt = isMaths ? makeNiceTitle(topic) : makeNiceTitle(routeSubtopic);
+    questionImage.alt = `${titleForAlt} question ${questionNumber}`;
     modalImage.src = questionImage.src;
 
     if (shownIndex < totalCount) {
@@ -993,7 +1005,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     flaggedQuestions = new Set();
     quizElapsedSeconds = 0;
     questionElapsedSeconds = 0;
-    isQuizActive = true;
 
     reviewNote.style.display = "none";
     resultCard.style.display = "none";
@@ -1029,7 +1040,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     reviewMode = false;
     userAnswers = {};
     questionElapsedSeconds = 0;
-    isQuizActive = true;
 
     reviewNote.style.display = "none";
     resultCard.style.display = "none";
@@ -1175,7 +1185,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     reviewMode = true;
     wrongQuestionsGlobal = [...wrongQuestions];
     wrongQuestionPointer = 0;
-    isQuizActive = false;
 
     reviewNote.style.display = "block";
     resultCard.style.display = "block";
@@ -1290,7 +1299,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     reviewMode = false;
     wrongQuestionsGlobal = [];
     wrongQuestionPointer = 0;
-    isQuizActive = true;
 
     reviewNote.style.display = "none";
     resultCard.style.display = "none";
