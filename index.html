@@ -1024,6 +1024,14 @@
       return best ? prettifySubject(best) : null;
     }
 
+    function getRecentPdfs() {
+            try {
+              return JSON.parse(localStorage.getItem("dnPdfRecent")) || [];
+            } catch {
+              return [];
+            }
+          }
+
     function renderDashboard() {
       if (!dashboardGrid) return;
 
@@ -1079,7 +1087,7 @@
         const parsed = parseQuizKey(bestQuiz.key);
         html += createDashCard(
           "🔥 Best Topic",
-          `${prettifySubject(parsed)} · Score: ${bestQuiz.bestPercentage || "0.0"}%`,
+          `${prettifyQuizLabel(parsed)} · Score: ${bestQuiz.bestPercentage || "0.0"}%`,
           "Improve Score",
           buildQuizUrlFromKey(bestQuiz.key)
         );
@@ -1090,7 +1098,7 @@
         const parsed = parseQuizKey(weakQuiz.key);
         html += createDashCard(
           "⚠️ Weak Area",
-          `${prettifySubject(parsed)} · Score: ${weakQuiz.bestPercentage || "0.0"}%`,
+          `${prettifyQuizLabel(parsed)} · Score: ${weakQuiz.bestPercentage || "0.0"}%`,
           "Practice Now",
           buildQuizUrlFromKey(weakQuiz.key)
         );
