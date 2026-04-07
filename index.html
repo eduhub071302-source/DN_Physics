@@ -180,42 +180,6 @@
         </div>
       </div>
     </section>
-
-    <section class="section controls-section">
-      <div class="container">
-        <div class="controls-wrap">
-          <div class="search-box">
-            <input type="email" style="display:none" autocomplete="username">
-            <input type="password" style="display:none" autocomplete="current-password">
-
-            <input
-              type="search"
-              id="subjectSearch"
-              name="search_topics"
-              placeholder="Search topics (e.g. mechanics, waves)..."
-              autocomplete="new-password"
-              autocorrect="off"
-              autocapitalize="off"
-              spellcheck="false"
-              inputmode="search"
-            />
-          </div>
-
-          <div class="filter-box">
-            <select id="categoryFilter" aria-label="Filter by category">
-              <option value="all">All Subjects</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section pinned-section is-hidden" id="pinnedSection">
-      <div class="container">
-        <h2>Pinned Topics</h2>
-        <div class="grid" id="pinnedGrid"></div>
-      </div>
-    </section>
   </main>
 
   <footer class="footer">
@@ -364,6 +328,13 @@
     const pinnedGrid = document.getElementById("pinnedGrid");
     const subjectGrid = document.getElementById("subjectGrid");
     const dashboardGrid = document.getElementById("dashboardGrid");
+
+    const hasNotesUi =
+      !!subjectGrid &&
+      !!categoryFilter &&
+      !!searchInput &&
+      !!pinnedSection &&
+      !!pinnedGrid;
 
     const onboardingOverlay = document.getElementById("onboardingOverlay");
     const onboardingSpotlight = document.getElementById("onboardingSpotlight");
@@ -762,23 +733,25 @@
     }
 
     function renderPinnedSubjects() {
-      const pinned = getPinnedSubjects();
-      pinnedGrid.innerHTML = "";
+            if (!hasNotesUi) return;
 
-      if (pinned.length === 0) {
-        pinnedSection.classList.add("is-hidden");
-        return;
-      }
+            const pinned = getPinnedSubjects();
+            pinnedGrid.innerHTML = "";
 
-      pinned.forEach((name) => {
-        const subject = SUBJECTS[name];
-        if (subject) {
-          pinnedGrid.appendChild(createPinnedCard(subject));
-        }
-      });
+            if (pinned.length === 0) {
+              pinnedSection.classList.add("is-hidden");
+              return;
+            }
 
-      pinnedSection.classList.remove("is-hidden");
-    }
+            pinned.forEach((name) => {
+              const subject = SUBJECTS[name];
+              if (subject) {
+                pinnedGrid.appendChild(createPinnedCard(subject));
+              }
+            });
+
+            pinnedSection.classList.remove("is-hidden");
+          }
 
     function levenshtein(a, b) {
       const matrix = Array.from({ length: b.length + 1 }, () =>
@@ -858,19 +831,21 @@
     }
 
     function rebuildPinsAndFilters() {
-      pinButtons = Array.from(document.querySelectorAll(".pin-btn"));
-      subjectCards = Array.from(document.querySelectorAll(".subject-card"));
+            if (!hasNotesUi) return;
 
-      pinButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          togglePin(button.dataset.subject);
-        });
-      });
+            pinButtons = Array.from(document.querySelectorAll(".pin-btn"));
+            subjectCards = Array.from(document.querySelectorAll(".subject-card"));
 
-      updatePinButtons();
-      renderPinnedSubjects();
-      filterSubjects();
-    }
+            pinButtons.forEach((button) => {
+              button.addEventListener("click", () => {
+                togglePin(button.dataset.subject);
+              });
+            });
+
+            updatePinButtons();
+            renderPinnedSubjects();
+            filterSubjects();
+          }
 
     function createDashCard(title, desc, btnText, link) {
       return `
@@ -1085,94 +1060,106 @@
     }
 
     async function loadSubjectsFromCatalog() {
-      try {
-        const res = await fetch("/DN_Physics/pdfs/catalog.json");
-        if (!res.ok) throw new Error("Failed to load catalog");
+            try {
+              const res = await fetch("/DN_Physics/pdfs/catalog.json");
+              if (!res.ok) throw new Error("Failed to load catalog");
 
-        const items = await res.json();
+              const items = await res.json();
 
-        const lastVersion = localStorage.getItem("dn_catalog_version");
-        const newVersion = JSON.stringify(items).length;
+              const lastVersion = localStorage.getItem("dn_catalog_version");
+              const newVersion = JSON.stringify(items).length;
 
-        if (lastVersion && lastVersion !== String(newVersion)) {
-          showToast("📚 New notes added!");
-        }
+              if (lastVersion && lastVersion !== String(newVersion)) {
+                showToast("📚 New notes added!");
+              }
 
-        localStorage.setItem("dn_catalog_version", String(newVersion));
-        const uniqueSubjects = [...new Set(items.map((item) => item.subject).filter(Boolean))];
+              localStorage.setItem("dn_catalog_version", String(newVersion));
 
-        if (!uniqueSubjects.length) {
-          subjectGrid.innerHTML = `<div class="empty-state">No subjects found.</div>`;
-          renderDashboard();
-          return;
-        }
+              if (!hasNotesUi) {
+                renderDashboard();
+                return;
+              }
 
-        SUBJECTS = {};
-        categoryFilter.innerHTML = `<option value="all">All Subjects</option>`;
+              const uniqueSubjects = [...new Set(items.map((item) => item.subject).filter(Boolean))];
 
-        subjectGrid.innerHTML = uniqueSubjects.map((subjectSlug, index) => {
-          const subjectName = prettifySubject(subjectSlug);
-          const category = getSubjectCategory(subjectSlug);
-          const description = getSubjectDescription(subjectSlug);
-          const badge = getBadgeText(index);
-          const link = `subjects/${subjectSlug}/index.html`;
+              if (!uniqueSubjects.length) {
+                subjectGrid.innerHTML = `<div class="empty-state">No subjects found.</div>`;
+                renderDashboard();
+                return;
+              }
 
-          SUBJECTS[subjectName] = {
-            title: subjectName,
-            badge,
-            description,
-            link,
-            openable: true
-          };
+              SUBJECTS = {};
+              categoryFilter.innerHTML = `<option value="all">All Subjects</option>`;
 
-          return `
-            <div
-              class="card subject-card"
-              data-title="${subjectName}"
-              data-category="${category}"
-              data-keywords="${subjectName.toLowerCase()} ${subjectSlug.replace(/-/g, " ")} physics formulas revision notes"
-            >
-              <div class="card-top">
-                <div class="badge">${badge}</div>
-                <button class="pin-btn" data-subject="${subjectName}" type="button" aria-label="Pin ${subjectName}">
-                  ☆
-                </button>
-              </div>
-              <h3>${subjectName}</h3>
-              <p>${description}</p>
-              <div class="actions">
-                <a class="btn" href="${link}">Explore</a>
-              </div>
-            </div>
-          `;
-        }).join("");
+              subjectGrid.innerHTML = uniqueSubjects.map((subjectSlug, index) => {
+                const subjectName = prettifySubject(subjectSlug);
+                const category = getSubjectCategory(subjectSlug);
+                const description = getSubjectDescription(subjectSlug);
+                const badge = getBadgeText(index);
+                const link = `subjects/${subjectSlug}/index.html`;
 
-        const usedCategories = [...new Set(uniqueSubjects.map(getSubjectCategory))];
-        usedCategories.forEach((category) => {
-          const option = document.createElement("option");
-          option.value = category;
-          option.textContent = prettifySubject(category);
-          categoryFilter.appendChild(option);
-        });
+                SUBJECTS[subjectName] = {
+                  title: subjectName,
+                  badge,
+                  description,
+                  link,
+                  openable: true
+                };
 
-        rebuildPinsAndFilters();
-        renderDashboard();
-      } catch (error) {
-        console.error(error);
-        subjectGrid.innerHTML = `<div class="empty-state">Could not load subjects.</div>`;
-        renderDashboard();
-      }
-    }
+                return `
+                  <div
+                    class="card subject-card"
+                    data-title="${subjectName}"
+                    data-category="${category}"
+                    data-keywords="${subjectName.toLowerCase()} ${subjectSlug.replace(/-/g, " ")} physics formulas revision notes"
+                  >
+                   <div class="card-top">
+                      <div class="badge">${badge}</div>
+                      <button class="pin-btn" data-subject="${subjectName}" type="button" aria-label="Pin ${subjectName}">
+                        ☆
+                      </button>
+                    </div>
+                    <h3>${subjectName}</h3>
+                    <p>${description}</p>
+                    <div class="actions">
+                      <a class="btn" href="${link}">Explore</a>
+                    </div>
+                  </div>
+                `;
+              }).join("");
+
+              const usedCategories = [...new Set(uniqueSubjects.map(getSubjectCategory))];
+               usedCategories.forEach((category) => {
+                const option = document.createElement("option");
+                option.value = category;
+                option.textContent = prettifySubject(category);
+                categoryFilter.appendChild(option);
+              });
+
+              rebuildPinsAndFilters();
+              renderDashboard();
+            } catch (error) {
+              console.error(error);
+
+              if (hasNotesUi && subjectGrid) {
+                subjectGrid.innerHTML = `<div class="empty-state">Could not load subjects.</div>`;
+              }
+
+              renderDashboard();
+            }
+          }
 
     function setupSearchAndFilter() {
-      if (searchInput) {
-        searchInput.addEventListener("input", filterSubjects);
-      }
+            if (!hasNotesUi) return;
 
-      if (categoryFilter) {
-        categoryFilter.addEventListener("change", filterSubjects);
-      }
-    }
+            if (searchInput) {
+              searchInput.addEventListener("input", filterSubjects);
+            }
+
+            if (categoryFilter) {
+              categoryFilter.addEventListener("change", filterSubjects);
+            }
+          }
 
     function setupSplash() {
       window.addEventListener("load", () => {

@@ -7,21 +7,21 @@
 
   <link rel="stylesheet" href="/DN_Physics/css/style.css" />
 </head>
-
 <body>
 
-  <!-- HEADER -->
   <header class="site-header">
     <div class="container nav">
       <div class="brand">DinuuNOVA <span>Physics</span></div>
 
       <div class="topbar-right">
-        <button onclick="history.back()" class="btn">← Back</button>
+        <button onclick="history.back()" class="btn" type="button">← Back</button>
 
         <button
           id="refreshBtn"
           class="btn refresh-top-btn"
           type="button"
+          title="Refresh page"
+          aria-label="Refresh page"
         >
           🔄
         </button>
@@ -29,27 +29,61 @@
     </div>
   </header>
 
-  <!-- PAGE HERO -->
-  <section class="hero" style="padding: 60px 0;">
-    <div class="container">
-      <div class="badge">Physics Notes</div>
-      <h1>📚 All Topics</h1>
-      <p>Explore all A/L Physics formula notes.</p>
-    </div>
-  </section>
-
-  <!-- SUBJECT GRID -->
-  <section class="section">
-    <div class="container">
-      <h2>All Physics Topics</h2>
-
-      <div class="grid" id="subjectGrid">
-        <div class="empty-state">Loading subjects...</div>
+  <main>
+    <section class="hero" style="padding: 52px 0 36px;">
+      <div class="container">
+        <div class="badge">Physics Notes Library</div>
+        <h1 style="font-size: clamp(28px, 5vw, 42px);">📚 Explore Notes</h1>
+        <p>Open your Physics topics, revision notes, and formula sheets from one dedicated page.</p>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- FOOTER -->
+    <section class="section controls-section">
+      <div class="container">
+        <div class="controls-wrap">
+          <div class="search-box">
+            <input
+              type="search"
+              id="subjectSearch"
+              placeholder="Search topics (e.g. mechanics, waves)..."
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+              inputmode="search"
+            />
+          </div>
+
+          <div class="filter-box">
+            <select id="categoryFilter" aria-label="Filter by category">
+              <option value="all">All Subjects</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section pinned-section is-hidden" id="pinnedSection">
+      <div class="container">
+        <h2 style="font-size: clamp(22px, 4vw, 30px);">Pinned Topics</h2>
+        <div class="grid" id="pinnedGrid"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <h2 style="font-size: clamp(24px, 4.5vw, 34px);">All Physics Topics</h2>
+
+        <div class="grid" id="subjectGrid">
+          <div class="empty-state">Loading subjects...</div>
+        </div>
+
+        <div id="noResults" class="empty-state is-hidden" style="margin-top:16px;">
+          No matching topics found.
+        </div>
+      </div>
+    </section>
+  </main>
+
   <footer style="
     margin-top:40px;
     padding:20px;
@@ -63,12 +97,17 @@
     <a href="/DN_Physics/contact.html">Contact</a>
   </footer>
 
-  <!-- REQUIRED SCRIPTS -->
-  <script src="/DN_Physics/js/app-config.js"></script>
-  <script src="/DN_Physics/js/unlock.js"></script>
-
   <script>
+    const refreshBtn = document.getElementById("refreshBtn");
+    const searchInput = document.getElementById("subjectSearch");
+    const categoryFilter = document.getElementById("categoryFilter");
+    const pinnedSection = document.getElementById("pinnedSection");
+    const pinnedGrid = document.getElementById("pinnedGrid");
     const subjectGrid = document.getElementById("subjectGrid");
+
+    let SUBJECTS = {};
+    let subjectCards = [];
+    let pinButtons = [];
 
     function prettifySubject(name) {
       return (name || "")
@@ -77,43 +116,292 @@
         .trim();
     }
 
-    async function loadSubjects() {
+    function getSubjectDescription(subjectSlug) {
+      const descriptions = {
+        "units": "Measurement units, conversions, and basic formula revision notes.",
+        "current-electricity": "Basics, current flow, charge, equations, and circuit-based revision notes.",
+        "mechanics": "Vectors, kinematics, Newton’s laws, work-energy-power, and more.",
+        "thermal-physics": "Formula sheets and quick revision pages for thermal concepts."
+      };
+
+      return descriptions[subjectSlug] || "Explore formula notes and quick revision sheets.";
+    }
+
+    function getSubjectCategory(subjectSlug) {
+      return subjectSlug || "general";
+    }
+
+    function getBadgeText(index) {
+      return `Topic ${String(index + 1).padStart(2, "0")}`;
+    }
+
+    function getPinnedSubjects() {
+      try {
+        return JSON.parse(localStorage.getItem("dnPhysicsPinnedSubjects")) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function savePinnedSubjects(items) {
+      localStorage.setItem("dnPhysicsPinnedSubjects", JSON.stringify(items));
+    }
+
+    function togglePin(subjectName) {
+      const pinned = getPinnedSubjects();
+      const exists = pinned.includes(subjectName);
+
+      const updated = exists
+        ? pinned.filter((name) => name !== subjectName)
+        : [...pinned, subjectName];
+
+      savePinnedSubjects(updated);
+      updatePinButtons();
+      renderPinnedSubjects();
+    }
+
+    function updatePinButtons() {
+      const pinned = getPinnedSubjects();
+
+      pinButtons.forEach((button) => {
+        const subjectName = button.dataset.subject;
+        const isPinned = pinned.includes(subjectName);
+
+        button.textContent = isPinned ? "★" : "☆";
+        button.classList.toggle("pinned", isPinned);
+        button.setAttribute(
+          "aria-label",
+          isPinned ? `Unpin ${subjectName}` : `Pin ${subjectName}`
+        );
+        button.title = isPinned ? "Unpin topic" : "Pin topic";
+      });
+    }
+
+    function createPinnedCard(subject) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "card";
+
+      const top = document.createElement("div");
+      top.className = "card-top";
+
+      const badge = document.createElement("div");
+      badge.className = "badge";
+      badge.textContent = subject.badge;
+
+      const pinBtn = document.createElement("button");
+      pinBtn.className = "pin-btn pinned";
+      pinBtn.type = "button";
+      pinBtn.textContent = "★";
+      pinBtn.dataset.subject = subject.title;
+      pinBtn.setAttribute("aria-label", `Unpin ${subject.title}`);
+      pinBtn.title = "Unpin topic";
+      pinBtn.addEventListener("click", () => togglePin(subject.title));
+
+      top.appendChild(badge);
+      top.appendChild(pinBtn);
+
+      const title = document.createElement("h3");
+      title.textContent = subject.title;
+
+      const desc = document.createElement("p");
+      desc.textContent = subject.description;
+
+      wrapper.appendChild(top);
+      wrapper.appendChild(title);
+      wrapper.appendChild(desc);
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+
+      const link = document.createElement("a");
+      link.className = "btn";
+      link.href = subject.link;
+      link.textContent = "Explore";
+
+      actions.appendChild(link);
+      wrapper.appendChild(actions);
+
+      return wrapper;
+    }
+
+    function renderPinnedSubjects() {
+      const pinned = getPinnedSubjects();
+      pinnedGrid.innerHTML = "";
+
+      if (pinned.length === 0) {
+        pinnedSection.classList.add("is-hidden");
+        return;
+      }
+
+      pinned.forEach((name) => {
+        const subject = SUBJECTS[name];
+        if (subject) {
+          pinnedGrid.appendChild(createPinnedCard(subject));
+        }
+      });
+
+      pinnedSection.classList.remove("is-hidden");
+    }
+
+    function levenshtein(a, b) {
+      const matrix = Array.from({ length: b.length + 1 }, () =>
+        Array(a.length + 1).fill(0)
+      );
+
+      for (let i = 0; i <= b.length; i++) matrix[i][0] = i;
+      for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+      for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+          const cost = a[j - 1] === b[i - 1] ? 0 : 1;
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j - 1] + cost
+          );
+        }
+      }
+
+      return matrix[b.length][a.length];
+    }
+
+    function fuzzyIncludes(query, text) {
+      if (!query) return true;
+      if (text.includes(query)) return true;
+
+      const words = text.split(/\s+/);
+
+      for (const word of words) {
+        if (word.includes(query)) return true;
+
+        const distance = levenshtein(query, word);
+        if (query.length <= 4 && distance <= 1) return true;
+        if (query.length > 4 && distance <= 2) return true;
+      }
+
+      return false;
+    }
+
+    function filterSubjects() {
+      const rawSearchValue = searchInput.value.trim().toLowerCase();
+      const selectedCategory = categoryFilter.value;
+      const noResults = document.getElementById("noResults");
+
+      let visibleCount = 0;
+
+      subjectCards.forEach((card) => {
+        const title = (card.dataset.title || "").toLowerCase();
+        const category = (card.dataset.category || "").toLowerCase();
+        const keywords = (card.dataset.keywords || "").toLowerCase();
+        const description = (card.querySelector("p")?.textContent || "").toLowerCase();
+
+        const combinedText = `${title} ${keywords} ${description}`;
+
+        const matchesSearch =
+          rawSearchValue === "" || fuzzyIncludes(rawSearchValue, combinedText);
+
+        const matchesCategory =
+          selectedCategory === "all" || category === selectedCategory;
+
+        const shouldShow = matchesSearch && matchesCategory;
+
+        card.style.display = shouldShow ? "" : "none";
+
+        if (shouldShow) visibleCount++;
+      });
+
+      if (noResults) {
+        noResults.classList.toggle("is-hidden", visibleCount !== 0);
+      }
+    }
+
+    function rebuildPinsAndFilters() {
+      pinButtons = Array.from(document.querySelectorAll(".pin-btn"));
+      subjectCards = Array.from(document.querySelectorAll(".subject-card"));
+
+      pinButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          togglePin(button.dataset.subject);
+        });
+      });
+
+      updatePinButtons();
+      renderPinnedSubjects();
+      filterSubjects();
+    }
+
+    async function loadSubjectsFromCatalog() {
       try {
         const res = await fetch("/DN_Physics/pdfs/catalog.json");
+        if (!res.ok) throw new Error("Failed to load catalog");
+
         const items = await res.json();
+        const uniqueSubjects = [...new Set(items.map((item) => item.subject).filter(Boolean))];
 
-        const subjects = [...new Set(items.map(i => i.subject))];
+        if (!uniqueSubjects.length) {
+          subjectGrid.innerHTML = `<div class="empty-state">No subjects found.</div>`;
+          return;
+        }
 
-        subjectGrid.innerHTML = subjects.map((slug, index) => {
-          const name = prettifySubject(slug);
+        SUBJECTS = {};
+        categoryFilter.innerHTML = `<option value="all">All Subjects</option>`;
+
+        subjectGrid.innerHTML = uniqueSubjects.map((subjectSlug, index) => {
+          const subjectName = prettifySubject(subjectSlug);
+          const category = getSubjectCategory(subjectSlug);
+          const description = getSubjectDescription(subjectSlug);
+          const badge = getBadgeText(index);
+          const link = `/DN_Physics/subjects/${subjectSlug}/index.html`;
+
+          SUBJECTS[subjectName] = {
+            title: subjectName,
+            badge,
+            description,
+            link
+          };
 
           return `
-            <div class="card">
+            <div
+              class="card subject-card"
+              data-title="${subjectName}"
+              data-category="${category}"
+              data-keywords="${subjectName.toLowerCase()} ${subjectSlug.replace(/-/g, " ")} physics formulas revision notes"
+            >
               <div class="card-top">
-                <div class="badge">Topic ${String(index+1).padStart(2,"0")}</div>
+                <div class="badge">${badge}</div>
+                <button class="pin-btn" data-subject="${subjectName}" type="button" aria-label="Pin ${subjectName}">
+                  ☆
+                </button>
               </div>
-
-              <h3>${name}</h3>
-              <p>Explore formula notes and revision sheets.</p>
-
+              <h3>${subjectName}</h3>
+              <p>${description}</p>
               <div class="actions">
-                <a class="btn" href="/DN_Physics/subjects/${slug}/index.html">
-                  Explore
-                </a>
+                <a class="btn" href="${link}">Explore</a>
               </div>
             </div>
           `;
         }).join("");
 
-      } catch (e) {
-        subjectGrid.innerHTML = `<div class="empty-state">Failed to load subjects</div>`;
+        const usedCategories = [...new Set(uniqueSubjects.map(getSubjectCategory))];
+        usedCategories.forEach((category) => {
+          const option = document.createElement("option");
+          option.value = category;
+          option.textContent = prettifySubject(category);
+          categoryFilter.appendChild(option);
+        });
+
+        rebuildPinsAndFilters();
+      } catch (error) {
+        console.error(error);
+        subjectGrid.innerHTML = `<div class="empty-state">Could not load subjects.</div>`;
       }
     }
 
-    document.getElementById("refreshBtn").onclick = () => location.reload();
+    refreshBtn.addEventListener("click", () => location.reload());
+    searchInput.addEventListener("input", filterSubjects);
+    categoryFilter.addEventListener("change", filterSubjects);
 
-    loadSubjects();
+    loadSubjectsFromCatalog();
   </script>
-
 </body>
 </html>
