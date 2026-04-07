@@ -111,7 +111,7 @@
             🔓 Unlock DN Physics Pro
           </button>
 
-          <a id="onboardPractice" class="btn btn-primary" href="/DN_Physics/pp-quiz/index.html">
+          <button id="onboardPractice" class="btn btn-primary" type="button">
             💯 Practice Past Paper MCQs
           </a>
           
@@ -121,6 +121,24 @@
         </div>
       </div>
     </section>
+
+    <!-- SUBJECT SELECT MODAL -->
+    <div id="subjectSelectModal" class="auth-modal hidden">
+      <div class="auth-box">
+        <h2>Select Subject</h2>
+        <p style="color:#a8b3cf; text-align:center; margin-bottom:16px;">
+          Choose your subject to start practice
+        </p>
+
+        <div class="actions" style="flex-direction:column;">
+          <button class="btn btn-primary subject-btn" data-subject="physics">⚛️ Physics</button>
+          <button class="btn subject-btn" data-subject="chemistry">🧪 Chemistry</button>
+          <button class="btn subject-btn" data-subject="maths">📐 Maths</button>
+        </div>
+
+        <button id="closeSubjectModal" class="btn" style="margin-top:12px;">Cancel</button>
+      </div>
+    </div>
 
     <section class="section dashboard-section">
       <div class="container">
@@ -1380,6 +1398,45 @@
         toast.classList.remove("show");
       }, 2200);
     }
+
+    // SUBJECT SELECT SYSTEM
+    const practiceBtn = document.getElementById("onboardPractice");
+    const subjectModal = document.getElementById("subjectSelectModal");
+    const closeSubjectModal = document.getElementById("closeSubjectModal");
+
+          // open modal
+   if (practiceBtn) {
+             practiceBtn.addEventListener("click", () => {
+                subjectModal.classList.remove("hidden");
+            });
+        }
+
+        // close modal
+   if (closeSubjectModal) {
+           closeSubjectModal.addEventListener("click", () => {
+               subjectModal.classList.add("hidden");
+           });
+       }
+
+        // subject selection
+    document.querySelectorAll(".subject-btn").forEach(btn => {
+              btn.addEventListener("click", () => {
+                 const subject = btn.dataset.subject;
+
+                 // redirect based on subject
+                if (subject === "physics") {
+                    window.location.href = "/DN_Physics/pp-quiz/index.html";
+                }
+ 
+               if (subject === "chemistry") {
+                  window.location.href = "/DN_Physics/pp-quiz-chem/index.html";
+              }
+
+              if (subject === "maths") {
+                 window.location.href = "/DN_Physics/pp-quiz-maths/index.html";
+             }
+          });
+      });
   </script>
 
   <script src="/DN_Physics/js/music-player.js"></script>

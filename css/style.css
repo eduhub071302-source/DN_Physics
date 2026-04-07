@@ -1765,3 +1765,8 @@ main {
 .is-hidden {
   display: none !important;
 }
+
+.subject-btn {
+  font-size: 1rem;
+  padding: 14px;
+}
