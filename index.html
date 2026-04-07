@@ -915,35 +915,83 @@
     }
 
     function parseQuizKey(rawKey) {
-      if (!rawKey) {
-        return { topic: "", subtopic: "", set: "set-1" };
-      }
+            if (!rawKey) {
+              return {
+                subject: "physics",
+                topic: "",
+                subtopic: "",
+                set: "set-1"
+              };
+            }
 
-      const parts = rawKey.split("__");
-      return {
-        topic: parts[0] || "",
-        subtopic: parts[1] || "",
-        set: parts[2] || "set-1"
-      };
-    }
+            const parts = rawKey.split("__");
+
+            // New format:
+            // subject__topic__subtopic__set
+            if (parts.length >= 4) {
+              return {
+                subject: parts[0] || "physics",
+                topic: parts[1] || "",
+                subtopic: parts[2] || "",
+                set: parts[3] || "set-1"
+              };
+            }
+
+            // Old legacy format:
+            // topic__subtopic__set
+            if (parts.length === 3) {
+              return {
+                subject: "physics",
+                topic: parts[0] || "",
+                subtopic: parts[1] || "",
+                set: parts[2] || "set-1"
+              };
+            }
+
+            // Fallback
+            return {
+              subject: "physics",
+              topic: "",
+              subtopic: "",
+              set: "set-1"
+            };
+          }
 
     function buildQuizUrlFromKey(rawKey) {
-      const parsed = parseQuizKey(rawKey);
+            const parsed = parseQuizKey(rawKey);
 
-      if (!parsed.topic || !parsed.subtopic) {
-        return "/DN_Physics/pp-quiz/index.html";
-      }
+            if (!parsed.topic) {
+              return "/DN_Physics/pp-quiz/index.html";
+            }
 
-      return `/DN_Physics/pp-quiz/quiz.html?topic=${encodeURIComponent(parsed.topic)}&subtopic=${encodeURIComponent(parsed.subtopic)}&set=${encodeURIComponent(parsed.set)}`;
-    }
+            // Maths uses topic only
+            if (parsed.subject === "maths") {
+              return `/DN_Physics/pp-quiz/quiz.html?subject=${encodeURIComponent(parsed.subject)}&topic=${encodeURIComponent(parsed.topic)}&set=${encodeURIComponent(parsed.set)}`;
+            }
 
-    function getRecentPdfs() {
-      try {
-        return JSON.parse(localStorage.getItem("dnPdfRecent")) || [];
-      } catch {
-        return [];
-      }
-    }
+            // Physics / Chemistry use topic + subtopic
+            if (!parsed.subtopic) {
+              return `/DN_Physics/pp-quiz/index.html?subject=${encodeURIComponent(parsed.subject)}`;
+            }
+
+            return `/DN_Physics/pp-quiz/quiz.html?subject=${encodeURIComponent(parsed.subject)}&topic=${encodeURIComponent(parsed.topic)}&subtopic=${encodeURIComponent(parsed.subtopic)}&set=${encodeURIComponent(parsed.set)}`;
+           }
+
+           function prettifyQuizLabel(parsed) {
+            const subjectName = prettifySubject(parsed.subject || "physics");
+            const topicName = prettifySubject(parsed.topic || "");
+            const subtopicName = prettifySubject(parsed.subtopic || "");
+
+            if (parsed.subject === "maths") {
+              return `${subjectName} · ${topicName}`;
+            }
+
+            if (subtopicName) {
+              return `${subjectName} · ${subtopicName}`;
+            }
+
+            return `${subjectName} · ${topicName}`;
+          }
 
     function getFavorites() {
       try {
@@ -1031,7 +1079,7 @@
         const parsed = parseQuizKey(bestQuiz.key);
         html += createDashCard(
           "🔥 Best Topic",
-          `${prettifySubject(parsed.subtopic)} · Score: ${bestQuiz.bestPercentage || "0.0"}%`,
+          `${prettifySubject(parsed)} · Score: ${bestQuiz.bestPercentage || "0.0"}%`,
           "Improve Score",
           buildQuizUrlFromKey(bestQuiz.key)
         );
@@ -1042,7 +1090,7 @@
         const parsed = parseQuizKey(weakQuiz.key);
         html += createDashCard(
           "⚠️ Weak Area",
-          `${prettifySubject(parsed.subtopic)} · Score: ${weakQuiz.bestPercentage || "0.0"}%`,
+          `${prettifySubject(parsed)} · Score: ${weakQuiz.bestPercentage || "0.0"}%`,
           "Practice Now",
           buildQuizUrlFromKey(weakQuiz.key)
         );
