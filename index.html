@@ -13,7 +13,7 @@
 
   <link rel="stylesheet" href="css/style.css" />
 </head>
-  
+
 <body>
   <div id="appSplash" class="app-splash" aria-hidden="true">
     <div class="app-splash-bg"></div>
@@ -110,12 +110,14 @@
           <button id="unlockProBtn" class="btn btn-primary" type="button">
             🔓 Unlock DN Physics Pro
           </button>
+        </div>
 
-          <button id="onboardPractice" class="btn btn-primary" type="button">
+        <div class="actions hero-actions">
+          <button id="onboardPractice" class="btn btn-primary hero-action-btn" type="button">
             💯 Practice Past Paper MCQs
-          </a>
-          
-          <a id="onboardNotes" class="btn" href="#subjectGrid">
+          </button>
+
+          <a id="onboardNotes" class="btn hero-action-btn" href="#subjectGrid">
             📚 Explore Notes
           </a>
         </div>
@@ -123,20 +125,45 @@
     </section>
 
     <!-- SUBJECT SELECT MODAL -->
-    <div id="subjectSelectModal" class="auth-modal hidden">
-      <div class="auth-box">
-        <h2>Select Subject</h2>
-        <p style="color:#a8b3cf; text-align:center; margin-bottom:16px;">
-          Choose your subject to start practice
-        </p>
+    <div id="subjectSelectModal" class="subject-modal hidden" aria-hidden="true">
+      <div class="subject-modal-backdrop"></div>
 
-        <div class="actions" style="flex-direction:column;">
-          <button class="btn btn-primary subject-btn" data-subject="physics">⚛️ Physics</button>
-          <button class="btn subject-btn" data-subject="chemistry">🧪 Chemistry</button>
-          <button class="btn subject-btn" data-subject="maths">📐 Maths</button>
+      <div class="subject-modal-box" role="dialog" aria-modal="true" aria-labelledby="subjectModalTitle">
+        <div class="subject-modal-top">
+          <div class="subject-modal-badge">Choose Quiz Subject</div>
+          <h2 id="subjectModalTitle">Select Subject</h2>
+          <p>Choose your subject to start past paper practice.</p>
         </div>
 
-        <button id="closeSubjectModal" class="btn" style="margin-top:12px;">Cancel</button>
+        <div class="subject-modal-list">
+          <button class="subject-card-btn is-physics" data-subject="physics" type="button">
+            <span class="subject-card-icon">⚛️</span>
+            <span class="subject-card-text">
+              <strong>Physics</strong>
+              <small>Continue with your current PP Quiz system</small>
+            </span>
+          </button>
+
+          <button class="subject-card-btn" data-subject="chemistry" type="button">
+            <span class="subject-card-icon">🧪</span>
+            <span class="subject-card-text">
+              <strong>Chemistry</strong>
+              <small>Open Chemistry past paper practice</small>
+            </span>
+          </button>
+
+          <button class="subject-card-btn" data-subject="maths" type="button">
+            <span class="subject-card-icon">📐</span>
+            <span class="subject-card-text">
+              <strong>Maths</strong>
+              <small>Open Combined Maths past paper practice</small>
+            </span>
+          </button>
+        </div>
+
+        <div class="subject-modal-footer">
+          <button id="closeSubjectModal" class="btn subject-cancel-btn" type="button">Cancel</button>
+        </div>
       </div>
     </div>
 
@@ -158,7 +185,6 @@
       <div class="container">
         <div class="controls-wrap">
           <div class="search-box">
-            <!-- 🔒 Prevent browser autofill (IMPORTANT) -->
             <input type="email" style="display:none" autocomplete="username">
             <input type="password" style="display:none" autocomplete="current-password">
 
@@ -187,7 +213,6 @@
     <section class="section pinned-section is-hidden" id="pinnedSection">
       <div class="container">
         <h2>Pinned Topics</h2>
-
         <div class="grid" id="pinnedGrid"></div>
       </div>
     </section>
@@ -266,7 +291,7 @@
         <button id="onboardingNextBtn" class="btn btn-primary" type="button">Next</button>
       </div>
     </div>
-    
+
     <div id="onboardingArrow" class="onboarding-arrow" aria-hidden="true">➜</div>
   </div>
 
@@ -321,8 +346,8 @@
       </p>
 
       <p class="auth-forgot">
-                  <span id="forgotPasswordBtn">Forgot password?</span>
-                </p>
+        <span id="forgotPasswordBtn">Forgot password?</span>
+      </p>
 
       <button id="authCloseBtn" class="btn">Close</button>
     </div>
@@ -331,7 +356,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/DN_Physics/js/supabase-client.js"></script>
   <script src="/DN_Physics/js/auth.js"></script>
-  
+
   <script>
     let deferredPrompt = null;
 
@@ -354,15 +379,29 @@
     const subjectGrid = document.getElementById("subjectGrid");
     const dashboardGrid = document.getElementById("dashboardGrid");
 
+    const onboardingOverlay = document.getElementById("onboardingOverlay");
+    const onboardingSpotlight = document.getElementById("onboardingSpotlight");
+    const onboardingCard = document.getElementById("onboardingCard");
+    const onboardingArrow = document.getElementById("onboardingArrow");
+    const onboardingTitle = document.getElementById("onboardingTitle");
+    const onboardingText = document.getElementById("onboardingText");
+    const onboardingNextBtn = document.getElementById("onboardingNextBtn");
+    const onboardingSkipBtn = document.getElementById("onboardingSkipBtn");
+
+    const practiceBtn = document.getElementById("onboardPractice");
+    const subjectModal = document.getElementById("subjectSelectModal");
+    const closeSubjectModal = document.getElementById("closeSubjectModal");
+
     let refreshingNow = false;
     let touchStartY = 0;
     let pullTriggered = false;
-    let autoReloadingFromSW = false;
     let fakeProgressTimer = null;
 
     let SUBJECTS = {};
     let subjectCards = [];
     let pinButtons = [];
+    let onboardingSteps = [];
+    let onboardingIndex = 0;
 
     function showLoadingOverlay() {
       if (loadingOverlay) {
@@ -1064,9 +1103,8 @@
         const res = await fetch("/DN_Physics/pdfs/catalog.json");
         if (!res.ok) throw new Error("Failed to load catalog");
 
-        const items = await res.json(); // ✅ FIX: define items first
+        const items = await res.json();
 
-        // 🔥 Content update detection
         const lastVersion = localStorage.getItem("dn_catalog_version");
         const newVersion = JSON.stringify(items).length;
 
@@ -1164,55 +1202,6 @@
         }, 1200);
       });
     }
-
-    async function initPage() {
-      setupInstallPrompt();
-      setupRefreshActions();
-      setupPullToRefresh();
-      setupSearchAndFilter();
-      setupOnboarding();
-      setupSplash();
-
-      if (searchInput) {
-        searchInput.value = "";
-        searchInput.placeholder = "Search topics (e.g. mechanics, waves)...";
-      }
-
-      if (searchInput) {
-        searchInput.value = "";
-      }
-
-      updateUnlockButton();
-      await loadSubjectsFromCatalog();
-    }
-
-    if (unlockProBtn) {
-      unlockProBtn.addEventListener("click", () => {
-        lockAlert();
-      });
-    }
-
-    function updateUnlockButton() {
-      if (!unlockProBtn) return;
-
-      if (hasPaidAccess && hasPaidAccess()) {
-        unlockProBtn.classList.add("is-hidden");
-      } else {
-        unlockProBtn.classList.remove("is-hidden");
-      }
-    }
-
-    const onboardingOverlay = document.getElementById("onboardingOverlay");
-    const onboardingSpotlight = document.getElementById("onboardingSpotlight");
-    const onboardingCard = document.getElementById("onboardingCard");
-    const onboardingArrow = document.getElementById("onboardingArrow");
-    const onboardingTitle = document.getElementById("onboardingTitle");
-    const onboardingText = document.getElementById("onboardingText");
-    const onboardingNextBtn = document.getElementById("onboardingNextBtn");
-    const onboardingSkipBtn = document.getElementById("onboardingSkipBtn");
-
-    let onboardingSteps = [];
-    let onboardingIndex = 0;
 
     function isMobileDevice() {
       return window.matchMedia("(max-width: 768px)").matches;
@@ -1379,7 +1368,90 @@
       });
     }
 
-    initPage();
+    function openSubjectModal() {
+      if (!subjectModal) return;
+      subjectModal.classList.remove("hidden");
+      subjectModal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeSubjectChooser() {
+      if (!subjectModal) return;
+      subjectModal.classList.add("hidden");
+      subjectModal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    function setupSubjectChooser() {
+      if (practiceBtn) {
+        practiceBtn.addEventListener("click", openSubjectModal);
+      }
+
+      if (closeSubjectModal) {
+        closeSubjectModal.addEventListener("click", closeSubjectChooser);
+      }
+
+      if (subjectModal) {
+        const backdrop = subjectModal.querySelector(".subject-modal-backdrop");
+        if (backdrop) {
+          backdrop.addEventListener("click", closeSubjectChooser);
+        }
+      }
+
+      document.querySelectorAll(".subject-card-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const subject = btn.dataset.subject;
+
+          if (subject === "physics") {
+            window.location.href = "/DN_Physics/pp-quiz/index.html";
+            return;
+          }
+
+          if (subject === "chemistry") {
+            window.location.href = "/DN_Physics/pp-quiz-chem/index.html";
+            return;
+          }
+
+          if (subject === "maths") {
+            window.location.href = "/DN_Physics/pp-quiz-maths/index.html";
+          }
+        });
+      });
+
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && subjectModal && !subjectModal.classList.contains("hidden")) {
+          closeSubjectChooser();
+        }
+      });
+    }
+
+    function updateUnlockButton() {
+      if (!unlockProBtn) return;
+
+      if (hasPaidAccess && hasPaidAccess()) {
+        unlockProBtn.classList.add("is-hidden");
+      } else {
+        unlockProBtn.classList.remove("is-hidden");
+      }
+    }
+
+    async function initPage() {
+      setupInstallPrompt();
+      setupRefreshActions();
+      setupPullToRefresh();
+      setupSearchAndFilter();
+      setupOnboarding();
+      setupSplash();
+      setupSubjectChooser();
+
+      if (searchInput) {
+        searchInput.value = "";
+        searchInput.placeholder = "Search topics (e.g. mechanics, waves)...";
+      }
+
+      updateUnlockButton();
+      await loadSubjectsFromCatalog();
+    }
 
     function showToast(message = "Done") {
       let toast = document.getElementById("globalToast");
@@ -1399,44 +1471,16 @@
       }, 2200);
     }
 
-    // SUBJECT SELECT SYSTEM
-    const practiceBtn = document.getElementById("onboardPractice");
-    const subjectModal = document.getElementById("subjectSelectModal");
-    const closeSubjectModal = document.getElementById("closeSubjectModal");
-
-          // open modal
-   if (practiceBtn) {
-             practiceBtn.addEventListener("click", () => {
-                subjectModal.classList.remove("hidden");
-            });
-        }
-
-        // close modal
-   if (closeSubjectModal) {
-           closeSubjectModal.addEventListener("click", () => {
-               subjectModal.classList.add("hidden");
-           });
-       }
-
-        // subject selection
-    document.querySelectorAll(".subject-btn").forEach(btn => {
-              btn.addEventListener("click", () => {
-                 const subject = btn.dataset.subject;
-
-                 // redirect based on subject
-                if (subject === "physics") {
-                    window.location.href = "/DN_Physics/pp-quiz/index.html";
-                }
- 
-               if (subject === "chemistry") {
-                  window.location.href = "/DN_Physics/pp-quiz-chem/index.html";
-              }
-
-              if (subject === "maths") {
-                 window.location.href = "/DN_Physics/pp-quiz-maths/index.html";
-             }
-          });
+    if (unlockProBtn) {
+      unlockProBtn.addEventListener("click", () => {
+        lockAlert();
       });
+    }
+
+    registerServiceWorker();
+    initPage();
   </script>
 
   <script src="/DN_Physics/js/music-player.js"></script>
+</body>
+</html>

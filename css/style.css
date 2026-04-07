@@ -1765,3 +1765,222 @@ main {
 .is-hidden {
   display: none !important;
 }
+
+/* ===== HERO ACTION BUTTON BALANCE ===== */
+
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.hero-action-btn {
+  min-width: 220px;
+  width: auto;
+  flex: 0 0 auto;
+  padding-left: 18px;
+  padding-right: 18px;
+}
+
+/* ===== SUBJECT CHOOSER MODAL ===== */
+
+.subject-modal.hidden {
+  display: none !important;
+}
+
+.subject-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+}
+
+.subject-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 13, 24, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.subject-modal-box {
+  position: relative;
+  width: min(92vw, 460px);
+  margin: 70px auto 0;
+  padding: 22px;
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(14, 22, 38, 0.98), rgba(10, 16, 29, 0.98));
+  border: 1px solid rgba(124, 196, 255, 0.16);
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(78, 161, 255, 0.05),
+    0 0 40px rgba(78, 161, 255, 0.08);
+  animation: subjectModalIn 0.24s ease;
+}
+
+.subject-modal-top {
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.subject-modal-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  margin-bottom: 12px;
+  border-radius: 999px;
+  background: rgba(78, 161, 255, 0.1);
+  border: 1px solid rgba(124, 196, 255, 0.2);
+  color: var(--accent-2);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.subject-modal-top h2 {
+  margin: 0 0 8px;
+  font-size: 2rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.subject-modal-top p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.98rem;
+}
+
+.subject-modal-list {
+  display: grid;
+  gap: 12px;
+}
+
+.subject-card-btn {
+  width: 100%;
+  border: 1px solid rgba(124, 196, 255, 0.14);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(20, 31, 52, 0.95), rgba(15, 24, 42, 0.95));
+  color: var(--text);
+  padding: 16px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.subject-card-btn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(124, 196, 255, 0.3);
+  box-shadow:
+    0 14px 28px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(124, 196, 255, 0.04);
+}
+
+.subject-card-btn.is-physics {
+  background: linear-gradient(135deg, rgba(78, 161, 255, 0.96), rgba(124, 196, 255, 0.96));
+  color: #04101f;
+  border-color: transparent;
+}
+
+.subject-card-btn.is-physics .subject-card-text small {
+  color: rgba(4, 16, 31, 0.78);
+}
+
+.subject-card-icon {
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 1.2rem;
+}
+
+.subject-card-btn.is-physics .subject-card-icon {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.subject-card-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.subject-card-text strong {
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+.subject-card-text small {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.subject-modal-footer {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.subject-cancel-btn {
+  min-width: 130px;
+  width: auto;
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+@keyframes subjectModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 600px) {
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-action-btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .subject-modal-box {
+    width: min(94vw, 460px);
+    margin-top: 34px;
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .subject-modal-top h2 {
+    font-size: 1.7rem;
+  }
+
+  .subject-card-btn {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .subject-card-icon {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+  }
+}
