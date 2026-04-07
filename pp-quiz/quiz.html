@@ -4,28 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quiz | PP Quiz</title>
-
+  <meta
+    name="description"
+    content="Practice past paper MCQs with progress tracking, review tools, and focused quiz mode."
+  />
   <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=28" />
 </head>
-
-<footer style="
-  margin-top:40px;
-  padding:20px;
-  text-align:center;
-  font-size:14px;
-  color:#a8b3cf;
-  border-top:1px solid #24314f;
-">
-  <a href="/DN_Physics/privacy.html">Privacy Policy</a> |
-  <a href="/DN_Physics/terms.html">Terms</a> |
-  <a href="/DN_Physics/contact.html">Contact</a>
-</footer>
-  
 <body>
 
   <header class="quiz-header">
     <div class="container">
-      <a id="backToSubtopic" class="back-link">← Back</a>
+      <a
+        id="backToSubtopic"
+        class="back-link"
+        href="/DN_Physics/pp-quiz/subtopic.html?subject=physics&topic=units&subtopic=unit-dimensions"
+      >
+        ← Back
+      </a>
       <h1 id="quizTitle">Quiz</h1>
       <p id="quizSubtitle">Exam Mode • No Hints</p>
 
@@ -118,7 +113,6 @@
             <div class="question-image-wrap">
 
               <div class="question-toolbar">
-                <!-- 🔥 Hint removed -->
                 <button id="zoomBtn" class="action-btn" type="button">🔍 Zoom</button>
               </div>
 
@@ -253,9 +247,21 @@
     </div>
   </div>
 
+  <footer style="
+    margin-top:40px;
+    padding:20px;
+    text-align:center;
+    font-size:14px;
+    color:#a8b3cf;
+    border-top:1px solid #24314f;
+  ">
+    <a href="/DN_Physics/privacy.html">Privacy Policy</a> |
+    <a href="/DN_Physics/terms.html">Terms</a> |
+    <a href="/DN_Physics/contact.html">Contact</a>
+  </footer>
+
   <script src="/DN_Physics/js/app-config.js"></script>
   <script src="/DN_Physics/js/unlock.js"></script>
-
   <script src="/DN_Physics/js/music-player.js"></script>
   <script src="/DN_Physics/pp-quiz/js/quiz.js"></script>
 

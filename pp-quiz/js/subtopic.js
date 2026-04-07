@@ -1,45 +1,160 @@
 document.addEventListener("DOMContentLoaded", async () => {
+  const QUIZ_PROGRESS_KEY = "dnPhysicsQuizProgress";
+
+  const SUBJECT_TOPIC_ORDER = {
+    physics: [
+      "units",
+      "mechanics",
+      "oscillations-waves",
+      "thermal-physics",
+      "gravitational-field",
+      "electrostatics-field",
+      "magnetic-field",
+      "current-electricity",
+      "electronics",
+      "mechanical-properties",
+      "matter-radiations"
+    ],
+    chemistry: [
+      "atomic-structure",
+      "structure-and-bonding",
+      "chemical-calculation",
+      "gaseous-state-of-matter",
+      "energetic",
+      "chemistry-of-s-p-and-d-block-elements",
+      "basic-concepts-of-organic-chemistry",
+      "hydrocarbons-and-halohydrocarbons",
+      "oxygen-containg-organic-compunds",
+      "nitrogen-containing-organic-compounds",
+      "chemical-kinetics",
+      "equilibrium",
+      "electro-chemistry",
+      "industrial-chemistry-and-environmental-pollution"
+    ],
+    maths: [
+      "trignometry",
+      "remainder-theorm-and-factors",
+      "limit-and-differentiation",
+      "vectors",
+      "equilibrium-of-factors",
+      "inequalitis-and-modules-funtion",
+      "quadratic-equation",
+      "sysytem-of-forces",
+      "motion-of-straigt-line-and-velocity-time-curce",
+      "relatice-velocity",
+      "mathematical-induction",
+      "projectiles",
+      "relatice-acceleration",
+      "frction",
+      "frame-work",
+      "straight-line",
+      "circle",
+      "work-enegry-power",
+      "impulse-and-impact",
+      "circular-motion",
+      "probability",
+      "binomial-theorem",
+      "complex-numbers",
+      "simple-harmonic-motion",
+      "statistic",
+      "differenntitation-and-graphs",
+      "intergration",
+      "premutation-and-combination",
+      "series",
+      "center-of-gravity"
+    ]
+  };
+
   const params = new URLSearchParams(window.location.search);
-  const topic = params.get("topic");
-  const subtopic = params.get("subtopic");
-
-  // 🔒 ACCESS CONTROL
-  if (!canAccessQuiz(topic)) {
-    subtopicTitle.textContent = "🔒 Locked";
-
-    if (heroTitle) heroTitle.textContent = "Premium Content";
-    if (heroText) {
-      heroText.textContent = "Buy full access for Rs.100 to unlock all quiz sets.";
-    }
-
-    quizSetsGrid.innerHTML = `
-      <div class="empty-state fade-in">
-        <h3>This subtopic is locked 🔒</h3>
-        <p>Only Units is free. Unlock all for Rs.100.</p>
-      </div>
-    `;
-
-    return;
-  }
+  const subject = (params.get("subject") || "physics").toLowerCase().trim();
+  const topic = (params.get("topic") || "").trim();
+  const subtopic = (params.get("subtopic") || "").trim();
 
   const subtopicTitle = document.getElementById("subtopicTitle");
   const heroTitle = document.getElementById("subtopicHeroTitle");
   const heroText = document.getElementById("subtopicHeroText");
   const quizSetsGrid = document.getElementById("quizSetsGrid");
   const backToTopic = document.getElementById("backToTopic");
-
-  const QUIZ_PROGRESS_KEY = "dnPhysicsQuizProgress";
-
   const refreshSubtopicBtn = document.getElementById("refreshSubtopicBtn");
+  const heroPill = document.querySelector(".topic-card .topic-pill");
 
   if (!subtopicTitle || !quizSetsGrid || !backToTopic) {
     console.error("Subtopic page elements not found.");
     return;
   }
 
-  backToTopic.href = `/DN_Physics/pp-quiz/topic.html?topic=${encodeURIComponent(topic || "")}`;
+  updateBackLink();
+  setupRefresh();
 
-  if (refreshSubtopicBtn) {
+  if (!SUBJECT_TOPIC_ORDER[subject]) {
+    subtopicTitle.textContent = "Subject Not Found";
+    if (heroTitle) heroTitle.textContent = "Subject Not Found";
+    if (heroText) heroText.textContent = "The subject you selected is invalid.";
+    renderEmpty("Invalid subject selected.");
+    return;
+  }
+
+  if (!topic || !subtopic) {
+    subtopicTitle.textContent = "Subtopic Not Found";
+    if (heroTitle) heroTitle.textContent = "Subtopic Not Found";
+    if (heroText) heroText.textContent = "Missing topic or subtopic.";
+    renderEmpty("Missing topic or subtopic.");
+    return;
+  }
+
+  if (!canAccessCurrentTopic(subject, topic)) {
+    subtopicTitle.textContent = "🔒 Locked";
+    if (heroTitle) heroTitle.textContent = "Premium Content";
+    if (heroText) {
+      heroText.textContent = "Only lesson 1 is free. Unlock to access all topics.";
+    }
+
+    quizSetsGrid.innerHTML = `
+      <div class="empty-state fade-in">
+        <h3>This subtopic is locked 🔒</h3>
+        <p>Only lesson 1 is free. Unlock all topics to continue.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const niceName = makeNiceTitle(subtopic);
+
+  subtopicTitle.textContent = niceName;
+  if (heroTitle) heroTitle.textContent = niceName;
+  if (heroText) {
+    heroText.textContent = `Practice ${niceName} with structured MCQ sets and track your progress.`;
+  }
+  if (heroPill) {
+    heroPill.textContent = `${getSubjectLabel(subject)} • Subtopic Practice`;
+  }
+
+  const sets = await loadQuizSets();
+
+  quizSetsGrid.innerHTML = "";
+
+  if (!sets || sets.length === 0) {
+    renderEmpty("Add sets.json for this subtopic to display quiz sets.");
+    return;
+  }
+
+  sets.forEach((set, index) => {
+    quizSetsGrid.appendChild(buildSetCard(set, index));
+  });
+
+  function getSubjectLabel(subjectSlug) {
+    if (subjectSlug === "chemistry") return "DinuuNOVA Chemistry";
+    if (subjectSlug === "maths") return "DinuuNOVA Maths";
+    return "DinuuNOVA Physics";
+  }
+
+  function updateBackLink() {
+    backToTopic.href = `/DN_Physics/pp-quiz/topic.html?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topic || "")}`;
+  }
+
+  function setupRefresh() {
+    if (!refreshSubtopicBtn) return;
+
     refreshSubtopicBtn.addEventListener("click", () => {
       document.body.classList.add("page-is-refreshing");
       setTimeout(() => {
@@ -48,9 +163,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  /* =========================
-     HELPERS
-  ========================= */
+  function canAccessCurrentTopic(subjectSlug, currentTopicSlug) {
+    if (typeof hasPaidAccess === "function" && hasPaidAccess()) {
+      return true;
+    }
+
+    const orderedTopics = SUBJECT_TOPIC_ORDER[subjectSlug] || [];
+    return orderedTopics[0] === currentTopicSlug;
+  }
 
   function makeNiceTitle(slug) {
     return (slug || "")
@@ -60,16 +180,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function getBadgeData(p) {
-    if (p >= 90) return { label: "🥇 Gold", className: "badge-gold" };
-    if (p >= 75) return { label: "🥈 Silver", className: "badge-silver" };
-    if (p >= 50) return { label: "🥉 Bronze", className: "badge-bronze" };
+    const value = Number(p) || 0;
+    if (value >= 90) return { label: "🥇 Gold", className: "badge-gold" };
+    if (value >= 75) return { label: "🥈 Silver", className: "badge-silver" };
+    if (value >= 50) return { label: "🥉 Bronze", className: "badge-bronze" };
     return null;
   }
 
   function getMasteryLevel(p) {
-    if (p >= 90) return "Mastered";
-    if (p >= 75) return "Strong";
-    if (p >= 50) return "Improving";
+    const value = Number(p) || 0;
+    if (value >= 90) return "Mastered";
+    if (value >= 75) return "Strong";
+    if (value >= 50) return "Improving";
     return "Beginner";
   }
 
@@ -90,8 +212,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  function getQuizProgressId(topicSlug, subtopicSlug, setName = "set-1") {
-    return `${topicSlug}__${subtopicSlug}__${setName}`;
+  function getQuizProgressId(subjectSlug, topicSlug, subtopicSlug, setName = "set-1") {
+    return `${subjectSlug}__${topicSlug}__${subtopicSlug}__${setName}`;
   }
 
   function normalizeStats(stats) {
@@ -111,7 +233,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       bestPercentage: stats.bestPercentage ?? "0.0",
       bestFullBadgePercentage:
         stats.bestFullBadgePercentage == null
-          ? null
+          ? (stats.bestPercentage == null ? null : Number(stats.bestPercentage) || 0)
           : Number(stats.bestFullBadgePercentage) || 0,
       lastPlayedAt: stats.lastPlayedAt || "Never",
       streak: Number(stats.streak) || 0,
@@ -121,12 +243,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function getSavedStats(topicSlug, subtopicSlug, setName = "set-1") {
     const store = getProgressStore();
-    const id = getQuizProgressId(topicSlug, subtopicSlug, setName);
+    const id = getQuizProgressId(subject, topicSlug, subtopicSlug, setName);
 
     if (store[id]) return normalizeStats(store[id]);
 
-    const legacy = getLegacySavedStats(topicSlug, subtopicSlug, setName);
-    if (legacy) return normalizeStats(legacy);
+    if (subject === "physics") {
+      const legacy = getLegacySavedStats(topicSlug, subtopicSlug, setName);
+      if (legacy) return normalizeStats(legacy);
+    }
 
     return normalizeStats(null);
   }
@@ -152,19 +276,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     return "Keep practicing to improve your fundamentals.";
   }
 
-  /* =========================
-     LOAD SETS
-  ========================= */
-
   async function loadQuizSets() {
-    const manifestPath = `/DN_Physics/pp-quiz/data/${topic}/${subtopic}/sets.json`;
+    const manifestPath = `/DN_Physics/pp-quiz/data/${encodeURIComponent(subject)}/${encodeURIComponent(topic)}/${encodeURIComponent(subtopic)}/sets.json`;
 
     try {
       const res = await fetch(manifestPath, { cache: "no-store" });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error("sets.json not found");
 
       const data = await res.json();
       const sets = Array.isArray(data) ? data : data.sets;
+
+      if (!Array.isArray(sets) || sets.length === 0) {
+        throw new Error("No sets found");
+      }
 
       return sets.map((s, i) => ({
         slug: s.slug,
@@ -174,10 +298,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       return [{ slug: "set-1", title: "Set 1" }];
     }
   }
-
-  /* =========================
-     TOUCH FIX
-  ========================= */
 
   function attachSmoothCardTouch(card) {
     let startX = 0;
@@ -209,14 +329,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  /* =========================
-     CARD BUILDER (CLEAN)
-  ========================= */
-
   function buildSetCard(set, index) {
     const stats = getSavedStats(topic, subtopic, set.slug);
 
-    const progress = stats.bestFullBadgePercentage || 0;
+    const progress = Number(stats.bestFullBadgePercentage || 0);
     const mastery = getMasteryLevel(progress);
     const badge = getBadgeData(progress);
 
@@ -224,7 +340,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     card.className = "topic-card fade-slide-up";
     card.style.animationDelay = `${index * 0.04}s`;
 
-    card.href = `/DN_Physics/pp-quiz/quiz.html?topic=${encodeURIComponent(topic)}&subtopic=${encodeURIComponent(subtopic)}&set=${encodeURIComponent(set.slug)}`;
+    card.href = `/DN_Physics/pp-quiz/quiz.html?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topic)}&subtopic=${encodeURIComponent(subtopic)}&set=${encodeURIComponent(set.slug)}`;
 
     const description = getSetDescription(mastery, stats.attempts);
 
@@ -247,7 +363,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       <div class="subtopic-progress-block">
         <div class="subtopic-progress-head">
           <span>Progress</span>
-          <span>${progress}%</span>
+          <span>${progress.toFixed(1)}%</span>
         </div>
         <div class="progress-bar">
           <div class="progress-fill" style="width:${progress}%"></div>
@@ -255,7 +371,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       </div>
 
       <div class="topic-stats subtopic-meta-stats">
-        <span class="stat-pill">Last: ${stats.lastPlayedAt}</span>
+        <span class="stat-pill">Last: ${escapeHtml(stats.lastPlayedAt)}</span>
         <span class="stat-pill">Streak: ${stats.streak} day${stats.streak === 1 ? "" : "s"}</span>
       </div>
 
@@ -276,35 +392,4 @@ document.addEventListener("DOMContentLoaded", async () => {
       </div>
     `;
   }
-
-  /* =========================
-     INIT
-  ========================= */
-
-  if (!topic || !subtopic) {
-    subtopicTitle.textContent = "Subtopic Not Found";
-    renderEmpty("Missing topic or subtopic.");
-    return;
-  }
-
-  const niceName = makeNiceTitle(subtopic);
-
-  subtopicTitle.textContent = niceName;
-  if (heroTitle) heroTitle.textContent = niceName;
-  if (heroText) {
-    heroText.textContent = `Practice ${niceName} with structured MCQ sets and track your progress.`;
-  }
-
-  const sets = await loadQuizSets();
-
-  quizSetsGrid.innerHTML = "";
-
-  if (!sets || sets.length === 0) {
-    renderEmpty("Add sets.json for this subtopic to display quiz sets.");
-    return;
-  }
-
-  sets.forEach((set, index) => {
-    quizSetsGrid.appendChild(buildSetCard(set, index));
-  });
 });

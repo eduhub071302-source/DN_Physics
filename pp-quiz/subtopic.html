@@ -6,29 +6,22 @@
   <title>Subtopic | PP Quiz</title>
   <meta
     name="description"
-    content="Open quiz sets for a selected A/L Physics subtopic and continue focused past paper MCQ practice."
+    content="Open quiz sets for a selected subtopic and continue focused past paper MCQ practice."
   />
   <link rel="stylesheet" href="/DN_Physics/pp-quiz/css/quiz.css?v=22" />
 </head>
-
-<footer style="
-  margin-top:40px;
-  padding:20px;
-  text-align:center;
-  font-size:14px;
-  color:#a8b3cf;
-  border-top:1px solid #24314f;
-">
-  <a href="/DN_Physics/privacy.html">Privacy Policy</a> |
-  <a href="/DN_Physics/terms.html">Terms</a> |
-  <a href="/DN_Physics/contact.html">Contact</a>
-</footer>
-  
 <body>
 
   <header class="quiz-header">
     <div class="container">
-      <a id="backToTopic" class="back-link" href="/DN_Physics/pp-quiz/index.html">← Back</a>
+      <a
+        id="backToTopic"
+        class="back-link"
+        href="/DN_Physics/pp-quiz/topic.html?subject=physics&topic=units"
+      >
+        ← Back
+      </a>
+
       <h1 id="subtopicTitle">Subtopic</h1>
       <p>Choose a quiz set to start practicing.</p>
 
@@ -41,7 +34,6 @@
   <main class="quiz-main">
     <div class="container">
 
-      <!-- HERO -->
       <section class="topic-card fade-slide-up" style="margin-bottom: 20px; min-height: auto;">
         <div class="topic-card-top">
           <div class="topic-body">
@@ -62,7 +54,6 @@
         </div>
       </section>
 
-      <!-- SECTION HEAD -->
       <section class="fade-slide-up" style="margin-bottom: 16px;">
         <div style="display: flex; align-items: end; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
           <div>
@@ -74,10 +65,7 @@
         </div>
       </section>
 
-      <!-- QUIZ SETS GRID -->
       <section id="quizSetsGrid" class="topics-grid fade-in" aria-live="polite">
-
-        <!-- Skeleton loading -->
         <article class="skeleton-card">
           <div class="skeleton-avatar"></div>
           <div class="skeleton-line lg"></div>
@@ -109,13 +97,11 @@
           <div class="skeleton-line sm"></div>
           <div class="skeleton-box"></div>
         </article>
-
       </section>
 
     </div>
   </main>
 
-  <!-- GLOBAL MUSIC PLAYER -->
   <audio id="bgMusic" loop></audio>
 
   <div id="musicPlayerFloating" class="music-floating">
@@ -148,6 +134,19 @@
       <div id="currentTrackLabel" class="music-label">Current: None</div>
     </div>
   </div>
+
+  <footer style="
+    margin-top:40px;
+    padding:20px;
+    text-align:center;
+    font-size:14px;
+    color:#a8b3cf;
+    border-top:1px solid #24314f;
+  ">
+    <a href="/DN_Physics/privacy.html">Privacy Policy</a> |
+    <a href="/DN_Physics/terms.html">Terms</a> |
+    <a href="/DN_Physics/contact.html">Contact</a>
+  </footer>
 
   <script src="/DN_Physics/js/app-config.js"></script>
   <script src="/DN_Physics/js/unlock.js"></script>

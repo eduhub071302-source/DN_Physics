@@ -1,47 +1,8 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
+  const subject = (params.get("subject") || "physics").toLowerCase().trim();
   const topic = params.get("topic");
   const subtopic = params.get("subtopic");
-
-  // 🔒 ACCESS CONTROL
-  if (!canAccessQuiz(topic)) {
-    if (quizTitle) quizTitle.textContent = "🔒 Locked Quiz";
-    if (quizSubtitle) {
-      quizSubtitle.textContent = "Buy full access for Rs.100 to unlock all quizzes.";
-    }
-
-    document.body.innerHTML = `
-      <div style="
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        justify-content:center;
-        height:100vh;
-        background:#0b1220;
-        color:#fff;
-        text-align:center;
-        padding:20px;
-        font-family:sans-serif;
-      ">
-        <h1>🔒 Premium Content</h1>
-        <p>This quiz is locked.</p>
-        <p>Only Units is free.</p>
-        <p>Unlock full access for Rs.100</p>
-        <button onclick="history.back()" style="
-          margin-top:20px;
-          padding:10px 20px;
-          border:none;
-          background:#4ea1ff;
-          color:#fff;
-          border-radius:8px;
-          cursor:pointer;
-        ">Go Back</button>
-      </div>
-    `;
-
-    return;
-  }
-  
   const setName = params.get("set") || "set-1";
 
   const quizTitle = document.getElementById("quizTitle");
@@ -74,11 +35,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const retryUnansweredBtn = document.getElementById("retryUnansweredBtn");
   const retryMarkedBtn = document.getElementById("retryMarkedBtn");
   const wrongOnlyBtn = document.getElementById("wrongOnlyBtn");
-
-  const hintBtn = null;
-  const hintBox = null;
-  const hintText = null;
-  const closeHintBtn = null;
 
   const zoomBtn = document.getElementById("zoomBtn");
   const imageModal = document.getElementById("imageModal");
@@ -175,6 +131,115 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
+  const SUBJECT_TOPIC_ORDER = {
+    physics: [
+      "units",
+      "mechanics",
+      "oscillations-waves",
+      "thermal-physics",
+      "gravitational-field",
+      "electrostatics-field",
+      "magnetic-field",
+      "current-electricity",
+      "electronics",
+      "mechanical-properties",
+      "matter-radiations"
+    ],
+    chemistry: [
+      "atomic-structure",
+      "structure-and-bonding",
+      "chemical-calculation",
+      "gaseous-state-of-matter",
+      "energetic",
+      "chemistry-of-s-p-and-d-block-elements",
+      "basic-concepts-of-organic-chemistry",
+      "hydrocarbons-and-halohydrocarbons",
+      "oxygen-containg-organic-compunds",
+      "nitrogen-containing-organic-compounds",
+      "chemical-kinetics",
+      "equilibrium",
+      "electro-chemistry",
+      "industrial-chemistry-and-environmental-pollution"
+    ],
+    maths: [
+      "trignometry",
+      "remainder-theorm-and-factors",
+      "limit-and-differentiation",
+      "vectors",
+      "equilibrium-of-factors",
+      "inequalitis-and-modules-funtion",
+      "quadratic-equation",
+      "sysytem-of-forces",
+      "motion-of-straigt-line-and-velocity-time-curce",
+      "relatice-velocity",
+      "mathematical-induction",
+      "projectiles",
+      "relatice-acceleration",
+      "frction",
+      "frame-work",
+      "straight-line",
+      "circle",
+      "work-enegry-power",
+      "impulse-and-impact",
+      "circular-motion",
+      "probability",
+      "binomial-theorem",
+      "complex-numbers",
+      "simple-harmonic-motion",
+      "statistic",
+      "differenntitation-and-graphs",
+      "intergration",
+      "premutation-and-combination",
+      "series",
+      "center-of-gravity"
+    ]
+  };
+
+  function canAccessCurrentTopic(subjectSlug, topicSlug) {
+    if (typeof hasPaidAccess === "function" && hasPaidAccess()) {
+      return true;
+    }
+    const list = SUBJECT_TOPIC_ORDER[subjectSlug] || [];
+    return list[0] === topicSlug;
+  }
+
+  if (!canAccessCurrentTopic(subject, topic)) {
+    if (quizTitle) quizTitle.textContent = "🔒 Locked Quiz";
+    if (quizSubtitle) {
+      quizSubtitle.textContent = "Only lesson 1 is free. Unlock to access all quizzes.";
+    }
+
+    document.body.innerHTML = `
+      <div style="
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        height:100vh;
+        background:#0b1220;
+        color:#fff;
+        text-align:center;
+        padding:20px;
+        font-family:sans-serif;
+      ">
+        <h1>🔒 Premium Content</h1>
+        <p>This quiz is locked.</p>
+        <p>Only lesson 1 is free.</p>
+        <p>Unlock full access to continue.</p>
+        <button onclick="history.back()" style="
+          margin-top:20px;
+          padding:10px 20px;
+          border:none;
+          background:#4ea1ff;
+          color:#fff;
+          border-radius:8px;
+          cursor:pointer;
+        ">Go Back</button>
+      </div>
+    `;
+    return;
+  }
+
   const QUIZ_PROGRESS_KEY = "dnPhysicsQuizProgress";
   const QUIZ_SESSION_KEY = "dnPhysicsQuizSessions";
 
@@ -188,7 +253,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   let totalQuestions = 1;
   let answerKey = {};
   let explanations = {};
-  let hintData = {};
   let userAnswers = {};
   let reviewMode = false;
   let wrongQuestionsGlobal = [];
@@ -240,13 +304,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }, 2200);
   }
 
-  function hideHintBox() {
-    // Hint system disabled
-  }
-
-  function showHintBox() {
-    // Hint system disabled (Exam Mode)
-  }
+  function hideHintBox() {}
+  function showHintBox() {}
 
   function scheduleRender(fn) {
     if (renderScheduled) return;
@@ -275,19 +334,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
-  }
-
-  function formatHintMath(value) {
-    let text = escapeHtml(value);
-
-    text = text
-      .replace(/gamma/gi, "γ")
-      .replace(/rho/gi, "ρ")
-      .replace(/lambda/gi, "λ")
-      .replace(/theta/gi, "θ")
-      .replace(/pi/gi, "π");
-
-    return text;
   }
 
   function formatTime(totalSeconds) {
@@ -348,8 +394,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     localStorage.setItem(QUIZ_SESSION_KEY, JSON.stringify(store));
   }
 
-  function getQuizProgressId(topicSlug, subtopicSlug, currentSetName = "set-1") {
-    return `${topicSlug}__${subtopicSlug}__${currentSetName}`;
+  function getQuizProgressId(subjectSlug, topicSlug, subtopicSlug, currentSetName = "set-1") {
+    return `${subjectSlug}__${topicSlug}__${subtopicSlug}__${currentSetName}`;
   }
 
   function getLegacyStorageKey() {
@@ -405,22 +451,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function loadAttemptData() {
     const store = getProgressStore();
-    const progressId = getQuizProgressId(topic, subtopic, setName);
+    const progressId = getQuizProgressId(subject, topic, subtopic, setName);
 
     if (store[progressId]) {
       return normalizeAttemptData(store[progressId]);
     }
 
-    try {
-      const legacy = JSON.parse(localStorage.getItem(getLegacyStorageKey()));
-      if (legacy) {
-        const normalized = normalizeAttemptData(legacy);
-        store[progressId] = normalized;
-        saveProgressStore(store);
-        return normalized;
-      }
-    } catch {
-      // ignore
+    if (subject === "physics") {
+      try {
+        const legacy = JSON.parse(localStorage.getItem(getLegacyStorageKey()));
+        if (legacy) {
+          const normalized = normalizeAttemptData(legacy);
+          store[progressId] = normalized;
+          saveProgressStore(store);
+          return normalized;
+        }
+      } catch {}
     }
 
     return null;
@@ -428,14 +474,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function saveAttemptData(data) {
     const store = getProgressStore();
-    const progressId = getQuizProgressId(topic, subtopic, setName);
+    const progressId = getQuizProgressId(subject, topic, subtopic, setName);
     store[progressId] = normalizeAttemptData(data);
     saveProgressStore(store);
   }
 
   function getSavedSession() {
     const store = getSessionStore();
-    const sessionId = getQuizProgressId(topic, subtopic, setName);
+    const sessionId = getQuizProgressId(subject, topic, subtopic, setName);
     return store[sessionId] || null;
   }
 
@@ -443,7 +489,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (reviewMode) return;
 
     const store = getSessionStore();
-    const sessionId = getQuizProgressId(topic, subtopic, setName);
+    const sessionId = getQuizProgressId(subject, topic, subtopic, setName);
 
     store[sessionId] = {
       currentQuestion,
@@ -472,7 +518,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function clearSavedSession() {
     const store = getSessionStore();
-    const sessionId = getQuizProgressId(topic, subtopic, setName);
+    const sessionId = getQuizProgressId(subject, topic, subtopic, setName);
     delete store[sessionId];
     saveSessionStore(store);
   }
@@ -591,7 +637,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   async function loadQuizData() {
-    const jsonPath = `/DN_Physics/pp-quiz/data/${topic}/${subtopic}/${setName}.json`;
+    const jsonPath = `/DN_Physics/pp-quiz/data/${subject}/${topic}/${subtopic}/${setName}.json`;
 
     try {
       const response = await fetch(jsonPath);
@@ -607,7 +653,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       questionTimeLimitSeconds = Number(data.questionTimeLimitSeconds) || null;
 
       quizTitle.textContent = `${makeNiceTitle(subtopic)} - ${data.title || makeNiceTitle(setName)}`;
-      quizSubtitle.textContent = `${makeNiceTitle(topic)} / ${makeNiceTitle(subtopic)}`;
+      quizSubtitle.textContent = `${makeNiceTitle(subject)} / ${makeNiceTitle(topic)} / ${makeNiceTitle(subtopic)}`;
     } catch (error) {
       console.error(error);
       quizTitle.textContent = "Quiz Not Found";
@@ -618,10 +664,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     return true;
   }
 
-  backToSubtopic.href = `/DN_Physics/pp-quiz/subtopic.html?topic=${encodeURIComponent(topic)}&subtopic=${encodeURIComponent(subtopic)}`;
+  backToSubtopic.href = `/DN_Physics/pp-quiz/subtopic.html?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topic)}&subtopic=${encodeURIComponent(subtopic)}`;
 
   function getImagePath(questionNumber) {
-    return `/DN_Physics/pp-quiz/images/${topic}/${subtopic}/q${questionNumber}.jpg`;
+    return `/DN_Physics/pp-quiz/images/${subject}/${topic}/${subtopic}/q${questionNumber}.jpg`;
   }
 
   function getAnsweredCount() {
@@ -790,19 +836,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     updatePalette();
   }
 
-  function animateQuestionChange() {
-    const card = document.querySelector(".quiz-main-card");
-    if (!card) return;
-
-    card.classList.remove("fade-slide-up");
-    void card.offsetWidth;
-    card.classList.add("fade-slide-up");
-
-    setTimeout(() => {
-      card.classList.remove("fade-slide-up");
-    }, 250);
-  }
-
   function preloadQuestionImage(questionNumber) {
     if (!Number.isFinite(questionNumber) || questionNumber < 1) return;
 
@@ -854,8 +887,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateSubmitVisibility();
     updateMotivationBar();
     resetQuestionTimer();
-    // animateQuestionChange();
-    // smartSaveSession();
   }
 
   function stopTimers() {
@@ -1297,10 +1328,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   answerButtons.forEach((button) => {
     button.addEventListener("click", () => {
       if (reviewMode) return;
-      
+
       const questionNumber = getCurrentQuestionNumber();
       userAnswers[questionNumber] = Number(button.dataset.answer);
-      
+
       updateAnswerButtons();
       updateSubmitVisibility();
       updateMotivationBar();
@@ -1310,8 +1341,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       const index = getCurrentShownIndex();
 
       if (index < total) {
-
-        // 🔥 PRELOAD NEXT BEFORE SWITCH
         if (retryModeType === "list" || practiceWrongOnlyMode) {
           const nextActualQuestion = retryQuestionList[currentDisplayIndex];
           const nextNextActualQuestion = retryQuestionList[currentDisplayIndex + 1];
@@ -1576,12 +1605,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     btn.addEventListener("click", () => {
       const targetId = btn.dataset.target;
 
-      if (!targetId) return; // 🔥 protect
+      if (!targetId) return;
 
       const content = document.getElementById(targetId);
       const card = btn.closest(".collapsible-card");
 
-      if (!content || !card) return; // 🔥 protect
+      if (!content || !card) return;
 
       const isOpen = card.classList.contains("open");
 
@@ -1597,4 +1626,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 });
-
