@@ -826,7 +826,6 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="topic-body">
           <div class="topic-pill">Subtopic</div>
           <h2 class="topic-title">${escapeHtml(subtopic.title)}</h2>
-          <p class="topic-desc">${escapeHtml(description)}</p>
         </div>
         <div class="topic-icon" aria-hidden="true">${escapeHtml(subtopic.icon || "📘")}</div>
       </div>
@@ -883,7 +882,6 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="topic-body">
           <div class="topic-pill">Topic Practice</div>
           <h2 class="topic-title">${escapeHtml(topicMeta.title)}</h2>
-          <p class="topic-desc">${escapeHtml(description)}</p>
         </div>
         <div class="topic-icon" aria-hidden="true">${escapeHtml(topicMeta.icon || "📘")}</div>
       </div>

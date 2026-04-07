@@ -664,7 +664,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     return true;
   }
 
-  backToSubtopic.href = `/DN_Physics/pp-quiz/subtopic.html?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topic)}&subtopic=${encodeURIComponent(subtopic)}`;
+  if (subject === "maths") {
+    backToSubtopic.href = `/DN_Physics/pp-quiz/topic.html?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topic)}`;
+  } else {
+    backToSubtopic.href = `/DN_Physics/pp-quiz/subtopic.html?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topic)}&subtopic=${encodeURIComponent(subtopic)}`;
+  }
 
   function getImagePath(questionNumber) {
     return `/DN_Physics/pp-quiz/images/${subject}/${topic}/${subtopic}/q${questionNumber}.jpg`;
