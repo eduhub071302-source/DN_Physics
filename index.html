@@ -1401,20 +1401,9 @@
       document.querySelectorAll(".subject-card-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
           const subject = btn.dataset.subject;
+          if (!subject) return;
 
-          if (subject === "physics") {
-            window.location.href = "/DN_Physics/pp-quiz/index.html";
-            return;
-          }
-
-          if (subject === "chemistry") {
-            window.location.href = "/DN_Physics/pp-quiz-chem/index.html";
-            return;
-          }
-
-          if (subject === "maths") {
-            window.location.href = "/DN_Physics/pp-quiz-maths/index.html";
-          }
+          window.location.href = `/DN_Physics/pp-quiz/index.html?subject=${encodeURIComponent(subject)}`;
         });
       });
 
