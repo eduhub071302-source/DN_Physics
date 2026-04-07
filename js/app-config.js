@@ -35,7 +35,7 @@ const DN_CONFIG = {
   },
 
   BACKEND: {
-    API_BASE_URL: "https://aqhktwashmnqkgvmauxv.supabase.co/functions/v1/me",
+    API_BASE_URL: "https://aqhktwashmnqkgvmauxv.supabase.co/functions/v1",
 
     CREATE_ORDER_URL: "/api/payments/create-order",
     NOTIFY_URL: "/api/payments/notify",
