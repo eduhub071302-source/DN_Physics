@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Physics Notes | DinuuNOVA</title>
+
+  <link rel="stylesheet" href="/DN_Physics/css/style.css" />
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container nav">
+      <div class="brand">DinuuNOVA <span>Physics</span></div>
+
+      <div class="topbar-right">
+        <button onclick="history.back()" class="btn">← Back</button>
+
+        <button
+          id="refreshBtn"
+          class="btn refresh-top-btn"
+          type="button"
+        >
+          🔄
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- PAGE HERO -->
+  <section class="hero" style="padding: 60px 0;">
+    <div class="container">
+      <div class="badge">Physics Notes</div>
+      <h1>📚 All Topics</h1>
+      <p>Explore all A/L Physics formula notes.</p>
+    </div>
+  </section>
+
+  <!-- SUBJECT GRID -->
+  <section class="section">
+    <div class="container">
+      <h2>All Physics Topics</h2>
+
+      <div class="grid" id="subjectGrid">
+        <div class="empty-state">Loading subjects...</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="
+    margin-top:40px;
+    padding:20px;
+    text-align:center;
+    font-size:14px;
+    color:#a8b3cf;
+    border-top:1px solid #24314f;
+  ">
+    <a href="/DN_Physics/privacy.html">Privacy Policy</a> |
+    <a href="/DN_Physics/terms.html">Terms</a> |
+    <a href="/DN_Physics/contact.html">Contact</a>
+  </footer>
+
+  <!-- REQUIRED SCRIPTS -->
+  <script src="/DN_Physics/js/app-config.js"></script>
+  <script src="/DN_Physics/js/unlock.js"></script>
+
+  <script>
+    const subjectGrid = document.getElementById("subjectGrid");
+
+    function prettifySubject(name) {
+      return (name || "")
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase())
+        .trim();
+    }
+
+    async function loadSubjects() {
+      try {
+        const res = await fetch("/DN_Physics/pdfs/catalog.json");
+        const items = await res.json();
+
+        const subjects = [...new Set(items.map(i => i.subject))];
+
+        subjectGrid.innerHTML = subjects.map((slug, index) => {
+          const name = prettifySubject(slug);
+
+          return `
+            <div class="card">
+              <div class="card-top">
+                <div class="badge">Topic ${String(index+1).padStart(2,"0")}</div>
+              </div>
+
+              <h3>${name}</h3>
+              <p>Explore formula notes and revision sheets.</p>
+
+              <div class="actions">
+                <a class="btn" href="/DN_Physics/subjects/${slug}/index.html">
+                  Explore
+                </a>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+      } catch (e) {
+        subjectGrid.innerHTML = `<div class="empty-state">Failed to load subjects</div>`;
+      }
+    }
+
+    document.getElementById("refreshBtn").onclick = () => location.reload();
+
+    loadSubjects();
+  </script>
+
+</body>
+</html>
