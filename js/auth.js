@@ -707,6 +707,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         updateAccountButton();
         showAuthError("✅ Profile saved successfully.", true);
+
+        setTimeout(() => {
+          closeAuthModal();
+          window.location.reload();
+        }, 700);
+
         return;
       }
 

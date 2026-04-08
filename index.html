@@ -258,43 +258,91 @@
   </footer>
 
   <div id="authModal" class="auth-modal hidden">
-    <div class="auth-box">
-      <h2 id="authTitle">Login</h2>
+          <div class="auth-box premium-auth-box">
+            <h2 id="authTitle">Login</h2>
 
-      <div
-        id="profileEditorSection"
-        class="is-hidden"
-        style="margin-bottom:16px;"
-      >
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
-          <div
-            id="profileAvatarPreviewWrap"
-            style="
-              width:72px;
-              height:72px;
-              border-radius:50%;
-              overflow:hidden;
-              border:2px solid rgba(78,161,255,0.35);
-              background:rgba(255,255,255,0.05);
-              display:flex;
-              align-items:center;
-              justify-content:center;
-              flex-shrink:0;
-            "
-          >
-            <img
-              id="profileAvatarPreview"
-              src="/DN_Physics/assets/avatars/avatar-01.png"
-              alt="Selected avatar"
-              style="width:100%; height:100%; object-fit:cover;"
-            />
-          </div>
+            <div id="profileEditorSection" class="profile-editor-section is-hidden">
+              <div class="profile-editor-header">
+                <div class="profile-avatar-preview-wrap" id="profileAvatarPreviewWrap">
+                  <img
+                    id="profileAvatarPreview"
+                    src="/DN_Physics/assets/avatars/avatar-01.png"
+                    alt="Selected avatar"
+                    class="profile-avatar-preview"
+                  />
+                </div>
 
-          <div style="min-width:0;">
-            <div style="font-weight:700; color:#e8eefc; margin-bottom:4px;">Your Profile</div>
-            <div style="font-size:13px; color:#a8b3cf; line-height:1.5;">
-              Choose an avatar, set your name, and add a short bio.
+                <div class="profile-editor-meta">
+                  <div class="profile-editor-badge">DN Physics Profile</div>
+                  <div class="profile-editor-heading">Build your identity</div>
+                  <div class="profile-editor-subtext">
+                    Choose an avatar, set your display name, and write a short bio.
+                  </div>
+                </div>
+              </div>
+
+              <div class="profile-editor-fields">
+                <input id="profileNameInput" placeholder="Display Name" class="profile-input" />
+
+                <textarea
+                  id="profileBioInput"
+                  placeholder="Short bio"
+                  rows="3"
+                  class="profile-bio-input"
+                ></textarea>
+              </div>
+
+              <div class="avatar-section-head">
+                <span class="avatar-section-title">Choose Avatar</span>
+                <span class="avatar-section-subtitle">30 premium preset avatars</span>
+              </div>
+
+              <div id="presetAvatarGrid" class="preset-avatar-grid"></div>
             </div>
+
+            <input id="authEmail" placeholder="Email" />
+
+            <div id="authPasswordRow" class="auth-password-wrap">
+              <input id="authPassword" type="password" placeholder="Password" />
+              <button id="togglePasswordBtn" class="auth-eye-btn" type="button" aria-label="Show password">
+                <svg id="eyeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M1 12C1 12 5 5 12 5C19 5 23 12 23 12C23 12 19 19 12 19C5 19 1 12 1 12Z"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
+                </svg>
+              </button>
+            </div>
+
+            <div id="authConfirmRow" class="auth-password-wrap is-hidden">
+              <input id="authConfirmPassword" type="password" placeholder="Confirm Password" />
+              <button id="toggleConfirmPasswordBtn" class="auth-eye-btn" type="button" aria-label="Show confirm password">
+                <svg id="confirmEyeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M1 12C1 12 5 5 12 5C19 5 23 12 23 12C23 12 19 19 12 19C5 19 1 12 1 12Z"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
+                </svg>
+              </button>
+            </div>
+
+            <button id="authSubmitBtn" class="btn btn-primary" type="button">Login</button>
+            <button id="authSecondaryBtn" class="btn is-hidden" type="button">Logout</button>
+
+            <p id="authToggleText">
+              Don't have an account?
+              <span id="authToggleBtn">Sign up</span>
+            </p>
+
+            <p class="auth-forgot">
+              <span id="forgotPasswordBtn">Forgot password?</span>
+            </p>
+
+            <button id="authCloseBtn" class="btn" type="button">Close</button>
           </div>
         </div>
 
