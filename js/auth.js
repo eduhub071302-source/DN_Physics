@@ -230,16 +230,29 @@ async function restoreUserSession() {
 
 function updateAccountButton() {
   const btn = document.getElementById("loginBtn");
+  const emailDisplay = document.getElementById("userEmailDisplay");
   const user = getUser();
 
   if (!btn) return;
 
   if (user?.email) {
-    btn.textContent = `👤 ${user.email}`;
-    btn.title = user.email;
+    btn.textContent = "🧑 Profile";
+    btn.title = user.email || "Open profile";
+
+    if (emailDisplay) {
+      emailDisplay.textContent = user.email;
+    }
   } else {
-    btn.textContent = "👤 Login";
+    btn.textContent = "👤 Profile";
     btn.title = "Login or sign up";
+
+    if (emailDisplay) {
+      emailDisplay.textContent = "";
+    }
+  }
+
+  if (typeof window.updateProfileUI === "function") {
+    window.updateProfileUI(user);
   }
 }
 
@@ -276,6 +289,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const authPassword = document.getElementById("authPassword");
   const authConfirmPassword = document.getElementById("authConfirmPassword");
   const authConfirmRow = document.getElementById("authConfirmRow");
+  const authPasswordRow = document.getElementById("authPasswordRow");
   const authTitle = document.getElementById("authTitle");
   const authToggleText = document.getElementById("authToggleText");
   const togglePasswordBtn = document.getElementById("togglePasswordBtn");
@@ -286,13 +300,50 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let isLoginMode = true;
 
+  function resetAuthFormToDefault() {
+    if (authEmail) {
+      authEmail.value = "";
+      authEmail.disabled = false;
+      authEmail.placeholder = "Email";
+    }
+
+    if (authPassword) {
+      authPassword.value = "";
+      authPassword.disabled = false;
+      authPassword.placeholder = "Password";
+      authPassword.type = "password";
+    }
+
+    if (authConfirmPassword) {
+      authConfirmPassword.value = "";
+      authConfirmPassword.disabled = false;
+      authConfirmPassword.placeholder = "Confirm Password";
+      authConfirmPassword.type = "password";
+    }
+
+    if (authPasswordRow) authPasswordRow.classList.remove("is-hidden");
+    if (togglePasswordBtn) togglePasswordBtn.classList.remove("is-hidden");
+    if (toggleConfirmPasswordBtn) toggleConfirmPasswordBtn.classList.remove("is-hidden");
+
+    if (eyeIcon && authPassword && togglePasswordBtn) {
+      setEyeState(authPassword, togglePasswordBtn, eyeIcon, false);
+    }
+
+    if (confirmEyeIcon && authConfirmPassword && toggleConfirmPasswordBtn) {
+      setEyeState(authConfirmPassword, toggleConfirmPasswordBtn, confirmEyeIcon, false);
+    }
+  }
+
   function renderAuthMode() {
+    resetAuthFormToDefault();
+
     if (authTitle) {
       authTitle.textContent = isLoginMode ? "Login" : "Create Account";
     }
 
     if (authSubmitBtn) {
       authSubmitBtn.textContent = isLoginMode ? "Login" : "Create Account";
+      authSubmitBtn.dataset.mode = isLoginMode ? "login" : "signup";
     }
 
     if (authConfirmRow) {
@@ -313,13 +364,54 @@ document.addEventListener("DOMContentLoaded", () => {
         toggle.onclick = () => {
           isLoginMode = !isLoginMode;
           clearAuthError();
-
-          if (authPassword) authPassword.value = "";
-          if (authConfirmPassword) authConfirmPassword.value = "";
-
           renderAuthMode();
         };
       }
+    }
+  }
+
+  function renderProfileMode() {
+    const user = getUser();
+    if (!user?.email) {
+      isLoginMode = true;
+      renderAuthMode();
+      return;
+    }
+
+    clearAuthError();
+
+    if (authTitle) authTitle.textContent = "Your Profile";
+    if (authSubmitBtn) {
+      authSubmitBtn.textContent = "Logout";
+      authSubmitBtn.dataset.mode = "profile";
+    }
+
+    if (authEmail) {
+      authEmail.value = user.email;
+      authEmail.disabled = true;
+    }
+
+    if (authPassword) {
+      authPassword.value = "";
+      authPassword.disabled = true;
+    }
+
+    if (authConfirmPassword) {
+      authConfirmPassword.value = "";
+      authConfirmPassword.disabled = true;
+    }
+
+    if (authPasswordRow) authPasswordRow.classList.add("is-hidden");
+    if (authConfirmRow) authConfirmRow.classList.add("is-hidden");
+    if (togglePasswordBtn) togglePasswordBtn.classList.add("is-hidden");
+    if (toggleConfirmPasswordBtn) toggleConfirmPasswordBtn.classList.add("is-hidden");
+
+    if (authToggleText) {
+      authToggleText.innerHTML = `You are logged in. Your quiz data and future profile data belong to this account.`;
+    }
+
+    if (forgotBtn) {
+      forgotBtn.parentElement?.classList.add("is-hidden");
     }
   }
 
@@ -350,13 +442,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const user = getUser();
 
+    clearAuthError();
+
     if (user) {
-      const logoutModal = document.getElementById("logoutModal");
-      if (logoutModal) logoutModal.classList.remove("hidden");
+      renderProfileMode();
+      openAuthModal();
       return;
     }
 
-    clearAuthError();
+    isLoginMode = true;
+    renderAuthMode();
     openAuthModal();
   });
 
@@ -382,6 +477,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (authSubmitBtn) {
     authSubmitBtn.onclick = async () => {
+      const mode = authSubmitBtn.dataset.mode || (isLoginMode ? "login" : "signup");
+
+      if (mode === "profile") {
+        closeAuthModal();
+        document.getElementById("logoutModal")?.classList.remove("hidden");
+        return;
+      }
+
       const email = authEmail?.value.trim().toLowerCase() || "";
       const password = authPassword?.value.trim() || "";
       const confirmPassword = authConfirmPassword?.value.trim() || "";
@@ -392,7 +495,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return showAuthError("Please enter your email and password.");
       }
 
-      if (!isLoginMode) {
+      if (mode === "signup") {
         if (!confirmPassword) {
           return showAuthError("Please confirm your password.");
         }
@@ -403,9 +506,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       try {
-        if (isLoginMode) {
+        if (mode === "login") {
           if (!navigator.onLine) {
-            return window.location.href = "/DN_Physics/offline.html";
+            window.location.href = "/DN_Physics/offline.html";
+            return;
           }
 
           const { data, error } = await supabaseClient.auth.signInWithPassword({
@@ -433,7 +537,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (!navigator.onLine) {
-          return window.location.href = "/DN_Physics/offline.html";
+          window.location.href = "/DN_Physics/offline.html";
+          return;
         }
 
         let res;
@@ -452,7 +557,6 @@ document.addEventListener("DOMContentLoaded", () => {
           );
 
           result = await res.json().catch(() => ({}));
-
         } catch (err) {
           console.error("Fetch failed:", err);
 
@@ -552,6 +656,7 @@ document.addEventListener("DOMContentLoaded", () => {
       clearSessionToken();
       clearProfileCache();
     }
+
     updateAccountButton();
   });
 
