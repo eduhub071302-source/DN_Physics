@@ -207,6 +207,10 @@ async function restoreUserSession() {
       setUser(session.user);
       setSessionToken(session.access_token || "");
       await loadUserProfile(session.user.id);
+
+      if (typeof syncCloudProgressToLocal === "function") {
+        await syncCloudProgressToLocal();
+      }
     } else {
       clearUser();
       clearSessionToken();
@@ -417,6 +421,10 @@ document.addEventListener("DOMContentLoaded", () => {
           setSessionToken(data.session?.access_token || "");
           await ensureProfile(data.user);
           await loadUserProfile(data.user.id);
+
+          if (typeof syncCloudProgressToLocal === "function") {
+            await syncCloudProgressToLocal();
+          }
 
           closeAuthModal();
           updateAccountButton();

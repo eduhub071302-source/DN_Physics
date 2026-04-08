@@ -1118,6 +1118,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
 
     saveAttemptData(newData);
+
+    if (typeof syncLocalProgressToCloud === "function") {
+      try {
+        await syncLocalProgressToCloud();
+      } catch (error) {
+        console.warn("Progress cloud sync warning:", error);
+      }
+    }
+
     clearSavedSession();
     renderAttemptInfo();
     renderPerformanceCard();
