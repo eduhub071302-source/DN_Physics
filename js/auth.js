@@ -1,5 +1,9 @@
 // 🔐 DN Physics Auth System — Finalized Production Version
 
+function getClient() {
+  return window.supabaseClient || null;
+}
+
 function openAuthModal() {
   const modal = document.getElementById("authModal");
   if (modal) modal.classList.remove("hidden");
@@ -52,10 +56,6 @@ function isOfflineError(error) {
   return !navigator.onLine || error instanceof TypeError;
 }
 
-function getOfflineMessage(actionText = "continue") {
-  return `No internet connection. Please reconnect and try again to ${actionText}.`;
-}
-
 // ----------------------------
 // STORAGE HELPERS
 // ----------------------------
@@ -99,6 +99,14 @@ function setProfileCache(profile) {
   } catch {}
 }
 
+function getProfileCache() {
+  try {
+    return JSON.parse(localStorage.getItem("dn_profile")) || null;
+  } catch {
+    return null;
+  }
+}
+
 function clearProfileCache() {
   try {
     localStorage.removeItem("dn_profile");
@@ -107,17 +115,39 @@ function clearProfileCache() {
 }
 
 // ----------------------------
+// AVATAR HELPERS
+// ----------------------------
+
+function buildPresetAvatarUrl(avatarValue) {
+  const safe = avatarValue || "avatar-01";
+  return `/DN_Physics/assets/avatars/${safe}.png`;
+}
+
+function getPresetAvatarList() {
+  return Array.from({ length: 30 }, (_, i) => {
+    const index = String(i + 1).padStart(2, "0");
+    return {
+      id: `avatar-${index}`,
+      url: buildPresetAvatarUrl(`avatar-${index}`)
+    };
+  });
+}
+
+// ----------------------------
 // LOGOUT
 // ----------------------------
 
 async function logout() {
+  const client = getClient();
+  if (!client) return;
+
   if (!navigator.onLine) {
     window.location.href = "/DN_Physics/offline.html";
     return;
   }
 
   try {
-    await supabaseClient.auth.signOut();
+    await client.auth.signOut();
   } catch (error) {
     console.error("Logout error:", error);
 
@@ -146,8 +176,11 @@ async function logout() {
 // ----------------------------
 
 async function loadUserProfile(userId) {
+  const client = getClient();
+  if (!client) return null;
+
   try {
-    const { data, error } = await supabaseClient
+    const { data, error } = await client
       .from("profiles")
       .select("*")
       .eq("id", userId)
@@ -171,26 +204,62 @@ async function loadUserProfile(userId) {
 }
 
 async function ensureProfile(user) {
+  const client = getClient();
+  if (!client) return null;
   if (!user?.id || !user?.email) return null;
 
   const profilePayload = {
     id: user.id,
     email: user.email,
-    name: user.email.split("@")[0]
+    name: user.email.split("@")[0],
+    bio: null,
+    avatar_type: "preset",
+    avatar_value: "avatar-01",
+    profile_photo_url: buildPresetAvatarUrl("avatar-01")
   };
 
   try {
-    const { error } = await supabaseClient.from("profiles").upsert(profilePayload);
+    const { error } = await client.from("profiles").upsert(profilePayload);
 
     if (error) {
       console.warn("Profile upsert warning:", error.message);
     }
 
-    setProfileCache(profilePayload);
-    return profilePayload;
+    const merged = { ...(getProfileCache() || {}), ...profilePayload };
+    setProfileCache(merged);
+    return merged;
   } catch (error) {
     console.warn("Profile upsert failed:", error);
     return null;
+  }
+}
+
+async function saveUserProfile(userId, payload) {
+  const client = getClient();
+  if (!client) return { ok: false, message: "Supabase client not ready." };
+
+  try {
+    const { data, error } = await client
+      .from("profiles")
+      .upsert({
+        id: userId,
+        ...payload,
+        updated_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (error) {
+      return { ok: false, message: error.message || "Could not save profile." };
+    }
+
+    if (data) {
+      setProfileCache(data);
+    }
+
+    return { ok: true, data };
+  } catch (error) {
+    return { ok: false, message: "Could not save profile." };
   }
 }
 
@@ -199,8 +268,11 @@ async function ensureProfile(user) {
 // ----------------------------
 
 async function restoreUserSession() {
+  const client = getClient();
+  if (!client) return;
+
   try {
-    const { data } = await supabaseClient.auth.getSession();
+    const { data } = await client.auth.getSession();
     const session = data?.session;
 
     if (session?.user) {
@@ -232,15 +304,18 @@ function updateAccountButton() {
   const btn = document.getElementById("loginBtn");
   const emailDisplay = document.getElementById("userEmailDisplay");
   const user = getUser();
+  const profile = getProfileCache();
 
   if (!btn) return;
 
   if (user?.email) {
     btn.textContent = "🧑 Profile";
-    btn.title = user.email || "Open profile";
+    btn.title = profile?.name || user.email || "Open profile";
 
     if (emailDisplay) {
-      emailDisplay.textContent = user.email;
+      emailDisplay.textContent = profile?.name
+        ? `${profile.name} · ${user.email}`
+        : user.email;
     }
   } else {
     btn.textContent = "👤 Profile";
@@ -278,33 +353,109 @@ function setEyeState(input, button, icon, show) {
   }
 }
 
-// ----------------------------
-// MAIN
-// ----------------------------
-
 document.addEventListener("DOMContentLoaded", () => {
+  const client = getClient();
+  if (!client) return;
+
   const authSubmitBtn = document.getElementById("authSubmitBtn");
+  const authSecondaryBtn = document.getElementById("authSecondaryBtn");
   const authCloseBtn = document.getElementById("authCloseBtn");
+
   const authEmail = document.getElementById("authEmail");
   const authPassword = document.getElementById("authPassword");
   const authConfirmPassword = document.getElementById("authConfirmPassword");
+
   const authConfirmRow = document.getElementById("authConfirmRow");
   const authPasswordRow = document.getElementById("authPasswordRow");
+
   const authTitle = document.getElementById("authTitle");
   const authToggleText = document.getElementById("authToggleText");
+
   const togglePasswordBtn = document.getElementById("togglePasswordBtn");
   const eyeIcon = document.getElementById("eyeIcon");
   const toggleConfirmPasswordBtn = document.getElementById("toggleConfirmPasswordBtn");
   const confirmEyeIcon = document.getElementById("confirmEyeIcon");
   const forgotBtn = document.getElementById("forgotPasswordBtn");
 
+  const profileEditorSection = document.getElementById("profileEditorSection");
+  const profileNameInput = document.getElementById("profileNameInput");
+  const profileBioInput = document.getElementById("profileBioInput");
+  const presetAvatarGrid = document.getElementById("presetAvatarGrid");
+  const profileAvatarPreview = document.getElementById("profileAvatarPreview");
+
   let isLoginMode = true;
+  let selectedAvatarValue = "avatar-01";
+
+  function setSelectedAvatar(avatarId) {
+    selectedAvatarValue = avatarId || "avatar-01";
+
+    if (profileAvatarPreview) {
+      profileAvatarPreview.src = buildPresetAvatarUrl(selectedAvatarValue);
+    }
+
+    if (!presetAvatarGrid) return;
+
+    presetAvatarGrid.querySelectorAll("[data-avatar-id]").forEach((btn) => {
+      const isActive = btn.dataset.avatarId === selectedAvatarValue;
+      btn.style.borderColor = isActive ? "rgba(78,161,255,0.8)" : "rgba(255,255,255,0.08)";
+      btn.style.boxShadow = isActive
+        ? "0 0 0 3px rgba(78,161,255,0.16), 0 12px 22px rgba(0,0,0,0.26)"
+        : "0 8px 18px rgba(0,0,0,0.18)";
+      btn.style.transform = isActive ? "scale(1.06)" : "scale(1)";
+    });
+  }
+
+  function renderPresetAvatarGrid(selectedId = "avatar-01") {
+    if (!presetAvatarGrid) return;
+
+    const avatars = getPresetAvatarList();
+
+    presetAvatarGrid.innerHTML = avatars
+      .map(
+        (avatar) => `
+          <button
+            type="button"
+            data-avatar-id="${avatar.id}"
+            style="
+              width:100%;
+              aspect-ratio:1/1;
+              border-radius:50%;
+              overflow:hidden;
+              border:2px solid rgba(255,255,255,0.08);
+              background:rgba(255,255,255,0.04);
+              padding:0;
+              cursor:pointer;
+              transition:transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+              box-shadow:0 8px 18px rgba(0,0,0,0.18);
+            "
+            aria-label="Choose ${avatar.id}"
+            title="${avatar.id}"
+          >
+            <img
+              src="${avatar.url}"
+              alt="${avatar.id}"
+              style="width:100%; height:100%; object-fit:cover; display:block;"
+            />
+          </button>
+        `
+      )
+      .join("");
+
+    presetAvatarGrid.querySelectorAll("[data-avatar-id]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        setSelectedAvatar(btn.dataset.avatarId);
+      });
+    });
+
+    setSelectedAvatar(selectedId);
+  }
 
   function resetAuthFormToDefault() {
     if (authEmail) {
       authEmail.value = "";
       authEmail.disabled = false;
       authEmail.placeholder = "Email";
+      authEmail.classList.remove("is-hidden");
     }
 
     if (authPassword) {
@@ -321,9 +472,31 @@ document.addEventListener("DOMContentLoaded", () => {
       authConfirmPassword.type = "password";
     }
 
+    if (profileNameInput) profileNameInput.value = "";
+    if (profileBioInput) profileBioInput.value = "";
+
+    if (profileEditorSection) profileEditorSection.classList.add("is-hidden");
+
     if (authPasswordRow) authPasswordRow.classList.remove("is-hidden");
+    if (authConfirmRow) authConfirmRow.classList.add("is-hidden");
+
     if (togglePasswordBtn) togglePasswordBtn.classList.remove("is-hidden");
     if (toggleConfirmPasswordBtn) toggleConfirmPasswordBtn.classList.remove("is-hidden");
+
+    if (authSubmitBtn) {
+      authSubmitBtn.classList.remove("is-hidden");
+      authSubmitBtn.textContent = "Login";
+      authSubmitBtn.dataset.mode = "login";
+    }
+
+    if (authSecondaryBtn) {
+      authSecondaryBtn.classList.add("is-hidden");
+      authSecondaryBtn.textContent = "Logout";
+    }
+
+    if (forgotBtn) {
+      forgotBtn.parentElement?.classList.remove("is-hidden");
+    }
 
     if (eyeIcon && authPassword && togglePasswordBtn) {
       setEyeState(authPassword, togglePasswordBtn, eyeIcon, false);
@@ -332,6 +505,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (confirmEyeIcon && authConfirmPassword && toggleConfirmPasswordBtn) {
       setEyeState(authConfirmPassword, toggleConfirmPasswordBtn, confirmEyeIcon, false);
     }
+
+    renderPresetAvatarGrid("avatar-01");
   }
 
   function renderAuthMode() {
@@ -372,6 +547,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderProfileMode() {
     const user = getUser();
+    const profile = getProfileCache();
+
     if (!user?.email) {
       isLoginMode = true;
       renderAuthMode();
@@ -379,26 +556,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     clearAuthError();
+    resetAuthFormToDefault();
 
     if (authTitle) authTitle.textContent = "Your Profile";
-    if (authSubmitBtn) {
-      authSubmitBtn.textContent = "Logout";
-      authSubmitBtn.dataset.mode = "profile";
-    }
 
     if (authEmail) {
       authEmail.value = user.email;
       authEmail.disabled = true;
-    }
-
-    if (authPassword) {
-      authPassword.value = "";
-      authPassword.disabled = true;
-    }
-
-    if (authConfirmPassword) {
-      authConfirmPassword.value = "";
-      authConfirmPassword.disabled = true;
     }
 
     if (authPasswordRow) authPasswordRow.classList.add("is-hidden");
@@ -406,8 +570,33 @@ document.addEventListener("DOMContentLoaded", () => {
     if (togglePasswordBtn) togglePasswordBtn.classList.add("is-hidden");
     if (toggleConfirmPasswordBtn) toggleConfirmPasswordBtn.classList.add("is-hidden");
 
+    if (profileEditorSection) profileEditorSection.classList.remove("is-hidden");
+
+    if (profileNameInput) {
+      profileNameInput.value =
+        profile?.name ||
+        user.email.split("@")[0] ||
+        "";
+    }
+
+    if (profileBioInput) {
+      profileBioInput.value = profile?.bio || "";
+    }
+
+    renderPresetAvatarGrid(profile?.avatar_value || "avatar-01");
+
+    if (authSubmitBtn) {
+      authSubmitBtn.textContent = "Save Profile";
+      authSubmitBtn.dataset.mode = "save-profile";
+    }
+
+    if (authSecondaryBtn) {
+      authSecondaryBtn.classList.remove("is-hidden");
+      authSecondaryBtn.textContent = "Logout";
+    }
+
     if (authToggleText) {
-      authToggleText.innerHTML = `You are logged in. Your quiz data and future profile data belong to this account.`;
+      authToggleText.innerHTML = `This account owns your profile and future synced app data.`;
     }
 
     if (forgotBtn) {
@@ -432,6 +621,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (authEmail) authEmail.addEventListener("input", clearAuthError);
   if (authPassword) authPassword.addEventListener("input", clearAuthError);
   if (authConfirmPassword) authConfirmPassword.addEventListener("input", clearAuthError);
+  if (profileNameInput) profileNameInput.addEventListener("input", clearAuthError);
+  if (profileBioInput) profileBioInput.addEventListener("input", clearAuthError);
 
   document.addEventListener("click", (e) => {
     const loginButton = e.target.closest("#loginBtn");
@@ -475,13 +666,47 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
+  if (authSecondaryBtn) {
+    authSecondaryBtn.onclick = () => {
+      closeAuthModal();
+      document.getElementById("logoutModal")?.classList.remove("hidden");
+    };
+  }
+
   if (authSubmitBtn) {
     authSubmitBtn.onclick = async () => {
       const mode = authSubmitBtn.dataset.mode || (isLoginMode ? "login" : "signup");
 
-      if (mode === "profile") {
-        closeAuthModal();
-        document.getElementById("logoutModal")?.classList.remove("hidden");
+      if (mode === "save-profile") {
+        const user = getUser();
+        if (!user?.id) {
+          return showAuthError("Please log in again.");
+        }
+
+        const name = (profileNameInput?.value || "").trim();
+        const bio = (profileBioInput?.value || "").trim();
+
+        if (!name) {
+          return showAuthError("Please enter your display name.");
+        }
+
+        const payload = {
+          email: user.email,
+          name,
+          bio: bio || null,
+          avatar_type: "preset",
+          avatar_value: selectedAvatarValue,
+          profile_photo_url: buildPresetAvatarUrl(selectedAvatarValue)
+        };
+
+        const result = await saveUserProfile(user.id, payload);
+
+        if (!result.ok) {
+          return showAuthError(result.message || "Could not save profile.");
+        }
+
+        updateAccountButton();
+        showAuthError("✅ Profile saved successfully.", true);
         return;
       }
 
@@ -512,7 +737,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
           }
 
-          const { data, error } = await supabaseClient.auth.signInWithPassword({
+          const { data, error } = await client.auth.signInWithPassword({
             email,
             password
           });
@@ -632,7 +857,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      const { error } = await client.auth.resetPasswordForEmail(email, {
         redirectTo: window.location.origin + "/DN_Physics/reset-password.html"
       });
 
@@ -647,7 +872,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  supabaseClient.auth.onAuthStateChange((event, session) => {
+  client.auth.onAuthStateChange((event, session) => {
     if (session?.user) {
       setUser(session.user);
       setSessionToken(session.access_token || "");
@@ -673,14 +898,16 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         await new Promise((r) => setTimeout(r, 500));
 
-        const { data } = await supabaseClient.auth.getSession();
+        const { data } = await client.auth.getSession();
 
         if (data?.session?.user) {
           setUser(data.session.user);
           setSessionToken(data.session.access_token || "");
           await ensureProfile(data.session.user);
+          await loadUserProfile(data.session.user.id);
 
           window.history.replaceState({}, document.title, window.location.pathname);
+          updateAccountButton();
         }
       } catch (e) {
         console.error("Verification error:", e);

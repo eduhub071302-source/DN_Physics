@@ -261,6 +261,89 @@
     <div class="auth-box">
       <h2 id="authTitle">Login</h2>
 
+      <div
+        id="profileEditorSection"
+        class="is-hidden"
+        style="margin-bottom:16px;"
+      >
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+          <div
+            id="profileAvatarPreviewWrap"
+            style="
+              width:72px;
+              height:72px;
+              border-radius:50%;
+              overflow:hidden;
+              border:2px solid rgba(78,161,255,0.35);
+              background:rgba(255,255,255,0.05);
+              display:flex;
+              align-items:center;
+              justify-content:center;
+              flex-shrink:0;
+            "
+          >
+            <img
+              id="profileAvatarPreview"
+              src="/DN_Physics/assets/avatars/avatar-01.png"
+              alt="Selected avatar"
+              style="width:100%; height:100%; object-fit:cover;"
+            />
+          </div>
+
+          <div style="min-width:0;">
+            <div style="font-weight:700; color:#e8eefc; margin-bottom:4px;">Your Profile</div>
+            <div style="font-size:13px; color:#a8b3cf; line-height:1.5;">
+              Choose an avatar, set your name, and add a short bio.
+            </div>
+          </div>
+        </div>
+
+        <input
+          id="profileNameInput"
+          placeholder="Display Name"
+          style="margin-bottom:10px;"
+        />
+
+        <textarea
+          id="profileBioInput"
+          placeholder="Short bio"
+          rows="3"
+          style="
+            width:100%;
+            border-radius:12px;
+            border:1px solid rgba(255,255,255,0.08);
+            background:#0d1625;
+            color:#e8eefc;
+            padding:12px 14px;
+            resize:vertical;
+            min-height:90px;
+            box-sizing:border-box;
+            margin-bottom:12px;
+            font:inherit;
+          "
+        ></textarea>
+
+        <div style="margin-bottom:8px; font-size:13px; font-weight:700; color:#cfe3ff;">
+          Choose Avatar
+        </div>
+
+        <div
+          id="presetAvatarGrid"
+          style="
+            display:grid;
+            grid-template-columns:repeat(5, minmax(0, 1fr));
+            gap:10px;
+            max-height:260px;
+            overflow:auto;
+            padding:4px;
+            border-radius:14px;
+            background:rgba(255,255,255,0.03);
+            border:1px solid rgba(255,255,255,0.06);
+            margin-bottom:14px;
+          "
+        ></div>
+      </div>
+
       <input id="authEmail" placeholder="Email" />
 
       <div id="authPasswordRow" class="auth-password-wrap">
@@ -292,6 +375,7 @@
       </div>
 
       <button id="authSubmitBtn" class="btn btn-primary" type="button">Login</button>
+      <button id="authSecondaryBtn" class="btn is-hidden" type="button" style="margin-top:10px;">Logout</button>
 
       <p id="authToggleText">
         Don't have an account?
