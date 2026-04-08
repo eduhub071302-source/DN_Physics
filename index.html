@@ -76,6 +76,14 @@
 
         <div id="userEmailDisplay" class="user-email-display" aria-live="polite"></div>
 
+        <div id="topProfileAvatar" class="top-profile-avatar is-hidden" aria-hidden="true">
+          <img
+            id="topProfileAvatarImg"
+            src="/DN_Physics/assets/avatars/avatar-01.png"
+            alt="Profile avatar"
+          />
+        </div>
+
         <button id="loginBtn" class="btn" type="button">
           👤 Profile
         </button>
@@ -258,138 +266,46 @@
   </footer>
 
   <div id="authModal" class="auth-modal hidden">
-          <div class="auth-box premium-auth-box">
-            <h2 id="authTitle">Login</h2>
+    <div class="auth-box premium-auth-box">
+      <h2 id="authTitle">Login</h2>
 
-            <div id="profileEditorSection" class="profile-editor-section is-hidden">
-              <div class="profile-editor-header">
-                <div class="profile-avatar-preview-wrap" id="profileAvatarPreviewWrap">
-                  <img
-                    id="profileAvatarPreview"
-                    src="/DN_Physics/assets/avatars/avatar-01.png"
-                    alt="Selected avatar"
-                    class="profile-avatar-preview"
-                  />
-                </div>
+      <div id="profileEditorSection" class="profile-editor-section is-hidden">
+        <div class="profile-editor-header">
+          <div class="profile-avatar-preview-wrap" id="profileAvatarPreviewWrap">
+            <img
+              id="profileAvatarPreview"
+              src="/DN_Physics/assets/avatars/avatar-01.png"
+              alt="Selected avatar"
+              class="profile-avatar-preview"
+            />
+          </div>
 
-                <div class="profile-editor-meta">
-                  <div class="profile-editor-badge">DN Physics Profile</div>
-                  <div class="profile-editor-heading">Build your identity</div>
-                  <div class="profile-editor-subtext">
-                    Choose an avatar, set your display name, and write a short bio.
-                  </div>
-                </div>
-              </div>
-
-              <div class="profile-editor-fields">
-                <input id="profileNameInput" placeholder="Display Name" class="profile-input" />
-
-                <textarea
-                  id="profileBioInput"
-                  placeholder="Short bio"
-                  rows="3"
-                  class="profile-bio-input"
-                ></textarea>
-              </div>
-
-              <div class="avatar-section-head">
-                <span class="avatar-section-title">Choose Avatar</span>
-                <span class="avatar-section-subtitle">30 premium preset avatars</span>
-              </div>
-
-              <div id="presetAvatarGrid" class="preset-avatar-grid"></div>
+          <div class="profile-editor-meta">
+            <div class="profile-editor-badge">DN Physics Profile</div>
+            <div class="profile-editor-heading">Build your identity</div>
+            <div class="profile-editor-subtext">
+              Choose an avatar, set your display name, and write a short bio.
             </div>
-
-            <input id="authEmail" placeholder="Email" />
-
-            <div id="authPasswordRow" class="auth-password-wrap">
-              <input id="authPassword" type="password" placeholder="Password" />
-              <button id="togglePasswordBtn" class="auth-eye-btn" type="button" aria-label="Show password">
-                <svg id="eyeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M1 12C1 12 5 5 12 5C19 5 23 12 23 12C23 12 19 19 12 19C5 19 1 12 1 12Z"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  />
-                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
-                </svg>
-              </button>
-            </div>
-
-            <div id="authConfirmRow" class="auth-password-wrap is-hidden">
-              <input id="authConfirmPassword" type="password" placeholder="Confirm Password" />
-              <button id="toggleConfirmPasswordBtn" class="auth-eye-btn" type="button" aria-label="Show confirm password">
-                <svg id="confirmEyeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M1 12C1 12 5 5 12 5C19 5 23 12 23 12C23 12 19 19 12 19C5 19 1 12 1 12Z"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  />
-                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
-                </svg>
-              </button>
-            </div>
-
-            <button id="authSubmitBtn" class="btn btn-primary" type="button">Login</button>
-            <button id="authSecondaryBtn" class="btn is-hidden" type="button">Logout</button>
-
-            <p id="authToggleText">
-              Don't have an account?
-              <span id="authToggleBtn">Sign up</span>
-            </p>
-
-            <p class="auth-forgot">
-              <span id="forgotPasswordBtn">Forgot password?</span>
-            </p>
-
-            <button id="authCloseBtn" class="btn" type="button">Close</button>
           </div>
         </div>
 
-        <input
-          id="profileNameInput"
-          placeholder="Display Name"
-          style="margin-bottom:10px;"
-        />
+        <div class="profile-editor-fields">
+          <input id="profileNameInput" placeholder="Display Name" class="profile-input" />
 
-        <textarea
-          id="profileBioInput"
-          placeholder="Short bio"
-          rows="3"
-          style="
-            width:100%;
-            border-radius:12px;
-            border:1px solid rgba(255,255,255,0.08);
-            background:#0d1625;
-            color:#e8eefc;
-            padding:12px 14px;
-            resize:vertical;
-            min-height:90px;
-            box-sizing:border-box;
-            margin-bottom:12px;
-            font:inherit;
-          "
-        ></textarea>
-
-        <div style="margin-bottom:8px; font-size:13px; font-weight:700; color:#cfe3ff;">
-          Choose Avatar
+          <textarea
+            id="profileBioInput"
+            placeholder="Short bio"
+            rows="3"
+            class="profile-bio-input"
+          ></textarea>
         </div>
 
-        <div
-          id="presetAvatarGrid"
-          style="
-            display:grid;
-            grid-template-columns:repeat(5, minmax(0, 1fr));
-            gap:10px;
-            max-height:260px;
-            overflow:auto;
-            padding:4px;
-            border-radius:14px;
-            background:rgba(255,255,255,0.03);
-            border:1px solid rgba(255,255,255,0.06);
-            margin-bottom:14px;
-          "
-        ></div>
+        <div class="avatar-section-head">
+          <span class="avatar-section-title">Choose Avatar</span>
+          <span class="avatar-section-subtitle">30 premium preset avatars</span>
+        </div>
+
+        <div id="presetAvatarGrid" class="preset-avatar-grid"></div>
       </div>
 
       <input id="authEmail" placeholder="Email" />
@@ -423,7 +339,7 @@
       </div>
 
       <button id="authSubmitBtn" class="btn btn-primary" type="button">Login</button>
-      <button id="authSecondaryBtn" class="btn is-hidden" type="button" style="margin-top:10px;">Logout</button>
+      <button id="authSecondaryBtn" class="btn is-hidden" type="button">Logout</button>
 
       <p id="authToggleText">
         Don't have an account?
@@ -1652,15 +1568,47 @@
     function updateProfileUI(user) {
       const loginBtn = document.getElementById("loginBtn");
       const emailDisplay = document.getElementById("userEmailDisplay");
+      const topProfileAvatar = document.getElementById("topProfileAvatar");
+      const topProfileAvatarImg = document.getElementById("topProfileAvatarImg");
 
       if (!loginBtn || !emailDisplay) return;
 
-      if (user?.email) {
-        emailDisplay.textContent = user.email;
-        loginBtn.innerHTML = "🧑 Profile";
-      } else {
-        emailDisplay.textContent = "";
-        loginBtn.innerHTML = "👤 Profile";
+      try {
+        const cachedProfile = JSON.parse(localStorage.getItem("dn_profile")) || null;
+
+        if (user?.email) {
+          emailDisplay.textContent = cachedProfile?.name
+            ? `${cachedProfile.name} · ${user.email}`
+            : user.email;
+
+          loginBtn.innerHTML = "🧑 Profile";
+
+          if (topProfileAvatar && topProfileAvatarImg) {
+            const avatarUrl =
+              cachedProfile?.profile_photo_url ||
+              "/DN_Physics/assets/avatars/avatar-01.png";
+
+            topProfileAvatarImg.src = avatarUrl;
+            topProfileAvatar.classList.remove("is-hidden");
+            topProfileAvatar.setAttribute("aria-hidden", "false");
+          }
+        } else {
+          emailDisplay.textContent = "";
+          loginBtn.innerHTML = "👤 Profile";
+
+          if (topProfileAvatar) {
+            topProfileAvatar.classList.add("is-hidden");
+            topProfileAvatar.setAttribute("aria-hidden", "true");
+          }
+        }
+      } catch (error) {
+        if (user?.email) {
+          emailDisplay.textContent = user.email;
+          loginBtn.innerHTML = "🧑 Profile";
+        } else {
+          emailDisplay.textContent = "";
+          loginBtn.innerHTML = "👤 Profile";
+        }
       }
     }
 

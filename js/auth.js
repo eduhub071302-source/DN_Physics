@@ -134,6 +134,17 @@ function getPresetAvatarList() {
 }
 
 // ----------------------------
+// GLOBAL UI SYNC
+// ----------------------------
+
+function syncProfileUiEverywhere() {
+  const user = getUser();
+  if (typeof window.updateProfileUI === "function") {
+    window.updateProfileUI(user);
+  }
+}
+
+// ----------------------------
 // LOGOUT
 // ----------------------------
 
@@ -168,6 +179,7 @@ async function logout() {
     clearPaidAccess();
   }
 
+  syncProfileUiEverywhere();
   location.reload();
 }
 
@@ -192,7 +204,11 @@ async function loadUserProfile(userId) {
     }
 
     if (data) {
+      if (!data.profile_photo_url && data.avatar_value) {
+        data.profile_photo_url = buildPresetAvatarUrl(data.avatar_value);
+      }
       setProfileCache(data);
+      syncProfileUiEverywhere();
       return data;
     }
 
@@ -208,29 +224,49 @@ async function ensureProfile(user) {
   if (!client) return null;
   if (!user?.id || !user?.email) return null;
 
+  const existing = getProfileCache();
+
   const profilePayload = {
     id: user.id,
     email: user.email,
-    name: user.email.split("@")[0],
-    bio: null,
-    avatar_type: "preset",
-    avatar_value: "avatar-01",
-    profile_photo_url: buildPresetAvatarUrl("avatar-01")
+    name: existing?.name || user.email.split("@")[0],
+    bio: existing?.bio || null,
+    avatar_type: existing?.avatar_type || "preset",
+    avatar_value: existing?.avatar_value || "avatar-01",
+    profile_photo_url:
+      existing?.profile_photo_url ||
+      buildPresetAvatarUrl(existing?.avatar_value || "avatar-01")
   };
 
   try {
-    const { error } = await client.from("profiles").upsert(profilePayload);
+    const { data, error } = await client
+      .from("profiles")
+      .upsert(profilePayload)
+      .select()
+      .single();
 
     if (error) {
       console.warn("Profile upsert warning:", error.message);
+      const merged = { ...(existing || {}), ...profilePayload };
+      setProfileCache(merged);
+      syncProfileUiEverywhere();
+      return merged;
     }
 
-    const merged = { ...(getProfileCache() || {}), ...profilePayload };
-    setProfileCache(merged);
-    return merged;
+    const finalProfile = data || profilePayload;
+    if (!finalProfile.profile_photo_url && finalProfile.avatar_value) {
+      finalProfile.profile_photo_url = buildPresetAvatarUrl(finalProfile.avatar_value);
+    }
+
+    setProfileCache(finalProfile);
+    syncProfileUiEverywhere();
+    return finalProfile;
   } catch (error) {
     console.warn("Profile upsert failed:", error);
-    return null;
+    const merged = { ...(existing || {}), ...profilePayload };
+    setProfileCache(merged);
+    syncProfileUiEverywhere();
+    return merged;
   }
 }
 
@@ -239,13 +275,15 @@ async function saveUserProfile(userId, payload) {
   if (!client) return { ok: false, message: "Supabase client not ready." };
 
   try {
+    const finalPayload = {
+      id: userId,
+      ...payload,
+      updated_at: new Date().toISOString()
+    };
+
     const { data, error } = await client
       .from("profiles")
-      .upsert({
-        id: userId,
-        ...payload,
-        updated_at: new Date().toISOString()
-      })
+      .upsert(finalPayload)
       .select()
       .single();
 
@@ -253,11 +291,15 @@ async function saveUserProfile(userId, payload) {
       return { ok: false, message: error.message || "Could not save profile." };
     }
 
-    if (data) {
-      setProfileCache(data);
+    const finalProfile = data || finalPayload;
+    if (!finalProfile.profile_photo_url && finalProfile.avatar_value) {
+      finalProfile.profile_photo_url = buildPresetAvatarUrl(finalProfile.avatar_value);
     }
 
-    return { ok: true, data };
+    setProfileCache(finalProfile);
+    syncProfileUiEverywhere();
+
+    return { ok: true, data: finalProfile };
   } catch (error) {
     return { ok: false, message: "Could not save profile." };
   }
@@ -278,21 +320,26 @@ async function restoreUserSession() {
     if (session?.user) {
       setUser(session.user);
       setSessionToken(session.access_token || "");
+      await ensureProfile(session.user);
       await loadUserProfile(session.user.id);
 
       if (typeof syncCloudProgressToLocal === "function") {
         await syncCloudProgressToLocal();
       }
+
+      syncProfileUiEverywhere();
     } else {
       clearUser();
       clearSessionToken();
       clearProfileCache();
+      syncProfileUiEverywhere();
     }
   } catch (error) {
     console.error("Restore session failed:", error);
     clearUser();
     clearSessionToken();
     clearProfileCache();
+    syncProfileUiEverywhere();
   }
 }
 
@@ -301,34 +348,7 @@ async function restoreUserSession() {
 // ----------------------------
 
 function updateAccountButton() {
-  const btn = document.getElementById("loginBtn");
-  const emailDisplay = document.getElementById("userEmailDisplay");
-  const user = getUser();
-  const profile = getProfileCache();
-
-  if (!btn) return;
-
-  if (user?.email) {
-    btn.textContent = "🧑 Profile";
-    btn.title = profile?.name || user.email || "Open profile";
-
-    if (emailDisplay) {
-      emailDisplay.textContent = profile?.name
-        ? `${profile.name} · ${user.email}`
-        : user.email;
-    }
-  } else {
-    btn.textContent = "👤 Profile";
-    btn.title = "Login or sign up";
-
-    if (emailDisplay) {
-      emailDisplay.textContent = "";
-    }
-  }
-
-  if (typeof window.updateProfileUI === "function") {
-    window.updateProfileUI(user);
-  }
+  syncProfileUiEverywhere();
 }
 
 function setEyeState(input, button, icon, show) {
@@ -761,8 +781,8 @@ document.addEventListener("DOMContentLoaded", () => {
             await syncCloudProgressToLocal();
           }
 
+          syncProfileUiEverywhere();
           closeAuthModal();
-          updateAccountButton();
           location.reload();
           return;
         }
@@ -772,65 +792,78 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
-        let res;
-        let result = {};
+        // SIGN UP DIRECTLY WITH SUPABASE AUTH
+        const { data, error } = await client.auth.signUp({
+          email,
+          password
+        });
 
-        try {
-          res = await fetch(
-            DN_CONFIG.BACKEND.API_BASE_URL + DN_CONFIG.BACKEND.AUTH_REGISTER_URL,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({ email, password })
-            }
-          );
+        if (error) {
+          const msg = String(error.message || "").toLowerCase();
 
-          result = await res.json().catch(() => ({}));
-        } catch (err) {
-          console.error("Fetch failed:", err);
-
-          if (!navigator.onLine) {
-            return showAuthError("No internet connection. Please reconnect and try again.");
-          }
-
-          return showAuthError("Unable to reach server. Please try again.");
-        }
-
-        if (!res || !res.ok || !result.ok) {
-          const serverCode = result?.code || "";
-          const serverMessage = String(result?.message || "").toLowerCase();
-
-          if (
-            serverCode === "ACCOUNT_EXISTS" ||
-            res?.status === 409 ||
-            serverMessage.includes("already") ||
-            serverMessage.includes("registered") ||
-            serverMessage.includes("exists")
-          ) {
+          if (msg.includes("already") || msg.includes("registered") || msg.includes("exists")) {
             return showAuthError("An account with this email already exists. Please login.");
           }
 
-          if (serverCode === "WEAK_PASSWORD") {
+          if (msg.includes("password")) {
             return showAuthError("Password must be at least 6 characters.");
           }
 
-          if (serverCode === "INVALID_EMAIL") {
+          if (msg.includes("email")) {
             return showAuthError("Enter a valid email address.");
           }
 
-          if (serverCode === "MISSING_FIELDS") {
-            return showAuthError("Email and password are required.");
-          }
-
-          return showAuthError("Server error. Please try again.");
+          return showAuthError(error.message || "Could not create account.");
         }
 
-        showAuthError("✅ Account created successfully. Please login.", true);
+        const signedUpUser = data?.user || null;
+        const signedUpSession = data?.session || null;
 
-        if (authPassword) authPassword.value = "";
-        if (authConfirmPassword) authConfirmPassword.value = "";
+        if (!signedUpUser) {
+          return showAuthError("Account created, but user details were not returned. Please try logging in.");
+        }
+
+        // if session is returned, user is already signed in
+        if (signedUpSession?.user) {
+          setUser(signedUpSession.user);
+          setSessionToken(signedUpSession.access_token || "");
+          await ensureProfile(signedUpSession.user);
+          await loadUserProfile(signedUpSession.user.id);
+
+          if (typeof syncCloudProgressToLocal === "function") {
+            await syncCloudProgressToLocal();
+          }
+
+          syncProfileUiEverywhere();
+          closeAuthModal();
+          location.reload();
+          return;
+        }
+
+        // fallback: try immediate login
+        const loginRetry = await client.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (loginRetry?.data?.user) {
+          setUser(loginRetry.data.user);
+          setSessionToken(loginRetry.data.session?.access_token || "");
+          await ensureProfile(loginRetry.data.user);
+          await loadUserProfile(loginRetry.data.user.id);
+
+          if (typeof syncCloudProgressToLocal === "function") {
+            await syncCloudProgressToLocal();
+          }
+
+          syncProfileUiEverywhere();
+          closeAuthModal();
+          location.reload();
+          return;
+        }
+
+        // If email confirmation is required in your Supabase settings
+        showAuthError("✅ Account created. Please check your email to confirm your account, then log in.", true);
         isLoginMode = true;
         renderAuthMode();
       } catch (e) {
@@ -888,13 +921,13 @@ document.addEventListener("DOMContentLoaded", () => {
       clearProfileCache();
     }
 
-    updateAccountButton();
+    syncProfileUiEverywhere();
   });
 
   renderAuthMode();
 
   restoreUserSession().then(() => {
-    updateAccountButton();
+    syncProfileUiEverywhere();
   });
 
   (async () => {
@@ -913,7 +946,7 @@ document.addEventListener("DOMContentLoaded", () => {
           await loadUserProfile(data.session.user.id);
 
           window.history.replaceState({}, document.title, window.location.pathname);
-          updateAccountButton();
+          syncProfileUiEverywhere();
         }
       } catch (e) {
         console.error("Verification error:", e);
