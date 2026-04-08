@@ -1060,7 +1060,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     scrollQuestionIntoView();
   }
 
-  function finalizeAttempt(correct, wrong, unanswered, answeredQuestions, wrongQuestions, mode) {
+  async function finalizeAttempt(correct, wrong, unanswered, answeredQuestions, wrongQuestions, mode) {
     const percentageBase = answeredQuestions > 0 ? answeredQuestions : 1;
     const scorePercent = ((correct / percentageBase) * 100).toFixed(1);
 
