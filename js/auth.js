@@ -11,6 +11,46 @@
   const PROFILE_KEY = "dn_profile";
   const DEFAULT_AVATAR = "avatar-01";
 
+  function getEls() {
+    return {
+      authModal: document.getElementById("authModal"),
+      authSubmitBtn: document.getElementById("authSubmitBtn"),
+      authSecondaryBtn: document.getElementById("authSecondaryBtn"),
+      switchAccountBtn: document.getElementById("switchAccountBtn"),
+      authCloseBtn: document.getElementById("authCloseBtn"),
+
+      authEmail: document.getElementById("authEmail"),
+      authPassword: document.getElementById("authPassword"),
+      authConfirmPassword: document.getElementById("authConfirmPassword"),
+
+      authConfirmRow: document.getElementById("authConfirmRow"),
+      authPasswordRow: document.getElementById("authPasswordRow"),
+
+      authTitle: document.getElementById("authTitle"),
+      authToggleText: document.getElementById("authToggleText"),
+
+      togglePasswordBtn: document.getElementById("togglePasswordBtn"),
+      eyeIcon: document.getElementById("eyeIcon"),
+      toggleConfirmPasswordBtn: document.getElementById("toggleConfirmPasswordBtn"),
+      confirmEyeIcon: document.getElementById("confirmEyeIcon"),
+      forgotBtn: document.getElementById("forgotPasswordBtn"),
+
+      loginBtn: document.getElementById("loginBtn"),
+
+      profileEditorSection: document.getElementById("profileEditorSection"),
+      profileNameInput: document.getElementById("profileNameInput"),
+      profileBioInput: document.getElementById("profileBioInput"),
+      presetAvatarGrid: document.getElementById("presetAvatarGrid"),
+      profileAvatarPreview: document.getElementById("profileAvatarPreview"),
+
+      openAvatarModalBtn: document.getElementById("openAvatarModalBtn"),
+
+      confirmLogoutBtn: document.getElementById("confirmLogoutBtn"),
+      cancelLogoutBtn: document.getElementById("cancelLogoutBtn"),
+      logoutModal: document.getElementById("logoutModal")
+    };
+  }
+  
   function buildPresetAvatarUrl(avatarValue, version = "") {
     const safeValue = avatarValue || DEFAULT_AVATAR;
     const suffix = version ? `?v=${encodeURIComponent(version)}` : "";
@@ -156,12 +196,20 @@
 
   function closeAuthModal() {
     const modal = document.getElementById("authModal");
-    if (modal) modal.classList.add("hidden");
+    if (!modal) return;
+
+    modal.classList.add("hidden");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
   }
 
   function openAuthModal() {
     const modal = document.getElementById("authModal");
-    if (modal) modal.classList.remove("hidden");
+    if (!modal) return;
+
+    modal.classList.remove("hidden");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
   }
 
   function clearAuthError() {
@@ -368,9 +416,36 @@
 
     setUser(user);
     setSessionToken(accessToken || "");
-    await ensureProfile(user);
+
+    const profile = await ensureProfile(user);
     await loadUserProfile(user.id);
     await syncProgressIfAvailable();
+
+    try {
+      const topProfileAvatarImg = document.getElementById("topProfileAvatarImg");
+      const topProfileAvatar = document.getElementById("topProfileAvatar");
+      const userEmailDisplay = document.getElementById("userEmailDisplay");
+
+      const avatarUrl =
+        profile?.profile_photo_url ||
+        buildPresetAvatarUrl(profile?.avatar_value || DEFAULT_AVATAR, Date.now());
+
+      if (topProfileAvatarImg) {
+        topProfileAvatarImg.src = avatarUrl;
+      }
+
+      if (topProfileAvatar) {
+        topProfileAvatar.classList.remove("is-hidden");
+        topProfileAvatar.setAttribute("aria-hidden", "false");
+      }
+
+      if (userEmailDisplay) {
+        userEmailDisplay.textContent = user.email || "";
+      }
+    } catch (error) {
+      console.warn("Topbar applyAuthenticatedUser UI sync failed:", error);
+    }
+
     syncProfileUiEverywhere();
   }
 
@@ -385,6 +460,30 @@
       } catch (error) {
         console.warn("clearPaidAccess failed:", error);
       }
+    }
+
+    try {
+      localStorage.removeItem("dn_user");
+    } catch {}
+
+    try {
+      const topProfileAvatarImg = document.getElementById("topProfileAvatarImg");
+      if (topProfileAvatarImg) {
+        topProfileAvatarImg.src = buildPresetAvatarUrl(DEFAULT_AVATAR, Date.now());
+      }
+
+      const topProfileAvatar = document.getElementById("topProfileAvatar");
+      if (topProfileAvatar) {
+        topProfileAvatar.classList.add("is-hidden");
+        topProfileAvatar.setAttribute("aria-hidden", "true");
+      }
+
+      const userEmailDisplay = document.getElementById("userEmailDisplay");
+      if (userEmailDisplay) {
+        userEmailDisplay.textContent = "";
+      }
+    } catch (error) {
+      console.warn("UI reset after clearAuthenticatedUser failed:", error);
     }
 
     syncProfileUiEverywhere();
@@ -412,6 +511,8 @@
   async function logout() {
     const client = getClient();
     if (!client) return;
+
+    const els = getEls();
 
     if (!navigator.onLine) {
       redirectOffline();
@@ -446,11 +547,13 @@
     }
   }
 
-  async function switchAccount() {
+  async function switchAccount(renderAuthModeRef) {
     const client = getClient();
     if (!client) return;
 
-   if (!navigator.onLine) {
+    const els = getEls();
+
+    if (!navigator.onLine) {
       redirectOffline();
       return;
     }
@@ -475,9 +578,11 @@
       els.logoutModal.classList.add("hidden");
     }
 
-    isLoginMode = true;
-    renderAuthMode();
-    openAuthModal();
+    if (typeof renderAuthModeRef === "function") {
+      renderAuthModeRef(true);
+    } else {
+      openAuthModal();
+    }
 
     if (els.authEmail) els.authEmail.value = "";
     if (els.authPassword) els.authPassword.value = "";
@@ -827,6 +932,7 @@
       if (els.authEmail) {
         els.authEmail.value = user.email;
         els.authEmail.disabled = true;
+        els.authEmail.readOnly = true;
       }
 
       if (els.authPasswordRow) {
@@ -861,25 +967,31 @@
         els.profileBioInput.value = profile?.bio || "";
       }
 
-      renderPresetAvatarGrid(profile?.avatar_value || DEFAULT_AVATAR);
+      const avatarToUse = profile?.avatar_value || DEFAULT_AVATAR;
+      renderPresetAvatarGrid(avatarToUse);
+      setSelectedAvatar(avatarToUse);
 
       if (els.authSubmitBtn) {
+        els.authSubmitBtn.classList.remove("is-hidden");
+        els.authSubmitBtn.disabled = false;
         els.authSubmitBtn.textContent = "Save Profile";
         els.authSubmitBtn.dataset.mode = "save-profile";
       }
 
       if (els.authSecondaryBtn) {
         els.authSecondaryBtn.classList.remove("is-hidden");
+        els.authSecondaryBtn.disabled = false;
         els.authSecondaryBtn.textContent = "Logout";
-      } 
+      }
 
       if (els.switchAccountBtn) {
         els.switchAccountBtn.classList.remove("is-hidden");
+        els.switchAccountBtn.disabled = false;
         els.switchAccountBtn.textContent = "Switch Account";
       }
-
+        
       if (els.authToggleText) {
-        els.authToggleText.innerHTML = `This account owns your profile and future synced app data.`;
+        els.authToggleText.innerHTML = `This account owns your synced profile, progress, and subscription access.`;
       }
 
       if (els.forgotBtn) {
@@ -1299,17 +1411,17 @@
         const user = getUser();
         clearAuthError();
 
-        if (user) {
+        if (user?.email) {
           renderProfileMode();
           openAuthModal();
           return;
         }
-
+    
         isLoginMode = true;
         renderAuthMode();
         openAuthModal();
       });
-    }
+    }    
 
     document.addEventListener("click", (e) => {
       const avatarModal = document.getElementById("avatarModal");
@@ -1364,7 +1476,12 @@
 
     if (els.switchAccountBtn) {
       els.switchAccountBtn.onclick = async () => {
-        await switchAccount();
+        isLoginMode = true;
+        await switchAccount(() => {
+          isLoginMode = true;
+          renderAuthMode();
+          openAuthModal();
+        });
       };
     }
 
@@ -1400,8 +1517,7 @@
     client.auth.onAuthStateChange(async (_event, session) => {
       try {
         if (session?.user) {
-          setUser(session.user);
-          setSessionToken(session.access_token || "");
+          await applyAuthenticatedUser(session.user, session.access_token || "");
         } else {
           await clearAuthenticatedUser();
         }
