@@ -769,9 +769,27 @@
         `;
       }
 
+      function getCurrentUserId() {
+        try {
+          const cachedUser = JSON.parse(localStorage.getItem("dn_user") || "null");
+          if (cachedUser?.id) return cachedUser.id;
+
+          const rawSupabase = localStorage.getItem("supabase.auth.token");
+          if (rawSupabase) {
+            const parsed = JSON.parse(rawSupabase);
+            const sessionUser = parsed?.currentSession?.user || parsed?.user || null;
+            if (sessionUser?.id) return sessionUser.id;
+          }
+        } catch (error) {
+          console.warn("Could not resolve current user id:", error);
+        }
+
+        return "guest";
+      }
+
       function getLastPdf() {
         try {
-          return JSON.parse(localStorage.getItem("dnPdfLastOpened"));
+          return JSON.parse(localStorage.getItem(`dnPdfLastOpened_${getCurrentUserId()}`));
         } catch {
           return null;
         }
@@ -779,7 +797,7 @@
 
       function getRecentPdfs() {
         try {
-          return JSON.parse(localStorage.getItem("dnPdfRecent")) || [];
+          return JSON.parse(localStorage.getItem(`dnPdfRecent_${getCurrentUserId()}`)) || [];
         } catch {
           return [];
         }
@@ -787,7 +805,7 @@
 
       function getFavorites() {
         try {
-          return JSON.parse(localStorage.getItem("dnPdfFavorites")) || [];
+          return JSON.parse(localStorage.getItem(`dnPdfFavorites_${getCurrentUserId()}`)) || [];
         } catch {
           return [];
         }
@@ -795,7 +813,7 @@
 
       function getQuizProgress() {
         try {
-          return JSON.parse(localStorage.getItem("dnPhysicsQuizProgress")) || {};
+          return JSON.parse(localStorage.getItem(`dnPhysicsQuizProgress_${getCurrentUserId()}`)) || {};
         } catch {
           return {};
         }
