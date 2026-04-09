@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DinuuNOVA Physics</title>
 
-  <link rel="manifest" href="/DN_Physics/manifest.json" />
+  <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#4ea1ff" />
-  <link rel="apple-touch-icon" href="/DN_Physics/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-  <link rel="stylesheet" href="/DN_Physics/css/style.css" />
+  <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
   <!-- APP SPLASH -->
@@ -76,7 +76,7 @@
 
       <div class="topbar-right">
         <nav class="nav-links" aria-label="Main navigation">
-          <a href="/DN_Physics/index.html" class="active" aria-current="page">Home</a>
+          <a href="/index.html" class="active" aria-current="page">Home</a>
         </nav>
 
         <div id="userEmailDisplay" class="user-email-display" aria-live="polite"></div>
@@ -84,7 +84,7 @@
         <div id="topProfileAvatar" class="top-profile-avatar is-hidden" aria-hidden="true">
           <img
             id="topProfileAvatarImg"
-            src="/DN_Physics/assets/avatars/avatar-01.png"
+            src="/assets/avatars/avatar-01.png"
             alt="Profile avatar"
           />
         </div>
@@ -127,7 +127,7 @@
             💯 Practice Past Paper MCQs
           </button>
 
-          <a id="onboardNotes" class="btn hero-action-btn" href="/DN_Physics/notes/index.html">
+          <a id="onboardNotes" class="btn hero-action-btn" href="/notes/index.html">
             📚 Explore Notes
           </a>
         </div>
@@ -275,7 +275,7 @@
           <div class="profile-avatar-preview-wrap" id="profileAvatarPreviewWrap">
             <img
               id="profileAvatarPreview"
-              src="/DN_Physics/assets/avatars/avatar-01.png"
+              src="/assets/avatars/avatar-01.png"
               alt="Selected avatar"
               class="profile-avatar-preview"
             />
@@ -360,6 +360,7 @@
 
       <button id="authSubmitBtn" class="btn btn-primary" type="button">Login</button>
       <button id="authSecondaryBtn" class="btn is-hidden" type="button">Logout</button>
+      <button id="switchAccountBtn" class="btn is-hidden" type="button">Switch Account</button>
 
       <p id="authToggleText">
         Don't have an account?
@@ -401,21 +402,21 @@
     <div class="container" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center;">
       <div>© 2026 DinuuNOVA Physics · Email: eduhub071302@gmail.com</div>
       <div style="display:flex; gap:12px; flex-wrap:wrap;">
-        <a href="/DN_Physics/privacy.html">Privacy Policy</a>
-        <a href="/DN_Physics/terms.html">Terms</a>
-        <a href="/DN_Physics/contact.html">Contact</a>
+        <a href="/privacy.html">Privacy Policy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="/contact.html">Contact</a>
       </div>
     </div>
   </footer>
 
   <!-- LIBS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/DN_Physics/js/supabase-client.js"></script>
-  <script src="/DN_Physics/js/app-config.js"></script>
-  <script src="/DN_Physics/js/sync-progress.js"></script>
-  <script src="/DN_Physics/js/unlock.js"></script>
-  <script src="/DN_Physics/js/auth.js"></script>
-  <script src="/DN_Physics/js/music-player.js"></script>
+  <script src="/js/supabase-client.js"></script>
+  <script src="/js/app-config.js"></script>
+  <script src="/js/sync-progress.js"></script>
+  <script src="/js/unlock.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/music-player.js"></script>
 
   <!-- HOME PAGE SCRIPT -->
   <script>
@@ -430,7 +431,7 @@
       let onboardingSteps = [];
       let onboardingIndex = 0;
 
-      const APP_PATH = "/DN_Physics";
+      const APP_PATH = "";
 
       const installBtn = document.getElementById("installBtn");
       const unlockProBtn = document.getElementById("unlockProBtn");

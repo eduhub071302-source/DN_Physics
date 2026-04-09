@@ -1,12 +1,12 @@
 {
-  "id": "/DN_Physics/",
+  "id": "/",
   "name": "DN Physics",
   "short_name": "DN Physics",
   "description": "Premium A/L Physics notes, formula sheets, and past paper MCQ practice by DinuuNOVA.",
   "lang": "en",
   "dir": "ltr",
-  "start_url": "/DN_Physics/index.html",
-  "scope": "/DN_Physics/",
+  "start_url": "/index.html",
+  "scope": "/",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
   "background_color": "#0b1220",
@@ -17,23 +17,23 @@
 
   "icons": [
     {
-      "src": "/DN_Physics/icon-192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/DN_Physics/icon-512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     },
     {
-      "src": "/DN_Physics/icon-192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/DN_Physics/icon-512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -45,19 +45,19 @@
       "name": "All Notes",
       "short_name": "Notes",
       "description": "Open the full Physics PDF library.",
-      "url": "/DN_Physics/topics/viewer.html"
+      "url": "/topics/viewer.html"
     },
     {
       "name": "Units",
       "short_name": "Units",
       "description": "Open Units revision notes.",
-      "url": "/DN_Physics/subjects/units/index.html"
+      "url": "/subjects/units/index.html"
     },
     {
       "name": "Current Electricity",
       "short_name": "Electricity",
       "description": "Open Current Electricity revision notes.",
-      "url": "/DN_Physics/subjects/current-electricity/index.html"
+      "url": "/subjects/current-electricity/index.html"
     }
   ]
 }

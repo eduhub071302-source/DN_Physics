@@ -1,18 +1,18 @@
-const CACHE_NAME = "dn-physics-v227";
+const CACHE_NAME = "dn-physics-v229"; // 🔥 increase version
 const META_CACHE = "dn-physics-meta";
 
 const CORE_FILES = [
-  "/DN_Physics/",
-  "/DN_Physics/index.html",
-  "/DN_Physics/offline.html",
-  "/DN_Physics/manifest.json",
-  "/DN_Physics/icon-192.png",
-  "/DN_Physics/icon-512.png",
-  "/DN_Physics/css/style.css",
-  "/DN_Physics/topics/viewer.html",
-  "/DN_Physics/topics/topic.html",
-  "/DN_Physics/js/music-player.js",
-  "/DN_Physics/pdfs/catalog.json"
+  "/",
+  "/index.html",
+  "/offline.html",
+  "/manifest.json",
+  "/icon-192.png",
+  "/icon-512.png",
+  "/css/style.css",
+  "/topics/viewer.html",
+  "/topics/topic.html",
+  "/js/music-player.js",
+  "/pdfs/catalog.json"
 ];
 
 self.addEventListener("install", (event) => {
@@ -43,17 +43,14 @@ self.addEventListener("activate", (event) => {
 
       await self.clients.claim();
 
-      self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(clients => {
-        clients.forEach(client => {
-          client.postMessage({
-            type: "FORCE_RELOAD"
-          });
-        });
-      });
-
       const clients = await self.clients.matchAll({
         type: "window",
         includeUncontrolled: true
+      });
+
+      // 🔥 FORCE RELOAD (clean upgrade)
+      clients.forEach(client => {
+        client.postMessage({ type: "FORCE_RELOAD" });
       });
 
       if (oldVersion && oldVersion !== CACHE_NAME) {
@@ -98,6 +95,7 @@ self.addEventListener("fetch", (event) => {
   const isImage = /\.(png|jpg|jpeg|webp|svg|gif|ico)$/.test(url.pathname);
   const isAudio = /\.(mp3|wav|ogg)$/.test(url.pathname);
 
+  // 🔥 HTML navigation
   if (isNavigate) {
     event.respondWith(
       (async () => {
@@ -112,7 +110,7 @@ self.addEventListener("fetch", (event) => {
         } catch {
           return (
             (await cache.match(request)) ||
-            (await caches.match("/DN_Physics/offline.html"))
+            (await caches.match("/offline.html"))
           );
         }
       })()
@@ -120,7 +118,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // CRITICAL APP FILES: network first
+  // CSS & JS → network first
   if (isCSS || isJS) {
     event.respondWith(
       (async () => {
@@ -142,6 +140,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // JSON
   if (isJSON) {
     event.respondWith(
       (async () => {
@@ -161,6 +160,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // PDF
   if (isPDF) {
     event.respondWith(
       (async () => {
@@ -182,10 +182,10 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (isAudio) {
-    return;
-  }
+  // AUDIO (no cache control)
+  if (isAudio) return;
 
+  // IMAGES
   if (isImage) {
     event.respondWith(
       (async () => {
