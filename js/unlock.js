@@ -4,6 +4,19 @@
 // Storage Helpers
 // ----------------------------
 
+function getCurrentUserId() {
+  try {
+    const raw = localStorage.getItem("supabase.auth.token");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      const user = parsed?.currentSession?.user;
+      if (user?.id) return user.id;
+    }
+  } catch {}
+
+  return "guest";
+}
+
 function dnStorageGet(key) {
   try { return localStorage.getItem(key); } catch { return null; }
 }
@@ -21,11 +34,24 @@ function dnStorageRemove(key) {
 // ----------------------------
 
 function getOwnerModeKey() { return DN_CONFIG.STORAGE_KEYS.OWNER_MODE; }
-function getPaidUnlockKey() { return DN_CONFIG.STORAGE_KEYS.PAID_UNLOCK; }
-function getUnlockSourceKey() { return DN_CONFIG.STORAGE_KEYS.UNLOCK_SOURCE; }
-function getUnlockTimeKey() { return DN_CONFIG.STORAGE_KEYS.UNLOCK_TIME; }
-function getUnlockOrderIdKey() { return DN_CONFIG.STORAGE_KEYS.UNLOCK_ORDER_ID; }
-function getPendingOrderIdKey() { return DN_CONFIG.STORAGE_KEYS.UNLOCK_PENDING_ORDER_ID; }
+function getPaidUnlockKey() { 
+  return DN_CONFIG.STORAGE_KEYS.PAID_UNLOCK + "_" + getCurrentUserId(); 
+}
+function getPaidUnlockKey() { 
+  return DN_CONFIG.STORAGE_KEYS.PAID_UNLOCK + "_" + getCurrentUserId(); 
+}
+function getPaidUnlockKey() { 
+  return DN_CONFIG.STORAGE_KEYS.PAID_UNLOCK + "_" + getCurrentUserId(); 
+}
+function getPaidUnlockKey() { 
+  return DN_CONFIG.STORAGE_KEYS.PAID_UNLOCK + "_" + getCurrentUserId(); 
+}
+function getPaidUnlockKey() { 
+  return DN_CONFIG.STORAGE_KEYS.PAID_UNLOCK + "_" + getCurrentUserId(); 
+}
+function getPaidUnlockKey() { 
+  return DN_CONFIG.STORAGE_KEYS.PAID_UNLOCK + "_" + getCurrentUserId(); 
+}
 
 // ----------------------------
 // Core Access Logic
@@ -35,11 +61,44 @@ function isOwnerMode() {
   return dnStorageGet(getOwnerModeKey()) === "true";
 }
 
+function getSubscriptionExpiresAt() {
+  const raw = dnStorageGet(getUnlockExpiresAtKey());
+  if (!raw) return 0;
+
+  const value = Number(raw);
+  return Number.isFinite(value) ? value : 0;
+}
+
+function isSubscriptionActive() {
+  const expiresAt = getSubscriptionExpiresAt();
+  if (!expiresAt) return false;
+  return Date.now() < expiresAt;
+}
+
+function getRemainingDays() {
+  const expiresAt = getSubscriptionExpiresAt();
+  if (!expiresAt) return 0;
+
+  const diff = expiresAt - Date.now();
+  if (diff <= 0) return 0;
+
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+}
+
 function hasPaidAccess() {
   if (isOwnerMode()) return true;
 
-  // fallback to cache (after server sync)
-  return dnStorageGet(getPaidUnlockKey()) === "true";
+  const paidFlag = dnStorageGet(getPaidUnlockKey()) === "true";
+  if (!paidFlag) return false;
+
+  const active = isSubscriptionActive();
+
+  if (!active) {
+    clearPaidAccess();
+    return false;
+  }
+
+  return true;
 }
 
 function canAccessPdf(subject) {
@@ -57,9 +116,15 @@ function canAccessQuiz(topic) {
 // ----------------------------
 
 function activatePaidAccess(meta = {}) {
+  const now = Date.now();
+  const durationDays = Number(DN_CONFIG?.PRODUCT?.DURATION_DAYS) || 30;
+  const fallbackExpiresAt = now + durationDays * 24 * 60 * 60 * 1000;
+  const expiresAt = Number(meta.expiresAt) || fallbackExpiresAt;
+
   dnStorageSet(getPaidUnlockKey(), "true");
   dnStorageSet(getUnlockSourceKey(), meta.source || "unknown");
-  dnStorageSet(getUnlockTimeKey(), String(Date.now()));
+  dnStorageSet(getUnlockTimeKey(), String(now));
+  dnStorageSet(getUnlockExpiresAtKey(), String(expiresAt));
 
   if (meta.orderId) {
     dnStorageSet(getUnlockOrderIdKey(), meta.orderId);
@@ -72,6 +137,7 @@ function clearPaidAccess() {
   dnStorageRemove(getUnlockTimeKey());
   dnStorageRemove(getUnlockOrderIdKey());
   dnStorageRemove(getPendingOrderIdKey());
+  dnStorageRemove(getUnlockExpiresAtKey());
 }
 
 // ----------------------------
@@ -158,10 +224,20 @@ async function syncUnlockWithServer() {
 
     if (!data || !data.ok) return;
 
-    if (data.paid === true) {
+    const expiresAtRaw =
+      data.entitlement?.expires_at ||
+      data.subscription_expires_at ||
+      data.expires_at ||
+      "";
+
+    const expiresAtMs = expiresAtRaw ? new Date(expiresAtRaw).getTime() : 0;
+    const isActive = Boolean(data.paid) && Number.isFinite(expiresAtMs) && expiresAtMs > Date.now();
+
+    if (isActive) {
       activatePaidAccess({
         source: "server",
-        orderId: data.entitlement?.order_id || ""
+        orderId: data.entitlement?.order_id || "",
+        expiresAt: expiresAtMs
       });
     } else {
       clearPaidAccess();
@@ -269,8 +345,12 @@ async function checkServerUnlockStatus(orderId = "") {
   }
 }
 
-function applyServerUnlock(orderId = "") {
-  activatePaidAccess({ source: "server-verified", orderId });
+function applyServerUnlock(orderId = "", expiresAt = 0) {
+  activatePaidAccess({
+    source: "server-verified",
+    orderId,
+    expiresAt
+  });
   clearPendingOrderId();
 }
 
@@ -325,6 +405,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     await syncUnlockWithServer();
   } catch {}
+
+  const days = getRemainingDays();
+
+  if (hasPaidAccess() && days > 0 && days <= 3) {
+    showDnMessage(`⏳ Subscription expires in ${days} day${days === 1 ? "" : "s"}`);
+  }
 
   // background sync every 60s
   setInterval(() => {
