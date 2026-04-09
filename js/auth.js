@@ -4,7 +4,7 @@
 (() => {
   "use strict";
 
-  const APP_PATH = "/DN_Physics";
+  const APP_PATH = "";
   const OFFLINE_URL = `${APP_PATH}/offline.html`;
   const RESET_PASSWORD_URL = `${window.location.origin}${APP_PATH}/reset-password.html`;
   const USER_KEY = "dn_user";

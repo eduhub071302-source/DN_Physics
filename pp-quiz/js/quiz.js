@@ -639,8 +639,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   async function loadQuizData() {
     const jsonPath = isMaths
-      ? `/DN_Physics/pp-quiz/data/${subject}/${topic}/${setName}.json`
-      : `/DN_Physics/pp-quiz/data/${subject}/${topic}/${routeSubtopic}/${setName}.json`;
+      ? `/pp-quiz/data/${subject}/${topic}/${setName}.json`
+      : `/pp-quiz/data/${subject}/${topic}/${routeSubtopic}/${setName}.json`;
 
     try {
       const response = await fetch(jsonPath);
@@ -673,15 +673,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   if (isMaths) {
-    backToSubtopic.href = `/DN_Physics/pp-quiz/topic.html?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topic)}`;
+    backToSubtopic.href = `/pp-quiz/topic.html?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topic)}`;
   } else {
-    backToSubtopic.href = `/DN_Physics/pp-quiz/subtopic.html?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topic)}&subtopic=${encodeURIComponent(routeSubtopic)}`;
+    backToSubtopic.href = `/pp-quiz/subtopic.html?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topic)}&subtopic=${encodeURIComponent(routeSubtopic)}`;
   }
 
   function getImagePath(questionNumber) {
     return isMaths
-      ? `/DN_Physics/pp-quiz/images/${subject}/${topic}/q${questionNumber}.jpg`
-      : `/DN_Physics/pp-quiz/images/${subject}/${topic}/${routeSubtopic}/q${questionNumber}.jpg`;
+      ? `/pp-quiz/images/${subject}/${topic}/q${questionNumber}.jpg`
+      : `/pp-quiz/images/${subject}/${topic}/${routeSubtopic}/q${questionNumber}.jpg`;
   }
 
   function getAnsweredCount() {

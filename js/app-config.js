@@ -21,7 +21,7 @@ const DN_CONFIG = {
 
   FRONTEND: {
     SITE_URL: "",
-    APP_BASE_PATH: "/DN_Physics",
+    APP_BASE_PATH: "",
     SUCCESS_PATH: "/payment-success.html",
     CANCEL_PATH: "/payment-cancel.html"
   },

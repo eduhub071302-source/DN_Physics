@@ -171,7 +171,7 @@ function renderTopics(container, topicList, subject) {
     const card = document.createElement("a");
     card.className = "topic-card fade-slide-up";
     card.href = isAllowed
-      ? `/DN_Physics/pp-quiz/topic.html?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topic.slug)}`
+      ? `/pp-quiz/topic.html?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topic.slug)}`
       : "#";
 
     if (!isAllowed) {

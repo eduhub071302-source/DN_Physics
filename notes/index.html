@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Physics Notes | DinuuNOVA</title>
 
-  <link rel="manifest" href="/DN_Physics/manifest.json" />
+  <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#4ea1ff" />
-  <link rel="apple-touch-icon" href="/DN_Physics/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-  <link rel="stylesheet" href="/DN_Physics/css/style.css" />
+  <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
   <header class="site-header">
@@ -93,9 +93,9 @@
     <div class="container" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center;">
       <div>© 2026 DinuuNOVA Physics</div>
       <div style="display:flex; gap:12px; flex-wrap:wrap;">
-        <a href="/DN_Physics/privacy.html">Privacy Policy</a>
-        <a href="/DN_Physics/terms.html">Terms</a>
-        <a href="/DN_Physics/contact.html">Contact</a>
+        <a href="/privacy.html">Privacy Policy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="/contact.html">Contact</a>
       </div>
     </div>
   </footer>
@@ -374,7 +374,7 @@
 
     async function loadSubjectsFromCatalog() {
       try {
-        const res = await fetch("/DN_Physics/pdfs/catalog.json", { cache: "no-store" });
+        const res = await fetch("/pdfs/catalog.json", { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to load catalog");
 
         const items = await res.json();
@@ -393,7 +393,7 @@
           const category = getSubjectCategory(subjectSlug);
           const description = getSubjectDescription(subjectSlug);
           const badge = getBadgeText(index);
-          const link = `/DN_Physics/subjects/${subjectSlug}/index.html`;
+          const link = `/subjects/${subjectSlug}/index.html`;
 
           SUBJECTS[subjectName] = {
             title: subjectName,
@@ -446,6 +446,6 @@
     loadSubjectsFromCatalog();
   </script>
 
-  <script src="/DN_Physics/js/music-player.js"></script>
+  <script src="/js/music-player.js"></script>
 </body>
 </html>

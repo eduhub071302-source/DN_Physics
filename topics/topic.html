@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Topic | DinuuNOVA Physics</title>
 
-  <link rel="manifest" href="/DN_Physics/manifest.json" />
+  <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#4ea1ff" />
-  <link rel="apple-touch-icon" href="/DN_Physics/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-  <link rel="stylesheet" href="/DN_Physics/css/style.css" />
+  <link rel="stylesheet" href="/css/style.css" />
 
   <style>
     .topic-hero-card {
@@ -132,9 +132,9 @@
   color:#a8b3cf;
   border-top:1px solid #24314f;
 ">
-  <a href="/DN_Physics/privacy.html">Privacy Policy</a> |
-  <a href="/DN_Physics/terms.html">Terms</a> |
-  <a href="/DN_Physics/contact.html">Contact</a>
+  <a href="/privacy.html">Privacy Policy</a> |
+  <a href="/terms.html">Terms</a> |
+  <a href="/contact.html">Contact</a>
 </footer>
   
 <body>
@@ -144,8 +144,8 @@
 
       <div class="topbar-right">
         <nav class="nav-links" aria-label="Topic navigation">
-          <a href="/DN_Physics/index.html">Home</a>
-          <a id="subjectNavLink" href="/DN_Physics/index.html">Subject</a>
+          <a href="/index.html">Home</a>
+          <a id="subjectNavLink" href="/index.html">Subject</a>
         </nav>
 
         <button
@@ -164,7 +164,7 @@
   <main>
     <section class="page-title">
       <div class="container">
-        <a class="back-link" id="backLink" href="/DN_Physics/index.html">← Back</a>
+        <a class="back-link" id="backLink" href="/index.html">← Back</a>
         <h1 id="topicTitle">Topic</h1>
         <p>Fast revision page for this formula note.</p>
       </div>
@@ -185,8 +185,8 @@
             </div>
 
             <div class="actions topic-main-actions">
-              <a class="btn btn-primary" id="viewBtn" href="/DN_Physics/index.html">📖 View PDF</a>
-              <a class="btn" id="downloadBtn" href="/DN_Physics/index.html" download>⬇ Download PDF</a>
+              <a class="btn btn-primary" id="viewBtn" href="/index.html">📖 View PDF</a>
+              <a class="btn" id="downloadBtn" href="/index.html" download>⬇ Download PDF</a>
               <button class="btn" id="shareBtn" type="button">📤 Share PDF</button>
             </div>
 
@@ -254,8 +254,8 @@
 
   <audio id="bgMusic" loop></audio>
 
-  <script src="/DN_Physics/js/app-config.js"></script>
-  <script src="/DN_Physics/js/unlock.js"></script>
+  <script src="/js/app-config.js"></script>
+  <script src="/js/unlock.js"></script>
 
   <script>
     const params = new URLSearchParams(window.location.search);
@@ -291,16 +291,16 @@
     const isPdfAllowed = canAccessPdf(subject);
 
     const pdfPath = hasValidParams
-      ? `/DN_Physics/pdfs/${subject}/${file}`
-      : "/DN_Physics/index.html";
+      ? `/pdfs/${subject}/${file}`
+      : "/index.html";
 
     const subjectPage = subject
-      ? `/DN_Physics/subjects/${subject}/index.html`
-      : "/DN_Physics/index.html";
+      ? `/subjects/${subject}/index.html`
+      : "/index.html";
 
     const fullPdfUrl = hasValidParams
       ? `${location.origin}${pdfPath}`
-      : `${location.origin}/DN_Physics/index.html`;
+      : `${location.origin}/index.html`;
 
     topicTitle.textContent = title;
     sheetTitle.textContent = `${title} Formula Sheet`;
@@ -312,7 +312,7 @@
 
     if (hasValidParams && isPdfAllowed) {
       viewBtn.href =
-        `/DN_Physics/topics/viewer.html?pdf=${encodeURIComponent(pdfPath)}` +
+        `/topics/viewer.html?pdf=${encodeURIComponent(pdfPath)}` +
         `&title=${encodeURIComponent(title + " Formula Sheet")}` +
         `&back=${encodeURIComponent(subjectPage)}` +
         `&subjectName=${encodeURIComponent(prettySubject)}`;
@@ -450,6 +450,6 @@
     }
   </script>
 
-  <script src="/DN_Physics/js/music-player.js"></script>
+  <script src="/js/music-player.js"></script>
 </body>
 </html>

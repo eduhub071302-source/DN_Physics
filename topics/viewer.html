@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PDF Viewer | DinuuNOVA Physics</title>
 
-  <link rel="manifest" href="/DN_Physics/manifest.json" />
+  <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#4ea1ff" />
-  <link rel="apple-touch-icon" href="/DN_Physics/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-  <link rel="stylesheet" href="/DN_Physics/css/style.css" />
+  <link rel="stylesheet" href="/css/style.css" />
 
   <style>
     .offline-banner {
@@ -200,9 +200,9 @@
   color:#a8b3cf;
   border-top:1px solid #24314f;
 ">
-  <a href="/DN_Physics/privacy.html">Privacy Policy</a> |
-  <a href="/DN_Physics/terms.html">Terms</a> |
-  <a href="/DN_Physics/contact.html">Contact</a>
+  <a href="/privacy.html">Privacy Policy</a> |
+  <a href="/terms.html">Terms</a> |
+  <a href="/contact.html">Contact</a>
 </footer>
   
 <body>
@@ -216,9 +216,9 @@
 
       <div class="topbar-right">
         <nav class="nav-links" aria-label="Viewer navigation">
-          <a href="/DN_Physics/index.html">Home</a>
-          <a id="subjectLink" href="/DN_Physics/index.html">Subject</a>
-          <a id="backLink" href="/DN_Physics/index.html">Back</a>
+          <a href="/index.html">Home</a>
+          <a id="subjectLink" href="/index.html">Subject</a>
+          <a id="backLink" href="/index.html">Back</a>
         </nav>
 
         <button
@@ -241,7 +241,7 @@
           <h1 class="viewer-title" id="viewerTitle">PDF Viewer</h1>
 
           <div class="actions" id="viewerActions">
-            <a class="btn" id="backBtn" href="/DN_Physics/index.html">← Back</a>
+            <a class="btn" id="backBtn" href="/index.html">← Back</a>
             <a class="btn btn-primary" id="openBtn" href="#" target="_blank" rel="noopener">Open PDF</a>
             <a class="btn" id="downloadBtn" href="#" download>⬇ Download PDF</a>
             <button class="btn" id="shareBtn" type="button">📤 Share PDF</button>
@@ -330,8 +330,8 @@
 
   <audio id="bgMusic" loop></audio>
 
-  <script src="/DN_Physics/js/app-config.js"></script>
-  <script src="/DN_Physics/js/unlock.js"></script>
+  <script src="/js/app-config.js"></script>
+  <script src="/js/unlock.js"></script>
 
   <script type="module">
     import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
@@ -342,7 +342,7 @@
     const params = new URLSearchParams(window.location.search);
 
     const DEFAULT_SITE = window.location.origin;
-    const SITE_BASE = `${DEFAULT_SITE}/DN_Physics`;
+    const SITE_BASE = `${DEFAULT_SITE}`;
 
     const directPdf = params.get("pdf");
     const oldSubject = params.get("subject");
@@ -385,7 +385,7 @@
     let fileName = "";
     let subjectSlug = "";
     let subjectDisplayName = "Subject";
-    let backUrl = "/DN_Physics/index.html";
+    let backUrl = "/index.html";
     let shareTitle = "PDF Viewer";
 
     let pdfDoc = null;
@@ -430,12 +430,12 @@
     }
 
     function buildViewerUrl(item) {
-      const pdf = `/DN_Physics/pdfs/${item.subject}/${item.file}`;
+      const pdf = `/pdfs/${item.subject}/${item.file}`;
       const title = encodeURIComponent(item.title || item.file.replace(/\.pdf$/i, ""));
-      const back = encodeURIComponent(item.subjectPage || `/DN_Physics/subjects/${item.subject}/index.html`);
+      const back = encodeURIComponent(item.subjectPage || `/subjects/${item.subject}/index.html`);
       const subjectName = encodeURIComponent(prettifyFolderName(item.subject));
 
-      return `/DN_Physics/topics/viewer.html?pdf=${encodeURIComponent(pdf)}&title=${title}&back=${back}&subjectName=${subjectName}`;
+      return `/topics/viewer.html?pdf=${encodeURIComponent(pdf)}&title=${title}&back=${back}&subjectName=${subjectName}`;
     }
 
     function updateZoomReadout() {
@@ -571,7 +571,7 @@
 
         quizBtn.textContent = quizAllowed ? "🎯 Practice Quiz" : "🔒 Quiz Locked";
         quizBtn.href = quizAllowed
-          ? `/DN_Physics/pp-quiz/topic.html?topic=${encodeURIComponent(subjectSlug || "")}`
+          ? `/pp-quiz/topic.html?topic=${encodeURIComponent(subjectSlug || "")}`
           : "#";
  
         if (!quizAllowed) {
@@ -590,16 +590,16 @@
     async function showLibrary() {
       viewerTitleEl.textContent = "All PDFs";
       subjectLinkEl.textContent = "Library";
-      subjectLinkEl.href = "/DN_Physics/index.html";
-      backLinkEl.href = "/DN_Physics/index.html";
-      backBtnEl.href = "/DN_Physics/index.html";
+      subjectLinkEl.href = "/index.html";
+      backLinkEl.href = "/index.html";
+      backBtnEl.href = "/index.html";
 
       viewerSection.classList.add("hidden");
       viewerActions.classList.add("hidden");
       librarySection.classList.remove("hidden");
 
       try {
-        const response = await fetch("/DN_Physics/pdfs/catalog.json");
+        const response = await fetch("/pdfs/catalog.json");
         const items = await response.json();
 
         if (!Array.isArray(items) || items.length === 0) {
@@ -613,7 +613,7 @@
             <p>${prettifyFolderName(item.subject)}</p>
             <div class="card-actions">
               <a class="btn btn-primary" href="${buildViewerUrl(item)}">View PDF</a>
-              <a class="btn" href="/DN_Physics/pdfs/${item.subject}/${item.file}" target="_blank" rel="noopener">Open</a>
+              <a class="btn" href="/pdfs/${item.subject}/${item.file}" target="_blank" rel="noopener">Open</a>
               ${item.topicPage ? `<a class="btn" href="${item.topicPage}">Topic</a>` : ""}
             </div>
           </div>
@@ -1054,7 +1054,7 @@
       } else {
         subjectSlug = oldSubject || "current-electricity";
         fileName = oldFile || "basics-formulas.pdf";
-        pdfUrl = `/DN_Physics/pdfs/${subjectSlug}/${fileName}`;
+        pdfUrl = `/pdfs/${subjectSlug}/${fileName}`;
         absolutePdfUrl = makeAbsolute(pdfUrl);
         subjectDisplayName = safeDecode(rawSubjectName, prettifyFolderName(subjectSlug));
       }
@@ -1062,7 +1062,7 @@
       shareTitle = safeDecode(rawTitle, fileName.replace(/\.pdf$/i, ""));
       backUrl = rawBack
         ? normalizePath(safeDecode(rawBack))
-        : (subjectSlug ? `/DN_Physics/subjects/${subjectSlug}/index.html` : "/DN_Physics/index.html");
+        : (subjectSlug ? `/subjects/${subjectSlug}/index.html` : "/index.html");
 
       if (!canAccessPdf(subjectSlug)) {
         viewerTitleEl.textContent = "Locked PDF";
@@ -1078,11 +1078,11 @@
       shareTitle = safeDecode(rawTitle, fileName.replace(/\.pdf$/i, ""));
       backUrl = rawBack
         ? normalizePath(safeDecode(rawBack))
-        : (subjectSlug ? `/DN_Physics/subjects/${subjectSlug}/index.html` : "/DN_Physics/index.html");
+        : (subjectSlug ? `/subjects/${subjectSlug}/index.html` : "/index.html");
 
       const subjectPageUrl = subjectSlug
-        ? `/DN_Physics/subjects/${subjectSlug}/index.html`
-        : "/DN_Physics/index.html";
+        ? `/subjects/${subjectSlug}/index.html`
+        : "/index.html";
 
       viewerTitleEl.textContent = shareTitle;
       fileLabelEl.textContent = "🔍 Zoom in for clearer text";
@@ -1136,6 +1136,6 @@
     }
   </script>
 
-  <script src="/DN_Physics/js/music-player.js"></script>
+  <script src="/js/music-player.js"></script>
 </body>
 </html>

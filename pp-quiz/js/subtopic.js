@@ -149,7 +149,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function updateBackLink() {
-    backToTopic.href = `/DN_Physics/pp-quiz/topic.html?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topic || "")}`;
+    backToTopic.href = `/pp-quiz/topic.html?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topic || "")}`;
   }
 
   function setupRefresh() {
@@ -277,7 +277,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   async function loadQuizSets() {
-    const manifestPath = `/DN_Physics/pp-quiz/data/${encodeURIComponent(subject)}/${encodeURIComponent(topic)}/${encodeURIComponent(subtopic)}/sets.json`;
+    const manifestPath = `/pp-quiz/data/${encodeURIComponent(subject)}/${encodeURIComponent(topic)}/${encodeURIComponent(subtopic)}/sets.json`;
 
     try {
       const res = await fetch(manifestPath, { cache: "no-store" });
@@ -340,7 +340,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     card.className = "topic-card fade-slide-up";
     card.style.animationDelay = `${index * 0.04}s`;
 
-    card.href = `/DN_Physics/pp-quiz/quiz.html?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topic)}&subtopic=${encodeURIComponent(subtopic)}&set=${encodeURIComponent(set.slug)}`;
+    card.href = `/pp-quiz/quiz.html?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topic)}&subtopic=${encodeURIComponent(subtopic)}&set=${encodeURIComponent(set.slug)}`;
 
     const description = getSetDescription(mastery, stats.attempts);
 

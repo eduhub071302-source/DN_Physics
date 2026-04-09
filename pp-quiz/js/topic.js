@@ -542,7 +542,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateBackLink(subjectSlug) {
     if (!backToTopicsLink) return;
-    backToTopicsLink.href = `/DN_Physics/pp-quiz/index.html?subject=${encodeURIComponent(subjectSlug)}`;
+    backToTopicsLink.href = `/pp-quiz/index.html?subject=${encodeURIComponent(subjectSlug)}`;
   }
 
   function setupRefresh() {
@@ -809,7 +809,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const card = document.createElement("a");
     card.className = "topic-card fade-slide-up";
-    card.href = `/DN_Physics/pp-quiz/subtopic.html?subject=${encodeURIComponent(subjectSlug)}&topic=${encodeURIComponent(topicSlugValue)}&subtopic=${encodeURIComponent(subtopic.slug)}`;
+    card.href = `/pp-quiz/subtopic.html?subject=${encodeURIComponent(subjectSlug)}&topic=${encodeURIComponent(topicSlugValue)}&subtopic=${encodeURIComponent(subtopic.slug)}`;
     card.setAttribute("aria-label", `Open ${subtopic.title}`);
     card.style.animationDelay = `${index * 0.04}s`;
 
@@ -865,7 +865,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const card = document.createElement("a");
     card.className = "topic-card fade-slide-up";
-    card.href = `/DN_Physics/pp-quiz/quiz.html?subject=${encodeURIComponent(subjectSlug)}&topic=${encodeURIComponent(topicSlugValue)}&set=${encodeURIComponent("set-1")}`;
+    card.href = `/pp-quiz/quiz.html?subject=${encodeURIComponent(subjectSlug)}&topic=${encodeURIComponent(topicSlugValue)}&set=${encodeURIComponent("set-1")}`;
     card.setAttribute("aria-label", `Start practice for ${topicMeta.title}`);
     card.style.animationDelay = `${index * 0.04}s`;
 
