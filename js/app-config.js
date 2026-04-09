@@ -13,10 +13,12 @@ const DN_CONFIG = {
   },
 
   PRODUCT: {
-    FULL_UNLOCK_ID: "dn-physics-full-unlock",
-    FULL_UNLOCK_NAME: "DN Physics Full Unlock",
-    PRICE: "100.00",
-    CURRENCY: "LKR"
+    FULL_UNLOCK_ID: "dn-physics-monthly-subscription",
+    FULL_UNLOCK_NAME: "DN Physics Monthly Subscription",
+    PRICE: "70.00",
+    CURRENCY: "LKR",
+    BILLING_PERIOD: "monthly",
+    DURATION_DAYS: 30
   },
 
   FRONTEND: {
@@ -59,6 +61,7 @@ const DN_CONFIG = {
     UNLOCK_TIME: "dn_unlock_time",
     UNLOCK_ORDER_ID: "dn_unlock_order_id",
     UNLOCK_PENDING_ORDER_ID: "dn_unlock_pending_order_id",
+    UNLOCK_EXPIRES_AT: "dn_unlock_expires_at",
     USER_SESSION_TOKEN: "dn_user_session_token",
     USER_PROFILE: "dn_user_profile"
   }
