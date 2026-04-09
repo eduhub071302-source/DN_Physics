@@ -351,10 +351,28 @@
     const rawBack = params.get("back");
     const rawSubjectName = params.get("subjectName");
 
+    function getCurrentUserId() {
+      try {
+        const cachedUser = JSON.parse(localStorage.getItem("dn_user") || "null");
+        if (cachedUser?.id) return cachedUser.id;
+
+        const rawSupabase = localStorage.getItem("supabase.auth.token");
+        if (rawSupabase) {
+          const parsed = JSON.parse(rawSupabase);
+          const sessionUser = parsed?.currentSession?.user || parsed?.user || null;
+          if (sessionUser?.id) return sessionUser.id;
+        }
+      } catch (error) {
+        console.warn("Could not resolve current user id:", error);
+      }
+
+      return "guest";
+    }
+
     const PDF_STORAGE_KEYS = {
-      RECENT: "dnPdfRecent",
-      FAVORITES: "dnPdfFavorites",
-      LAST_OPENED: "dnPdfLastOpened"
+      RECENT: () => `dnPdfRecent_${getCurrentUserId()}`,
+      FAVORITES: () => `dnPdfFavorites_${getCurrentUserId()}`,
+      LAST_OPENED: () => `dnPdfLastOpened_${getCurrentUserId()}`
     };
 
     const viewerTitleEl = document.getElementById("viewerTitle");
@@ -483,7 +501,7 @@
 
     function saveRecentPdf() {
       try {
-        const recent = JSON.parse(localStorage.getItem(PDF_STORAGE_KEYS.RECENT)) || [];
+        const recent = JSON.parse(localStorage.getItem(PDF_STORAGE_KEYS.RECENT())) || [];
 
         const entry = {
           id: getPdfId(),
@@ -497,8 +515,8 @@
         const filtered = recent.filter(item => item.id !== entry.id);
         filtered.unshift(entry);
 
-        localStorage.setItem(PDF_STORAGE_KEYS.RECENT, JSON.stringify(filtered.slice(0, 10)));
-        localStorage.setItem(PDF_STORAGE_KEYS.LAST_OPENED, JSON.stringify(entry));
+        localStorage.setItem(PDF_STORAGE_KEYS.RECENT(), JSON.stringify(filtered.slice(0, 10)));
+        localStorage.setItem(PDF_STORAGE_KEYS.LAST_OPENED(), JSON.stringify(entry));
       } catch (error) {
         console.log("Recent save failed", error);
       }
@@ -506,7 +524,7 @@
 
     function isFavorite() {
       try {
-        const favorites = JSON.parse(localStorage.getItem(PDF_STORAGE_KEYS.FAVORITES)) || [];
+        const favorites = JSON.parse(localStorage.getItem(PDF_STORAGE_KEYS.FAVORITES())) || [];
         return favorites.some(item => item.id === getPdfId());
       } catch {
         return false;
@@ -521,7 +539,7 @@
 
     function toggleFavorite() {
       try {
-        const favorites = JSON.parse(localStorage.getItem(PDF_STORAGE_KEYS.FAVORITES)) || [];
+        const favorites = JSON.parse(localStorage.getItem(PDF_STORAGE_KEYS.FAVORITES())) || [];
         const id = getPdfId();
         const exists = favorites.find(item => item.id === id);
 
@@ -542,7 +560,7 @@
           ];
         }
 
-        localStorage.setItem(PDF_STORAGE_KEYS.FAVORITES, JSON.stringify(nextFavorites));
+        localStorage.setItem(PDF_STORAGE_KEYS.FAVORITES(), JSON.stringify(nextFavorites));
         updateFavoriteUI();
       } catch (error) {
         console.log("Favorite toggle error", error);
