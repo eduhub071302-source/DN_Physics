@@ -1296,16 +1296,20 @@
             if (topProfileAvatar && topProfileAvatarImg) {
               const avatarUrl =
                 cachedProfile?.profile_photo_url ||
-                `${APP_PATH}/assets/avatars/avatar-01.png`;
+                "/DN_Physics/assets/avatars/avatar-01.png";
+  
+              const freshAvatarUrl = avatarUrl.includes("?")
+                ? `${avatarUrl}&t=${Date.now()}`
+                : `${avatarUrl}?t=${Date.now()}`;
 
-              topProfileAvatarImg.src = avatarUrl;
+              topProfileAvatarImg.src = freshAvatarUrl;
               topProfileAvatar.classList.remove("is-hidden");
               topProfileAvatar.setAttribute("aria-hidden", "false");
             }
           } else {
             emailDisplay.textContent = "";
             loginBtn.innerHTML = "👤 Profile";
-
+      
             if (topProfileAvatar) {
               topProfileAvatar.classList.add("is-hidden");
               topProfileAvatar.setAttribute("aria-hidden", "true");
@@ -1319,7 +1323,7 @@
             emailDisplay.textContent = "";
             loginBtn.innerHTML = "👤 Profile";
           }
-        }
+       }
       }
 
       window.updateProfileUI = updateProfileUI;

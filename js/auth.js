@@ -68,9 +68,30 @@
     return String(email || "").trim().toLowerCase();
   }
 
-  function buildPresetAvatarUrl(avatarValue) {
-    const safeValue = avatarValue || DEFAULT_AVATAR;
-    return `${APP_PATH}/assets/avatars/${safeValue}.png`;
+  function setSelectedAvatar(avatarId) {
+    selectedAvatarValue = avatarId || DEFAULT_AVATAR;
+
+    const freshUrl = buildPresetAvatarUrl(selectedAvatarValue, Date.now());
+
+    if (els.profileAvatarPreview) {
+      els.profileAvatarPreview.src = freshUrl;
+    }
+
+    const topProfileAvatarImg = document.getElementById("topProfileAvatarImg");
+    if (topProfileAvatarImg) {
+      topProfileAvatarImg.src = freshUrl;
+    }
+
+    if (!els.presetAvatarGrid) return;
+
+    els.presetAvatarGrid.querySelectorAll("[data-avatar-id]").forEach((btn) => {
+      const active = btn.dataset.avatarId === selectedAvatarValue;
+      btn.style.borderColor = active ? "rgba(78,161,255,0.8)" : "rgba(255,255,255,0.08)";
+      btn.style.boxShadow = active
+        ? "0 0 0 3px rgba(78,161,255,0.16), 0 12px 22px rgba(0,0,0,0.26)"
+        : "0 8px 18px rgba(0,0,0,0.18)";
+      btn.style.transform = active ? "scale(1.06)" : "scale(1)";
+    });
   }
 
   function getPresetAvatarList() {
@@ -822,13 +843,15 @@
         return;
       }
 
+      const cacheVersion = Date.now().toString();
+
       const payload = {
         email: user.email,
         name,
         bio: bio || null,
         avatar_type: "preset",
         avatar_value: selectedAvatarValue,
-        profile_photo_url: buildPresetAvatarUrl(selectedAvatarValue)
+        profile_photo_url: buildPresetAvatarUrl(selectedAvatarValue, cacheVersion)
       };
 
       const result = await saveUserProfile(user.id, payload);
@@ -838,12 +861,32 @@
         return;
       }
 
-      updateAccountButton();
+      const savedProfile = result.data || payload;
+      setProfileCache(savedProfile);
+
+      if (els.profileAvatarPreview) {
+        els.profileAvatarPreview.src = savedProfile.profile_photo_url;
+      }
+
+      const topProfileAvatarImg = document.getElementById("topProfileAvatarImg");
+      if (topProfileAvatarImg) {
+        topProfileAvatarImg.src = savedProfile.profile_photo_url;
+      }
+
+      const topProfileAvatar = document.getElementById("topProfileAvatar");
+      if (topProfileAvatar) {
+        topProfileAvatar.classList.remove("is-hidden");
+        topProfileAvatar.setAttribute("aria-hidden", "false");
+      }
+
+      if (typeof window.updateProfileUI === "function") {
+        window.updateProfileUI(user);
+      }
+
       showAuthError("✅ Profile saved successfully.", true);
 
       setTimeout(() => {
         closeAuthModal();
-        window.location.reload();
       }, 700);
     }
 

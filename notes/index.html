@@ -5,10 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Physics Notes | DinuuNOVA</title>
 
+  <link rel="manifest" href="/DN_Physics/manifest.json" />
+  <meta name="theme-color" content="#4ea1ff" />
+  <link rel="apple-touch-icon" href="/DN_Physics/icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
   <link rel="stylesheet" href="/DN_Physics/css/style.css" />
 </head>
 <body>
-
   <header class="site-header">
     <div class="container nav">
       <div class="brand">DinuuNOVA <span>Physics</span></div>
@@ -84,18 +89,55 @@
     </section>
   </main>
 
-  <footer style="
-    margin-top:40px;
-    padding:20px;
-    text-align:center;
-    font-size:14px;
-    color:#a8b3cf;
-    border-top:1px solid #24314f;
-  ">
-    <a href="/DN_Physics/privacy.html">Privacy Policy</a> |
-    <a href="/DN_Physics/terms.html">Terms</a> |
-    <a href="/DN_Physics/contact.html">Contact</a>
+  <footer class="footer">
+    <div class="container" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center;">
+      <div>© 2026 DinuuNOVA Physics</div>
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <a href="/DN_Physics/privacy.html">Privacy Policy</a>
+        <a href="/DN_Physics/terms.html">Terms</a>
+        <a href="/DN_Physics/contact.html">Contact</a>
+      </div>
+    </div>
   </footer>
+
+  <div class="music-player-wrap">
+    <button
+      id="musicToggleBtn"
+      class="btn music-toggle-btn"
+      type="button"
+      aria-expanded="false"
+      aria-controls="musicPanel"
+    >
+      🎧 Focus
+    </button>
+
+    <div id="musicPanel" class="music-panel" aria-hidden="true">
+      <div class="music-panel-title">🎧 Deep Focus Mode</div>
+
+      <label for="trackSelect" class="music-label">Select Track</label>
+      <select id="trackSelect" class="music-select"></select>
+
+      <div class="music-controls">
+        <button id="playPauseBtn" class="btn btn-primary" type="button">▶ Play</button>
+        <button id="stopMusicBtn" class="btn" type="button">■ Stop</button>
+      </div>
+
+      <label for="volumeSlider" class="music-label">Volume 🔊</label>
+      <input
+        id="volumeSlider"
+        class="volume-slider"
+        type="range"
+        min="0"
+        max="1"
+        step="0.01"
+        value="0.35"
+      />
+
+      <div id="currentTrackLabel" class="music-track-label">Current: None</div>
+    </div>
+  </div>
+
+  <audio id="bgMusic" loop></audio>
 
   <script>
     const refreshBtn = document.getElementById("refreshBtn");
@@ -332,7 +374,7 @@
 
     async function loadSubjectsFromCatalog() {
       try {
-        const res = await fetch("/DN_Physics/pdfs/catalog.json");
+        const res = await fetch("/DN_Physics/pdfs/catalog.json", { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to load catalog");
 
         const items = await res.json();
@@ -403,5 +445,7 @@
 
     loadSubjectsFromCatalog();
   </script>
+
+  <script src="/DN_Physics/js/music-player.js"></script>
 </body>
 </html>
