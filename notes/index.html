@@ -177,16 +177,38 @@
       return `Topic ${String(index + 1).padStart(2, "0")}`;
     }
 
+    function getCurrentUserId() {
+      try {
+        const cachedUser = JSON.parse(localStorage.getItem("dn_user") || "null");
+        if (cachedUser?.id) return cachedUser.id;
+
+        const rawSupabase = localStorage.getItem("supabase.auth.token");
+        if (rawSupabase) {
+          const parsed = JSON.parse(rawSupabase);
+          const sessionUser = parsed?.currentSession?.user || parsed?.user || null;
+          if (sessionUser?.id) return sessionUser.id;
+        }
+      } catch (error) {
+        console.warn("Could not resolve current user id:", error);
+      }
+
+      return "guest";
+    }
+
+    function getPinnedSubjectsKey() {
+      return `dnPhysicsPinnedSubjects_${getCurrentUserId()}`;
+    }
+
     function getPinnedSubjects() {
       try {
-        return JSON.parse(localStorage.getItem("dnPhysicsPinnedSubjects")) || [];
+        return JSON.parse(localStorage.getItem(getPinnedSubjectsKey())) || [];
       } catch {
         return [];
       }
     }
 
     function savePinnedSubjects(items) {
-      localStorage.setItem("dnPhysicsPinnedSubjects", JSON.stringify(items));
+      localStorage.setItem(getPinnedSubjectsKey(), JSON.stringify(items));
     }
 
     function togglePin(subjectName) {
