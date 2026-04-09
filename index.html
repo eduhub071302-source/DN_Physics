@@ -11,10 +11,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="/DN_Physics/css/style.css" />
 </head>
-
 <body>
+  <!-- APP SPLASH -->
   <div id="appSplash" class="app-splash" aria-hidden="true">
     <div class="app-splash-bg"></div>
 
@@ -33,10 +33,12 @@
     </div>
   </div>
 
+  <!-- PULL TO REFRESH -->
   <div id="pullRefreshIndicator" class="pull-refresh-indicator" aria-hidden="true">
     ↓ Pull to refresh
   </div>
 
+  <!-- LOADING OVERLAY -->
   <div id="loadingOverlay" class="loading-overlay" aria-hidden="true">
     <div class="loading-box">
       <div class="spinner"></div>
@@ -44,16 +46,18 @@
     </div>
   </div>
 
+  <!-- UPDATE TOAST -->
   <div id="updateToast" class="update-toast" aria-live="polite" aria-hidden="true">
-    <h3>New notes available</h3>
-    <p>A newer version of the app was found. Refresh to load the latest notes and updates.</p>
+    <h3>New update available</h3>
+    <p>A newer version of the app was found. Refresh to load the latest improvements.</p>
     <div class="update-toast-actions">
       <button id="toastRefreshBtn" class="btn btn-primary" type="button">Refresh Now</button>
       <button id="toastDismissBtn" class="btn" type="button">Later</button>
     </div>
   </div>
 
-  <div id="logoutModal" class="auth-modal hidden">
+  <!-- LOGOUT MODAL -->
+  <div id="logoutModal" class="auth-modal hidden" aria-hidden="true">
     <div class="auth-box">
       <h2>Logout</h2>
       <p>Are you sure you want to log out?</p>
@@ -65,13 +69,14 @@
     </div>
   </div>
 
+  <!-- HEADER -->
   <header class="site-header">
     <div class="container nav">
       <div class="brand">DinuuNOVA <span>Physics</span></div>
 
       <div class="topbar-right">
         <nav class="nav-links" aria-label="Main navigation">
-          <a href="index.html" class="active" aria-current="page">Home</a>
+          <a href="/DN_Physics/index.html" class="active" aria-current="page">Home</a>
         </nav>
 
         <div id="userEmailDisplay" class="user-email-display" aria-live="polite"></div>
@@ -84,9 +89,7 @@
           />
         </div>
 
-        <button id="loginBtn" class="btn" type="button">
-          👤 Profile
-        </button>
+        <button id="loginBtn" class="btn" type="button">👤 Profile</button>
 
         <button
           id="refreshBtn"
@@ -101,14 +104,13 @@
     </div>
   </header>
 
+  <!-- MAIN -->
   <main>
     <section class="hero">
       <div class="container">
         <div class="badge">A/L Physics Mastery System</div>
         <h1>Master A/L Physics Faster 🚀</h1>
-        <p>
-          Notes, past paper MCQs, and progress tracking in one place.
-        </p>
+        <p>Notes, past paper MCQs, and progress tracking in one place.</p>
 
         <div class="actions">
           <button id="installBtn" class="btn btn-install is-hidden" type="button">
@@ -132,10 +134,16 @@
       </div>
     </section>
 
+    <!-- SUBJECT CHOOSER -->
     <div id="subjectSelectModal" class="subject-modal hidden" aria-hidden="true">
       <div class="subject-modal-backdrop"></div>
 
-      <div class="subject-modal-box" role="dialog" aria-modal="true" aria-labelledby="subjectModalTitle">
+      <div
+        class="subject-modal-box"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="subjectModalTitle"
+      >
         <div class="subject-modal-top">
           <div class="subject-modal-badge">Choose Quiz Subject</div>
           <h2 id="subjectModalTitle">Select Subject</h2>
@@ -169,11 +177,14 @@
         </div>
 
         <div class="subject-modal-footer">
-          <button id="closeSubjectModal" class="btn subject-cancel-btn" type="button">Cancel</button>
+          <button id="closeSubjectModal" class="btn subject-cancel-btn" type="button">
+            Cancel
+          </button>
         </div>
       </div>
     </div>
 
+    <!-- DASHBOARD -->
     <section class="section dashboard-section">
       <div class="container">
         <div class="rank-badge">🎯 Target: Island Rank</div>
@@ -189,12 +200,7 @@
     </section>
   </main>
 
-  <footer class="footer">
-    <div class="container">
-      © 2026 DinuuNOVA Physics · Email: eduhub071302@gmail.com
-    </div>
-  </footer>
-
+  <!-- MUSIC PLAYER -->
   <div class="music-player-wrap">
     <button
       id="musicToggleBtn"
@@ -234,11 +240,18 @@
 
   <audio id="bgMusic" loop></audio>
 
+  <!-- ONBOARDING -->
   <div id="onboardingOverlay" class="onboarding-overlay is-hidden" aria-hidden="true">
     <div class="onboarding-backdrop"></div>
     <div id="onboardingSpotlight" class="onboarding-spotlight"></div>
 
-    <div id="onboardingCard" class="onboarding-card" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+    <div
+      id="onboardingCard"
+      class="onboarding-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="onboardingTitle"
+    >
       <div class="onboarding-step">Quick Guide</div>
       <h3 id="onboardingTitle">Welcome to DinuuNOVA Physics</h3>
       <p id="onboardingText">Let’s take a quick look around.</p>
@@ -252,20 +265,8 @@
     <div id="onboardingArrow" class="onboarding-arrow" aria-hidden="true">➜</div>
   </div>
 
-  <footer style="
-    margin-top:40px;
-    padding:20px;
-    text-align:center;
-    font-size:14px;
-    color:#a8b3cf;
-    border-top:1px solid #24314f;
-  ">
-    <a href="/DN_Physics/privacy.html">Privacy Policy</a> |
-    <a href="/DN_Physics/terms.html">Terms</a> |
-    <a href="/DN_Physics/contact.html">Contact</a>
-  </footer>
-
-  <div id="authModal" class="auth-modal hidden">
+  <!-- AUTH MODAL -->
+  <div id="authModal" class="auth-modal hidden" aria-hidden="true">
     <div class="auth-box premium-auth-box">
       <h2 id="authTitle">Login</h2>
 
@@ -301,18 +302,27 @@
         </div>
 
         <div class="avatar-section-head">
-          <span class="avatar-section-title">Choose Avatar</span>
-          <span class="avatar-section-subtitle">30 premium preset avatars</span>
+          <span class="avatar-section-title">Avatar</span>
         </div>
 
-        <div id="presetAvatarGrid" class="preset-avatar-grid"></div>
+        <button id="openAvatarModalBtn" class="btn" type="button">🎨 Choose Avatar</button>
       </div>
 
-      <input id="authEmail" placeholder="Email" />
+      <input id="authEmail" placeholder="Email" autocomplete="email" />
 
       <div id="authPasswordRow" class="auth-password-wrap">
-        <input id="authPassword" type="password" placeholder="Password" />
-        <button id="togglePasswordBtn" class="auth-eye-btn" type="button" aria-label="Show password">
+        <input
+          id="authPassword"
+          type="password"
+          placeholder="Password"
+          autocomplete="current-password"
+        />
+        <button
+          id="togglePasswordBtn"
+          class="auth-eye-btn"
+          type="button"
+          aria-label="Show password"
+        >
           <svg id="eyeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path
               d="M1 12C1 12 5 5 12 5C19 5 23 12 23 12C23 12 19 19 12 19C5 19 1 12 1 12Z"
@@ -325,8 +335,18 @@
       </div>
 
       <div id="authConfirmRow" class="auth-password-wrap is-hidden">
-        <input id="authConfirmPassword" type="password" placeholder="Confirm Password" />
-        <button id="toggleConfirmPasswordBtn" class="auth-eye-btn" type="button" aria-label="Show confirm password">
+        <input
+          id="authConfirmPassword"
+          type="password"
+          placeholder="Confirm Password"
+          autocomplete="new-password"
+        />
+        <button
+          id="toggleConfirmPasswordBtn"
+          class="auth-eye-btn"
+          type="button"
+          aria-label="Show confirm password"
+        >
           <svg id="confirmEyeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path
               d="M1 12C1 12 5 5 12 5C19 5 23 12 23 12C23 12 19 19 12 19C5 19 1 12 1 12Z"
@@ -354,622 +374,476 @@
     </div>
   </div>
 
+  <!-- AVATAR MODAL -->
+  <div id="avatarModal" class="auth-modal hidden" aria-hidden="true">
+    <div class="auth-box" style="max-width: 420px;">
+      <h2>Choose Avatar</h2>
+
+      <div
+        id="avatarGridModal"
+        class="preset-avatar-grid"
+        style="
+          display:grid;
+          grid-template-columns:repeat(4,1fr);
+          gap:12px;
+          max-height:300px;
+          overflow-y:auto;
+          padding:10px;
+        "
+      ></div>
+
+      <button id="closeAvatarModal" class="btn" type="button">Close</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center;">
+      <div>© 2026 DinuuNOVA Physics · Email: eduhub071302@gmail.com</div>
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <a href="/DN_Physics/privacy.html">Privacy Policy</a>
+        <a href="/DN_Physics/terms.html">Terms</a>
+        <a href="/DN_Physics/contact.html">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- LIBS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/DN_Physics/js/supabase-client.js"></script>
   <script src="/DN_Physics/js/app-config.js"></script>
   <script src="/DN_Physics/js/sync-progress.js"></script>
   <script src="/DN_Physics/js/unlock.js"></script>
   <script src="/DN_Physics/js/auth.js"></script>
+  <script src="/DN_Physics/js/music-player.js"></script>
 
+  <!-- HOME PAGE SCRIPT -->
   <script>
-    let deferredPrompt = null;
+    (() => {
+      "use strict";
 
-    const installBtn = document.getElementById("installBtn");
-    const unlockProBtn = document.getElementById("unlockProBtn");
-    const refreshBtn = document.getElementById("refreshBtn");
+      let deferredPrompt = null;
+      let refreshingNow = false;
+      let touchStartY = 0;
+      let pullTriggered = false;
+      let fakeProgressTimer = null;
+      let onboardingSteps = [];
+      let onboardingIndex = 0;
 
-    const loadingOverlay = document.getElementById("loadingOverlay");
-    const loadingText = document.getElementById("loadingText");
-    const pullRefreshIndicator = document.getElementById("pullRefreshIndicator");
-    const updateToast = document.getElementById("updateToast");
-    const toastRefreshBtn = document.getElementById("toastRefreshBtn");
-    const toastDismissBtn = document.getElementById("toastDismissBtn");
-    const appSplash = document.getElementById("appSplash");
+      const APP_PATH = "/DN_Physics";
 
-    const searchInput = document.getElementById("subjectSearch");
-    const categoryFilter = document.getElementById("categoryFilter");
-    const pinnedSection = document.getElementById("pinnedSection");
-    const pinnedGrid = document.getElementById("pinnedGrid");
-    const subjectGrid = document.getElementById("subjectGrid");
-    const dashboardGrid = document.getElementById("dashboardGrid");
+      const installBtn = document.getElementById("installBtn");
+      const unlockProBtn = document.getElementById("unlockProBtn");
+      const refreshBtn = document.getElementById("refreshBtn");
 
-    const hasNotesUi =
-      !!subjectGrid &&
-      !!categoryFilter &&
-      !!searchInput &&
-      !!pinnedSection &&
-      !!pinnedGrid;
+      const loadingOverlay = document.getElementById("loadingOverlay");
+      const loadingText = document.getElementById("loadingText");
+      const pullRefreshIndicator = document.getElementById("pullRefreshIndicator");
+      const updateToast = document.getElementById("updateToast");
+      const toastRefreshBtn = document.getElementById("toastRefreshBtn");
+      const toastDismissBtn = document.getElementById("toastDismissBtn");
+      const appSplash = document.getElementById("appSplash");
 
-    const onboardingOverlay = document.getElementById("onboardingOverlay");
-    const onboardingSpotlight = document.getElementById("onboardingSpotlight");
-    const onboardingCard = document.getElementById("onboardingCard");
-    const onboardingArrow = document.getElementById("onboardingArrow");
-    const onboardingTitle = document.getElementById("onboardingTitle");
-    const onboardingText = document.getElementById("onboardingText");
-    const onboardingNextBtn = document.getElementById("onboardingNextBtn");
-    const onboardingSkipBtn = document.getElementById("onboardingSkipBtn");
+      const dashboardGrid = document.getElementById("dashboardGrid");
 
-    const practiceBtn = document.getElementById("onboardPractice");
-    const subjectModal = document.getElementById("subjectSelectModal");
-    const closeSubjectModal = document.getElementById("closeSubjectModal");
+      const onboardingOverlay = document.getElementById("onboardingOverlay");
+      const onboardingSpotlight = document.getElementById("onboardingSpotlight");
+      const onboardingCard = document.getElementById("onboardingCard");
+      const onboardingArrow = document.getElementById("onboardingArrow");
+      const onboardingTitle = document.getElementById("onboardingTitle");
+      const onboardingText = document.getElementById("onboardingText");
+      const onboardingNextBtn = document.getElementById("onboardingNextBtn");
+      const onboardingSkipBtn = document.getElementById("onboardingSkipBtn");
 
-    let refreshingNow = false;
-    let touchStartY = 0;
-    let pullTriggered = false;
-    let fakeProgressTimer = null;
+      const practiceBtn = document.getElementById("onboardPractice");
+      const subjectModal = document.getElementById("subjectSelectModal");
+      const closeSubjectModal = document.getElementById("closeSubjectModal");
 
-    let SUBJECTS = {};
-    let subjectCards = [];
-    let pinButtons = [];
-    let onboardingSteps = [];
-    let onboardingIndex = 0;
+      function showToast(message = "Done") {
+        let toast = document.getElementById("globalToast");
 
-    function showLoadingOverlay() {
-      if (loadingOverlay) {
+        if (!toast) {
+          toast = document.createElement("div");
+          toast.id = "globalToast";
+          toast.className = "toast";
+          document.body.appendChild(toast);
+        }
+
+        toast.textContent = message;
+        toast.classList.add("show");
+
+        clearTimeout(toast._hideTimer);
+        toast._hideTimer = setTimeout(() => {
+          toast.classList.remove("show");
+        }, 2200);
+      }
+
+      window.showToast = showToast;
+
+      function showLoadingOverlay() {
+        if (!loadingOverlay) return;
         loadingOverlay.classList.add("show");
         loadingOverlay.setAttribute("aria-hidden", "false");
       }
-    }
 
-    function hideLoadingOverlay() {
-      if (loadingOverlay) {
+      function hideLoadingOverlay() {
+        if (!loadingOverlay) return;
         loadingOverlay.classList.remove("show");
         loadingOverlay.setAttribute("aria-hidden", "true");
       }
-    }
 
-    function setLoadingText(text) {
-      if (loadingText) loadingText.textContent = text;
-    }
+      function setLoadingText(text) {
+        if (loadingText) loadingText.textContent = text;
+      }
 
-    function showUpdateToast() {
-      if (updateToast) {
+      function showUpdateToast() {
+        if (!updateToast) return;
         updateToast.classList.add("show");
         updateToast.setAttribute("aria-hidden", "false");
       }
-    }
 
-    function hideUpdateToast() {
-      if (updateToast) {
+      function hideUpdateToast() {
+        if (!updateToast) return;
         updateToast.classList.remove("show");
         updateToast.setAttribute("aria-hidden", "true");
       }
-    }
 
-    function startFakeProgress() {
-      if (fakeProgressTimer) {
-        clearInterval(fakeProgressTimer);
-        fakeProgressTimer = null;
-      }
-
-      let progress = 0;
-      let stage = "Checking update...";
-
-      setLoadingText(`${stage} 0%`);
-
-      fakeProgressTimer = setInterval(() => {
-        if (progress < 25) {
-          stage = "Checking update...";
-          progress += 5;
-        } else if (progress < 55) {
-          stage = "Downloading files...";
-          progress += 4;
-        } else if (progress < 85) {
-          stage = "Applying update...";
-          progress += 2;
-        } else if (progress < 95) {
-          stage = "Finalizing...";
-          progress += 1;
+      function startFakeProgress() {
+        if (fakeProgressTimer) {
+          clearInterval(fakeProgressTimer);
+          fakeProgressTimer = null;
         }
 
-        if (progress > 95) progress = 95;
-        setLoadingText(`${stage} ${progress}%`);
-      }, 160);
-    }
+        let progress = 0;
+        let stage = "Checking update...";
 
-    function finishFakeProgress() {
-      if (fakeProgressTimer) {
-        clearInterval(fakeProgressTimer);
-        fakeProgressTimer = null;
+        setLoadingText(`${stage} 0%`);
+
+        fakeProgressTimer = setInterval(() => {
+          if (progress < 25) {
+            stage = "Checking update...";
+            progress += 5;
+          } else if (progress < 55) {
+            stage = "Downloading files...";
+            progress += 4;
+          } else if (progress < 85) {
+            stage = "Applying update...";
+            progress += 2;
+          } else if (progress < 95) {
+            stage = "Finalizing...";
+            progress += 1;
+          }
+
+          if (progress > 95) progress = 95;
+          setLoadingText(`${stage} ${progress}%`);
+        }, 160);
       }
 
-      setLoadingText("Update complete 🚀 100%");
-    }
+      function finishFakeProgress() {
+        if (fakeProgressTimer) {
+          clearInterval(fakeProgressTimer);
+          fakeProgressTimer = null;
+        }
 
-    function isUserBusy() {
-      return window.location.pathname.includes("quiz.html");
-    }
+        setLoadingText("Update complete 🚀 100%");
+      }
 
-    function showBusyUpdateMessage() {
-      hideUpdateToast();
-      setTimeout(() => {
-        showToast("Finish quiz first ⚠️");
-      }, 80);
-    }
+      function isUserBusy() {
+        return window.location.pathname.includes("quiz.html");
+      }
 
-    async function performSafeUpdate() {
-      if (refreshingNow) return;
-      refreshingNow = true;
+      function showBusyUpdateMessage() {
+        hideUpdateToast();
+        setTimeout(() => {
+          showToast("Finish quiz first ⚠️");
+        }, 80);
+      }
 
-      showLoadingOverlay();
-      startFakeProgress();
+      async function performSafeUpdate() {
+        if (refreshingNow) return;
+        refreshingNow = true;
 
-      try {
-        if ("serviceWorker" in navigator) {
-          const registration = await navigator.serviceWorker.getRegistration();
+        showLoadingOverlay();
+        startFakeProgress();
 
-          if (registration) {
-            await registration.update();
+        try {
+          if ("serviceWorker" in navigator) {
+            const registration = await navigator.serviceWorker.getRegistration();
 
-            if (registration.waiting) {
-              setLoadingText("Applying update... 95%");
-              registration.waiting.postMessage({ type: "SKIP_WAITING" });
-              return;
+            if (registration) {
+              await registration.update();
+
+              if (registration.waiting) {
+                setLoadingText("Applying update... 95%");
+                registration.waiting.postMessage({ type: "SKIP_WAITING" });
+                return;
+              }
             }
           }
+
+          finishFakeProgress();
+          setTimeout(() => {
+            window.location.reload();
+          }, 250);
+        } catch (error) {
+          console.log("Safe update error:", error);
+          finishFakeProgress();
+          setTimeout(() => {
+            window.location.reload();
+          }, 250);
         }
-
-        finishFakeProgress();
-        setTimeout(() => {
-          window.location.reload();
-        }, 250);
-      } catch (error) {
-        console.log("Safe update error:", error);
-        finishFakeProgress();
-        setTimeout(() => {
-          window.location.reload();
-        }, 250);
       }
-    }
 
-    async function registerServiceWorker() {
-      if (!("serviceWorker" in navigator)) return;
+      async function registerServiceWorker() {
+        if (!("serviceWorker" in navigator)) return;
 
-      try {
-        const registration = await navigator.serviceWorker.register("/DN_Physics/service-worker.js");
-        console.log("✅ Service Worker registered:", registration.scope);
+        try {
+          const registration = await navigator.serviceWorker.register(`${APP_PATH}/service-worker.js`);
+          console.log("✅ Service Worker registered:", registration.scope);
 
-        registration.addEventListener("updatefound", () => {
-          const newWorker = registration.installing;
-          if (!newWorker) return;
+          registration.addEventListener("updatefound", () => {
+            const newWorker = registration.installing;
+            if (!newWorker) return;
 
-          newWorker.addEventListener("statechange", () => {
-            if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
-              showUpdateToast();
+            newWorker.addEventListener("statechange", () => {
+              if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+                showUpdateToast();
+              }
+            });
+          });
+
+          navigator.serviceWorker.addEventListener("message", (event) => {
+            if (!event.data) return;
+
+            if (event.data.type === "SW_UPDATED") {
+              showToast("🚀 Updating app...");
+              performSafeUpdate();
+            }
+
+            if (event.data.type === "FORCE_RELOAD") {
+              window.location.reload();
             }
           });
-        });
-
-        navigator.serviceWorker.addEventListener("message", (event) => {
-          if (!event.data) return;
-
-          if (event.data.type === "SW_UPDATED") {
-            showToast("🚀 Updating app...");
-            performSafeUpdate();
-          }
-
-          if (event.data.type === "FORCE_RELOAD") {
-            window.location.reload();
-          }
-        });
-      } catch (error) {
-        console.log("❌ Service Worker failed:", error);
+        } catch (error) {
+          console.log("❌ Service Worker failed:", error);
+        }
       }
-    }
 
-    function setupInstallPrompt() {
-      window.addEventListener("beforeinstallprompt", (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
+      function setupInstallPrompt() {
+        window.addEventListener("beforeinstallprompt", (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+
+          if (installBtn) {
+            installBtn.classList.remove("is-hidden");
+          }
+        });
 
         if (installBtn) {
-          installBtn.classList.remove("is-hidden");
+          installBtn.addEventListener("click", async () => {
+            if (!deferredPrompt) return;
+
+            deferredPrompt.prompt();
+            await deferredPrompt.userChoice;
+
+            deferredPrompt = null;
+            installBtn.classList.add("is-hidden");
+          });
         }
-      });
 
-      if (installBtn) {
-        installBtn.addEventListener("click", async () => {
-          if (!deferredPrompt) return;
-
-          deferredPrompt.prompt();
-          await deferredPrompt.userChoice;
-
-          deferredPrompt = null;
-          installBtn.classList.add("is-hidden");
-        });
-      }
-
-      window.addEventListener("appinstalled", () => {
-        console.log("✅ PWA installed");
-        if (installBtn) {
-          installBtn.classList.add("is-hidden");
-        }
-      });
-    }
-
-    function setupRefreshActions() {
-      if (refreshBtn) {
-        refreshBtn.addEventListener("click", async () => {
-          if (isUserBusy()) {
-            showBusyUpdateMessage();
-            return;
+        window.addEventListener("appinstalled", () => {
+          if (installBtn) {
+            installBtn.classList.add("is-hidden");
           }
-          await performSafeUpdate();
         });
       }
 
-      if (toastRefreshBtn) {
-        toastRefreshBtn.addEventListener("click", async () => {
-          if (isUserBusy()) {
-            showBusyUpdateMessage();
-            return;
-          }
+      function setupRefreshActions() {
+        if (refreshBtn) {
+          refreshBtn.addEventListener("click", async () => {
+            if (isUserBusy()) {
+              showBusyUpdateMessage();
+              return;
+            }
+            await performSafeUpdate();
+          });
+        }
 
-          hideUpdateToast();
-          await performSafeUpdate();
-        });
+        if (toastRefreshBtn) {
+          toastRefreshBtn.addEventListener("click", async () => {
+            if (isUserBusy()) {
+              showBusyUpdateMessage();
+              return;
+            }
+
+            hideUpdateToast();
+            await performSafeUpdate();
+          });
+        }
+
+        if (toastDismissBtn) {
+          toastDismissBtn.addEventListener("click", () => {
+            hideUpdateToast();
+          });
+        }
       }
 
-      if (toastDismissBtn) {
-        toastDismissBtn.addEventListener("click", () => {
-          hideUpdateToast();
-        });
-      }
-    }
-
-    function setupPullToRefresh() {
-      window.addEventListener("touchstart", (e) => {
-        if (window.scrollY === 0) {
-          touchStartY = e.touches[0].clientY;
-          pullTriggered = false;
-        }
-      }, { passive: true });
-
-      window.addEventListener("touchmove", (e) => {
-        if (window.scrollY !== 0) return;
-
-        const currentY = e.touches[0].clientY;
-        const distance = currentY - touchStartY;
-
-        if (pullRefreshIndicator && distance > 25 && !pullTriggered) {
-          pullRefreshIndicator.classList.add("show");
-        }
-
-        if (pullRefreshIndicator && distance > 90 && !pullTriggered) {
-          pullTriggered = true;
-          pullRefreshIndicator.textContent = "↻ Release to refresh";
-        }
-      }, { passive: true });
-
-      window.addEventListener("touchend", async () => {
-        if (!pullRefreshIndicator) return;
-
-        if (pullTriggered) {
-          pullRefreshIndicator.classList.remove("show");
-          pullRefreshIndicator.textContent = "↓ Pull to refresh";
-
-          if (isUserBusy()) {
-            showBusyUpdateMessage();
-            return;
-          }
-
-          await performSafeUpdate();
-        } else {
-          pullRefreshIndicator.classList.remove("show");
-          pullRefreshIndicator.textContent = "↓ Pull to refresh";
-        }
-      });
-    }
-
-    function prettifySubject(name) {
-      return (name || "")
-        .replace(/-/g, " ")
-        .replace(/\b\w/g, (c) => c.toUpperCase())
-        .trim();
-    }
-
-    function getSubjectDescription(subjectSlug) {
-      const descriptions = {
-        "units": "Measurement units, conversions, and basic formula revision notes.",
-        "current-electricity": "Basics, current flow, charge, equations, and circuit-based revision notes.",
-        "mechanics": "Vectors, kinematics, Newton’s laws, work-energy-power, and more.",
-        "thermal-physics": "Formula sheets and quick revision pages for thermal concepts."
-      };
-
-      return descriptions[subjectSlug] || "Explore formula notes and quick revision sheets.";
-    }
-
-    function getSubjectCategory(subjectSlug) {
-      return subjectSlug || "general";
-    }
-
-    function getBadgeText(index) {
-      return `Topic ${String(index + 1).padStart(2, "0")}`;
-    }
-
-    function getPinnedSubjects() {
-      try {
-        return JSON.parse(localStorage.getItem("dnPhysicsPinnedSubjects")) || [];
-      } catch (error) {
-        return [];
-      }
-    }
-
-    function savePinnedSubjects(items) {
-      localStorage.setItem("dnPhysicsPinnedSubjects", JSON.stringify(items));
-    }
-
-    function togglePin(subjectName) {
-      const pinned = getPinnedSubjects();
-      const exists = pinned.includes(subjectName);
-
-      const updated = exists
-        ? pinned.filter((name) => name !== subjectName)
-        : [...pinned, subjectName];
-
-      savePinnedSubjects(updated);
-      updatePinButtons();
-      renderPinnedSubjects();
-    }
-
-    function updatePinButtons() {
-      const pinned = getPinnedSubjects();
-
-      pinButtons.forEach((button) => {
-        const subjectName = button.dataset.subject;
-        const isPinned = pinned.includes(subjectName);
-
-        button.textContent = isPinned ? "★" : "☆";
-        button.classList.toggle("pinned", isPinned);
-        button.setAttribute(
-          "aria-label",
-          isPinned ? `Unpin ${subjectName}` : `Pin ${subjectName}`
+      function setupPullToRefresh() {
+        window.addEventListener(
+          "touchstart",
+          (e) => {
+            if (window.scrollY === 0) {
+              touchStartY = e.touches[0].clientY;
+              pullTriggered = false;
+            }
+          },
+          { passive: true }
         );
-        button.title = isPinned ? "Unpin topic" : "Pin topic";
-      });
-    }
 
-    function createPinnedCard(subject) {
-      const wrapper = document.createElement("div");
-      wrapper.className = "card";
+        window.addEventListener(
+          "touchmove",
+          (e) => {
+            if (window.scrollY !== 0) return;
 
-      const top = document.createElement("div");
-      top.className = "card-top";
+            const currentY = e.touches[0].clientY;
+            const distance = currentY - touchStartY;
 
-      const badge = document.createElement("div");
-      badge.className = "badge";
-      badge.textContent = subject.badge;
+            if (pullRefreshIndicator && distance > 25 && !pullTriggered) {
+              pullRefreshIndicator.classList.add("show");
+            }
 
-      const pinBtn = document.createElement("button");
-      pinBtn.className = "pin-btn pinned";
-      pinBtn.type = "button";
-      pinBtn.textContent = "★";
-      pinBtn.dataset.subject = subject.title;
-      pinBtn.setAttribute("aria-label", `Unpin ${subject.title}`);
-      pinBtn.title = "Unpin topic";
-      pinBtn.addEventListener("click", () => togglePin(subject.title));
+            if (pullRefreshIndicator && distance > 90 && !pullTriggered) {
+              pullTriggered = true;
+              pullRefreshIndicator.textContent = "↻ Release to refresh";
+            }
+          },
+          { passive: true }
+        );
 
-      top.appendChild(badge);
-      top.appendChild(pinBtn);
+        window.addEventListener("touchend", async () => {
+          if (!pullRefreshIndicator) return;
 
-      const title = document.createElement("h3");
-      title.textContent = subject.title;
+          if (pullTriggered) {
+            pullRefreshIndicator.classList.remove("show");
+            pullRefreshIndicator.textContent = "↓ Pull to refresh";
 
-      const desc = document.createElement("p");
-      desc.textContent = subject.description;
+            if (isUserBusy()) {
+              showBusyUpdateMessage();
+              return;
+            }
 
-      wrapper.appendChild(top);
-      wrapper.appendChild(title);
-      wrapper.appendChild(desc);
-
-      const actions = document.createElement("div");
-      actions.className = "actions";
-
-      const link = document.createElement("a");
-      link.className = "btn";
-      link.href = subject.link;
-      link.textContent = "Explore";
-
-      actions.appendChild(link);
-      wrapper.appendChild(actions);
-
-      return wrapper;
-    }
-
-    function renderPinnedSubjects() {
-      if (!hasNotesUi) return;
-
-      const pinned = getPinnedSubjects();
-      pinnedGrid.innerHTML = "";
-
-      if (pinned.length === 0) {
-        pinnedSection.classList.add("is-hidden");
-        return;
-      }
-
-      pinned.forEach((name) => {
-        const subject = SUBJECTS[name];
-        if (subject) {
-          pinnedGrid.appendChild(createPinnedCard(subject));
-        }
-      });
-
-      pinnedSection.classList.remove("is-hidden");
-    }
-
-    function levenshtein(a, b) {
-      const matrix = Array.from({ length: b.length + 1 }, () =>
-        Array(a.length + 1).fill(0)
-      );
-
-      for (let i = 0; i <= b.length; i++) matrix[i][0] = i;
-      for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
-
-      for (let i = 1; i <= b.length; i++) {
-        for (let j = 1; j <= a.length; j++) {
-          const cost = a[j - 1] === b[i - 1] ? 0 : 1;
-          matrix[i][j] = Math.min(
-            matrix[i - 1][j] + 1,
-            matrix[i][j - 1] + 1,
-            matrix[i - 1][j - 1] + cost
-          );
-        }
-      }
-
-      return matrix[b.length][a.length];
-    }
-
-    function fuzzyIncludes(query, text) {
-      if (!query) return true;
-      if (text.includes(query)) return true;
-
-      const words = text.split(/\s+/);
-
-      for (const word of words) {
-        if (word.includes(query)) return true;
-
-        const distance = levenshtein(query, word);
-        if (query.length <= 4 && distance <= 1) return true;
-        if (query.length > 4 && distance <= 2) return true;
-      }
-
-      return false;
-    }
-
-    function filterSubjects() {
-      if (!searchInput || !categoryFilter) return;
-
-      const rawSearchValue = searchInput.value.trim().toLowerCase();
-      const searchValue = rawSearchValue.includes("@") ? "" : rawSearchValue;
-      const selectedCategory = categoryFilter.value;
-      const noResults = document.getElementById("noResults");
-
-      let visibleCount = 0;
-
-      subjectCards.forEach((card) => {
-        const title = (card.dataset.title || "").toLowerCase();
-        const category = (card.dataset.category || "").toLowerCase();
-        const keywords = (card.dataset.keywords || "").toLowerCase();
-        const description = (card.querySelector("p")?.textContent || "").toLowerCase();
-
-        const combinedText = `${title} ${keywords} ${description}`;
-
-        const matchesSearch =
-          searchValue === "" || fuzzyIncludes(searchValue, combinedText);
-
-        const matchesCategory =
-          selectedCategory === "all" || category === selectedCategory;
-
-        const shouldShow = matchesSearch && matchesCategory;
-
-        card.style.display = shouldShow ? "" : "none";
-
-        if (shouldShow) {
-          visibleCount++;
-        }
-      });
-
-      if (noResults) {
-        noResults.classList.toggle("is-hidden", visibleCount !== 0);
-      }
-    }
-
-    function rebuildPinsAndFilters() {
-      if (!hasNotesUi) return;
-
-      pinButtons = Array.from(document.querySelectorAll(".pin-btn"));
-      subjectCards = Array.from(document.querySelectorAll(".subject-card"));
-
-      pinButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          togglePin(button.dataset.subject);
+            await performSafeUpdate();
+          } else {
+            pullRefreshIndicator.classList.remove("show");
+            pullRefreshIndicator.textContent = "↓ Pull to refresh";
+          }
         });
-      });
+      }
 
-      updatePinButtons();
-      renderPinnedSubjects();
-      filterSubjects();
-    }
+      function prettifySubject(name) {
+        return (name || "")
+          .replace(/-/g, " ")
+          .replace(/\b\w/g, (c) => c.toUpperCase())
+          .trim();
+      }
 
-    function createDashCard(title, desc, btnText, link) {
-      return `
-        <div class="card">
-          <h3>${title}</h3>
-          <p>${desc}</p>
-          <div class="actions">
-            <a class="btn btn-primary" href="${link}">${btnText}</a>
+      function createDashCard(title, desc, btnText, link) {
+        return `
+          <div class="card">
+            <h3>${title}</h3>
+            <p>${desc}</p>
+            <div class="actions">
+              <a class="btn btn-primary" href="${link}">${btnText}</a>
+            </div>
           </div>
-        </div>
-      `;
-    }
-
-    function getLastPdf() {
-      try {
-        return JSON.parse(localStorage.getItem("dnPdfLastOpened"));
-      } catch {
-        return null;
+        `;
       }
-    }
 
-    function getQuizProgress() {
-      try {
-        return JSON.parse(localStorage.getItem("dnPhysicsQuizProgress")) || {};
-      } catch {
-        return {};
+      function getLastPdf() {
+        try {
+          return JSON.parse(localStorage.getItem("dnPdfLastOpened"));
+        } catch {
+          return null;
+        }
       }
-    }
 
-    function getBestQuiz() {
-      const store = getQuizProgress();
-      let best = null;
-      let bestKey = null;
-
-      Object.entries(store).forEach(([key, item]) => {
-        const currentBest = Number(item.bestPercentage || 0);
-        const bestBest = Number(best?.bestPercentage || 0);
-
-        if (!best || currentBest > bestBest) {
-          best = item;
-          bestKey = key;
+      function getRecentPdfs() {
+        try {
+          return JSON.parse(localStorage.getItem("dnPdfRecent")) || [];
+        } catch {
+          return [];
         }
-      });
+      }
 
-      return bestKey ? { key: bestKey, ...best } : null;
-    }
-
-    function getWeakQuiz() {
-      const store = getQuizProgress();
-      let weak = null;
-      let weakKey = null;
-
-      Object.entries(store).forEach(([key, item]) => {
-        const attempts = Number(item.attempts || 0);
-        if (attempts <= 0) return;
-
-        const currentBest = Number(item.bestPercentage || 100);
-        const weakBest = Number(weak?.bestPercentage || 100);
-
-        if (!weak || currentBest < weakBest) {
-          weak = item;
-          weakKey = key;
+      function getFavorites() {
+        try {
+          return JSON.parse(localStorage.getItem("dnPdfFavorites")) || [];
+        } catch {
+          return [];
         }
-      });
+      }
 
-      return weakKey ? { key: weakKey, ...weak } : null;
-    }
+      function getQuizProgress() {
+        try {
+          return JSON.parse(localStorage.getItem("dnPhysicsQuizProgress")) || {};
+        } catch {
+          return {};
+        }
+      }
 
-    function parseQuizKey(rawKey) {
-      if (!rawKey) {
+      function getMostStudiedSubject(recent) {
+        if (!recent.length) return null;
+
+        const count = {};
+
+        recent.forEach((item) => {
+          if (!item.subject) return;
+          count[item.subject] = (count[item.subject] || 0) + 1;
+        });
+
+        let max = 0;
+        let best = null;
+
+        Object.entries(count).forEach(([key, val]) => {
+          if (val > max) {
+            max = val;
+            best = key;
+          }
+        });
+
+        return best ? prettifySubject(best) : null;
+      }
+
+      function parseQuizKey(rawKey) {
+        if (!rawKey) {
+          return {
+            subject: "physics",
+            topic: "",
+            subtopic: "",
+            set: "set-1"
+          };
+        }
+
+        const parts = rawKey.split("__");
+
+        if (parts.length >= 4) {
+          return {
+            subject: parts[0] || "physics",
+            topic: parts[1] || "",
+            subtopic: parts[2] || "",
+            set: parts[3] || "set-1"
+          };
+        }
+
+        if (parts.length === 3) {
+          return {
+            subject: "physics",
+            topic: parts[0] || "",
+            subtopic: parts[1] || "",
+            set: parts[2] || "set-1"
+          };
+        }
+
         return {
           subject: "physics",
           topic: "",
@@ -978,643 +852,503 @@
         };
       }
 
-      const parts = rawKey.split("__");
+      function buildQuizUrlFromKey(rawKey) {
+        const parsed = parseQuizKey(rawKey);
 
-      if (parts.length >= 4) {
-        return {
-          subject: parts[0] || "physics",
-          topic: parts[1] || "",
-          subtopic: parts[2] || "",
-          set: parts[3] || "set-1"
-        };
+        if (!parsed.topic) {
+          return `${APP_PATH}/pp-quiz/index.html`;
+        }
+
+        if (parsed.subject === "maths") {
+          return `${APP_PATH}/pp-quiz/quiz.html?subject=${encodeURIComponent(parsed.subject)}&topic=${encodeURIComponent(parsed.topic)}&set=${encodeURIComponent(parsed.set)}`;
+        }
+
+        if (!parsed.subtopic) {
+          return `${APP_PATH}/pp-quiz/index.html?subject=${encodeURIComponent(parsed.subject)}`;
+        }
+
+        return `${APP_PATH}/pp-quiz/quiz.html?subject=${encodeURIComponent(parsed.subject)}&topic=${encodeURIComponent(parsed.topic)}&subtopic=${encodeURIComponent(parsed.subtopic)}&set=${encodeURIComponent(parsed.set)}`;
       }
 
-      if (parts.length === 3) {
-        return {
-          subject: "physics",
-          topic: parts[0] || "",
-          subtopic: parts[1] || "",
-          set: parts[2] || "set-1"
-        };
-      }
+      function prettifyQuizLabel(parsed) {
+        const subjectName = prettifySubject(parsed.subject || "physics");
+        const topicName = prettifySubject(parsed.topic || "");
+        const subtopicName = prettifySubject(parsed.subtopic || "");
 
-      return {
-        subject: "physics",
-        topic: "",
-        subtopic: "",
-        set: "set-1"
-      };
-    }
+        if (parsed.subject === "maths") {
+          return `${subjectName} · ${topicName}`;
+        }
 
-    function buildQuizUrlFromKey(rawKey) {
-      const parsed = parseQuizKey(rawKey);
+        if (subtopicName) {
+          return `${subjectName} · ${subtopicName}`;
+        }
 
-      if (!parsed.topic) {
-        return "/DN_Physics/pp-quiz/index.html";
-      }
-
-      if (parsed.subject === "maths") {
-        return `/DN_Physics/pp-quiz/quiz.html?subject=${encodeURIComponent(parsed.subject)}&topic=${encodeURIComponent(parsed.topic)}&set=${encodeURIComponent(parsed.set)}`;
-      }
-
-      if (!parsed.subtopic) {
-        return `/DN_Physics/pp-quiz/index.html?subject=${encodeURIComponent(parsed.subject)}`;
-      }
-
-      return `/DN_Physics/pp-quiz/quiz.html?subject=${encodeURIComponent(parsed.subject)}&topic=${encodeURIComponent(parsed.topic)}&subtopic=${encodeURIComponent(parsed.subtopic)}&set=${encodeURIComponent(parsed.set)}`;
-    }
-
-    function prettifyQuizLabel(parsed) {
-      const subjectName = prettifySubject(parsed.subject || "physics");
-      const topicName = prettifySubject(parsed.topic || "");
-      const subtopicName = prettifySubject(parsed.subtopic || "");
-
-      if (parsed.subject === "maths") {
         return `${subjectName} · ${topicName}`;
       }
 
-      if (subtopicName) {
-        return `${subjectName} · ${subtopicName}`;
-      }
+      function getBestQuiz() {
+        const store = getQuizProgress();
+        let best = null;
+        let bestKey = null;
 
-      return `${subjectName} · ${topicName}`;
-    }
+        Object.entries(store).forEach(([key, item]) => {
+          const currentBest = Number(item.bestPercentage || 0);
+          const bestBest = Number(best?.bestPercentage || 0);
 
-    function getFavorites() {
-      try {
-        return JSON.parse(localStorage.getItem("dnPdfFavorites")) || [];
-      } catch {
-        return [];
-      }
-    }
-
-    function getMostStudiedSubject(recent) {
-      if (!recent.length) return null;
-
-      const count = {};
-
-      recent.forEach((item) => {
-        if (!item.subject) return;
-        count[item.subject] = (count[item.subject] || 0) + 1;
-      });
-
-      let max = 0;
-      let best = null;
-
-      Object.entries(count).forEach(([key, val]) => {
-        if (val > max) {
-          max = val;
-          best = key;
-        }
-      });
-
-      return best ? prettifySubject(best) : null;
-    }
-
-    function getRecentPdfs() {
-      try {
-        return JSON.parse(localStorage.getItem("dnPdfRecent")) || [];
-      } catch {
-        return [];
-      }
-    }
-
-    function renderDashboard() {
-      if (!dashboardGrid) return;
-
-      let html = "";
-
-      const lastPdf = getLastPdf();
-      const recent = getRecentPdfs();
-      const favorites = getFavorites();
-      const mostStudied = getMostStudiedSubject(recent);
-
-      if (lastPdf && lastPdf.url) {
-        html += createDashCard(
-          "📘 Continue Reading",
-          `${lastPdf.title || lastPdf.file || "Open your last note"}`,
-          "Open Note",
-          `/DN_Physics/topics/viewer.html?pdf=${encodeURIComponent(lastPdf.url)}&title=${encodeURIComponent(lastPdf.title || "")}&subjectName=${encodeURIComponent(prettifySubject(lastPdf.subject || ""))}`
-        );
-      }
-
-      html += createDashCard(
-        "📊 Total Study Sessions",
-        `${recent.length} PDFs opened`,
-        "Open Library",
-        "/DN_Physics/topics/viewer.html"
-      );
-
-      if (mostStudied) {
-        const mostStudiedSlug = mostStudied
-          .toLowerCase()
-          .replace(/[^a-z0-9\s-]/g, "")
-          .trim()
-          .replace(/\s+/g, "-");
-
-        html += createDashCard(
-          "🧠 Most Studied",
-          `${mostStudied}`,
-          "Open Subject",
-          `/DN_Physics/subjects/${mostStudiedSlug}/index.html`
-        );
-      }
-
-      if (favorites.length > 0) {
-        html += createDashCard(
-          "⭐ Favorites",
-          `${favorites.length} saved topics`,
-          "View PDFs",
-          "/DN_Physics/topics/viewer.html"
-        );
-      }
-
-      const bestQuiz = getBestQuiz();
-      if (bestQuiz) {
-        const parsed = parseQuizKey(bestQuiz.key);
-        html += createDashCard(
-          "🔥 Best Topic",
-          `${prettifyQuizLabel(parsed)} · Score: ${bestQuiz.bestPercentage || "0.0"}%`,
-          "Improve Score",
-          buildQuizUrlFromKey(bestQuiz.key)
-        );
-      }
-
-      const weakQuiz = getWeakQuiz();
-      if (weakQuiz && Number(weakQuiz.bestPercentage || 0) < 70) {
-        const parsed = parseQuizKey(weakQuiz.key);
-        html += createDashCard(
-          "⚠️ Weak Area",
-          `${prettifyQuizLabel(parsed)} · Score: ${weakQuiz.bestPercentage || "0.0"}%`,
-          "Practice Now",
-          buildQuizUrlFromKey(weakQuiz.key)
-        );
-      }
-
-      html += createDashCard(
-        "🚀 Keep Going",
-        "Consistency builds island rank. Stay focused.",
-        "Open PP Quiz",
-        "/DN_Physics/pp-quiz/index.html"
-      );
-
-      dashboardGrid.innerHTML =
-        html || `<div class="empty-state">Start learning to see your progress here 🚀</div>`;
-    }
-
-    async function loadSubjectsFromCatalog() {
-      try {
-        const res = await fetch("/DN_Physics/pdfs/catalog.json");
-        if (!res.ok) throw new Error("Failed to load catalog");
-
-        const items = await res.json();
-
-        const lastVersion = localStorage.getItem("dn_catalog_version");
-        const newVersion = JSON.stringify(items).length;
-
-        if (lastVersion && lastVersion !== String(newVersion)) {
-          showToast("📚 New notes added!");
-        }
-
-        localStorage.setItem("dn_catalog_version", String(newVersion));
-
-        if (!hasNotesUi) {
-          renderDashboard();
-          return;
-        }
-
-        const uniqueSubjects = [...new Set(items.map((item) => item.subject).filter(Boolean))];
-
-        if (!uniqueSubjects.length) {
-          subjectGrid.innerHTML = `<div class="empty-state">No subjects found.</div>`;
-          renderDashboard();
-          return;
-        }
-
-        SUBJECTS = {};
-        categoryFilter.innerHTML = `<option value="all">All Subjects</option>`;
-
-        subjectGrid.innerHTML = uniqueSubjects
-          .map((subjectSlug, index) => {
-            const subjectName = prettifySubject(subjectSlug);
-            const category = getSubjectCategory(subjectSlug);
-            const description = getSubjectDescription(subjectSlug);
-            const badge = getBadgeText(index);
-            const link = `subjects/${subjectSlug}/index.html`;
-
-            SUBJECTS[subjectName] = {
-              title: subjectName,
-              badge,
-              description,
-              link,
-              openable: true
-            };
-
-            return `
-              <div
-                class="card subject-card"
-                data-title="${subjectName}"
-                data-category="${category}"
-                data-keywords="${subjectName.toLowerCase()} ${subjectSlug.replace(/-/g, " ")} physics formulas revision notes"
-              >
-                <div class="card-top">
-                  <div class="badge">${badge}</div>
-                  <button class="pin-btn" data-subject="${subjectName}" type="button" aria-label="Pin ${subjectName}">
-                    ☆
-                  </button>
-                </div>
-                <h3>${subjectName}</h3>
-                <p>${description}</p>
-                <div class="actions">
-                  <a class="btn" href="${link}">Explore</a>
-                </div>
-              </div>
-            `;
-          })
-          .join("");
-
-        const usedCategories = [...new Set(uniqueSubjects.map(getSubjectCategory))];
-        usedCategories.forEach((category) => {
-          const option = document.createElement("option");
-          option.value = category;
-          option.textContent = prettifySubject(category);
-          categoryFilter.appendChild(option);
-        });
-
-        rebuildPinsAndFilters();
-        renderDashboard();
-      } catch (error) {
-        console.error(error);
-
-        if (hasNotesUi && subjectGrid) {
-          subjectGrid.innerHTML = `<div class="empty-state">Could not load subjects.</div>`;
-        }
-
-        renderDashboard();
-      }
-    }
-
-    function setupSearchAndFilter() {
-      if (!hasNotesUi) return;
-
-      if (searchInput) {
-        searchInput.addEventListener("input", filterSubjects);
-      }
-
-      if (categoryFilter) {
-        categoryFilter.addEventListener("change", filterSubjects);
-      }
-    }
-
-    function setupSplash() {
-      window.addEventListener("load", () => {
-        setTimeout(() => {
-          if (appSplash) {
-            appSplash.classList.add("hide");
+          if (!best || currentBest > bestBest) {
+            best = item;
+            bestKey = key;
           }
-          document.body.classList.add("app-ready");
+        });
 
-          setTimeout(() => {
-            startOnboarding();
-          }, 300);
-        }, 1200);
-      });
-    }
+        return bestKey ? { key: bestKey, ...best } : null;
+      }
 
-    function isMobileDevice() {
-      return window.matchMedia("(max-width: 768px)").matches;
-    }
+      function getWeakQuiz() {
+        const store = getQuizProgress();
+        let weak = null;
+        let weakKey = null;
 
-    function buildOnboardingSteps() {
-      const mobile = isMobileDevice();
+        Object.entries(store).forEach(([key, item]) => {
+          const attempts = Number(item.attempts || 0);
+          if (attempts <= 0) return;
 
-      const baseSteps = [
-        {
-          target: "#onboardNotes",
-          title: "Explore Notes",
-          text: "Open topics and start revising quickly."
-        },
-        {
-          target: "#onboardPractice",
-          title: "Practice MCQs",
-          text: "Jump into past paper practice here."
-        },
-        {
-          target: "#musicToggleBtn",
-          title: "Focus Mode",
-          text: "Play study music while learning."
+          const currentBest = Number(item.bestPercentage || 100);
+          const weakBest = Number(weak?.bestPercentage || 100);
+
+          if (!weak || currentBest < weakBest) {
+            weak = item;
+            weakKey = key;
+          }
+        });
+
+        return weakKey ? { key: weakKey, ...weak } : null;
+      }
+
+      function renderDashboard() {
+        if (!dashboardGrid) return;
+
+        let html = "";
+
+        const lastPdf = getLastPdf();
+        const recent = getRecentPdfs();
+        const favorites = getFavorites();
+        const mostStudied = getMostStudiedSubject(recent);
+
+        if (lastPdf && lastPdf.url) {
+          html += createDashCard(
+            "📘 Continue Reading",
+            `${lastPdf.title || lastPdf.file || "Open your last note"}`,
+            "Open Note",
+            `${APP_PATH}/topics/viewer.html?pdf=${encodeURIComponent(lastPdf.url)}&title=${encodeURIComponent(lastPdf.title || "")}&subjectName=${encodeURIComponent(prettifySubject(lastPdf.subject || ""))}`
+          );
         }
-      ];
 
-      if (mobile) {
-        baseSteps.push({
-          target: "#refreshBtn",
-          title: "Refresh the App",
-          text: "You can also swipe down from the top to refresh."
-        });
-      } else {
-        baseSteps.push({
-          target: "#refreshBtn",
-          title: "Refresh the App",
-          text: "Click refresh here, or use Ctrl + R."
-        });
+        html += createDashCard(
+          "📊 Total Study Sessions",
+          `${recent.length} PDFs opened`,
+          "Open Library",
+          `${APP_PATH}/notes/index.html`
+        );
+
+        if (mostStudied) {
+          const mostStudiedSlug = mostStudied
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, "")
+            .trim()
+            .replace(/\s+/g, "-");
+
+          html += createDashCard(
+            "🧠 Most Studied",
+            `${mostStudied}`,
+            "Open Subject",
+            `${APP_PATH}/subjects/${mostStudiedSlug}/index.html`
+          );
+        }
+
+        if (favorites.length > 0) {
+          html += createDashCard(
+            "⭐ Favorites",
+            `${favorites.length} saved topics`,
+            "View Notes",
+            `${APP_PATH}/notes/index.html`
+          );
+        }
+
+        const bestQuiz = getBestQuiz();
+        if (bestQuiz) {
+          const parsed = parseQuizKey(bestQuiz.key);
+          html += createDashCard(
+            "🔥 Best Topic",
+            `${prettifyQuizLabel(parsed)} · Score: ${bestQuiz.bestPercentage || "0.0"}%`,
+            "Improve Score",
+            buildQuizUrlFromKey(bestQuiz.key)
+          );
+        }
+
+        const weakQuiz = getWeakQuiz();
+        if (weakQuiz && Number(weakQuiz.bestPercentage || 0) < 70) {
+          const parsed = parseQuizKey(weakQuiz.key);
+          html += createDashCard(
+            "⚠️ Weak Area",
+            `${prettifyQuizLabel(parsed)} · Score: ${weakQuiz.bestPercentage || "0.0"}%`,
+            "Practice Now",
+            buildQuizUrlFromKey(weakQuiz.key)
+          );
+        }
+
+        html += createDashCard(
+          "🚀 Keep Going",
+          "Consistency builds island rank. Stay focused.",
+          "Open PP Quiz",
+          `${APP_PATH}/pp-quiz/index.html`
+        );
+
+        dashboardGrid.innerHTML =
+          html || `<div class="empty-state">Start learning to see your progress here 🚀</div>`;
       }
 
-      if (installBtn && !installBtn.classList.contains("is-hidden")) {
-        baseSteps.push({
-          target: "#installBtn",
-          title: "Install App",
-          text: "Install for faster access like a real app."
-        });
+      async function checkCatalogVersion() {
+        try {
+          const res = await fetch(`${APP_PATH}/pdfs/catalog.json`, { cache: "no-store" });
+          if (!res.ok) return;
+
+          const items = await res.json();
+          const lastVersion = localStorage.getItem("dn_catalog_version");
+          const newVersion = String(JSON.stringify(items).length);
+
+          if (lastVersion && lastVersion !== newVersion) {
+            showToast("📚 New notes added!");
+          }
+
+          localStorage.setItem("dn_catalog_version", newVersion);
+        } catch (error) {
+          console.warn("Catalog version check skipped:", error);
+        }
       }
 
-      return baseSteps;
-    }
-
-    function setOnboardingSeen() {
-      localStorage.setItem("dnPhysicsOnboardingSeen", "true");
-    }
-
-    function hasSeenOnboarding() {
-      return localStorage.getItem("dnPhysicsOnboardingSeen") === "true";
-    }
-
-    function hideOnboarding() {
-      if (!onboardingOverlay) return;
-      onboardingOverlay.classList.add("is-hidden");
-      onboardingOverlay.setAttribute("aria-hidden", "true");
-      setOnboardingSeen();
-    }
-
-    function positionOnboarding(targetEl) {
-      if (!targetEl || !onboardingSpotlight || !onboardingCard || !onboardingArrow) return;
-
-      const rect = targetEl.getBoundingClientRect();
-      const padding = 10;
-
-      onboardingSpotlight.style.top = `${rect.top - padding + window.scrollY}px`;
-      onboardingSpotlight.style.left = `${rect.left - padding + window.scrollX}px`;
-      onboardingSpotlight.style.width = `${rect.width + padding * 2}px`;
-      onboardingSpotlight.style.height = `${rect.height + padding * 2}px`;
-
-      const cardWidth = Math.min(window.innerWidth - 24, 320);
-      const cardHeight = 150;
-
-      let cardLeft = rect.left + window.scrollX;
-      let cardTop = rect.bottom + window.scrollY + 16;
-
-      if (cardLeft + cardWidth > window.scrollX + window.innerWidth - 12) {
-        cardLeft = window.scrollX + window.innerWidth - cardWidth - 12;
+      function isMobileDevice() {
+        return window.matchMedia("(max-width: 768px)").matches;
       }
 
-      if (cardLeft < window.scrollX + 12) {
-        cardLeft = window.scrollX + 12;
+      function buildOnboardingSteps() {
+        const mobile = isMobileDevice();
+
+        const steps = [
+          {
+            target: "#onboardNotes",
+            title: "Explore Notes",
+            text: "Open notes and start revising quickly."
+          },
+          {
+            target: "#onboardPractice",
+            title: "Practice MCQs",
+            text: "Jump into past paper practice from here."
+          },
+          {
+            target: "#musicToggleBtn",
+            title: "Focus Mode",
+            text: "Play study music while learning."
+          },
+          {
+            target: "#refreshBtn",
+            title: "Refresh the App",
+            text: mobile
+              ? "You can also swipe down from the top to refresh."
+              : "Click refresh here whenever you want the newest version."
+          }
+        ];
+
+        if (installBtn && !installBtn.classList.contains("is-hidden")) {
+          steps.push({
+            target: "#installBtn",
+            title: "Install App",
+            text: "Install it for faster access like a real app."
+          });
+        }
+
+        return steps;
       }
 
-      if (cardTop + cardHeight > window.scrollY + window.innerHeight - 12) {
-        cardTop = rect.top + window.scrollY - cardHeight - 20;
+      function setOnboardingSeen() {
+        localStorage.setItem("dnPhysicsOnboardingSeen", "true");
       }
 
-      if (cardTop < window.scrollY + 12) {
-        cardTop = window.scrollY + 12;
+      function hasSeenOnboarding() {
+        return localStorage.getItem("dnPhysicsOnboardingSeen") === "true";
       }
 
-      onboardingCard.style.top = `${cardTop}px`;
-      onboardingCard.style.left = `${cardLeft}px`;
-
-      onboardingArrow.style.top = `${rect.top + window.scrollY + rect.height / 2 - 10}px`;
-      onboardingArrow.style.left = `${Math.max(window.scrollX + 12, rect.left + window.scrollX - 28)}px`;
-    }
-
-    function showOnboardingStep(index) {
-      const step = onboardingSteps[index];
-      if (!step) {
-        hideOnboarding();
-        return;
+      function hideOnboarding() {
+        if (!onboardingOverlay) return;
+        onboardingOverlay.classList.add("is-hidden");
+        onboardingOverlay.setAttribute("aria-hidden", "true");
+        setOnboardingSeen();
       }
 
-      const targetEl = document.querySelector(step.target);
-      if (!targetEl) {
-        onboardingIndex += 1;
-        showOnboardingStep(onboardingIndex);
-        return;
+      function positionOnboarding(targetEl) {
+        if (!targetEl || !onboardingSpotlight || !onboardingCard || !onboardingArrow) return;
+
+        const rect = targetEl.getBoundingClientRect();
+        const padding = 10;
+
+        onboardingSpotlight.style.top = `${rect.top - padding + window.scrollY}px`;
+        onboardingSpotlight.style.left = `${rect.left - padding + window.scrollX}px`;
+        onboardingSpotlight.style.width = `${rect.width + padding * 2}px`;
+        onboardingSpotlight.style.height = `${rect.height + padding * 2}px`;
+
+        const cardWidth = Math.min(window.innerWidth - 24, 320);
+        const cardHeight = 150;
+
+        let cardLeft = rect.left + window.scrollX;
+        let cardTop = rect.bottom + window.scrollY + 16;
+
+        if (cardLeft + cardWidth > window.scrollX + window.innerWidth - 12) {
+          cardLeft = window.scrollX + window.innerWidth - cardWidth - 12;
+        }
+
+        if (cardLeft < window.scrollX + 12) {
+          cardLeft = window.scrollX + 12;
+        }
+
+        if (cardTop + cardHeight > window.scrollY + window.innerHeight - 12) {
+          cardTop = rect.top + window.scrollY - cardHeight - 20;
+        }
+
+        if (cardTop < window.scrollY + 12) {
+          cardTop = window.scrollY + 12;
+        }
+
+        onboardingCard.style.top = `${cardTop}px`;
+        onboardingCard.style.left = `${cardLeft}px`;
+
+        onboardingArrow.style.top = `${rect.top + window.scrollY + rect.height / 2 - 10}px`;
+        onboardingArrow.style.left = `${Math.max(window.scrollX + 12, rect.left + window.scrollX - 28)}px`;
       }
 
-      targetEl.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      });
+      function showOnboardingStep(index) {
+        const step = onboardingSteps[index];
 
-      onboardingTitle.textContent = step.title;
-      onboardingText.textContent = step.text;
-      onboardingNextBtn.textContent = index === onboardingSteps.length - 1 ? "Done" : "Next";
+        if (!step) {
+          hideOnboarding();
+          return;
+        }
 
-      setTimeout(() => {
-        positionOnboarding(targetEl);
-      }, 260);
-    }
+        const targetEl = document.querySelector(step.target);
 
-    function startOnboarding() {
-      if (!onboardingOverlay) return;
-      if (hasSeenOnboarding()) return;
-
-      onboardingSteps = buildOnboardingSteps();
-      onboardingIndex = 0;
-
-      onboardingOverlay.classList.remove("is-hidden");
-      onboardingOverlay.setAttribute("aria-hidden", "false");
-
-      showOnboardingStep(onboardingIndex);
-    }
-
-    function setupOnboarding() {
-      if (!onboardingNextBtn || !onboardingSkipBtn) return;
-
-      onboardingNextBtn.addEventListener("click", () => {
-        onboardingIndex += 1;
-        showOnboardingStep(onboardingIndex);
-      });
-
-      onboardingSkipBtn.addEventListener("click", () => {
-        hideOnboarding();
-      });
-
-      window.addEventListener("resize", () => {
-        if (!onboardingOverlay.classList.contains("is-hidden")) {
+        if (!targetEl) {
+          onboardingIndex += 1;
           showOnboardingStep(onboardingIndex);
+          return;
         }
-      });
-    }
 
-    function openSubjectModal() {
-      if (!subjectModal) return;
-      subjectModal.classList.remove("hidden");
-      subjectModal.setAttribute("aria-hidden", "false");
-      document.body.style.overflow = "hidden";
-    }
-
-    function closeSubjectChooser() {
-      if (!subjectModal) return;
-      subjectModal.classList.add("hidden");
-      subjectModal.setAttribute("aria-hidden", "true");
-      document.body.style.overflow = "";
-    }
-
-    function setupSubjectChooser() {
-      if (practiceBtn) {
-        practiceBtn.addEventListener("click", openSubjectModal);
-      }
-
-      if (closeSubjectModal) {
-        closeSubjectModal.addEventListener("click", closeSubjectChooser);
-      }
-
-      if (subjectModal) {
-        const backdrop = subjectModal.querySelector(".subject-modal-backdrop");
-        if (backdrop) {
-          backdrop.addEventListener("click", closeSubjectChooser);
-        }
-      }
-
-      document.querySelectorAll(".subject-card-btn").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const subject = btn.dataset.subject;
-          if (!subject) return;
-
-          window.location.href = `/DN_Physics/pp-quiz/index.html?subject=${encodeURIComponent(subject)}`;
+        targetEl.scrollIntoView({
+          behavior: "smooth",
+          block: "center"
         });
-      });
 
-      window.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && subjectModal && !subjectModal.classList.contains("hidden")) {
-          closeSubjectChooser();
-        }
-      });
-    }
+        onboardingTitle.textContent = step.title;
+        onboardingText.textContent = step.text;
+        onboardingNextBtn.textContent =
+          index === onboardingSteps.length - 1 ? "Done" : "Next";
 
-    function updateUnlockButton() {
-      if (!unlockProBtn) return;
-
-      if (typeof hasPaidAccess === "function" && hasPaidAccess()) {
-        unlockProBtn.classList.add("is-hidden");
-      } else {
-        unlockProBtn.classList.remove("is-hidden");
-      }
-    }
-
-    async function initProfileState() {
-      if (!window.supabaseClient) return;
-
-      try {
-        const { data } = await window.supabaseClient.auth.getUser();
-        const user = data?.user || null;
-
-        if (typeof updateProfileUI === "function") {
-          updateProfileUI(user);
-        }
-      } catch (error) {
-        console.warn("initProfileState warning:", error);
-      }
-    }
-
-    async function initPage() {
-      setupInstallPrompt();
-      setupRefreshActions();
-      setupPullToRefresh();
-      setupSearchAndFilter();
-      setupOnboarding();
-      setupSplash();
-      setupSubjectChooser();
-
-      if (searchInput) {
-        searchInput.value = "";
-        searchInput.placeholder = "Search topics (e.g. mechanics, waves)...";
+        setTimeout(() => {
+          positionOnboarding(targetEl);
+        }, 260);
       }
 
-      updateUnlockButton();
-      await initProfileState();
-      await loadSubjectsFromCatalog();
-    }
+      function startOnboarding() {
+        if (!onboardingOverlay) return;
+        if (hasSeenOnboarding()) return;
 
-    function showToast(message = "Done") {
-      let toast = document.getElementById("globalToast");
+        onboardingSteps = buildOnboardingSteps();
+        onboardingIndex = 0;
 
-      if (!toast) {
-        toast = document.createElement("div");
-        toast.id = "globalToast";
-        toast.className = "toast";
-        document.body.appendChild(toast);
+        onboardingOverlay.classList.remove("is-hidden");
+        onboardingOverlay.setAttribute("aria-hidden", "false");
+
+        showOnboardingStep(onboardingIndex);
       }
 
-      toast.textContent = message;
-      toast.classList.add("show");
+      function setupOnboarding() {
+        if (!onboardingNextBtn || !onboardingSkipBtn) return;
 
-      setTimeout(() => {
-        toast.classList.remove("show");
-      }, 2200);
-    }
+        onboardingNextBtn.addEventListener("click", () => {
+          onboardingIndex += 1;
+          showOnboardingStep(onboardingIndex);
+        });
 
-    if (unlockProBtn) {
-      unlockProBtn.addEventListener("click", () => {
-        if (typeof lockAlert === "function") {
-          lockAlert();
-        }
-      });
-    }
+        onboardingSkipBtn.addEventListener("click", () => {
+          hideOnboarding();
+        });
 
-    registerServiceWorker();
-    initPage();
-
-    function updateProfileUI(user) {
-      const loginBtn = document.getElementById("loginBtn");
-      const emailDisplay = document.getElementById("userEmailDisplay");
-      const topProfileAvatar = document.getElementById("topProfileAvatar");
-      const topProfileAvatarImg = document.getElementById("topProfileAvatarImg");
-
-      if (!loginBtn || !emailDisplay) return;
-
-      try {
-        const cachedProfile = JSON.parse(localStorage.getItem("dn_profile")) || null;
-
-        if (user?.email) {
-          emailDisplay.textContent = cachedProfile?.name
-            ? `${cachedProfile.name} · ${user.email}`
-            : user.email;
-
-          loginBtn.innerHTML = "🧑 Profile";
-
-          if (topProfileAvatar && topProfileAvatarImg) {
-            const avatarUrl =
-              cachedProfile?.profile_photo_url ||
-              "/DN_Physics/assets/avatars/avatar-01.png";
-
-            topProfileAvatarImg.src = avatarUrl;
-            topProfileAvatar.classList.remove("is-hidden");
-            topProfileAvatar.setAttribute("aria-hidden", "false");
+        window.addEventListener("resize", () => {
+          if (onboardingOverlay && !onboardingOverlay.classList.contains("is-hidden")) {
+            showOnboardingStep(onboardingIndex);
           }
-        } else {
-          emailDisplay.textContent = "";
-          loginBtn.innerHTML = "👤 Profile";
+        });
+      }
 
-          if (topProfileAvatar) {
-            topProfileAvatar.classList.add("is-hidden");
-            topProfileAvatar.setAttribute("aria-hidden", "true");
+      function setupSplash() {
+        window.addEventListener("load", () => {
+          setTimeout(() => {
+            if (appSplash) {
+              appSplash.classList.add("hide");
+            }
+
+            document.body.classList.add("app-ready");
+
+            setTimeout(() => {
+              startOnboarding();
+            }, 300);
+          }, 1200);
+        });
+      }
+
+      function openSubjectModal() {
+        if (!subjectModal) return;
+        subjectModal.classList.remove("hidden");
+        subjectModal.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeSubjectChooser() {
+        if (!subjectModal) return;
+        subjectModal.classList.add("hidden");
+        subjectModal.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+      }
+
+      function setupSubjectChooser() {
+        if (practiceBtn) {
+          practiceBtn.addEventListener("click", openSubjectModal);
+        }
+
+        if (closeSubjectModal) {
+          closeSubjectModal.addEventListener("click", closeSubjectChooser);
+        }
+
+        if (subjectModal) {
+          const backdrop = subjectModal.querySelector(".subject-modal-backdrop");
+          if (backdrop) {
+            backdrop.addEventListener("click", closeSubjectChooser);
           }
         }
-      } catch (error) {
-        if (user?.email) {
-          emailDisplay.textContent = user.email;
-          loginBtn.innerHTML = "🧑 Profile";
+
+        document.querySelectorAll(".subject-card-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const subject = btn.dataset.subject;
+            if (!subject) return;
+
+            window.location.href = `${APP_PATH}/pp-quiz/index.html?subject=${encodeURIComponent(subject)}`;
+          });
+        });
+
+        window.addEventListener("keydown", (e) => {
+          if (e.key === "Escape" && subjectModal && !subjectModal.classList.contains("hidden")) {
+            closeSubjectChooser();
+          }
+        });
+      }
+
+      function updateUnlockButton() {
+        if (!unlockProBtn) return;
+
+        if (typeof window.hasPaidAccess === "function" && window.hasPaidAccess()) {
+          unlockProBtn.classList.add("is-hidden");
         } else {
-          emailDisplay.textContent = "";
-          loginBtn.innerHTML = "👤 Profile";
+          unlockProBtn.classList.remove("is-hidden");
         }
       }
-    }
 
-    window.updateProfileUI = updateProfileUI;
+      async function initProfileState() {
+        if (!window.supabaseClient) return;
+
+        try {
+          const { data } = await window.supabaseClient.auth.getUser();
+          const user = data?.user || null;
+
+          if (typeof window.updateProfileUI === "function") {
+            window.updateProfileUI(user);
+          }
+        } catch (error) {
+          console.warn("initProfileState warning:", error);
+        }
+      }
+
+      function updateProfileUI(user) {
+        const loginBtn = document.getElementById("loginBtn");
+        const emailDisplay = document.getElementById("userEmailDisplay");
+        const topProfileAvatar = document.getElementById("topProfileAvatar");
+        const topProfileAvatarImg = document.getElementById("topProfileAvatarImg");
+
+        if (!loginBtn || !emailDisplay) return;
+
+        try {
+          const cachedProfile = JSON.parse(localStorage.getItem("dn_profile")) || null;
+
+          if (user?.email) {
+            emailDisplay.textContent = cachedProfile?.name
+              ? `${cachedProfile.name} · ${user.email}`
+              : user.email;
+
+            loginBtn.innerHTML = "🧑 Profile";
+
+            if (topProfileAvatar && topProfileAvatarImg) {
+              const avatarUrl =
+                cachedProfile?.profile_photo_url ||
+                `${APP_PATH}/assets/avatars/avatar-01.png`;
+
+              topProfileAvatarImg.src = avatarUrl;
+              topProfileAvatar.classList.remove("is-hidden");
+              topProfileAvatar.setAttribute("aria-hidden", "false");
+            }
+          } else {
+            emailDisplay.textContent = "";
+            loginBtn.innerHTML = "👤 Profile";
+
+            if (topProfileAvatar) {
+              topProfileAvatar.classList.add("is-hidden");
+              topProfileAvatar.setAttribute("aria-hidden", "true");
+            }
+          }
+        } catch (error) {
+          if (user?.email) {
+            emailDisplay.textContent = user.email;
+            loginBtn.innerHTML = "🧑 Profile";
+          } else {
+            emailDisplay.textContent = "";
+            loginBtn.innerHTML = "👤 Profile";
+          }
+        }
+      }
+
+      window.updateProfileUI = updateProfileUI;
+
+      if (unlockProBtn) {
+        unlockProBtn.addEventListener("click", () => {
+          if (typeof window.lockAlert === "function") {
+            window.lockAlert();
+          }
+        });
+      }
+
+      async function initPage() {
+        setupInstallPrompt();
+        setupRefreshActions();
+        setupPullToRefresh();
+        setupOnboarding();
+        setupSplash();
+        setupSubjectChooser();
+
+        updateUnlockButton();
+        await initProfileState();
+        renderDashboard();
+        await checkCatalogVersion();
+      }
+
+      registerServiceWorker();
+      initPage();
+    })();
   </script>
-
-  <script src="/DN_Physics/js/music-player.js"></script>
 </body>
 </html>

@@ -1,956 +1,1212 @@
-// 🔐 DN Physics Auth System — Finalized Production Version
+// 🔐 DN Physics Auth System — Premium Organized Final Version
+// Safe for your current modal IDs and current app flow.
 
-function getClient() {
-  return window.supabaseClient || null;
-}
+(() => {
+  "use strict";
 
-function openAuthModal() {
-  const modal = document.getElementById("authModal");
-  if (modal) modal.classList.remove("hidden");
-}
+  const APP_PATH = "/DN_Physics";
+  const OFFLINE_URL = `${APP_PATH}/offline.html`;
+  const RESET_PASSWORD_URL = `${window.location.origin}${APP_PATH}/reset-password.html`;
+  const USER_KEY = "dn_user";
+  const PROFILE_KEY = "dn_profile";
+  const DEFAULT_AVATAR = "avatar-01";
 
-function closeAuthModal() {
-  const modal = document.getElementById("authModal");
-  if (modal) modal.classList.add("hidden");
-}
+  // =========================
+  // CORE HELPERS
+  // =========================
 
-function showAuthError(message, isSuccess = false) {
-  const authBox = document.querySelector("#authModal .auth-box");
-  if (!authBox) return;
+  function getClient() {
+    return window.supabaseClient || null;
+  }
 
-  let errorBox = document.getElementById("authErrorBox");
-
-  if (!errorBox) {
-    errorBox = document.createElement("div");
-    errorBox.id = "authErrorBox";
-
-    const submitBtn = document.getElementById("authSubmitBtn");
-    if (submitBtn && submitBtn.parentNode === authBox) {
-      authBox.insertBefore(errorBox, submitBtn);
-    } else {
-      authBox.appendChild(errorBox);
+  function getConfigStorageKey(name, fallback = "") {
+    try {
+      return window.DN_CONFIG?.STORAGE_KEYS?.[name] || fallback;
+    } catch {
+      return fallback;
     }
   }
 
-  errorBox.style.cssText = `
-    margin: 10px 0 12px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    background: ${isSuccess ? "rgba(34,197,94,0.12)" : "rgba(255,0,0,0.10)"};
-    color: ${isSuccess ? "#86efac" : "#ff6b6b"};
-    font-size: 14px;
-    text-align: center;
-    border: 1px solid ${isSuccess ? "rgba(34,197,94,0.25)" : "rgba(255,107,107,0.22)"};
-    line-height: 1.45;
-  `;
-
-  errorBox.textContent = message;
-}
-
-function clearAuthError() {
-  const errorBox = document.getElementById("authErrorBox");
-  if (errorBox) errorBox.remove();
-}
-
-function isOfflineError(error) {
-  return !navigator.onLine || error instanceof TypeError;
-}
-
-// ----------------------------
-// STORAGE HELPERS
-// ----------------------------
-
-function setUser(user) {
-  localStorage.setItem("dn_user", JSON.stringify(user));
-}
-
-function getUser() {
-  try {
-    return JSON.parse(localStorage.getItem("dn_user")) || null;
-  } catch {
-    return null;
-  }
-}
-
-function clearUser() {
-  localStorage.removeItem("dn_user");
-  localStorage.removeItem("dn_profile");
-}
-
-function setSessionToken(token) {
-  try {
-    localStorage.setItem(DN_CONFIG.STORAGE_KEYS.USER_SESSION_TOKEN, token || "");
-  } catch {}
-}
-
-function clearSessionToken() {
-  try {
-    localStorage.removeItem(DN_CONFIG.STORAGE_KEYS.USER_SESSION_TOKEN);
-  } catch {}
-}
-
-function setProfileCache(profile) {
-  try {
-    localStorage.setItem("dn_profile", JSON.stringify(profile || {}));
-    localStorage.setItem(
-      DN_CONFIG.STORAGE_KEYS.USER_PROFILE,
-      JSON.stringify(profile || {})
-    );
-  } catch {}
-}
-
-function getProfileCache() {
-  try {
-    return JSON.parse(localStorage.getItem("dn_profile")) || null;
-  } catch {
-    return null;
-  }
-}
-
-function clearProfileCache() {
-  try {
-    localStorage.removeItem("dn_profile");
-    localStorage.removeItem(DN_CONFIG.STORAGE_KEYS.USER_PROFILE);
-  } catch {}
-}
-
-// ----------------------------
-// AVATAR HELPERS
-// ----------------------------
-
-function buildPresetAvatarUrl(avatarValue) {
-  const safe = avatarValue || "avatar-01";
-  return `/DN_Physics/assets/avatars/${safe}.png`;
-}
-
-function getPresetAvatarList() {
-  return Array.from({ length: 30 }, (_, i) => {
-    const index = String(i + 1).padStart(2, "0");
-    return {
-      id: `avatar-${index}`,
-      url: buildPresetAvatarUrl(`avatar-${index}`)
-    };
-  });
-}
-
-// ----------------------------
-// GLOBAL UI SYNC
-// ----------------------------
-
-function syncProfileUiEverywhere() {
-  const user = getUser();
-  if (typeof window.updateProfileUI === "function") {
-    window.updateProfileUI(user);
-  }
-}
-
-// ----------------------------
-// LOGOUT
-// ----------------------------
-
-async function logout() {
-  const client = getClient();
-  if (!client) return;
-
-  if (!navigator.onLine) {
-    window.location.href = "/DN_Physics/offline.html";
-    return;
-  }
-
-  try {
-    await client.auth.signOut();
-  } catch (error) {
-    console.error("Logout error:", error);
-
-    if (!navigator.onLine) {
-      window.location.href = "/DN_Physics/offline.html";
-      return;
+  function safeSetLocal(key, value) {
+    try {
+      localStorage.setItem(key, value);
+    } catch (error) {
+      console.warn(`LocalStorage set failed for ${key}:`, error);
     }
-
-    showAuthError("Unable to log out right now. Please try again.");
-    return;
   }
 
-  clearUser();
-  clearSessionToken();
-  clearProfileCache();
-
-  if (typeof clearPaidAccess === "function") {
-    clearPaidAccess();
-  }
-
-  syncProfileUiEverywhere();
-  location.reload();
-}
-
-// ----------------------------
-// PROFILE
-// ----------------------------
-
-async function loadUserProfile(userId) {
-  const client = getClient();
-  if (!client) return null;
-
-  try {
-    const { data, error } = await client
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
-
-    if (error) {
-      console.warn("Profile load warning:", error.message);
+  function safeGetLocal(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch (error) {
+      console.warn(`LocalStorage get failed for ${key}:`, error);
       return null;
     }
+  }
 
-    if (data) {
-      if (!data.profile_photo_url && data.avatar_value) {
-        data.profile_photo_url = buildPresetAvatarUrl(data.avatar_value);
+  function safeRemoveLocal(key) {
+    try {
+      localStorage.removeItem(key);
+    } catch (error) {
+      console.warn(`LocalStorage remove failed for ${key}:`, error);
+    }
+  }
+
+  function redirectOffline() {
+    window.location.href = OFFLINE_URL;
+  }
+
+  function isOfflineError(error) {
+    return !navigator.onLine || error instanceof TypeError;
+  }
+
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
+  }
+
+  function normalizeEmail(email) {
+    return String(email || "").trim().toLowerCase();
+  }
+
+  function buildPresetAvatarUrl(avatarValue) {
+    const safeValue = avatarValue || DEFAULT_AVATAR;
+    return `${APP_PATH}/assets/avatars/${safeValue}.png`;
+  }
+
+  function getPresetAvatarList() {
+    return Array.from({ length: 30 }, (_, i) => {
+      const index = String(i + 1).padStart(2, "0");
+      return {
+        id: `avatar-${index}`,
+        url: buildPresetAvatarUrl(`avatar-${index}`)
+      };
+    });
+  }
+
+  function getUser() {
+    try {
+      return JSON.parse(safeGetLocal(USER_KEY)) || null;
+    } catch {
+      return null;
+    }
+  }
+
+  function setUser(user) {
+    safeSetLocal(USER_KEY, JSON.stringify(user || null));
+  }
+
+  function clearUser() {
+    safeRemoveLocal(USER_KEY);
+    safeRemoveLocal(PROFILE_KEY);
+  }
+
+  function getProfileCache() {
+    try {
+      return JSON.parse(safeGetLocal(PROFILE_KEY)) || null;
+    } catch {
+      return null;
+    }
+  }
+
+  function setProfileCache(profile) {
+    safeSetLocal(PROFILE_KEY, JSON.stringify(profile || {}));
+
+    const configProfileKey = getConfigStorageKey("USER_PROFILE");
+    if (configProfileKey) {
+      safeSetLocal(configProfileKey, JSON.stringify(profile || {}));
+    }
+  }
+
+  function clearProfileCache() {
+    safeRemoveLocal(PROFILE_KEY);
+
+    const configProfileKey = getConfigStorageKey("USER_PROFILE");
+    if (configProfileKey) {
+      safeRemoveLocal(configProfileKey);
+    }
+  }
+
+  function setSessionToken(token) {
+    const sessionKey = getConfigStorageKey("USER_SESSION_TOKEN");
+    if (!sessionKey) return;
+    safeSetLocal(sessionKey, token || "");
+  }
+
+  function clearSessionToken() {
+    const sessionKey = getConfigStorageKey("USER_SESSION_TOKEN");
+    if (!sessionKey) return;
+    safeRemoveLocal(sessionKey);
+  }
+
+  function syncProfileUiEverywhere() {
+    const user = getUser();
+    if (typeof window.updateProfileUI === "function") {
+      try {
+        window.updateProfileUI(user);
+      } catch (error) {
+        console.warn("updateProfileUI failed:", error);
       }
-      setProfileCache(data);
-      syncProfileUiEverywhere();
-      return data;
+    }
+  }
+
+  function updateAccountButton() {
+    syncProfileUiEverywhere();
+  }
+
+  function closeAuthModal() {
+    const modal = document.getElementById("authModal");
+    if (modal) modal.classList.add("hidden");
+  }
+
+  function openAuthModal() {
+    const modal = document.getElementById("authModal");
+    if (modal) modal.classList.remove("hidden");
+  }
+
+  function clearAuthError() {
+    const errorBox = document.getElementById("authErrorBox");
+    if (errorBox) errorBox.remove();
+  }
+
+  function showAuthError(message, isSuccess = false) {
+    const authBox = document.querySelector("#authModal .auth-box");
+    if (!authBox) return;
+
+    let errorBox = document.getElementById("authErrorBox");
+
+    if (!errorBox) {
+      errorBox = document.createElement("div");
+      errorBox.id = "authErrorBox";
+
+      const submitBtn = document.getElementById("authSubmitBtn");
+      if (submitBtn && submitBtn.parentNode === authBox) {
+        authBox.insertBefore(errorBox, submitBtn);
+      } else {
+        authBox.appendChild(errorBox);
+      }
     }
 
-    return null;
-  } catch (error) {
-    console.warn("Profile fetch warning:", error);
-    return null;
+    errorBox.style.cssText = `
+      margin: 10px 0 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: ${isSuccess ? "rgba(34,197,94,0.12)" : "rgba(255,0,0,0.10)"};
+      color: ${isSuccess ? "#86efac" : "#ff6b6b"};
+      font-size: 14px;
+      text-align: center;
+      border: 1px solid ${isSuccess ? "rgba(34,197,94,0.25)" : "rgba(255,107,107,0.22)"};
+      line-height: 1.45;
+    `;
+
+    errorBox.textContent = message;
   }
-}
 
-async function ensureProfile(user) {
-  const client = getClient();
-  if (!client) return null;
-  if (!user?.id || !user?.email) return null;
+  function setEyeState(input, button, icon, show) {
+    if (!input || !button || !icon) return;
 
-  const existing = getProfileCache();
+    input.type = show ? "text" : "password";
+    button.setAttribute("aria-label", show ? "Hide password" : "Show password");
 
-  const profilePayload = {
-    id: user.id,
-    email: user.email,
-    name: existing?.name || user.email.split("@")[0],
-    bio: existing?.bio || null,
-    avatar_type: existing?.avatar_type || "preset",
-    avatar_value: existing?.avatar_value || "avatar-01",
-    profile_photo_url:
-      existing?.profile_photo_url ||
-      buildPresetAvatarUrl(existing?.avatar_value || "avatar-01")
-  };
+    if (show) {
+      icon.innerHTML = `
+        <path d="M2 2L22 22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M10.58 10.58A2 2 0 0 0 13.42 13.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M9.88 5.09A10.94 10.94 0 0 1 12 4.9C19 4.9 23 12 23 12C22.39 13.43 21.55 14.72 20.53 15.85" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M6.71 6.72C4.42 8.18 2.74 10.35 1 12C1 12 5 19.1 12 19.1C13.8 19.1 15.46 18.63 16.94 17.82" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      `;
+    } else {
+      icon.innerHTML = `
+        <path d="M1 12C1 12 5 5 12 5C19 5 23 12 23 12C23 12 19 19 12 19C5 19 1 12 1 12Z"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+      `;
+    }
+  }
 
-  try {
-    const { data, error } = await client
-      .from("profiles")
-      .upsert(profilePayload)
-      .select()
-      .single();
+  // =========================
+  // PROFILE DATA
+  // =========================
 
-    if (error) {
-      console.warn("Profile upsert warning:", error.message);
+  async function loadUserProfile(userId) {
+    const client = getClient();
+    if (!client || !userId) return null;
+
+    try {
+      const { data, error } = await client
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+      if (error) {
+        console.warn("Profile load warning:", error.message);
+        return null;
+      }
+
+      if (data) {
+        if (!data.profile_photo_url && data.avatar_value) {
+          data.profile_photo_url = buildPresetAvatarUrl(data.avatar_value);
+        }
+        setProfileCache(data);
+        syncProfileUiEverywhere();
+        return data;
+      }
+
+      return null;
+    } catch (error) {
+      console.warn("Profile fetch warning:", error);
+      return null;
+    }
+  }
+
+  async function ensureProfile(user) {
+    const client = getClient();
+    if (!client || !user?.id || !user?.email) return null;
+
+    const existing = getProfileCache();
+
+    const profilePayload = {
+      id: user.id,
+      email: user.email,
+      name: existing?.name || user.email.split("@")[0],
+      bio: existing?.bio || null,
+      avatar_type: existing?.avatar_type || "preset",
+      avatar_value: existing?.avatar_value || DEFAULT_AVATAR,
+      profile_photo_url:
+        existing?.profile_photo_url ||
+        buildPresetAvatarUrl(existing?.avatar_value || DEFAULT_AVATAR)
+    };
+
+    try {
+      const { data, error } = await client
+        .from("profiles")
+        .upsert(profilePayload)
+        .select()
+        .single();
+
+      if (error) {
+        console.warn("Profile upsert warning:", error.message);
+        const merged = { ...(existing || {}), ...profilePayload };
+        setProfileCache(merged);
+        syncProfileUiEverywhere();
+        return merged;
+      }
+
+      const finalProfile = data || profilePayload;
+
+      if (!finalProfile.profile_photo_url && finalProfile.avatar_value) {
+        finalProfile.profile_photo_url = buildPresetAvatarUrl(finalProfile.avatar_value);
+      }
+
+      setProfileCache(finalProfile);
+      syncProfileUiEverywhere();
+      return finalProfile;
+    } catch (error) {
+      console.warn("Profile upsert failed:", error);
       const merged = { ...(existing || {}), ...profilePayload };
       setProfileCache(merged);
       syncProfileUiEverywhere();
       return merged;
     }
-
-    const finalProfile = data || profilePayload;
-    if (!finalProfile.profile_photo_url && finalProfile.avatar_value) {
-      finalProfile.profile_photo_url = buildPresetAvatarUrl(finalProfile.avatar_value);
-    }
-
-    setProfileCache(finalProfile);
-    syncProfileUiEverywhere();
-    return finalProfile;
-  } catch (error) {
-    console.warn("Profile upsert failed:", error);
-    const merged = { ...(existing || {}), ...profilePayload };
-    setProfileCache(merged);
-    syncProfileUiEverywhere();
-    return merged;
   }
-}
 
-async function saveUserProfile(userId, payload) {
-  const client = getClient();
-  if (!client) return { ok: false, message: "Supabase client not ready." };
+  async function saveUserProfile(userId, payload) {
+    const client = getClient();
+    if (!client) return { ok: false, message: "Supabase client not ready." };
+    if (!userId) return { ok: false, message: "User ID missing." };
 
-  try {
-    const finalPayload = {
-      id: userId,
-      ...payload,
-      updated_at: new Date().toISOString()
-    };
+    try {
+      const finalPayload = {
+        id: userId,
+        ...payload,
+        updated_at: new Date().toISOString()
+      };
 
-    const { data, error } = await client
-      .from("profiles")
-      .upsert(finalPayload)
-      .select()
-      .single();
+      const { data, error } = await client
+        .from("profiles")
+        .upsert(finalPayload)
+        .select()
+        .single();
 
-    if (error) {
-      return { ok: false, message: error.message || "Could not save profile." };
-    }
-
-    const finalProfile = data || finalPayload;
-    if (!finalProfile.profile_photo_url && finalProfile.avatar_value) {
-      finalProfile.profile_photo_url = buildPresetAvatarUrl(finalProfile.avatar_value);
-    }
-
-    setProfileCache(finalProfile);
-    syncProfileUiEverywhere();
-
-    return { ok: true, data: finalProfile };
-  } catch (error) {
-    return { ok: false, message: "Could not save profile." };
-  }
-}
-
-// ----------------------------
-// SESSION
-// ----------------------------
-
-async function restoreUserSession() {
-  const client = getClient();
-  if (!client) return;
-
-  try {
-    const { data } = await client.auth.getSession();
-    const session = data?.session;
-
-    if (session?.user) {
-      setUser(session.user);
-      setSessionToken(session.access_token || "");
-      await ensureProfile(session.user);
-      await loadUserProfile(session.user.id);
-
-      if (typeof syncCloudProgressToLocal === "function") {
-        await syncCloudProgressToLocal();
+      if (error) {
+        return { ok: false, message: error.message || "Could not save profile." };
       }
 
+      const finalProfile = data || finalPayload;
+
+      if (!finalProfile.profile_photo_url && finalProfile.avatar_value) {
+        finalProfile.profile_photo_url = buildPresetAvatarUrl(finalProfile.avatar_value);
+      }
+
+      setProfileCache(finalProfile);
       syncProfileUiEverywhere();
-    } else {
-      clearUser();
-      clearSessionToken();
-      clearProfileCache();
-      syncProfileUiEverywhere();
+
+      return { ok: true, data: finalProfile };
+    } catch (error) {
+      console.error("saveUserProfile failed:", error);
+      return { ok: false, message: "Could not save profile." };
     }
-  } catch (error) {
-    console.error("Restore session failed:", error);
+  }
+
+  // =========================
+  // SESSION + AUTH
+  // =========================
+
+  async function syncProgressIfAvailable() {
+    if (typeof window.syncCloudProgressToLocal === "function") {
+      try {
+        await window.syncCloudProgressToLocal();
+      } catch (error) {
+        console.warn("syncCloudProgressToLocal failed:", error);
+      }
+    }
+  }
+
+  async function applyAuthenticatedUser(user, accessToken = "") {
+    if (!user) return;
+
+    setUser(user);
+    setSessionToken(accessToken || "");
+    await ensureProfile(user);
+    await loadUserProfile(user.id);
+    await syncProgressIfAvailable();
+    syncProfileUiEverywhere();
+  }
+
+  async function clearAuthenticatedUser() {
     clearUser();
     clearSessionToken();
     clearProfileCache();
-    syncProfileUiEverywhere();
-  }
-}
 
-// ----------------------------
-// UI
-// ----------------------------
-
-function updateAccountButton() {
-  syncProfileUiEverywhere();
-}
-
-function setEyeState(input, button, icon, show) {
-  if (!input || !button || !icon) return;
-
-  input.type = show ? "text" : "password";
-  button.setAttribute("aria-label", show ? "Hide password" : "Show password");
-
-  if (show) {
-    icon.innerHTML = `
-      <path d="M2 2L22 22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      <path d="M10.58 10.58A2 2 0 0 0 13.42 13.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      <path d="M9.88 5.09A10.94 10.94 0 0 1 12 4.9C19 4.9 23 12 23 12C22.39 13.43 21.55 14.72 20.53 15.85" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M6.71 6.72C4.42 8.18 2.74 10.35 1 12C1 12 5 19.1 12 19.1C13.8 19.1 15.46 18.63 16.94 17.82" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    `;
-  } else {
-    icon.innerHTML = `
-      <path d="M1 12C1 12 5 5 12 5C19 5 23 12 23 12C23 12 19 19 12 19C5 19 1 12 1 12Z"
-        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-    `;
-  }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  const client = getClient();
-  if (!client) return;
-
-  const authSubmitBtn = document.getElementById("authSubmitBtn");
-  const authSecondaryBtn = document.getElementById("authSecondaryBtn");
-  const authCloseBtn = document.getElementById("authCloseBtn");
-
-  const authEmail = document.getElementById("authEmail");
-  const authPassword = document.getElementById("authPassword");
-  const authConfirmPassword = document.getElementById("authConfirmPassword");
-
-  const authConfirmRow = document.getElementById("authConfirmRow");
-  const authPasswordRow = document.getElementById("authPasswordRow");
-
-  const authTitle = document.getElementById("authTitle");
-  const authToggleText = document.getElementById("authToggleText");
-
-  const togglePasswordBtn = document.getElementById("togglePasswordBtn");
-  const eyeIcon = document.getElementById("eyeIcon");
-  const toggleConfirmPasswordBtn = document.getElementById("toggleConfirmPasswordBtn");
-  const confirmEyeIcon = document.getElementById("confirmEyeIcon");
-  const forgotBtn = document.getElementById("forgotPasswordBtn");
-
-  const profileEditorSection = document.getElementById("profileEditorSection");
-  const profileNameInput = document.getElementById("profileNameInput");
-  const profileBioInput = document.getElementById("profileBioInput");
-  const presetAvatarGrid = document.getElementById("presetAvatarGrid");
-  const profileAvatarPreview = document.getElementById("profileAvatarPreview");
-
-  let isLoginMode = true;
-  let selectedAvatarValue = "avatar-01";
-
-  function setSelectedAvatar(avatarId) {
-    selectedAvatarValue = avatarId || "avatar-01";
-
-    if (profileAvatarPreview) {
-      profileAvatarPreview.src = buildPresetAvatarUrl(selectedAvatarValue);
-    }
-
-    if (!presetAvatarGrid) return;
-
-    presetAvatarGrid.querySelectorAll("[data-avatar-id]").forEach((btn) => {
-      const isActive = btn.dataset.avatarId === selectedAvatarValue;
-      btn.style.borderColor = isActive ? "rgba(78,161,255,0.8)" : "rgba(255,255,255,0.08)";
-      btn.style.boxShadow = isActive
-        ? "0 0 0 3px rgba(78,161,255,0.16), 0 12px 22px rgba(0,0,0,0.26)"
-        : "0 8px 18px rgba(0,0,0,0.18)";
-      btn.style.transform = isActive ? "scale(1.06)" : "scale(1)";
-    });
-  }
-
-  function renderPresetAvatarGrid(selectedId = "avatar-01") {
-    if (!presetAvatarGrid) return;
-
-    const avatars = getPresetAvatarList();
-
-    presetAvatarGrid.innerHTML = avatars
-      .map(
-        (avatar) => `
-          <button
-            type="button"
-            data-avatar-id="${avatar.id}"
-            style="
-              width:100%;
-              aspect-ratio:1/1;
-              border-radius:50%;
-              overflow:hidden;
-              border:2px solid rgba(255,255,255,0.08);
-              background:rgba(255,255,255,0.04);
-              padding:0;
-              cursor:pointer;
-              transition:transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-              box-shadow:0 8px 18px rgba(0,0,0,0.18);
-            "
-            aria-label="Choose ${avatar.id}"
-            title="${avatar.id}"
-          >
-            <img
-              src="${avatar.url}"
-              alt="${avatar.id}"
-              style="width:100%; height:100%; object-fit:cover; display:block;"
-            />
-          </button>
-        `
-      )
-      .join("");
-
-    presetAvatarGrid.querySelectorAll("[data-avatar-id]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        setSelectedAvatar(btn.dataset.avatarId);
-      });
-    });
-
-    setSelectedAvatar(selectedId);
-  }
-
-  function resetAuthFormToDefault() {
-    if (authEmail) {
-      authEmail.value = "";
-      authEmail.disabled = false;
-      authEmail.placeholder = "Email";
-      authEmail.classList.remove("is-hidden");
-    }
-
-    if (authPassword) {
-      authPassword.value = "";
-      authPassword.disabled = false;
-      authPassword.placeholder = "Password";
-      authPassword.type = "password";
-    }
-
-    if (authConfirmPassword) {
-      authConfirmPassword.value = "";
-      authConfirmPassword.disabled = false;
-      authConfirmPassword.placeholder = "Confirm Password";
-      authConfirmPassword.type = "password";
-    }
-
-    if (profileNameInput) profileNameInput.value = "";
-    if (profileBioInput) profileBioInput.value = "";
-
-    if (profileEditorSection) profileEditorSection.classList.add("is-hidden");
-
-    if (authPasswordRow) authPasswordRow.classList.remove("is-hidden");
-    if (authConfirmRow) authConfirmRow.classList.add("is-hidden");
-
-    if (togglePasswordBtn) togglePasswordBtn.classList.remove("is-hidden");
-    if (toggleConfirmPasswordBtn) toggleConfirmPasswordBtn.classList.remove("is-hidden");
-
-    if (authSubmitBtn) {
-      authSubmitBtn.classList.remove("is-hidden");
-      authSubmitBtn.textContent = "Login";
-      authSubmitBtn.dataset.mode = "login";
-    }
-
-    if (authSecondaryBtn) {
-      authSecondaryBtn.classList.add("is-hidden");
-      authSecondaryBtn.textContent = "Logout";
-    }
-
-    if (forgotBtn) {
-      forgotBtn.parentElement?.classList.remove("is-hidden");
-    }
-
-    if (eyeIcon && authPassword && togglePasswordBtn) {
-      setEyeState(authPassword, togglePasswordBtn, eyeIcon, false);
-    }
-
-    if (confirmEyeIcon && authConfirmPassword && toggleConfirmPasswordBtn) {
-      setEyeState(authConfirmPassword, toggleConfirmPasswordBtn, confirmEyeIcon, false);
-    }
-
-    renderPresetAvatarGrid("avatar-01");
-  }
-
-  function renderAuthMode() {
-    resetAuthFormToDefault();
-
-    if (authTitle) {
-      authTitle.textContent = isLoginMode ? "Login" : "Create Account";
-    }
-
-    if (authSubmitBtn) {
-      authSubmitBtn.textContent = isLoginMode ? "Login" : "Create Account";
-      authSubmitBtn.dataset.mode = isLoginMode ? "login" : "signup";
-    }
-
-    if (authConfirmRow) {
-      authConfirmRow.classList.toggle("is-hidden", isLoginMode);
-    }
-
-    if (forgotBtn) {
-      forgotBtn.parentElement?.classList.toggle("is-hidden", !isLoginMode);
-    }
-
-    if (authToggleText) {
-      authToggleText.innerHTML = isLoginMode
-        ? `Don't have an account? <span id="authToggleBtn">Sign up</span>`
-        : `Already have an account? <span id="authToggleBtn">Login</span>`;
-
-      const toggle = document.getElementById("authToggleBtn");
-      if (toggle) {
-        toggle.onclick = () => {
-          isLoginMode = !isLoginMode;
-          clearAuthError();
-          renderAuthMode();
-        };
+    if (typeof window.clearPaidAccess === "function") {
+      try {
+        window.clearPaidAccess();
+      } catch (error) {
+        console.warn("clearPaidAccess failed:", error);
       }
     }
+
+    syncProfileUiEverywhere();
   }
 
-  function renderProfileMode() {
-    const user = getUser();
-    const profile = getProfileCache();
+  async function restoreUserSession() {
+    const client = getClient();
+    if (!client) return;
 
-    if (!user?.email) {
-      isLoginMode = true;
-      renderAuthMode();
+    try {
+      const { data } = await client.auth.getSession();
+      const session = data?.session;
+
+      if (session?.user) {
+        await applyAuthenticatedUser(session.user, session.access_token || "");
+      } else {
+        await clearAuthenticatedUser();
+      }
+    } catch (error) {
+      console.error("Restore session failed:", error);
+      await clearAuthenticatedUser();
+    }
+  }
+
+  async function logout() {
+    const client = getClient();
+    if (!client) return;
+
+    if (!navigator.onLine) {
+      redirectOffline();
       return;
     }
 
-    clearAuthError();
-    resetAuthFormToDefault();
+    try {
+      await client.auth.signOut();
+    } catch (error) {
+      console.error("Logout error:", error);
 
-    if (authTitle) authTitle.textContent = "Your Profile";
-
-    if (authEmail) {
-      authEmail.value = user.email;
-      authEmail.disabled = true;
-    }
-
-    if (authPasswordRow) authPasswordRow.classList.add("is-hidden");
-    if (authConfirmRow) authConfirmRow.classList.add("is-hidden");
-    if (togglePasswordBtn) togglePasswordBtn.classList.add("is-hidden");
-    if (toggleConfirmPasswordBtn) toggleConfirmPasswordBtn.classList.add("is-hidden");
-
-    if (profileEditorSection) profileEditorSection.classList.remove("is-hidden");
-
-    if (profileNameInput) {
-      profileNameInput.value =
-        profile?.name ||
-        user.email.split("@")[0] ||
-        "";
-    }
-
-    if (profileBioInput) {
-      profileBioInput.value = profile?.bio || "";
-    }
-
-    renderPresetAvatarGrid(profile?.avatar_value || "avatar-01");
-
-    if (authSubmitBtn) {
-      authSubmitBtn.textContent = "Save Profile";
-      authSubmitBtn.dataset.mode = "save-profile";
-    }
-
-    if (authSecondaryBtn) {
-      authSecondaryBtn.classList.remove("is-hidden");
-      authSecondaryBtn.textContent = "Logout";
-    }
-
-    if (authToggleText) {
-      authToggleText.innerHTML = `This account owns your profile and future synced app data.`;
-    }
-
-    if (forgotBtn) {
-      forgotBtn.parentElement?.classList.add("is-hidden");
-    }
-  }
-
-  if (togglePasswordBtn && authPassword && eyeIcon) {
-    togglePasswordBtn.onclick = () => {
-      const show = authPassword.type === "password";
-      setEyeState(authPassword, togglePasswordBtn, eyeIcon, show);
-    };
-  }
-
-  if (toggleConfirmPasswordBtn && authConfirmPassword && confirmEyeIcon) {
-    toggleConfirmPasswordBtn.onclick = () => {
-      const show = authConfirmPassword.type === "password";
-      setEyeState(authConfirmPassword, toggleConfirmPasswordBtn, confirmEyeIcon, show);
-    };
-  }
-
-  if (authEmail) authEmail.addEventListener("input", clearAuthError);
-  if (authPassword) authPassword.addEventListener("input", clearAuthError);
-  if (authConfirmPassword) authConfirmPassword.addEventListener("input", clearAuthError);
-  if (profileNameInput) profileNameInput.addEventListener("input", clearAuthError);
-  if (profileBioInput) profileBioInput.addEventListener("input", clearAuthError);
-
-  document.addEventListener("click", (e) => {
-    const loginButton = e.target.closest("#loginBtn");
-    if (!loginButton) return;
-
-    e.preventDefault();
-    e.stopPropagation();
-
-    const user = getUser();
-
-    clearAuthError();
-
-    if (user) {
-      renderProfileMode();
-      openAuthModal();
-      return;
-    }
-
-    isLoginMode = true;
-    renderAuthMode();
-    openAuthModal();
-  });
-
-  const confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
-  const cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
-
-  if (cancelLogoutBtn) {
-    cancelLogoutBtn.onclick = () => {
-      document.getElementById("logoutModal")?.classList.add("hidden");
-    };
-  }
-
-  if (confirmLogoutBtn) {
-    confirmLogoutBtn.onclick = () => logout();
-  }
-
-  if (authCloseBtn) {
-    authCloseBtn.onclick = () => {
-      clearAuthError();
-      closeAuthModal();
-    };
-  }
-
-  if (authSecondaryBtn) {
-    authSecondaryBtn.onclick = () => {
-      closeAuthModal();
-      document.getElementById("logoutModal")?.classList.remove("hidden");
-    };
-  }
-
-  if (authSubmitBtn) {
-    authSubmitBtn.onclick = async () => {
-      const mode = authSubmitBtn.dataset.mode || (isLoginMode ? "login" : "signup");
-
-      if (mode === "save-profile") {
-        const user = getUser();
-        if (!user?.id) {
-          return showAuthError("Please log in again.");
-        }
-
-        const name = (profileNameInput?.value || "").trim();
-        const bio = (profileBioInput?.value || "").trim();
-
-        if (!name) {
-          return showAuthError("Please enter your display name.");
-        }
-
-        const payload = {
-          email: user.email,
-          name,
-          bio: bio || null,
-          avatar_type: "preset",
-          avatar_value: selectedAvatarValue,
-          profile_photo_url: buildPresetAvatarUrl(selectedAvatarValue)
-        };
-
-        const result = await saveUserProfile(user.id, payload);
-
-        if (!result.ok) {
-          return showAuthError(result.message || "Could not save profile.");
-        }
-
-        updateAccountButton();
-        showAuthError("✅ Profile saved successfully.", true);
-
-        setTimeout(() => {
-          closeAuthModal();
-          window.location.reload();
-        }, 700);
-
+      if (!navigator.onLine) {
+        redirectOffline();
         return;
       }
 
-      const email = authEmail?.value.trim().toLowerCase() || "";
-      const password = authPassword?.value.trim() || "";
-      const confirmPassword = authConfirmPassword?.value.trim() || "";
+      showAuthError("Unable to log out right now. Please try again.");
+      return;
+    }
+
+    await clearAuthenticatedUser();
+    window.location.reload();
+  }
+
+  // =========================
+  // AVATAR MODAL
+  // =========================
+
+  function ensureAvatarModalExists() {
+    let avatarModal = document.getElementById("avatarModal");
+    if (avatarModal) return avatarModal;
+
+    avatarModal = document.createElement("div");
+    avatarModal.id = "avatarModal";
+    avatarModal.className = "auth-modal hidden";
+    avatarModal.innerHTML = `
+      <div class="auth-box premium-auth-box" style="max-width:560px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px;">
+          <h2 style="margin:0;">Choose Avatar</h2>
+          <button id="closeAvatarModal" class="btn" type="button">Close</button>
+        </div>
+        <div
+          id="avatarGridModal"
+          class="preset-avatar-grid"
+          style="display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:12px;"
+        ></div>
+      </div>
+    `;
+    document.body.appendChild(avatarModal);
+    return avatarModal;
+  }
+
+  // =========================
+  // INIT
+  // =========================
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const client = getClient();
+    if (!client) {
+      console.warn("Supabase client not ready.");
+      return;
+    }
+
+    const els = {
+      authModal: document.getElementById("authModal"),
+      authSubmitBtn: document.getElementById("authSubmitBtn"),
+      authSecondaryBtn: document.getElementById("authSecondaryBtn"),
+      authCloseBtn: document.getElementById("authCloseBtn"),
+
+      authEmail: document.getElementById("authEmail"),
+      authPassword: document.getElementById("authPassword"),
+      authConfirmPassword: document.getElementById("authConfirmPassword"),
+
+      authConfirmRow: document.getElementById("authConfirmRow"),
+      authPasswordRow: document.getElementById("authPasswordRow"),
+
+      authTitle: document.getElementById("authTitle"),
+      authToggleText: document.getElementById("authToggleText"),
+
+      togglePasswordBtn: document.getElementById("togglePasswordBtn"),
+      eyeIcon: document.getElementById("eyeIcon"),
+      toggleConfirmPasswordBtn: document.getElementById("toggleConfirmPasswordBtn"),
+      confirmEyeIcon: document.getElementById("confirmEyeIcon"),
+      forgotBtn: document.getElementById("forgotPasswordBtn"),
+
+      loginBtn: document.getElementById("loginBtn"),
+
+      profileEditorSection: document.getElementById("profileEditorSection"),
+      profileNameInput: document.getElementById("profileNameInput"),
+      profileBioInput: document.getElementById("profileBioInput"),
+      presetAvatarGrid: document.getElementById("presetAvatarGrid"),
+      profileAvatarPreview: document.getElementById("profileAvatarPreview"),
+
+      openAvatarModalBtn: document.getElementById("openAvatarModalBtn"),
+
+      confirmLogoutBtn: document.getElementById("confirmLogoutBtn"),
+      cancelLogoutBtn: document.getElementById("cancelLogoutBtn"),
+      logoutModal: document.getElementById("logoutModal")
+    };
+
+    let isLoginMode = true;
+    let selectedAvatarValue = DEFAULT_AVATAR;
+
+    function setSelectedAvatar(avatarId) {
+      selectedAvatarValue = avatarId || DEFAULT_AVATAR;
+
+      if (els.profileAvatarPreview) {
+        els.profileAvatarPreview.src = buildPresetAvatarUrl(selectedAvatarValue);
+      }
+
+      if (!els.presetAvatarGrid) return;
+
+      els.presetAvatarGrid.querySelectorAll("[data-avatar-id]").forEach((btn) => {
+        const active = btn.dataset.avatarId === selectedAvatarValue;
+        btn.style.borderColor = active ? "rgba(78,161,255,0.8)" : "rgba(255,255,255,0.08)";
+        btn.style.boxShadow = active
+          ? "0 0 0 3px rgba(78,161,255,0.16), 0 12px 22px rgba(0,0,0,0.26)"
+          : "0 8px 18px rgba(0,0,0,0.18)";
+        btn.style.transform = active ? "scale(1.06)" : "scale(1)";
+      });
+    }
+
+    function renderPresetAvatarGrid(selectedId = DEFAULT_AVATAR) {
+      if (!els.presetAvatarGrid) return;
+
+      const avatars = getPresetAvatarList();
+
+      els.presetAvatarGrid.innerHTML = avatars.map((avatar) => `
+        <button
+          type="button"
+          data-avatar-id="${avatar.id}"
+          aria-label="Choose ${avatar.id}"
+          title="${avatar.id}"
+          style="
+            width:100%;
+            aspect-ratio:1/1;
+            border-radius:50%;
+            overflow:hidden;
+            border:2px solid rgba(255,255,255,0.08);
+            background:rgba(255,255,255,0.04);
+            padding:0;
+            cursor:pointer;
+            transition:transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+            box-shadow:0 8px 18px rgba(0,0,0,0.18);
+          "
+        >
+          <img
+            src="${avatar.url}"
+            alt="${avatar.id}"
+            style="width:100%; height:100%; object-fit:cover; display:block;"
+          />
+        </button>
+      `).join("");
+
+      els.presetAvatarGrid.querySelectorAll("[data-avatar-id]").forEach((btn) => {
+        btn.addEventListener("click", () => setSelectedAvatar(btn.dataset.avatarId));
+      });
+
+      setSelectedAvatar(selectedId);
+    }
+
+    function renderAvatarModalGrid() {
+      const avatarModal = ensureAvatarModalExists();
+      const avatarGridModal = avatarModal.querySelector("#avatarGridModal");
+      const closeAvatarModalBtn = avatarModal.querySelector("#closeAvatarModal");
+
+      if (!avatarGridModal) return;
+
+      const avatars = getPresetAvatarList();
+
+      avatarGridModal.innerHTML = avatars.map((avatar) => `
+        <button
+          type="button"
+          data-id="${avatar.id}"
+          aria-label="Choose ${avatar.id}"
+          title="${avatar.id}"
+          style="
+            width:100%;
+            aspect-ratio:1/1;
+            border-radius:50%;
+            overflow:hidden;
+            border:2px solid ${avatar.id === selectedAvatarValue ? "rgba(78,161,255,0.8)" : "rgba(255,255,255,0.08)"};
+            background:rgba(255,255,255,0.04);
+            padding:0;
+            cursor:pointer;
+            transition:transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+            box-shadow:${avatar.id === selectedAvatarValue ? "0 0 0 3px rgba(78,161,255,0.16), 0 12px 22px rgba(0,0,0,0.26)" : "0 8px 18px rgba(0,0,0,0.18)"};
+          "
+        >
+          <img
+            src="${avatar.url}"
+            alt="${avatar.id}"
+            style="width:100%; height:100%; object-fit:cover; display:block;"
+          />
+        </button>
+      `).join("");
+
+      avatarGridModal.querySelectorAll("[data-id]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          setSelectedAvatar(btn.dataset.id);
+          avatarModal.classList.add("hidden");
+        });
+      });
+
+      if (closeAvatarModalBtn) {
+        closeAvatarModalBtn.onclick = () => avatarModal.classList.add("hidden");
+      }
+    }
+
+    function openAvatarModal() {
+      const avatarModal = ensureAvatarModalExists();
+      renderAvatarModalGrid();
+      avatarModal.classList.remove("hidden");
+    }
+
+    function resetAuthFormToDefault() {
+      if (els.authEmail) {
+        els.authEmail.value = "";
+        els.authEmail.disabled = false;
+        els.authEmail.placeholder = "Email";
+        els.authEmail.classList.remove("is-hidden");
+      }
+
+      if (els.authPassword) {
+        els.authPassword.value = "";
+        els.authPassword.disabled = false;
+        els.authPassword.placeholder = "Password";
+        els.authPassword.type = "password";
+      }
+
+      if (els.authConfirmPassword) {
+        els.authConfirmPassword.value = "";
+        els.authConfirmPassword.disabled = false;
+        els.authConfirmPassword.placeholder = "Confirm Password";
+        els.authConfirmPassword.type = "password";
+      }
+
+      if (els.profileNameInput) els.profileNameInput.value = "";
+      if (els.profileBioInput) els.profileBioInput.value = "";
+
+      if (els.profileEditorSection) {
+        els.profileEditorSection.classList.add("is-hidden");
+      }
+
+      if (els.authPasswordRow) {
+        els.authPasswordRow.classList.remove("is-hidden");
+      }
+
+      if (els.authConfirmRow) {
+        els.authConfirmRow.classList.add("is-hidden");
+      }
+
+      if (els.togglePasswordBtn) {
+        els.togglePasswordBtn.classList.remove("is-hidden");
+      }
+
+      if (els.toggleConfirmPasswordBtn) {
+        els.toggleConfirmPasswordBtn.classList.remove("is-hidden");
+      }
+
+      if (els.authSubmitBtn) {
+        els.authSubmitBtn.classList.remove("is-hidden");
+        els.authSubmitBtn.textContent = "Login";
+        els.authSubmitBtn.dataset.mode = "login";
+        els.authSubmitBtn.disabled = false;
+      }
+
+      if (els.authSecondaryBtn) {
+        els.authSecondaryBtn.classList.add("is-hidden");
+        els.authSecondaryBtn.textContent = "Logout";
+        els.authSecondaryBtn.disabled = false;
+      }
+
+      if (els.forgotBtn) {
+        els.forgotBtn.parentElement?.classList.remove("is-hidden");
+      }
+
+      if (els.eyeIcon && els.authPassword && els.togglePasswordBtn) {
+        setEyeState(els.authPassword, els.togglePasswordBtn, els.eyeIcon, false);
+      }
+
+      if (els.confirmEyeIcon && els.authConfirmPassword && els.toggleConfirmPasswordBtn) {
+        setEyeState(els.authConfirmPassword, els.toggleConfirmPasswordBtn, els.confirmEyeIcon, false);
+      }
+
+      renderPresetAvatarGrid(DEFAULT_AVATAR);
+    }
+
+    function renderAuthMode() {
+      resetAuthFormToDefault();
+      clearAuthError();
+
+      if (els.authTitle) {
+        els.authTitle.textContent = isLoginMode ? "Login" : "Create Account";
+      }
+
+      if (els.authSubmitBtn) {
+        els.authSubmitBtn.textContent = isLoginMode ? "Login" : "Create Account";
+        els.authSubmitBtn.dataset.mode = isLoginMode ? "login" : "signup";
+      }
+
+      if (els.authConfirmRow) {
+        els.authConfirmRow.classList.toggle("is-hidden", isLoginMode);
+      }
+
+      if (els.forgotBtn) {
+        els.forgotBtn.parentElement?.classList.toggle("is-hidden", !isLoginMode);
+      }
+
+      if (els.authToggleText) {
+        els.authToggleText.innerHTML = isLoginMode
+          ? `Don't have an account? <span id="authToggleBtn">Sign up</span>`
+          : `Already have an account? <span id="authToggleBtn">Login</span>`;
+
+        const toggle = document.getElementById("authToggleBtn");
+        if (toggle) {
+          toggle.onclick = () => {
+            isLoginMode = !isLoginMode;
+            clearAuthError();
+            renderAuthMode();
+          };
+        }
+      }
+    }
+
+    function renderProfileMode() {
+      const user = getUser();
+      const profile = getProfileCache();
+
+      if (!user?.email) {
+        isLoginMode = true;
+        renderAuthMode();
+        return;
+      }
+
+      clearAuthError();
+      resetAuthFormToDefault();
+
+      if (els.authTitle) {
+        els.authTitle.textContent = "Your Profile";
+      }
+
+      if (els.authEmail) {
+        els.authEmail.value = user.email;
+        els.authEmail.disabled = true;
+      }
+
+      if (els.authPasswordRow) {
+        els.authPasswordRow.classList.add("is-hidden");
+      }
+
+      if (els.authConfirmRow) {
+        els.authConfirmRow.classList.add("is-hidden");
+      }
+
+      if (els.togglePasswordBtn) {
+        els.togglePasswordBtn.classList.add("is-hidden");
+      }
+
+      if (els.toggleConfirmPasswordBtn) {
+        els.toggleConfirmPasswordBtn.classList.add("is-hidden");
+      }
+
+      if (els.profileEditorSection) {
+        els.profileEditorSection.classList.remove("is-hidden");
+      }
+
+      if (els.profileNameInput) {
+        els.profileNameInput.value = profile?.name || user.email.split("@")[0] || "";
+      }
+
+      if (els.profileBioInput) {
+        els.profileBioInput.value = profile?.bio || "";
+      }
+
+      renderPresetAvatarGrid(profile?.avatar_value || DEFAULT_AVATAR);
+
+      if (els.authSubmitBtn) {
+        els.authSubmitBtn.textContent = "Save Profile";
+        els.authSubmitBtn.dataset.mode = "save-profile";
+      }
+
+      if (els.authSecondaryBtn) {
+        els.authSecondaryBtn.classList.remove("is-hidden");
+        els.authSecondaryBtn.textContent = "Logout";
+      }
+
+      if (els.authToggleText) {
+        els.authToggleText.innerHTML = `This account owns your profile and future synced app data.`;
+      }
+
+      if (els.forgotBtn) {
+        els.forgotBtn.parentElement?.classList.add("is-hidden");
+      }
+    }
+
+    async function handleSaveProfile() {
+      const user = getUser();
+      if (!user?.id) {
+        showAuthError("Please log in again.");
+        return;
+      }
+
+      const name = String(els.profileNameInput?.value || "").trim();
+      const bio = String(els.profileBioInput?.value || "").trim();
+
+      if (!name) {
+        showAuthError("Please enter your display name.");
+        return;
+      }
+
+      const payload = {
+        email: user.email,
+        name,
+        bio: bio || null,
+        avatar_type: "preset",
+        avatar_value: selectedAvatarValue,
+        profile_photo_url: buildPresetAvatarUrl(selectedAvatarValue)
+      };
+
+      const result = await saveUserProfile(user.id, payload);
+
+      if (!result.ok) {
+        showAuthError(result.message || "Could not save profile.");
+        return;
+      }
+
+      updateAccountButton();
+      showAuthError("✅ Profile saved successfully.", true);
+
+      setTimeout(() => {
+        closeAuthModal();
+        window.location.reload();
+      }, 700);
+    }
+
+    async function handleLogin(email, password) {
+      if (!navigator.onLine) {
+        redirectOffline();
+        return;
+      }
+
+      const { data, error } = await client.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error || !data?.user) {
+        showAuthError("Incorrect email or password.");
+        return;
+      }
+
+      await applyAuthenticatedUser(data.user, data.session?.access_token || "");
+      closeAuthModal();
+      window.location.reload();
+    }
+
+    async function handleSignup(email, password, confirmPassword) {
+      if (!confirmPassword) {
+        showAuthError("Please confirm your password.");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showAuthError("Passwords do not match.");
+        return;
+      }
+
+      if (password.length < 6) {
+        showAuthError("Password must be at least 6 characters.");
+        return;
+      }
+
+      if (!navigator.onLine) {
+        redirectOffline();
+        return;
+      }
+
+      const { data, error } = await client.auth.signUp({
+        email,
+        password
+      });
+
+      if (error) {
+        const msg = String(error.message || "").toLowerCase();
+
+        if (msg.includes("already") || msg.includes("registered") || msg.includes("exists")) {
+          showAuthError("An account with this email already exists. Please login.");
+          return;
+        }
+
+        if (msg.includes("password")) {
+          showAuthError("Password must be at least 6 characters.");
+          return;
+        }
+
+        if (msg.includes("email")) {
+          showAuthError("Enter a valid email address.");
+          return;
+        }
+
+        showAuthError(error.message || "Could not create account.");
+        return;
+      }
+
+      const signedUpUser = data?.user || null;
+      const signedUpSession = data?.session || null;
+
+      if (!signedUpUser) {
+        showAuthError("Account created, but user details were not returned. Please try logging in.");
+        return;
+      }
+
+      if (signedUpSession?.user) {
+        await applyAuthenticatedUser(signedUpSession.user, signedUpSession.access_token || "");
+        closeAuthModal();
+        window.location.reload();
+        return;
+      }
+
+      const loginRetry = await client.auth.signInWithPassword({ email, password });
+
+      if (loginRetry?.data?.user) {
+        await applyAuthenticatedUser(
+          loginRetry.data.user,
+          loginRetry.data.session?.access_token || ""
+        );
+        closeAuthModal();
+        window.location.reload();
+        return;
+      }
+
+      showAuthError(
+        "✅ Account created. Please check your email to confirm your account, then log in.",
+        true
+      );
+
+      isLoginMode = true;
+      renderAuthMode();
+    }
+
+    async function handleForgotPassword() {
+      const email = normalizeEmail(els.authEmail?.value || "");
+
+      if (!email) {
+        showAuthError("Enter your email first.");
+        return;
+      }
+
+      if (!isValidEmail(email)) {
+        showAuthError("Enter a valid email address.");
+        return;
+      }
+
+      if (!navigator.onLine) {
+        redirectOffline();
+        return;
+      }
+
+      try {
+        const { error } = await client.auth.resetPasswordForEmail(email, {
+          redirectTo: RESET_PASSWORD_URL
+        });
+
+        if (error) {
+          showAuthError("Unable to send reset email. Please try again.");
+          return;
+        }
+
+        showAuthError(
+          `📩 If an account exists, a password reset link has been sent to ${email}. Please check your inbox.`,
+          true
+        );
+      } catch (error) {
+        console.error("Forgot password failed:", error);
+
+        if (isOfflineError(error)) {
+          redirectOffline();
+          return;
+        }
+
+        showAuthError("Unable to send reset email. Please try again.");
+      }
+    }
+
+    async function handleAuthSubmit() {
+      const mode = els.authSubmitBtn?.dataset.mode || (isLoginMode ? "login" : "signup");
 
       clearAuthError();
 
-      if (!email || !password) {
-        return showAuthError("Please enter your email and password.");
+      if (mode === "save-profile") {
+        await handleSaveProfile();
+        return;
       }
 
-      if (mode === "signup") {
-        if (!confirmPassword) {
-          return showAuthError("Please confirm your password.");
-        }
+      const email = normalizeEmail(els.authEmail?.value || "");
+      const password = String(els.authPassword?.value || "").trim();
+      const confirmPassword = String(els.authConfirmPassword?.value || "").trim();
 
-        if (password !== confirmPassword) {
-          return showAuthError("Passwords do not match.");
-        }
+      if (!email || !password) {
+        showAuthError("Please enter your email and password.");
+        return;
+      }
+
+      if (!isValidEmail(email)) {
+        showAuthError("Enter a valid email address.");
+        return;
       }
 
       try {
         if (mode === "login") {
-          if (!navigator.onLine) {
-            window.location.href = "/DN_Physics/offline.html";
-            return;
-          }
-
-          const { data, error } = await client.auth.signInWithPassword({
-            email,
-            password
-          });
-
-          if (error || !data?.user) {
-            return showAuthError("Incorrect email or password.");
-          }
-
-          setUser(data.user);
-          setSessionToken(data.session?.access_token || "");
-          await ensureProfile(data.user);
-          await loadUserProfile(data.user.id);
-
-          if (typeof syncCloudProgressToLocal === "function") {
-            await syncCloudProgressToLocal();
-          }
-
-          syncProfileUiEverywhere();
-          closeAuthModal();
-          location.reload();
+          await handleLogin(email, password);
           return;
         }
 
-        if (!navigator.onLine) {
-          window.location.href = "/DN_Physics/offline.html";
-          return;
+        if (mode === "signup") {
+          await handleSignup(email, password, confirmPassword);
         }
+      } catch (error) {
+        console.error("Auth submit error:", error);
 
-        // SIGN UP DIRECTLY WITH SUPABASE AUTH
-        const { data, error } = await client.auth.signUp({
-          email,
-          password
-        });
-
-        if (error) {
-          const msg = String(error.message || "").toLowerCase();
-
-          if (msg.includes("already") || msg.includes("registered") || msg.includes("exists")) {
-            return showAuthError("An account with this email already exists. Please login.");
-          }
-
-          if (msg.includes("password")) {
-            return showAuthError("Password must be at least 6 characters.");
-          }
-
-          if (msg.includes("email")) {
-            return showAuthError("Enter a valid email address.");
-          }
-
-          return showAuthError(error.message || "Could not create account.");
-        }
-
-        const signedUpUser = data?.user || null;
-        const signedUpSession = data?.session || null;
-
-        if (!signedUpUser) {
-          return showAuthError("Account created, but user details were not returned. Please try logging in.");
-        }
-
-        // if session is returned, user is already signed in
-        if (signedUpSession?.user) {
-          setUser(signedUpSession.user);
-          setSessionToken(signedUpSession.access_token || "");
-          await ensureProfile(signedUpSession.user);
-          await loadUserProfile(signedUpSession.user.id);
-
-          if (typeof syncCloudProgressToLocal === "function") {
-            await syncCloudProgressToLocal();
-          }
-
-          syncProfileUiEverywhere();
-          closeAuthModal();
-          location.reload();
-          return;
-        }
-
-        // fallback: try immediate login
-        const loginRetry = await client.auth.signInWithPassword({
-          email,
-          password
-        });
-
-        if (loginRetry?.data?.user) {
-          setUser(loginRetry.data.user);
-          setSessionToken(loginRetry.data.session?.access_token || "");
-          await ensureProfile(loginRetry.data.user);
-          await loadUserProfile(loginRetry.data.user.id);
-
-          if (typeof syncCloudProgressToLocal === "function") {
-            await syncCloudProgressToLocal();
-          }
-
-          syncProfileUiEverywhere();
-          closeAuthModal();
-          location.reload();
-          return;
-        }
-
-        // If email confirmation is required in your Supabase settings
-        showAuthError("✅ Account created. Please check your email to confirm your account, then log in.", true);
-        isLoginMode = true;
-        renderAuthMode();
-      } catch (e) {
-        console.error("Auth submit error:", e);
-
-        if (isOfflineError(e)) {
-          window.location.href = "/DN_Physics/offline.html";
+        if (isOfflineError(error)) {
+          redirectOffline();
           return;
         }
 
         showAuthError("Something went wrong. Please try again.");
       }
-    };
-  }
+    }
 
-  if (forgotBtn) {
-    forgotBtn.onclick = async () => {
-      const email = authEmail?.value.trim().toLowerCase();
+    // =========================
+    // EVENTS
+    // =========================
 
-      if (!email) {
-        return showAuthError("Enter your email first.");
+    if (els.togglePasswordBtn && els.authPassword && els.eyeIcon) {
+      els.togglePasswordBtn.onclick = () => {
+        const show = els.authPassword.type === "password";
+        setEyeState(els.authPassword, els.togglePasswordBtn, els.eyeIcon, show);
+      };
+    }
+
+    if (els.toggleConfirmPasswordBtn && els.authConfirmPassword && els.confirmEyeIcon) {
+      els.toggleConfirmPasswordBtn.onclick = () => {
+        const show = els.authConfirmPassword.type === "password";
+        setEyeState(
+          els.authConfirmPassword,
+          els.toggleConfirmPasswordBtn,
+          els.confirmEyeIcon,
+          show
+        );
+      };
+    }
+
+    [els.authEmail, els.authPassword, els.authConfirmPassword, els.profileNameInput, els.profileBioInput]
+      .filter(Boolean)
+      .forEach((el) => el.addEventListener("input", clearAuthError));
+
+    if (els.loginBtn) {
+      els.loginBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const user = getUser();
+        clearAuthError();
+
+        if (user) {
+          renderProfileMode();
+          openAuthModal();
+          return;
+        }
+
+        isLoginMode = true;
+        renderAuthMode();
+        openAuthModal();
+      });
+    }
+
+    document.addEventListener("click", (e) => {
+      const avatarModal = document.getElementById("avatarModal");
+      if (!avatarModal || avatarModal.classList.contains("hidden")) return;
+
+      if (e.target === avatarModal) {
+        avatarModal.classList.add("hidden");
       }
+    });
 
-      if (!email.includes("@")) {
-        return showAuthError("Enter a valid email address.");
-      }
+    if (els.openAvatarModalBtn) {
+      els.openAvatarModalBtn.onclick = openAvatarModal;
+    }
 
-      if (!navigator.onLine) {
-        window.location.href = "/DN_Physics/offline.html";
+    if (els.cancelLogoutBtn) {
+      els.cancelLogoutBtn.onclick = () => {
+        els.logoutModal?.classList.add("hidden");
+      };
+    }
+
+    if (els.confirmLogoutBtn) {
+      els.confirmLogoutBtn.onclick = async () => {
+        await logout();
+      };
+    }
+
+    if (els.authCloseBtn) {
+      els.authCloseBtn.onclick = () => {
+        clearAuthError();
+        closeAuthModal();
+      };
+    }
+
+    if (els.authSecondaryBtn) {
+      els.authSecondaryBtn.onclick = () => {
+        closeAuthModal();
+        els.logoutModal?.classList.remove("hidden");
+      };
+    }
+
+    if (els.authSubmitBtn) {
+      els.authSubmitBtn.onclick = handleAuthSubmit;
+    }
+
+    if (els.forgotBtn) {
+      els.forgotBtn.onclick = handleForgotPassword;
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+
+      const avatarModal = document.getElementById("avatarModal");
+      if (avatarModal && !avatarModal.classList.contains("hidden")) {
+        avatarModal.classList.add("hidden");
         return;
       }
 
-      const { error } = await client.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + "/DN_Physics/reset-password.html"
-      });
-
-      if (error) {
-        return showAuthError("Unable to send reset email. Please try again.");
+      if (els.logoutModal && !els.logoutModal.classList.contains("hidden")) {
+        els.logoutModal.classList.add("hidden");
+        return;
       }
 
-      showAuthError(
-        `📩 If an account exists, a password reset link has been sent to ${email}. Please check your inbox.`,
-        true
-      );
-    };
-  }
+      if (els.authModal && !els.authModal.classList.contains("hidden")) {
+        closeAuthModal();
+      }
+    });
 
-  client.auth.onAuthStateChange((event, session) => {
-    if (session?.user) {
-      setUser(session.user);
-      setSessionToken(session.access_token || "");
-    } else {
-      clearUser();
-      clearSessionToken();
-      clearProfileCache();
-    }
-
-    syncProfileUiEverywhere();
-  });
-
-  renderAuthMode();
-
-  restoreUserSession().then(() => {
-    syncProfileUiEverywhere();
-  });
-
-  (async () => {
-    const hash = window.location.hash;
-
-    if (hash && hash.includes("access_token")) {
-      try {
-        await new Promise((r) => setTimeout(r, 500));
-
-        const { data } = await client.auth.getSession();
-
-        if (data?.session?.user) {
-          setUser(data.session.user);
-          setSessionToken(data.session.access_token || "");
-          await ensureProfile(data.session.user);
-          await loadUserProfile(data.session.user.id);
-
-          window.history.replaceState({}, document.title, window.location.pathname);
-          syncProfileUiEverywhere();
+    [els.authEmail, els.authPassword, els.authConfirmPassword].forEach((input) => {
+      if (!input) return;
+      input.addEventListener("keydown", async (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          await handleAuthSubmit();
         }
-      } catch (e) {
-        console.error("Verification error:", e);
+      });
+    });
+
+    client.auth.onAuthStateChange(async (_event, session) => {
+      try {
+        if (session?.user) {
+          setUser(session.user);
+          setSessionToken(session.access_token || "");
+        } else {
+          await clearAuthenticatedUser();
+        }
+
+        syncProfileUiEverywhere();
+      } catch (error) {
+        console.warn("onAuthStateChange handling failed:", error);
       }
-    }
-  })();
-});
+    });
+
+    renderAuthMode();
+
+    restoreUserSession().then(() => {
+      syncProfileUiEverywhere();
+    });
+
+    (async () => {
+      const hash = window.location.hash;
+
+      if (hash && hash.includes("access_token")) {
+        try {
+          await new Promise((resolve) => setTimeout(resolve, 500));
+
+          const { data } = await client.auth.getSession();
+
+          if (data?.session?.user) {
+            await applyAuthenticatedUser(
+              data.session.user,
+              data.session.access_token || ""
+            );
+
+            window.history.replaceState({}, document.title, window.location.pathname);
+            syncProfileUiEverywhere();
+          }
+        } catch (error) {
+          console.error("Verification error:", error);
+        }
+      }
+    })();
+  });
+})();
