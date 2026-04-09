@@ -585,19 +585,48 @@ document.addEventListener("DOMContentLoaded", () => {
     return "Beginner";
   }
 
+  function getCurrentUserId() {
+    try {
+      const cachedUser = JSON.parse(localStorage.getItem("dn_user") || "null");
+      if (cachedUser?.id) return cachedUser.id;
+ 
+      const rawSupabase = localStorage.getItem("supabase.auth.token");
+      if (rawSupabase) {
+        const parsed = JSON.parse(rawSupabase);
+        const sessionUser = parsed?.currentSession?.user || parsed?.user || null;
+        if (sessionUser?.id) return sessionUser.id;
+      }
+    } catch (error) {
+      console.warn("Could not resolve current user id:", error);
+    }
+
+    return "guest";
+  }
+
+  function getProgressKey() {
+    return `dnPhysicsQuizProgress_${getCurrentUserId()}`;
+  }
+
   function getProgressStore() {
     try {
-      return JSON.parse(localStorage.getItem(QUIZ_PROGRESS_KEY)) || {};
+      return JSON.parse(localStorage.getItem(getProgressKey())) || {};
     } catch {
       return {};
     }
   }
 
   function getLegacySavedStats(topic, subtopic, setName = "set-1") {
-    const key = `dn_physics_pp-quiz_${topic}_${subtopic}_${setName}`;
+    const currentUserId = getCurrentUserId();
 
+    const userScopedLegacyKey = `dn_${currentUserId}_pp-quiz_${topic}_${subtopic}_${setName}`;
     try {
-      return JSON.parse(localStorage.getItem(key)) || null;
+      const scoped = JSON.parse(localStorage.getItem(userScopedLegacyKey) || "null");
+      if (scoped) return scoped;
+    } catch {}
+
+    const oldGlobalKey = `dn_physics_pp-quiz_${topic}_${subtopic}_${setName}`;
+    try {
+      return JSON.parse(localStorage.getItem(oldGlobalKey)) || null;
     } catch {
       return null;
     }
