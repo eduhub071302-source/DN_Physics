@@ -258,7 +258,7 @@ header,
 }
 
 .user-email-display {
-  max-width: 240px;
+  max-width: 180px;
   color: var(--muted);
   font-size: 0.88rem;
   line-height: 1.35;
@@ -2347,5 +2347,66 @@ header,
   }
   to {
     opacity: 1;
+  }
+}
+
+/* =========================
+   MOBILE TOP BAR FIX
+========================= */
+@media (max-width: 768px) {
+  .site-header .nav {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 0;
+  }
+
+  .brand {
+    font-size: 1.05rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 46vw;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: nowrap;
+    min-width: 0;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .user-email-display {
+    display: none !important;
+  }
+
+  .top-profile-avatar {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+  }
+
+  #loginBtn {
+    min-width: 44px;
+    width: 44px;
+    height: 40px;
+    min-height: 40px;
+    padding: 0;
+    font-size: 1rem;
+  }
+
+  #refreshBtn {
+    min-width: 40px;
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    padding: 0;
   }
 }

@@ -1277,55 +1277,69 @@
       }
 
       function updateProfileUI(user) {
-        const loginBtn = document.getElementById("loginBtn");
-        const emailDisplay = document.getElementById("userEmailDisplay");
-        const topProfileAvatar = document.getElementById("topProfileAvatar");
-        const topProfileAvatarImg = document.getElementById("topProfileAvatarImg");
+                  const loginBtn = document.getElementById("loginBtn");
+                  const emailDisplay = document.getElementById("userEmailDisplay");
+                  const topProfileAvatar = document.getElementById("topProfileAvatar");
+                  const topProfileAvatarImg = document.getElementById("topProfileAvatarImg");
 
-        if (!loginBtn || !emailDisplay) return;
+                  if (!loginBtn || !emailDisplay) return;
 
-        try {
-          const cachedProfile = JSON.parse(localStorage.getItem("dn_profile")) || null;
+                  const isMobile = window.matchMedia("(max-width: 768px)").matches;
 
-          if (user?.email) {
-            emailDisplay.textContent = cachedProfile?.name
-              ? `${cachedProfile.name} · ${user.email}`
-              : user.email;
+                  try {
+                    const cachedProfile = JSON.parse(localStorage.getItem("dn_profile")) || null;
 
-            loginBtn.innerHTML = "🧑 Profile";
+                    if (user?.email) {
+                      const displayName =
+                        cachedProfile?.name ||
+                        user.email.split("@")[0] ||
+                        "Profile";
 
-            if (topProfileAvatar && topProfileAvatarImg) {
-              const avatarUrl =
-                cachedProfile?.profile_photo_url ||
-                "/DN_Physics/assets/avatars/avatar-01.png";
-  
-              const freshAvatarUrl = avatarUrl.includes("?")
-                ? `${avatarUrl}&t=${Date.now()}`
-                : `${avatarUrl}?t=${Date.now()}`;
+                    // ✅ Desktop shows name + email
+                    // ✅ Mobile hides email text to save space
+                    if (isMobile) {
+                      emailDisplay.textContent = "";
+                    } else {
+                      emailDisplay.textContent = cachedProfile?.name
+                        ? `${cachedProfile.name} · ${user.email}`
+                        : user.email;
+                    }
 
-              topProfileAvatarImg.src = freshAvatarUrl;
-              topProfileAvatar.classList.remove("is-hidden");
-              topProfileAvatar.setAttribute("aria-hidden", "false");
-            }
-          } else {
-            emailDisplay.textContent = "";
-            loginBtn.innerHTML = "👤 Profile";
-      
-            if (topProfileAvatar) {
-              topProfileAvatar.classList.add("is-hidden");
-              topProfileAvatar.setAttribute("aria-hidden", "true");
-            }
-          }
-        } catch (error) {
-          if (user?.email) {
-            emailDisplay.textContent = user.email;
-            loginBtn.innerHTML = "🧑 Profile";
-          } else {
-            emailDisplay.textContent = "";
-            loginBtn.innerHTML = "👤 Profile";
-          }
-       }
-      }
+                    loginBtn.innerHTML = isMobile ? "👤" : "🧑 Profile";
+                    loginBtn.setAttribute("title", displayName);
+
+                    if (topProfileAvatar && topProfileAvatarImg) {
+                        const avatarUrl =
+                          cachedProfile?.profile_photo_url ||
+                          "/assets/avatars/avatar-01.png";
+
+                        const freshAvatarUrl = avatarUrl.includes("?")
+                          ? `${avatarUrl}&t=${Date.now()}`
+                          : `${avatarUrl}?t=${Date.now()}`;
+
+                        topProfileAvatarImg.src = freshAvatarUrl;
+                        topProfileAvatar.classList.remove("is-hidden");
+                        topProfileAvatar.setAttribute("aria-hidden", "false");
+                      }
+                    } else {
+                      emailDisplay.textContent = "";
+                      loginBtn.innerHTML = isMobile ? "👤" : "👤 Profile";
+
+                      if (topProfileAvatar) {
+                        topProfileAvatar.classList.add("is-hidden");
+                        topProfileAvatar.setAttribute("aria-hidden", "true");
+                      }
+                    }
+                  } catch (error) {
+                    if (user?.email) {
+                      emailDisplay.textContent = isMobile ? "" : user.email;
+                      loginBtn.innerHTML = isMobile ? "👤" : "🧑 Profile";
+                    } else {
+                      emailDisplay.textContent = "";
+                      loginBtn.innerHTML = isMobile ? "👤" : "👤 Profile";
+                    }
+                  }
+                }
 
       window.updateProfileUI = updateProfileUI;
 
