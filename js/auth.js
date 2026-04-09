@@ -422,7 +422,7 @@
       await client.auth.signOut();
     } catch (error) {
       console.error("Logout error:", error);
-  
+
       if (!navigator.onLine) {
         redirectOffline();
         return;
@@ -432,24 +432,64 @@
       return;
     }
 
-    // ✅ clear everything
     await clearAuthenticatedUser();
 
-    // ✅ close logout modal
-    const logoutModal = document.getElementById("logoutModal");
-    if (logoutModal) logoutModal.classList.add("hidden");
+    if (els.logoutModal) {
+      els.logoutModal.classList.add("hidden");
+    }
 
-    // ✅ open login screen immediately
+    closeAuthModal();
+    syncProfileUiEverywhere();
+
+    if (typeof window.showToast === "function") {
+      window.showToast("👋 Logged out");
+    }
+  }
+
+  async function switchAccount() {
+    const client = getClient();
+    if (!client) return;
+
+   if (!navigator.onLine) {
+      redirectOffline();
+      return;
+    }
+
+    try {
+      await client.auth.signOut();
+    } catch (error) {
+      console.error("Switch account error:", error);
+
+      if (!navigator.onLine) {
+        redirectOffline();
+        return;
+      }
+
+      showAuthError("Unable to switch account right now. Please try again.");
+      return;
+    }
+
+    await clearAuthenticatedUser();
+
+    if (els.logoutModal) {
+      els.logoutModal.classList.add("hidden");
+    }
+
     isLoginMode = true;
     renderAuthMode();
     openAuthModal();
 
-    // ✅ clear inputs (fresh start)
     if (els.authEmail) els.authEmail.value = "";
     if (els.authPassword) els.authPassword.value = "";
+    if (els.authConfirmPassword) els.authConfirmPassword.value = "";
 
-    // ✅ show premium message
-    showAuthError("👋 Logged out. You can switch account now.", true);
+    if (typeof window.showToast === "function") {
+      window.showToast("🔄 Log in with another account");
+    }
+
+    setTimeout(() => {
+      els.authEmail?.focus();
+    }, 150);
   }
 
   // =========================
@@ -495,6 +535,7 @@
       authModal: document.getElementById("authModal"),
       authSubmitBtn: document.getElementById("authSubmitBtn"),
       authSecondaryBtn: document.getElementById("authSecondaryBtn"),
+      switchAccountBtn: document.getElementById("switchAccountBtn"),
       authCloseBtn: document.getElementById("authCloseBtn"),
 
       authEmail: document.getElementById("authEmail"),
@@ -704,8 +745,14 @@
 
       if (els.authSecondaryBtn) {
         els.authSecondaryBtn.classList.add("is-hidden");
-        els.authSecondaryBtn.textContent = "Switch Account";
+        els.authSecondaryBtn.textContent = "Logout";
         els.authSecondaryBtn.disabled = false;
+      }
+
+      if (els.switchAccountBtn) {
+        els.switchAccountBtn.classList.add("is-hidden");
+        els.switchAccountBtn.textContent = "Switch Account";
+        els.switchAccountBtn.disabled = false;
       }
 
       if (els.forgotBtn) {
@@ -824,6 +871,11 @@
       if (els.authSecondaryBtn) {
         els.authSecondaryBtn.classList.remove("is-hidden");
         els.authSecondaryBtn.textContent = "Logout";
+      } 
+
+      if (els.switchAccountBtn) {
+        els.switchAccountBtn.classList.remove("is-hidden");
+        els.switchAccountBtn.textContent = "Switch Account";
       }
 
       if (els.authToggleText) {
@@ -1296,8 +1348,9 @@
     }
 
     if (els.authSecondaryBtn) {
-      els.authSecondaryBtn.onclick = async () => {
-        await logout();
+      els.authSecondaryBtn.onclick = () => {
+        closeAuthModal();
+        els.logoutModal?.classList.remove("hidden");
       };
     }
 
@@ -1307,6 +1360,12 @@
 
     if (els.forgotBtn) {
       els.forgotBtn.onclick = handleForgotPassword;
+    }
+
+    if (els.switchAccountBtn) {
+      els.switchAccountBtn.onclick = async () => {
+        await switchAccount();
+      };
     }
 
     document.addEventListener("keydown", (e) => {
