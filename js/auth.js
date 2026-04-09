@@ -956,83 +956,155 @@
         showAuthError("Passwords do not match.");
         return;
       }
-
+    
       if (password.length < 6) {
         showAuthError("Password must be at least 6 characters.");
         return;
       }
-
+    
       if (!navigator.onLine) {
         redirectOffline();
         return;
       }
+    
+      if (els.authSubmitBtn) {
+        els.authSubmitBtn.disabled = true;
+        els.authSubmitBtn.textContent = "Creating account...";
+      }
+    
+      try {
+        // Step 1: Check profiles (fast UI check)
+        const { data: existingProfile, error: existingProfileError } = await client
+          .from("profiles")
+          .select("id")
+          .eq("email", email)
+          .maybeSingle();
 
-      const { data, error } = await client.auth.signUp({
-        email,
-        password
-      });
+        if (!existingProfileError && existingProfile) {
+          showAuthError("Account already exists. Switching to login...");
 
-      if (error) {
-        const msg = String(error.message || "").toLowerCase();
+          setTimeout(() => {
+            isLoginMode = true;
+            renderAuthMode();
 
-        if (msg.includes("already") || msg.includes("registered") || msg.includes("exists")) {
-          showAuthError("An account with this email already exists. Please login.");
+            if (els.authEmail) {
+              els.authEmail.value = email;
+            }
+            if (els.authPassword) {
+              els.authPassword.value = password;
+            }
+
+            showAuthError("This email already has an account. Please log in.");
+          }, 700);
+
           return;
         }
-
-        if (msg.includes("password")) {
-          showAuthError("Password must be at least 6 characters.");
+ 
+    
+        const { data, error } = await client.auth.signUp({
+          email,
+          password
+        });
+    
+        if (error) {
+          const msg = String(error.message || "").toLowerCase();
+    
+          if (
+            msg.includes("already") ||
+            msg.includes("registered") ||
+            msg.includes("exists") ||
+            msg.includes("user already")
+          ) {
+            showAuthError("An account with this email already exists. Please login.");
+            return;
+          }
+    
+          if (msg.includes("password")) {
+            showAuthError("Password must be at least 6 characters.");
+            return;
+          }
+    
+          if (msg.includes("email")) {
+            showAuthError("Enter a valid email address.");
+            return;
+          }
+    
+          showAuthError(error.message || "Could not create account.");
           return;
         }
-
-        if (msg.includes("email")) {
-          showAuthError("Enter a valid email address.");
+    
+        const signedUpUser = data?.user || null;
+        const signedUpSession = data?.session || null;
+    
+        if (!signedUpUser) {
+          showAuthError("Account created, but user details were not returned. Please try logging in.");
           return;
         }
-
-        showAuthError(error.message || "Could not create account.");
-        return;
-      }
-
-      const signedUpUser = data?.user || null;
-      const signedUpSession = data?.session || null;
-
-      if (!signedUpUser) {
-        showAuthError("Account created, but user details were not returned. Please try logging in.");
-        return;
-      }
-
-      if (signedUpSession?.user) {
-        await applyAuthenticatedUser(signedUpSession.user, signedUpSession.access_token || "");
-        closeAuthModal();
-
-        if (typeof window.showToast === "function") {
-          window.showToast("✅ Account ready!");
+    
+        if (signedUpSession?.user) {
+          try {
+            await applyAuthenticatedUser(
+              signedUpSession.user,
+              signedUpSession.access_token || ""
+            );
+          } catch (innerError) {
+            console.warn("Post-signup setup failed (non-critical):", innerError);
+          }
+    
+          closeAuthModal();
+    
+          if (typeof window.showToast === "function") {
+            window.showToast("✅ Account created successfully");
+          }
+    
+          syncProfileUiEverywhere();
+          return;
         }
-
-        syncProfileUiEverywhere();
-        return;
-      }
-
-      const loginRetry = await client.auth.signInWithPassword({ email, password });
-
-      if (loginRetry?.data?.user) {
-        await applyAuthenticatedUser(
-          loginRetry.data.user,
-          loginRetry.data.session?.access_token || ""
+    
+        const loginRetry = await client.auth.signInWithPassword({ email, password });
+    
+        if (loginRetry?.data?.user) {
+          try {
+            await applyAuthenticatedUser(
+              loginRetry.data.user,
+              loginRetry.data.session?.access_token || ""
+            );
+          } catch (innerError) {
+            console.warn("Post-signup login setup failed (non-critical):", innerError);
+          }
+    
+          closeAuthModal();
+    
+          if (typeof window.showToast === "function") {
+            window.showToast("✅ Account ready");
+          }
+    
+          syncProfileUiEverywhere();
+          return;
+        }
+    
+        showAuthError(
+          "✅ Account created. Please check your email to confirm your account, then log in.",
+          true
         );
-        closeAuthModal();
-        window.location.reload();
-        return;
+    
+        isLoginMode = true;
+        renderAuthMode();
+      } catch (error) {
+        console.error("Signup failed:", error);
+    
+        if (isOfflineError(error)) {
+          redirectOffline();
+          return;
+        }
+    
+        showAuthError("Could not create account. Please try again.");
+      } finally {
+        if (els.authSubmitBtn) {
+          els.authSubmitBtn.disabled = false;
+          els.authSubmitBtn.textContent = "Create Account";
+        }
       }
-
-      showAuthError(
-        "✅ Account created. Please check your email to confirm your account, then log in.",
-        true
-      );
-
-      isLoginMode = true;
-      renderAuthMode();
     }
 
     async function handleForgotPassword() {
