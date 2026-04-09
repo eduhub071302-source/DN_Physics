@@ -29,28 +29,54 @@ function dnStorageRemove(key) {
   try { localStorage.removeItem(key); } catch {}
 }
 
+function getCurrentUserId() {
+  try {
+    const cachedUser = JSON.parse(localStorage.getItem("dn_user") || "null");
+    if (cachedUser?.id) return cachedUser.id;
+
+    const rawSupabase = localStorage.getItem("supabase.auth.token");
+    if (rawSupabase) {
+      const parsed = JSON.parse(rawSupabase);
+      const sessionUser = parsed?.currentSession?.user || parsed?.user || null;
+      if (sessionUser?.id) return sessionUser.id;
+    }
+  } catch (error) {
+    console.warn("Could not resolve current user id:", error);
+  }
+
+  return "guest";
+}
+
 // ----------------------------
 // Keys
 // ----------------------------
 
-function getOwnerModeKey() { return DN_CONFIG.STORAGE_KEYS.OWNER_MODE; }
-function getPaidUnlockKey() { 
-  return DN_CONFIG.STORAGE_KEYS.PAID_UNLOCK + "_" + getCurrentUserId(); 
+function getOwnerModeKey() {
+  return `${DN_CONFIG.STORAGE_KEYS.OWNER_MODE}_${getCurrentUserId()}`;
 }
-function getPaidUnlockKey() { 
-  return DN_CONFIG.STORAGE_KEYS.PAID_UNLOCK + "_" + getCurrentUserId(); 
+
+function getPaidUnlockKey() {
+  return `${DN_CONFIG.STORAGE_KEYS.PAID_UNLOCK}_${getCurrentUserId()}`;
 }
-function getPaidUnlockKey() { 
-  return DN_CONFIG.STORAGE_KEYS.PAID_UNLOCK + "_" + getCurrentUserId(); 
+
+function getUnlockSourceKey() {
+  return `${DN_CONFIG.STORAGE_KEYS.UNLOCK_SOURCE}_${getCurrentUserId()}`;
 }
-function getPaidUnlockKey() { 
-  return DN_CONFIG.STORAGE_KEYS.PAID_UNLOCK + "_" + getCurrentUserId(); 
+
+function getUnlockTimeKey() {
+  return `${DN_CONFIG.STORAGE_KEYS.UNLOCK_TIME}_${getCurrentUserId()}`;
 }
-function getPaidUnlockKey() { 
-  return DN_CONFIG.STORAGE_KEYS.PAID_UNLOCK + "_" + getCurrentUserId(); 
+
+function getUnlockOrderIdKey() {
+  return `${DN_CONFIG.STORAGE_KEYS.UNLOCK_ORDER_ID}_${getCurrentUserId()}`;
 }
-function getPaidUnlockKey() { 
-  return DN_CONFIG.STORAGE_KEYS.PAID_UNLOCK + "_" + getCurrentUserId(); 
+
+function getPendingOrderIdKey() {
+  return `${DN_CONFIG.STORAGE_KEYS.UNLOCK_PENDING_ORDER_ID}_${getCurrentUserId()}`;
+}
+
+function getUnlockExpiresAtKey() {
+  return `${DN_CONFIG.STORAGE_KEYS.UNLOCK_EXPIRES_AT}_${getCurrentUserId()}`;
 }
 
 // ----------------------------
