@@ -422,7 +422,7 @@
       await client.auth.signOut();
     } catch (error) {
       console.error("Logout error:", error);
-
+  
       if (!navigator.onLine) {
         redirectOffline();
         return;
@@ -432,8 +432,24 @@
       return;
     }
 
+    // ✅ clear everything
     await clearAuthenticatedUser();
-    window.location.reload();
+
+    // ✅ close logout modal
+    const logoutModal = document.getElementById("logoutModal");
+    if (logoutModal) logoutModal.classList.add("hidden");
+
+    // ✅ open login screen immediately
+    isLoginMode = true;
+    renderAuthMode();
+    openAuthModal();
+
+    // ✅ clear inputs (fresh start)
+    if (els.authEmail) els.authEmail.value = "";
+    if (els.authPassword) els.authPassword.value = "";
+
+    // ✅ show premium message
+    showAuthError("👋 Logged out. You can switch account now.", true);
   }
 
   // =========================
@@ -688,7 +704,7 @@
 
       if (els.authSecondaryBtn) {
         els.authSecondaryBtn.classList.add("is-hidden");
-        els.authSecondaryBtn.textContent = "Logout";
+        els.authSecondaryBtn.textContent = "Switch Account";
         els.authSecondaryBtn.disabled = false;
       }
 
@@ -1280,9 +1296,8 @@
     }
 
     if (els.authSecondaryBtn) {
-      els.authSecondaryBtn.onclick = () => {
-        closeAuthModal();
-        els.logoutModal?.classList.remove("hidden");
+      els.authSecondaryBtn.onclick = async () => {
+        await logout();
       };
     }
 
