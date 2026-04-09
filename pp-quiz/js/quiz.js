@@ -243,8 +243,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  const QUIZ_PROGRESS_KEY = "dnPhysicsQuizProgress";
-  const QUIZ_SESSION_KEY = "dnPhysicsQuizSessions";
+  function getCurrentUserId() {
+    try {
+      const cachedUser = JSON.parse(localStorage.getItem("dn_user") || "null");
+      if (cachedUser?.id) return cachedUser.id;
+
+      const rawSupabase = localStorage.getItem("supabase.auth.token");
+      if (rawSupabase) {
+        const parsed = JSON.parse(rawSupabase);
+        const sessionUser = parsed?.currentSession?.user || parsed?.user || null;
+        if (sessionUser?.id) return sessionUser.id;
+      }
+    } catch (error) {
+      console.warn("Could not resolve current user id:", error);
+    }
+
+    return "guest";
+  }
+
+  function getQuizProgressStorageKey() {
+    return `dnPhysicsQuizProgress_${getCurrentUserId()}`;
+  }
+
+  function getQuizSessionStorageKey() {
+    return `dnPhysicsQuizSessions_${getCurrentUserId()}`;
+  }
 
   let pendingServiceWorkerUpdate = false;
   let renderScheduled = false;
@@ -373,26 +396,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function getProgressStore() {
     try {
-      return JSON.parse(localStorage.getItem(QUIZ_PROGRESS_KEY)) || {};
+      return JSON.parse(localStorage.getItem(getQuizProgressStorageKey())) || {};
     } catch {
       return {};
     }
   }
 
   function saveProgressStore(store) {
-    localStorage.setItem(QUIZ_PROGRESS_KEY, JSON.stringify(store));
+    localStorage.setItem(getQuizProgressStorageKey(), JSON.stringify(store));
   }
 
   function getSessionStore() {
     try {
-      return JSON.parse(localStorage.getItem(QUIZ_SESSION_KEY)) || {};
+      return JSON.parse(localStorage.getItem(getQuizSessionStorageKey())) || {};
     } catch {
       return {};
     }
   }
 
   function saveSessionStore(store) {
-    localStorage.setItem(QUIZ_SESSION_KEY, JSON.stringify(store));
+    localStorage.setItem(getQuizSessionStorageKey(), JSON.stringify(store));
   }
 
   function getQuizProgressId(subjectSlug, topicSlug, subtopicSlug, currentSetName = "set-1") {
@@ -400,7 +423,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function getLegacyStorageKey() {
-    return `dn_physics_pp-quiz_${topic}_${routeSubtopic}_${setName}`;
+    return `dn_${getCurrentUserId()}_pp-quiz_${topic}_${routeSubtopic}_${setName}`;
   }
 
   function getDefaultAttemptData() {
