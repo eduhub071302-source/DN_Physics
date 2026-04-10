@@ -427,7 +427,19 @@
 
     const profile = await ensureProfile(user);
     await loadUserProfile(user.id);
+    // 🔄 FULL SYNC (bi-directional)
+
+    // 1. Pull cloud → local
     await syncProgressIfAvailable();
+
+    // 2. Push local → cloud (important for offline users)
+    if (typeof window.syncLocalProgressToCloud === "function") {
+      try {
+        await window.syncLocalProgressToCloud();
+      } catch (error) {
+        console.warn("syncLocalProgressToCloud failed:", error);
+      }
+    }
 
     try {
       const topProfileAvatarImg = document.getElementById("topProfileAvatarImg");
