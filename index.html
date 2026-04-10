@@ -1373,7 +1373,11 @@
       if (unlockProBtn) {
         unlockProBtn.addEventListener("click", () => {
           if (typeof window.lockAlert === "function") {
-            window.lockAlert();
+            if (typeof window.openUnlockModal === "function") {
+              window.openUnlockModal();
+            } else {
+              console.error("openUnlockModal missing");
+            }
           }
         });
       }
