@@ -1171,36 +1171,7 @@
         els.authSubmitBtn.disabled = true;
         els.authSubmitBtn.textContent = "Creating account...";
       }
-    
-      try {
-        // Step 1: Check profiles (fast UI check)
-        const { data: existingProfile, error: existingProfileError } = await client
-          .from("profiles")
-          .select("id")
-          .eq("email", email)
-          .maybeSingle();
-
-        if (!existingProfileError && existingProfile) {
-          showAuthError("Account already exists. Switching to login...");
-
-          setTimeout(() => {
-            isLoginMode = true;
-            renderAuthMode();
-
-            if (els.authEmail) {
-              els.authEmail.value = email;
-            }
-            if (els.authPassword) {
-              els.authPassword.value = password;
-            }
-
-            showAuthError("This email already has an account. Please log in.");
-          }, 700);
-
-          return;
-        }
  
-    
         const { data, error } = await client.auth.signUp({
           email,
           password
