@@ -406,6 +406,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     localStorage.setItem(getQuizProgressStorageKey(), JSON.stringify(store));
   }
 
+  // 🔄 Sync to cloud after quiz completion
+  if (typeof window.syncLocalProgressToCloud === "function") {
+    try {
+      await window.syncLocalProgressToCloud();
+    } catch (err) {
+      console.warn("Progress sync to cloud failed:", err);
+    }
+  }
+
   function getSessionStore() {
     try {
       return JSON.parse(localStorage.getItem(getQuizSessionStorageKey())) || {};
