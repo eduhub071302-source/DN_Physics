@@ -4,17 +4,13 @@
 // Storage Helpers
 // ----------------------------
 
-function getCurrentUserId() {
+async function await getCurrentUserId() {
   try {
-    const raw = localStorage.getItem("supabase.auth.token");
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      const user = parsed?.currentSession?.user;
-      if (user?.id) return user.id;
-    }
-  } catch {}
-
-  return "guest";
+    const { data } = await supabaseClient.auth.getUser();
+    return data?.user?.id || null;
+  } catch {
+    return null;
+  }
 }
 
 function dnStorageGet(key) {
@@ -29,56 +25,49 @@ function dnStorageRemove(key) {
   try { localStorage.removeItem(key); } catch {}
 }
 
-function getCurrentUserId() {
-  try {
-    const cachedUser = JSON.parse(localStorage.getItem("dn_user") || "null");
-    if (cachedUser?.id) return cachedUser.id;
-
-    const rawSupabase = localStorage.getItem("supabase.auth.token");
-    if (rawSupabase) {
-      const parsed = JSON.parse(rawSupabase);
-      const sessionUser = parsed?.currentSession?.user || parsed?.user || null;
-      if (sessionUser?.id) return sessionUser.id;
-    }
-  } catch (error) {
-    console.warn("Could not resolve current user id:", error);
-  }
-
-  return "guest";
-}
-
 // ----------------------------
 // Keys
 // ----------------------------
 
+function getUserKeySuffix() {
+  try {
+    const raw = localStorage.getItem("supabase.auth.token");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      const id = parsed?.currentSession?.user?.id;
+      if (id) return id;
+    }
+  } catch {}
+  return "guest";
+}
+
 function getOwnerModeKey() {
-  return `${DN_CONFIG.STORAGE_KEYS.OWNER_MODE}_${getCurrentUserId()}`;
+  return `${DN_CONFIG.STORAGE_KEYS.OWNER_MODE}_${getUserKeySuffix()}`;
 }
 
 function getPaidUnlockKey() {
-  return `${DN_CONFIG.STORAGE_KEYS.PAID_UNLOCK}_${getCurrentUserId()}`;
+  return `${DN_CONFIG.STORAGE_KEYS.PAID_UNLOCK}_${getUserKeySuffix()}`;
 }
 
 function getUnlockSourceKey() {
-  return `${DN_CONFIG.STORAGE_KEYS.UNLOCK_SOURCE}_${getCurrentUserId()}`;
+  return `${DN_CONFIG.STORAGE_KEYS.UNLOCK_SOURCE}_${getUserKeySuffix()}`;
 }
 
 function getUnlockTimeKey() {
-  return `${DN_CONFIG.STORAGE_KEYS.UNLOCK_TIME}_${getCurrentUserId()}`;
+  return `${DN_CONFIG.STORAGE_KEYS.UNLOCK_TIME}_${getUserKeySuffix()}`;
 }
 
 function getUnlockOrderIdKey() {
-  return `${DN_CONFIG.STORAGE_KEYS.UNLOCK_ORDER_ID}_${getCurrentUserId()}`;
+  return `${DN_CONFIG.STORAGE_KEYS.UNLOCK_ORDER_ID}_${getUserKeySuffix()}`;
 }
 
 function getPendingOrderIdKey() {
-  return `${DN_CONFIG.STORAGE_KEYS.UNLOCK_PENDING_ORDER_ID}_${getCurrentUserId()}`;
+  return `${DN_CONFIG.STORAGE_KEYS.UNLOCK_PENDING_ORDER_ID}_${getUserKeySuffix()}`;
 }
 
 function getUnlockExpiresAtKey() {
-  return `${DN_CONFIG.STORAGE_KEYS.UNLOCK_EXPIRES_AT}_${getCurrentUserId()}`;
+  return `${DN_CONFIG.STORAGE_KEYS.UNLOCK_EXPIRES_AT}_${getUserKeySuffix()}`;
 }
-
 // ----------------------------
 // Core Access Logic
 // ----------------------------
