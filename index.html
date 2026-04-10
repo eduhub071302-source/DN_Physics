@@ -420,6 +420,12 @@
 
   <!-- LIBS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabaseUrl = "https://aqhktwashmnqkgvmauxv.supabase.co";
+    const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFxaGt0d2FzaG1ucWtndm1hdXh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzODczNTUsImV4cCI6MjA5MDk2MzM1NX0.ru9UUC917SwYXGh-uKuWWmifQqFbbEuG_edI4GHh5iE";
+
+    window.supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
+  </script>
   <script src="/js/supabase-client.js"></script>
   <script src="/js/app-config.js"></script>
   <script src="/js/sync-progress.js"></script>
