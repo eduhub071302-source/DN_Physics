@@ -414,10 +414,29 @@ function showDnMessage(msg = "Done") {
 function ensureUnlockModal() {}
 
 function openUnlockModal() {
-  showDnMessage("🔒 Locked — Please unlock");
+  const modal =
+    document.getElementById("unlockModal") ||
+    document.getElementById("authModal");
+
+  if (!modal) {
+    showDnMessage("🔒 Locked — Modal missing in HTML");
+    return;
+  }
+
+  modal.classList.remove("hidden");
+  modal.style.display = "flex";
 }
 
-function closeUnlockModal() {}
+function closeUnlockModal() {
+  const modal =
+    document.getElementById("unlockModal") ||
+    document.getElementById("authModal");
+
+  if (!modal) return;
+
+  modal.classList.add("hidden");
+  modal.style.display = "none";
+}
 
 function lockAlert() {
   openUnlockModal();
