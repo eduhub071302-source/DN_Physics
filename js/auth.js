@@ -272,6 +272,14 @@
     }
   }
 
+  async function isUserLoggedIn() {
+    const client = getClient();
+    if (!client) return false;
+
+    const { data } = await client.auth.getSession();
+    return !!data?.session?.user;
+  }
+
   // =========================
   // PROFILE DATA
   // =========================
