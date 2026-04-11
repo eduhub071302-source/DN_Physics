@@ -4,7 +4,7 @@
 // Storage Helpers
 // ----------------------------
 
-async function await getCurrentUserId() {
+async function getCurrentUserId() {
   try {
     const { data } = await supabaseClient.auth.getUser();
     return data?.user?.id || null;
@@ -14,15 +14,23 @@ async function await getCurrentUserId() {
 }
 
 function dnStorageGet(key) {
-  try { return localStorage.getItem(key); } catch { return null; }
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
 }
 
 function dnStorageSet(key, value) {
-  try { localStorage.setItem(key, value); } catch {}
+  try {
+    localStorage.setItem(key, value);
+  } catch {}
 }
 
 function dnStorageRemove(key) {
-  try { localStorage.removeItem(key); } catch {}
+  try {
+    localStorage.removeItem(key);
+  } catch {}
 }
 
 // ----------------------------
@@ -212,9 +220,9 @@ async function fetchUserStateFromServer() {
       {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
+          Authorization: `Bearer ${token}`,
+        },
+      },
     );
 
     if (!res.ok) return null;
@@ -222,7 +230,6 @@ async function fetchUserStateFromServer() {
     const data = await res.json();
 
     return data;
-
   } catch (e) {
     console.log("User state fetch failed:", e);
     return null;
@@ -246,18 +253,20 @@ async function syncUnlockWithServer() {
       "";
 
     const expiresAtMs = expiresAtRaw ? new Date(expiresAtRaw).getTime() : 0;
-    const isActive = Boolean(data.paid) && Number.isFinite(expiresAtMs) && expiresAtMs > Date.now();
+    const isActive =
+      Boolean(data.paid) &&
+      Number.isFinite(expiresAtMs) &&
+      expiresAtMs > Date.now();
 
     if (isActive) {
       activatePaidAccess({
         source: "server",
         orderId: data.entitlement?.order_id || "",
-        expiresAt: expiresAtMs
+        expiresAt: expiresAtMs,
       });
     } else {
       clearPaidAccess();
     }
-
   } catch (e) {
     console.log("Unlock sync failed:", e);
   }
@@ -274,7 +283,9 @@ async function startFullUnlockCheckout() {
   }
 
   try {
-    const user = JSON.parse(localStorage.getItem(DN_CONFIG.STORAGE_KEYS.USER_PROFILE) || "{}");
+    const user = JSON.parse(
+      localStorage.getItem(DN_CONFIG.STORAGE_KEYS.USER_PROFILE) || "{}",
+    );
 
     const res = await fetch(
       DN_CONFIG.BACKEND.API_BASE_URL + DN_CONFIG.BACKEND.CREATE_ORDER_URL,
@@ -288,9 +299,9 @@ async function startFullUnlockCheckout() {
           phone: user.phone || "0770000000",
           address: "Sri Lanka",
           city: "Colombo",
-          country: "Sri Lanka"
-        })
-      }
+          country: "Sri Lanka",
+        }),
+      },
     );
 
     const data = await res.json();
@@ -317,7 +328,6 @@ async function startFullUnlockCheckout() {
 
     document.body.appendChild(form);
     form.submit();
-
   } catch (e) {
     showDnMessage("Payment error");
   }
@@ -333,7 +343,9 @@ async function checkServerUnlockStatus(orderId = "") {
   if (!finalOrderId) return { ok: false, paid: false };
 
   try {
-    const token = localStorage.getItem(DN_CONFIG.STORAGE_KEYS.USER_SESSION_TOKEN);
+    const token = localStorage.getItem(
+      DN_CONFIG.STORAGE_KEYS.USER_SESSION_TOKEN,
+    );
 
     const res = await fetch(
       DN_CONFIG.BACKEND.API_BASE_URL +
@@ -341,8 +353,8 @@ async function checkServerUnlockStatus(orderId = "") {
         `?order_id=${encodeURIComponent(finalOrderId)}`,
       {
         method: "GET",
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      }
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      },
     );
 
     if (!res.ok) return { ok: false, paid: false };
@@ -352,9 +364,8 @@ async function checkServerUnlockStatus(orderId = "") {
     return {
       ok: true,
       paid: Boolean(data.paid),
-      orderId: data.order_id || finalOrderId
+      orderId: data.order_id || finalOrderId,
     };
-
   } catch {
     return { ok: false, paid: false };
   }
@@ -364,7 +375,7 @@ function applyServerUnlock(orderId = "", expiresAt = 0) {
   activatePaidAccess({
     source: "server-verified",
     orderId,
-    expiresAt
+    expiresAt,
   });
   clearPendingOrderId();
 }
@@ -443,7 +454,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const days = getRemainingDays();
 
   if (hasPaidAccess() && days > 0 && days <= 3) {
-    showDnMessage(`⏳ Subscription expires in ${days} day${days === 1 ? "" : "s"}`);
+    showDnMessage(
+      `⏳ Subscription expires in ${days} day${days === 1 ? "" : "s"}`,
+    );
   }
 
   // background sync every 60s

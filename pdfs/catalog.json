@@ -1,12 +1,6 @@
 [
   {
     "title": "Basics",
-    "subject": "units",
-    "file": "basics-formulas.pdf",
-    "subjectPage": "/subjects/units/index.html"
-  },
-  {
-    "title": "Basics",
     "subject": "current-electricity",
     "file": "basics-formulas.pdf",
     "subjectPage": "/subjects/current-electricity/index.html"
@@ -16,36 +10,6 @@
     "subject": "current-electricity",
     "file": "resistor-systems-formulas.pdf",
     "subjectPage": "/subjects/current-electricity/index.html"
-  },
-  {
-    "title": "Basics 2",
-    "subject": "units",
-    "file": "basics-2-formulas.pdf",
-    "subjectPage": "/subjects/units/index.html"
-  },
-  {
-    "title": "Universal Gravitational Constant",
-    "subject": "gravitational-field",
-    "file": "universal-gravitational-constant.pdf",
-    "subjectPage": "/subjects/gravitational-field/index.html"
-  },
-  {
-    "title": "Gravitational Field Intensity",
-    "subject": "gravitational-field",
-    "file": "gravitational-field-intensity.pdf",
-    "subjectPage": "/subjects/gravitational-field/index.html"
-  },
-  {
-    "title": "Gravitational Potential",
-    "subject": "gravitational-field",
-    "file": "gravitational-potential.pdf",
-    "subjectPage": "/subjects/gravitational-field/index.html"
-  },
-  {
-    "title": "Gravitational Potential Energy",
-    "subject": "gravitational-field",
-    "file": "gravitational-potential-energy.pdf",
-    "subjectPage": "/subjects/gravitational-field/index.html"
   },
   {
     "title": "Circular Motion",
@@ -58,5 +22,41 @@
     "subject": "gravitational-field",
     "file": "geostationary-satellite.pdf",
     "subjectPage": "/subjects/gravitational-field/index.html"
+  },
+  {
+    "title": "Gravitational Field Intensity",
+    "subject": "gravitational-field",
+    "file": "gravitational-field-intensity.pdf",
+    "subjectPage": "/subjects/gravitational-field/index.html"
+  },
+  {
+    "title": "Gravitational Potential Energy",
+    "subject": "gravitational-field",
+    "file": "gravitational-potential-energy.pdf",
+    "subjectPage": "/subjects/gravitational-field/index.html"
+  },
+  {
+    "title": "Gravitational Potential",
+    "subject": "gravitational-field",
+    "file": "gravitational-potential.pdf",
+    "subjectPage": "/subjects/gravitational-field/index.html"
+  },
+  {
+    "title": "Universal Gravitational Constant",
+    "subject": "gravitational-field",
+    "file": "universal-gravitational-constant.pdf",
+    "subjectPage": "/subjects/gravitational-field/index.html"
+  },
+  {
+    "title": "Basics 2",
+    "subject": "units",
+    "file": "basics-2-formulas.pdf",
+    "subjectPage": "/subjects/units/index.html"
+  },
+  {
+    "title": "Basics",
+    "subject": "units",
+    "file": "basics-formulas.pdf",
+    "subjectPage": "/subjects/units/index.html"
   }
 ]

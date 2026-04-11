@@ -1,4 +1,4 @@
-const CACHE_NAME = "dn-physics-v256"; // 🔥 increase version
+const CACHE_NAME = "dn-physics-v258"; // 🔥 increase version
 const META_CACHE = "dn-physics-meta";
 
 const CORE_FILES = [
@@ -12,12 +12,12 @@ const CORE_FILES = [
   "/topics/viewer.html",
   "/topics/topic.html",
   "/js/music-player.js",
-  "/pdfs/catalog.json"
+  "/pdfs/catalog.json",
 ];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_FILES))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_FILES)),
   );
   self.skipWaiting();
 });
@@ -32,7 +32,7 @@ self.addEventListener("activate", (event) => {
           if (key !== CACHE_NAME && key !== META_CACHE) {
             return caches.delete(key);
           }
-        })
+        }),
       );
 
       const metaCache = await caches.open(META_CACHE);
@@ -45,11 +45,11 @@ self.addEventListener("activate", (event) => {
 
       const clients = await self.clients.matchAll({
         type: "window",
-        includeUncontrolled: true
+        includeUncontrolled: true,
       });
 
       // 🔥 FORCE RELOAD (clean upgrade)
-      clients.forEach(client => {
+      clients.forEach((client) => {
         client.postMessage({ type: "FORCE_RELOAD" });
       });
 
@@ -57,11 +57,11 @@ self.addEventListener("activate", (event) => {
         for (const client of clients) {
           client.postMessage({
             type: "SW_UPDATED",
-            version: CACHE_NAME
+            version: CACHE_NAME,
           });
         }
       }
-    })()
+    })(),
   );
 });
 
@@ -75,7 +75,7 @@ self.addEventListener("message", (event) => {
   if (event.data.type === "GET_VERSION" && event.source) {
     event.source.postMessage({
       type: "SW_VERSION",
-      version: CACHE_NAME
+      version: CACHE_NAME,
     });
   }
 });
@@ -113,7 +113,7 @@ self.addEventListener("fetch", (event) => {
             (await caches.match("/offline.html"))
           );
         }
-      })()
+      })(),
     );
     return;
   }
@@ -135,7 +135,7 @@ self.addEventListener("fetch", (event) => {
         } catch {
           return await cache.match(request);
         }
-      })()
+      })(),
     );
     return;
   }
@@ -155,7 +155,7 @@ self.addEventListener("fetch", (event) => {
         } catch {
           return await cache.match(request);
         }
-      })()
+      })(),
     );
     return;
   }
@@ -177,7 +177,7 @@ self.addEventListener("fetch", (event) => {
         } catch {
           return await cache.match(request);
         }
-      })()
+      })(),
     );
     return;
   }
@@ -202,12 +202,10 @@ self.addEventListener("fetch", (event) => {
         } catch {
           return new Response("Offline", { status: 503 });
         }
-      })()
+      })(),
     );
     return;
   }
 
-  event.respondWith(
-    caches.match(request).then((res) => res || fetch(request))
-  );
+  event.respondWith(caches.match(request).then((res) => res || fetch(request)));
 });
