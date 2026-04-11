@@ -3,13 +3,13 @@
 const DN_CONFIG = {
   APP: {
     NAME: "DN Physics",
-    VERSION: "1.0.0"
+    VERSION: "1.0.0",
   },
 
   ACCESS: {
-    FREE_PDF_SUBJECTS: ["gravitational-field"],
+    FREE_PDF_SUBJECTS: ["gravitational-field", "current-electricity", "units"],
     FREE_QUIZ_TOPICS: ["units"],
-    OWNER_CODE: "DN-OWNER-2026"
+    OWNER_CODE: "DN-OWNER-2026",
   },
 
   PRODUCT: {
@@ -18,14 +18,14 @@ const DN_CONFIG = {
     PRICE: "70.00",
     CURRENCY: "LKR",
     BILLING_PERIOD: "monthly",
-    DURATION_DAYS: 30
+    DURATION_DAYS: 30,
   },
 
   FRONTEND: {
     SITE_URL: "",
     APP_BASE_PATH: "",
     SUCCESS_PATH: "/payment-success.html",
-    CANCEL_PATH: "/payment-cancel.html"
+    CANCEL_PATH: "/payment-cancel.html",
   },
 
   PAYHERE: {
@@ -33,7 +33,7 @@ const DN_CONFIG = {
     MERCHANT_SECRET: "",
     SANDBOX: false,
     LIVE_CHECKOUT_URL: "https://www.payhere.lk/pay/checkout",
-    SANDBOX_CHECKOUT_URL: "https://sandbox.payhere.lk/pay/checkout"
+    SANDBOX_CHECKOUT_URL: "https://sandbox.payhere.lk/pay/checkout",
   },
 
   BACKEND: {
@@ -51,7 +51,7 @@ const DN_CONFIG = {
     AUTH_FORGOT_PASSWORD_URL: "/api/auth/forgot-password",
     AUTH_RESET_PASSWORD_URL: "/api/auth/reset-password",
     PROFILE_ME_URL: "/api/profile/me",
-    PROFILE_UPDATE_URL: "/api/profile/me"
+    PROFILE_UPDATE_URL: "/api/profile/me",
   },
 
   STORAGE_KEYS: {
@@ -63,8 +63,8 @@ const DN_CONFIG = {
     UNLOCK_PENDING_ORDER_ID: "dn_unlock_pending_order_id",
     UNLOCK_EXPIRES_AT: "dn_unlock_expires_at",
     USER_SESSION_TOKEN: "dn_user_session_token",
-    USER_PROFILE: "dn_user_profile"
-  }
+    USER_PROFILE: "dn_user_profile",
+  },
 };
 
 // ---------- Helpers derived from config ----------
