@@ -1,4 +1,4 @@
-const CACHE_NAME = "dn-physics-v255"; // 🔥 increase version
+const CACHE_NAME = "dn-physics-v256"; // 🔥 increase version
 const META_CACHE = "dn-physics-meta";
 
 const CORE_FILES = [
