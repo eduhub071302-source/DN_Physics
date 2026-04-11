@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mechanical Properties | DinuuNOVA Physics</title>
+  <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+
+  <header>
+    <div class="container nav">
+      <div class="brand">DinuuNOVA <span>Physics</span></div>
+
+      <div class="topbar-right">
+        <nav class="nav-links">
+          <a href="../../index.html">Home</a>
+          <a href="index.html" class="active">Mechanical Properties</a>
+        </nav>
+
+        <button id="refreshBtn" class="btn refresh-top-btn" type="button" title="Refresh app">
+          🔄
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="page-title">
+    <div class="container">
+      <a class="back-link" href="../../index.html">← Back to Home</a>
+      <h1 id="subjectTitle">Mechanical Properties</h1>
+      <p id="subjectDesc">Choose a subtopic to view formula notes.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="grid" id="subjectGrid">
+        <div class="empty-state">Loading subtopics...</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      © 2026 DinuuNOVA Physics
+    </div>
+  </footer>
+
+  <!-- MUSIC PLAYER -->
+  <div class="music-player-wrap">
+    <button id="musicToggleBtn" class="btn" type="button">🎧 Focus</button>
+
+    <div id="musicPanel" class="music-panel">
+      <div class="music-panel-title">Focus Mode 🎧</div>
+
+      <label for="trackSelect" class="music-label">Select Track</label>
+      <select id="trackSelect" class="music-select"></select>
+
+      <div class="music-controls">
+        <button id="playPauseBtn" class="btn btn-primary" type="button">▶ Play</button>
+        <button id="stopMusicBtn" class="btn" type="button">■ Stop</button>
+      </div>
+
+      <label for="volumeSlider" class="music-label">Volume 🔊</label>
+      <input id="volumeSlider" class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.35" />
+
+      <div id="currentTrackLabel" class="music-track-label">Current: None</div>
+    </div>
+  </div>
+
+  <audio id="bgMusic" loop></audio>
+
+  <script src="/js/app-config.js"></script>
+  <script src="/js/unlock.js"></script>
+
+  <script>
+    const grid = document.getElementById("subjectGrid");
+    const refreshBtn = document.getElementById("refreshBtn");
+
+    function prettifyTopicName(fileName) {
+      return (fileName || "")
+        .replace(/\.pdf$/i, "")
+        .replace(/-formulas$/i, "")
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, c => c.toUpperCase())
+        .trim() || "Untitled";
+    }
+
+    function buildTopicPage(subject, file) {
+      const base = file.replace(/-formulas\.pdf$/i, "").replace(/\.pdf$/i, "");
+      return `../../topics/${subject}/${base}.html`;
+    }
+
+    async function loadSubjectCards() {
+      try {
+        const pathParts = window.location.pathname.split("/").filter(Boolean);
+        const subjectsIndex = pathParts.indexOf("subjects");
+        const currentSubject = subjectsIndex !== -1 ? pathParts[subjectsIndex + 1] : "";
+
+        const res = await fetch("/pdfs/catalog.json");
+        if (!res.ok) throw new Error("Could not load catalog.json");
+
+        const items = await res.json();
+        const subjectItems = items.filter(item => item.subject === currentSubject);
+
+        if (!subjectItems.length) {
+          grid.innerHTML = `<div class="empty-state">No subtopics found for this subject yet.</div>`;
+          return;
+        }
+
+        grid.innerHTML = subjectItems.map((item, index) => {
+          const topicTitle = item.title || prettifyTopicName(item.file);
+          const topicPage = `../../topics/topic.html?subject=${encodeURIComponent(item.subject)}&file=${encodeURIComponent(item.file)}&title=${encodeURIComponent(topicTitle)}`;
+          const viewerPage = `../../topics/viewer.html?pdf=${encodeURIComponent(`/pdfs/${item.subject}/${item.file}`)}&title=${encodeURIComponent(topicTitle)}&back=${encodeURIComponent(window.location.pathname)}&subjectName=${encodeURIComponent(document.getElementById('subjectTitle').textContent)}`;
+          const isAllowed = canAccessPdf(item.subject);
+
+          return `
+            <div class="card">
+              <div class="badge">Subtopic ${String(index + 1).padStart(2, "0")}</div>
+              <h3>${topicTitle}</h3>
+              <p>Core formulas and revision notes for ${topicTitle.toLowerCase()}.</p>
+              <div class="actions">
+                <a class="btn ${isAllowed ? "" : "locked-btn"}"
+                  href="${isAllowed ? topicPage : "#"}"
+                  ${isAllowed ? "" : `onclick="event.preventDefault(); lockAlert();"`}>
+                 ${isAllowed ? `Open ${topicTitle}` : "🔒 Locked"}
+                </a>
+
+                <a class="btn btn-primary ${isAllowed ? "" : "locked-btn"}"
+                   href="${isAllowed ? viewerPage : "#"}"
+                   ${isAllowed ? "" : `onclick="event.preventDefault(); lockAlert();"`}>
+                  ${isAllowed ? "View PDF" : "🔒 Locked"}
+                </a>
+              </div>
+            </div>
+          `;
+        }).join("");
+      } catch (error) {
+        grid.innerHTML = `<div class="empty-state">Could not load subtopics.</div>`;
+      }
+    }
+
+    if (refreshBtn) {
+      refreshBtn.addEventListener("click", async () => {
+        try {
+          if ("caches" in window) {
+            const cacheNames = await caches.keys();
+            await Promise.all(cacheNames.map((name) => caches.delete(name)));
+          }
+
+          if ("serviceWorker" in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (const registration of registrations) {
+              await registration.update();
+            }
+          }
+        } catch (error) {
+          console.log("Refresh warning:", error);
+        }
+
+        window.location.reload();
+      });
+    }
+
+    loadSubjectCards();
+  </script>
+
+  <script src="/js/music-player.js"></script>
+</body>
+</html>
