@@ -86,7 +86,7 @@
         if (statusMeta) statusMeta.textContent = meta;
       }
 
-      async function safeDelay(ms) {
+      function safeDelay(ms) {
         return new Promise((resolve) => setTimeout(resolve, ms));
       }
 
@@ -217,11 +217,6 @@
           setRetryEnabled(true);
         }
       };
-    })();
-  </script>
-</body>
-</html>
-      verifyPaymentWithRetry();
     })();
   </script>
 </body>
