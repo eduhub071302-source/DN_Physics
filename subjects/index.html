@@ -170,18 +170,6 @@
         .replace(/'/g, "&#39;");
     }
 
-    function canAccessPdfSafe(subject) {
-      if (typeof window.canAccessPdfFast === "function") {
-        return window.canAccessPdfFast(subject);
-      }
-
-      if (typeof window.canAccessPdf === "function") {
-        return window.canAccessPdf(subject);
-      }
-
-      return false;
-    }
-
     async function loadSubjectCards() {
       try {
         const currentSubject = getCurrentSubject();
@@ -223,25 +211,17 @@
             `&back=${encodeURIComponent(`/subjects/index.html?subject=${item.subject}`)}` +
             `&subjectName=${encodeURIComponent(prettySubject)}`;
 
-          const isAllowed = canAccessPdfSafe(item.subject);
-
           return `
             <div class="card">
               <div class="badge">Subtopic ${String(index + 1).padStart(2, "0")}</div>
               <h3>${escapeHtml(topicTitle)}</h3>
               <div class="actions">
-                <a
-                  class="btn ${isAllowed ? "" : "locked-btn"}"
-                  href="${isAllowed ? topicPage : "#"}"
-                  ${isAllowed ? "" : `onclick="event.preventDefault(); if (window.lockAlert) window.lockAlert();"`}>
-                  ${isAllowed ? `Open ${escapeHtml(topicTitle)}` : "🔒 Locked"}
+                <a class="btn" href="${topicPage}">
+                  Open ${escapeHtml(topicTitle)}
                 </a>
 
-                <a
-                  class="btn btn-primary ${isAllowed ? "" : "locked-btn"}"
-                  href="${isAllowed ? viewerPage : "#"}"
-                  ${isAllowed ? "" : `onclick="event.preventDefault(); if (window.lockAlert) window.lockAlert();"`}>
-                  ${isAllowed ? "View PDF" : "🔒 Locked"}
+                <a class="btn btn-primary" href="${viewerPage}">
+                  View PDF
                 </a>
               </div>
             </div>
