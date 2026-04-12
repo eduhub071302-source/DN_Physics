@@ -1,17 +1,11 @@
-// 🔐 Unlock System (Final Production Version)
+// 🔐 Unlock System (Firebase-only Final Version)
+
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getDatabase, ref, onValue } from "firebase/database";
 
 // ----------------------------
 // Storage Helpers
 // ----------------------------
-
-const raw = localStorage.getItem("supabase.auth.token");
-
-import { getAuth } from "firebase/auth";
-
-function getUserKeySuffix() {
-  const user = getAuth().currentUser;
-  return user?.uid || "guest";
-}
 
 function dnStorageGet(key) {
   try {
@@ -34,19 +28,16 @@ function dnStorageRemove(key) {
 }
 
 // ----------------------------
-// Keys
+// User / Key Helpers
 // ----------------------------
 
 function getUserKeySuffix() {
   try {
-    const raw = localStorage.getItem("supabase.auth.token");
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      const id = parsed?.currentSession?.user?.id;
-      if (id) return id;
-    }
-  } catch {}
-  return "guest";
+    const auth = getAuth();
+    return auth.currentUser?.uid || "guest";
+  } catch {
+    return "guest";
+  }
 }
 
 function getOwnerModeKey() {
@@ -76,6 +67,7 @@ function getPendingOrderIdKey() {
 function getUnlockExpiresAtKey() {
   return `${DN_CONFIG.STORAGE_KEYS.UNLOCK_EXPIRES_AT}_${getUserKeySuffix()}`;
 }
+
 // ----------------------------
 // Core Access Logic
 // ----------------------------
@@ -204,14 +196,22 @@ function clearPendingOrderId() {
   dnStorageRemove(getPendingOrderIdKey());
 }
 
-import { getDatabase, ref, onValue } from "firebase/database";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+// ----------------------------
+// Firebase Sync
+// ----------------------------
+
+let unlockValueUnsubscribe = null;
 
 function startFirebaseSync() {
   const auth = getAuth();
   const db = getDatabase();
 
   onAuthStateChanged(auth, (user) => {
+    if (unlockValueUnsubscribe) {
+      unlockValueUnsubscribe();
+      unlockValueUnsubscribe = null;
+    }
+
     if (!user) {
       clearPaidAccess();
       return;
@@ -219,18 +219,17 @@ function startFirebaseSync() {
 
     const userRef = ref(db, "users/" + user.uid);
 
-    onValue(userRef, (snapshot) => {
+    unlockValueUnsubscribe = onValue(userRef, (snapshot) => {
       const data = snapshot.val();
-
       if (!data) return;
 
-      const expiresAt = data.expiresAt || 0;
+      const expiresAt = Number(data.expiresAt) || 0;
 
       if (expiresAt > Date.now()) {
         activatePaidAccess({
           source: "firebase",
           orderId: data.orderId || "",
-          expiresAt: expiresAt,
+          expiresAt,
         });
       } else {
         clearPaidAccess();
@@ -238,18 +237,6 @@ function startFirebaseSync() {
     });
   });
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-  startFirebaseSync();
-
-  const days = getRemainingDays();
-
-  if (hasPaidAccess() && days > 0 && days <= 3) {
-    showDnMessage(
-      `⏳ Subscription expires in ${days} day${days === 1 ? "" : "s"}`
-    );
-  }
-});
 
 // ----------------------------
 // Payment Start
@@ -308,6 +295,7 @@ async function startFullUnlockCheckout() {
     document.body.appendChild(form);
     form.submit();
   } catch (e) {
+    console.error("startFullUnlockCheckout error:", e);
     showDnMessage("Payment error");
   }
 }
@@ -344,6 +332,7 @@ async function checkServerUnlockStatus(orderId = "") {
       ok: true,
       paid: Boolean(data.paid),
       orderId: data.order_id || finalOrderId,
+      expiresAt: Number(data.expiresAt) || 0,
     };
   } catch {
     return { ok: false, paid: false };
@@ -357,6 +346,19 @@ function applyServerUnlock(orderId = "", expiresAt = 0) {
     expiresAt,
   });
   clearPendingOrderId();
+}
+
+async function syncUnlockWithServer() {
+  const status = await checkServerUnlockStatus();
+
+  if (!status.ok) return false;
+
+  if (status.paid) {
+    applyServerUnlock(status.orderId || "", status.expiresAt || 0);
+    return true;
+  }
+
+  return false;
 }
 
 // ----------------------------
@@ -387,7 +389,7 @@ function showDnMessage(msg = "Done") {
 }
 
 // ----------------------------
-// Modal (simplified safe)
+// Modal
 // ----------------------------
 
 function ensureUnlockModal() {}
@@ -426,6 +428,8 @@ function lockAlert() {
 // ----------------------------
 
 document.addEventListener("DOMContentLoaded", async () => {
+  startFirebaseSync();
+
   try {
     await syncUnlockWithServer();
   } catch {}
@@ -438,7 +442,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
   }
 
-  // background sync every 60s
   setInterval(() => {
     try {
       syncUnlockWithServer();
