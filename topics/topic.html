@@ -308,7 +308,7 @@
     const isPdfAllowed =
       typeof window.canAccessPdf === "function"
         ? window.canAccessPdf(subject)
-        : true;
+        : false;
 
     const pdfPath = hasValidParams
       ? `/pdfs/${subject}/${file}`
