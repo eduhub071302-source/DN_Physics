@@ -1,4 +1,4 @@
-// 🔐 DN Physics App Configuration (Future Ready)
+// 🔐 DN Physics App Configuration (Finalized)
 
 const DN_CONFIG = {
   APP: {
@@ -37,6 +37,7 @@ const DN_CONFIG = {
   },
 
   BACKEND: {
+    // This is your backend host. It can stay here even if frontend auth no longer uses Supabase.
     API_BASE_URL: "https://aqhktwashmnqkgvmauxv.supabase.co/functions/v1",
 
     CREATE_ORDER_URL: "/api/payments/create-order",
@@ -67,28 +68,64 @@ const DN_CONFIG = {
   },
 };
 
-// ---------- Helpers derived from config ----------
+// ---------- URL Helpers ----------
+
+function dnTrimTrailingSlashes(value = "") {
+  return String(value || "").replace(/\/+$/, "");
+}
+
+function dnTrimLeadingSlashes(value = "") {
+  return String(value || "").replace(/^\/+/, "");
+}
+
+function dnJoinUrl(base = "", path = "") {
+  const cleanBase = dnTrimTrailingSlashes(base);
+  const cleanPath = dnTrimLeadingSlashes(path);
+
+  if (!cleanBase && !cleanPath) return "";
+  if (!cleanBase) return `/${cleanPath}`;
+  if (!cleanPath) return cleanBase;
+
+  return `${cleanBase}/${cleanPath}`;
+}
 
 function dnGetSiteUrl() {
   const fromConfig = (DN_CONFIG.FRONTEND.SITE_URL || "").trim();
-  if (fromConfig) return fromConfig.replace(/\/+$/, "");
-  return window.location.origin;
+  if (fromConfig) return dnTrimTrailingSlashes(fromConfig);
+  return dnTrimTrailingSlashes(window.location.origin);
 }
 
 function dnGetAppBaseUrl() {
-  return `${dnGetSiteUrl()}${DN_CONFIG.FRONTEND.APP_BASE_PATH}`;
+  return dnJoinUrl(
+    dnGetSiteUrl(),
+    DN_CONFIG.FRONTEND.APP_BASE_PATH || "",
+  );
 }
 
 function dnGetSuccessUrl() {
-  return `${dnGetAppBaseUrl()}${DN_CONFIG.FRONTEND.SUCCESS_PATH}`;
+  return dnJoinUrl(
+    dnGetAppBaseUrl(),
+    DN_CONFIG.FRONTEND.SUCCESS_PATH || "",
+  );
 }
 
 function dnGetCancelUrl() {
-  return `${dnGetAppBaseUrl()}${DN_CONFIG.FRONTEND.CANCEL_PATH}`;
+  return dnJoinUrl(
+    dnGetAppBaseUrl(),
+    DN_CONFIG.FRONTEND.CANCEL_PATH || "",
+  );
 }
 
 function dnGetCheckoutUrl() {
   return DN_CONFIG.PAYHERE.SANDBOX
     ? DN_CONFIG.PAYHERE.SANDBOX_CHECKOUT_URL
     : DN_CONFIG.PAYHERE.LIVE_CHECKOUT_URL;
+}
+
+function dnGetBackendUrl(path = "") {
+  return dnJoinUrl(DN_CONFIG.BACKEND.API_BASE_URL || "", path);
+}
+
+function dnGetStorageKey(name, fallback = "") {
+  return DN_CONFIG?.STORAGE_KEYS?.[name] || fallback;
 }
