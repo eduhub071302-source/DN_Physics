@@ -1,20 +1,36 @@
-// 🔄 DN Physics cloud progress sync (Firebase-only)
+// 🔄 DN Physics cloud progress sync (Firebase-only, user-scoped storage)
 
 import { getAuth } from "firebase/auth";
 import { getDatabase, ref, get, set } from "firebase/database";
 
-const DN_PROGRESS_STORAGE_KEY = "dnPhysicsQuizProgress";
+function dnGetCurrentUserId() {
+  try {
+    const firebaseUid = window.firebaseAuth?.currentUser?.uid;
+    if (firebaseUid) return firebaseUid;
+
+    const cachedUser = JSON.parse(localStorage.getItem("dn_user") || "null");
+    if (cachedUser?.id) return cachedUser.id;
+  } catch (error) {
+    console.warn("dnGetCurrentUserId failed:", error);
+  }
+
+  return "guest";
+}
+
+function dnGetProgressStorageKey() {
+  return `dnPhysicsQuizProgress_${dnGetCurrentUserId()}`;
+}
 
 function dnGetProgressStore() {
   try {
-    return JSON.parse(localStorage.getItem(DN_PROGRESS_STORAGE_KEY)) || {};
+    return JSON.parse(localStorage.getItem(dnGetProgressStorageKey())) || {};
   } catch {
     return {};
   }
 }
 
 function dnSetProgressStore(store) {
-  localStorage.setItem(DN_PROGRESS_STORAGE_KEY, JSON.stringify(store || {}));
+  localStorage.setItem(dnGetProgressStorageKey(), JSON.stringify(store || {}));
 }
 
 function dnParseProgressKey(key) {
