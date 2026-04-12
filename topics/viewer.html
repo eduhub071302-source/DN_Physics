@@ -383,6 +383,31 @@
       return "guest";
     }
 
+    function waitForUnlockApi(timeout = 3000) {
+      return new Promise((resolve) => {
+        const start = Date.now();
+
+        function check() {
+          const pdfReady = typeof window.canAccessPdf === "function";
+          const quizReady = typeof window.canAccessQuiz === "function";
+
+          if (pdfReady && quizReady) {
+            resolve(true);
+            return;
+          }
+
+          if (Date.now() - start >= timeout) {
+            resolve(false);
+            return;
+          }
+
+          setTimeout(check, 50);
+        }
+
+        check();
+      });
+    }
+
     const PDF_STORAGE_KEYS = {
       RECENT: () => `dnPdfRecent_${getCurrentUserId()}`,
       FAVORITES: () => `dnPdfFavorites_${getCurrentUserId()}`,
@@ -430,6 +455,8 @@
     let isRenderingBatch = false;
     let allPagesRendered = false;
     let loadObserver = null;
+    let viewerHasAccess = false;
+    let viewerQuizAllowed = false;
 
     const INITIAL_PAGE_BATCH = window.innerWidth >= 1024 ? 3 : 2;
     const NEXT_PAGE_BATCH = window.innerWidth >= 1024 ? 3 : 2;
@@ -599,17 +626,12 @@
         quizBtn.className = "btn btn-primary";
         quizBtn.id = "relatedQuizBtn";
 
-        const quizAllowed =
-          typeof window.canAccessQuiz === "function"
-            ? window.canAccessQuiz(subjectSlug || "")
-            : false;
-
-        quizBtn.textContent = quizAllowed ? "🎯 Practice Quiz" : "🔒 Quiz Locked";
-        quizBtn.href = quizAllowed
+        quizBtn.textContent = viewerQuizAllowed ? "🎯 Practice Quiz" : "🔒 Quiz Locked";
+        quizBtn.href = viewerQuizAllowed
           ? `/pp-quiz/topic.html?topic=${encodeURIComponent(subjectSlug || "")}`
           : "#";
 
-        if (!quizAllowed) {
+        if (!viewerQuizAllowed) {
           quizBtn.addEventListener("click", (e) => {
             e.preventDefault();
             if (typeof window.lockAlert === "function") {
@@ -926,12 +948,7 @@
     }
 
     async function shareCurrentPdf() {
-      const hasAccess =
-        typeof window.canAccessPdf === "function"
-          ? window.canAccessPdf(subjectSlug)
-          : false;
-
-      if (!hasAccess) {
+      if (!viewerHasAccess) {
         if (typeof window.lockAlert === "function") {
           window.lockAlert();
         }
@@ -1064,6 +1081,27 @@
       window.addEventListener("keydown", handleKeyboardShortcuts);
     }
 
+    function blockViewerAccess() {
+      container.innerHTML = `
+        <div class="loading">
+          🔒 This PDF is locked.<br><br>
+          Buy full access for Rs.100 to unlock all notes.
+        </div>
+      `;
+
+      if (openBtnEl) openBtnEl.href = "#";
+      if (downloadBtnEl) downloadBtnEl.href = "#";
+
+      if (shareBtnEl) {
+        shareBtnEl.addEventListener("click", (e) => {
+          e.preventDefault();
+          if (typeof window.lockAlert === "function") {
+            window.lockAlert();
+          }
+        });
+      }
+    }
+
     async function initViewer() {
       setupViewerEvents();
 
@@ -1098,12 +1136,19 @@
         ? normalizePath(safeDecode(rawBack))
         : (subjectSlug ? `/subjects/${subjectSlug}/index.html` : "/index.html");
 
-      const hasAccess =
+      await waitForUnlockApi();
+
+      viewerHasAccess =
         typeof window.canAccessPdf === "function"
           ? window.canAccessPdf(subjectSlug)
-          : true;
+          : false;
 
-      if (!hasAccess) {
+      viewerQuizAllowed =
+        typeof window.canAccessQuiz === "function"
+          ? window.canAccessQuiz(subjectSlug || "")
+          : false;
+
+      if (!viewerHasAccess) {
         viewerTitleEl.textContent = "Locked PDF";
         fileLabelEl.textContent = "🔒 Premium note";
         subjectLinkEl.textContent = subjectDisplayName || "Locked";
@@ -1128,27 +1173,6 @@
       downloadBtnEl.href = pdfUrl;
 
       await renderPdf();
-    }
-
-    function blockViewerAccess() {
-      container.innerHTML = `
-        <div class="loading">
-          🔒 This PDF is locked.<br><br>
-          Buy full access for Rs.100 to unlock all notes.
-        </div>
-      `;
-
-      if (openBtnEl) openBtnEl.href = "#";
-      if (downloadBtnEl) downloadBtnEl.href = "#";
-
-      if (shareBtnEl) {
-        shareBtnEl.addEventListener("click", (e) => {
-          e.preventDefault();
-          if (typeof window.lockAlert === "function") {
-            window.lockAlert();
-          }
-        });
-      }
     }
 
     initViewer();
