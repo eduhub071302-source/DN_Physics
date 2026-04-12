@@ -300,28 +300,6 @@
         .replace(/\b\w/g, (char) => char.toUpperCase());
     }
 
-    function waitForUnlockApi(timeout = 3000) {
-      return new Promise((resolve) => {
-        const start = Date.now();
-
-        function check() {
-          if (typeof window.canAccessPdf === "function") {
-            resolve(true);
-            return;
-          }
-
-          if (Date.now() - start >= timeout) {
-            resolve(false);
-            return;
-          }
-
-          setTimeout(check, 50);
-        }
-
-        check();
-      });
-    }
-
     async function copyFallback(text) {
       const ta = document.createElement("textarea");
       ta.value = text;
@@ -383,12 +361,26 @@
       subjectNavLink.href = subjectPage;
       subjectNavLink.textContent = prettySubject;
 
-      await waitForUnlockApi();
+      function normalizeAccessSlug(value) {
+        return String(value || "")
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, "-");
+      }
 
-      const isPdfAllowed =
-        typeof window.canAccessPdf === "function"
-          ? window.canAccessPdf(subject)
-          : false;
+      function canAccessPdfFast(subject) {
+        if (typeof window.canAccessPdf === "function") {
+          return window.canAccessPdf(subject);
+        }
+
+        const normalizedSubject = normalizeAccessSlug(subject);
+        const freeSubjects = (window.DN_CONFIG?.ACCESS?.FREE_PDF_SUBJECTS || [])
+          .map(normalizeAccessSlug);
+
+        return freeSubjects.includes(normalizedSubject);
+      }
+
+      const isPdfAllowed = canAccessPdfFast(subject);
 
       const pdfPath = hasValidParams
         ? `/pdfs/${subject}/${file}`
