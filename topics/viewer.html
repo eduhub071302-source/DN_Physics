@@ -1096,7 +1096,7 @@
       shareTitle = safeDecode(rawTitle, fileName.replace(/\.pdf$/i, ""));
       backUrl = rawBack
         ? normalizePath(safeDecode(rawBack))
-        : (subjectSlug ? `/subjects/${subjectSlug}/index.html` : "/index.html`);
+        : (subjectSlug ? `/subjects/${subjectSlug}/index.html` : "/index.html");
 
       const hasAccess =
         typeof window.canAccessPdf === "function"
