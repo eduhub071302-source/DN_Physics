@@ -440,14 +440,28 @@
       filterSubjects();
     }
 
+    function normalizeAccessSlug(value) {
+      return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "-");
+    }
+
     function canAccessSubjectCard(subjectSlug) {
+      const normalizedSubject = normalizeAccessSlug(subjectSlug);
+      const freeSubjects = (window.DN_CONFIG?.ACCESS?.FREE_PDF_SUBJECTS || [])
+        .map(normalizeAccessSlug);
+
+      if (freeSubjects.includes(normalizedSubject)) {
+        return true;
+      }
+
       if (typeof window.canAccessPdfFast === "function") {
         return window.canAccessPdfFast(subjectSlug);
       }
 
       return false;
     }
-
     async function loadSubjectsFromCatalog() {
       try {
         const res = await fetch("/pdfs/catalog.json", { cache: "no-store" });
