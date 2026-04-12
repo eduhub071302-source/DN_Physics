@@ -542,15 +542,11 @@
       </div>
     </footer>
 
-    <!-- FIREBASE LIBS -->
+    <!-- FIREBASE INIT -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
       import { getAuth } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
       import { getDatabase } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
-      import {
-        createUserWithEmailAndPassword,
-        signInWithEmailAndPassword,
-      } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyA8MHkxCeD1hUkPFZA15mUpaB87B21ZZ04",
@@ -564,29 +560,13 @@
         measurementId: "G-JB216F8CQ9",
       };
 
-      // Initialize Firebase
       const app = initializeApp(firebaseConfig);
+
       window.firebaseApp = app;
       window.firebaseAuth = getAuth(app);
       window.firebaseDb = getDatabase(app);
-      window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
-      window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-      // Restore user session and update UI after refresh
-      import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
-      onAuthStateChanged(window.firebaseAuth, (user) => {
-        if (user) {
-          // User is signed in, update UI and local storage
-          if (typeof window.applyAuthenticatedUser === "function") {
-            window.applyAuthenticatedUser(user);
-          }
-        } else {
-          // User is signed out, clear UI and local storage
-          if (typeof window.clearAuthenticatedUser === "function") {
-            window.clearAuthenticatedUser();
-          }
-        }
-      });
     </script>
+
     <script src="/js/app-config.js"></script>
     <script src="/js/sync-progress.js"></script>
     <script src="/js/unlock.js"></script>
@@ -947,18 +927,13 @@
 
         function getCurrentUserId() {
           try {
+            const firebaseUid = window.firebaseAuth?.currentUser?.uid;
+            if (firebaseUid) return firebaseUid;
+
             const cachedUser = JSON.parse(
               localStorage.getItem("dn_user") || "null",
             );
             if (cachedUser?.id) return cachedUser.id;
-
-            const rawSupabase = localStorage.getItem("supabase.auth.token");
-            if (rawSupabase) {
-              const parsed = JSON.parse(rawSupabase);
-              const sessionUser =
-                parsed?.currentSession?.user || parsed?.user || null;
-              if (sessionUser?.id) return sessionUser.id;
-            }
           } catch (error) {
             console.warn("Could not resolve current user id:", error);
           }
@@ -1505,14 +1480,11 @@
         }
 
         async function initProfileState() {
-          if (!window.supabaseClient) return;
-
           try {
-            const { data } = await window.supabaseClient.auth.getUser();
-            const user = data?.user || null;
+            const firebaseUser = window.firebaseAuth?.currentUser || null;
 
             if (typeof window.updateProfileUI === "function") {
-              window.updateProfileUI(user);
+              window.updateProfileUI(firebaseUser);
             }
           } catch (error) {
             console.warn("initProfileState warning:", error);
@@ -1539,8 +1511,6 @@
               const displayName =
                 cachedProfile?.name || user.email.split("@")[0] || "Profile";
 
-              // ✅ Desktop shows name + email
-              // ✅ Mobile hides email text to save space
               if (isMobile) {
                 emailDisplay.textContent = "";
               } else {
@@ -1589,12 +1559,10 @@
 
         if (unlockProBtn) {
           unlockProBtn.addEventListener("click", () => {
-            if (typeof window.lockAlert === "function") {
-              if (typeof window.openUnlockModal === "function") {
-                window.openUnlockModal();
-              } else {
-                console.error("openUnlockModal missing");
-              }
+            if (typeof window.openUnlockModal === "function") {
+              window.openUnlockModal();
+            } else {
+              console.error("openUnlockModal missing");
             }
           });
         }
