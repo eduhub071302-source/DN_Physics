@@ -123,20 +123,6 @@
     }
   </style>
 </head>
-
-<footer style="
-  margin-top:40px;
-  padding:20px;
-  text-align:center;
-  font-size:14px;
-  color:#a8b3cf;
-  border-top:1px solid #24314f;
-">
-  <a href="/privacy.html">Privacy Policy</a> |
-  <a href="/terms.html">Terms</a> |
-  <a href="/contact.html">Contact</a>
-</footer>
-  
 <body>
   <header class="site-header">
     <div class="container nav">
@@ -210,8 +196,13 @@
   </main>
 
   <footer class="footer">
-    <div class="container">
-      © 2026 DinuuNOVA Physics
+    <div class="container" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center;">
+      <div>© 2026 DinuuNOVA Physics</div>
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <a href="/privacy.html">Privacy Policy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="/contact.html">Contact</a>
+      </div>
     </div>
   </footer>
 
@@ -254,8 +245,33 @@
 
   <audio id="bgMusic" loop></audio>
 
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+    import { getDatabase } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
+
+    if (!window.firebaseApp) {
+      const firebaseConfig = {
+        apiKey: "AIzaSyA8MHkxCeD1hUkPFZA15mUpaB87B21ZZ04",
+        authDomain: "dn-physics.firebaseapp.com",
+        databaseURL:
+          "https://dn-physics-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "dn-physics",
+        storageBucket: "dn-physics.firebasestorage.app",
+        messagingSenderId: "550016753421",
+        appId: "1:550016753421:web:8c68d2471cb87192809a44",
+        measurementId: "G-JB216F8CQ9",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      window.firebaseApp = app;
+      window.firebaseAuth = getAuth(app);
+      window.firebaseDb = getDatabase(app);
+    }
+  </script>
+
   <script src="/js/app-config.js"></script>
-  <script src="/js/unlock.js"></script>
+  <script type="module" src="/js/unlock.js"></script>
 
   <script>
     const params = new URLSearchParams(window.location.search);
@@ -288,7 +304,10 @@
 
     const hasValidParams = Boolean(subject && file);
 
-    const isPdfAllowed = canAccessPdf(subject);
+    const isPdfAllowed =
+      typeof window.canAccessPdf === "function"
+        ? window.canAccessPdf(subject)
+        : true;
 
     const pdfPath = hasValidParams
       ? `/pdfs/${subject}/${file}`
@@ -321,11 +340,12 @@
 
       waShare.href = "https://wa.me/?text=" + encodeURIComponent(fullPdfUrl);
       tgShare.href = "https://t.me/share/url?url=" + encodeURIComponent(fullPdfUrl);
-      mailShare.href = "mailto:?subject=" + encodeURIComponent(title) + "&body=" + encodeURIComponent(fullPdfUrl);
+      mailShare.href =
+        "mailto:?subject=" + encodeURIComponent(title) +
+        "&body=" + encodeURIComponent(fullPdfUrl);
     }
 
     if (hasValidParams && !isPdfAllowed) {
-      // 🔒 Lock UI
       viewBtn.textContent = "🔒 Locked";
       downloadBtn.textContent = "🔒 Locked";
       shareBtn.textContent = "🔒 Locked";
@@ -336,35 +356,19 @@
       tgShare.href = "#";
       mailShare.href = "#";
 
-      viewBtn.addEventListener("click", (e) => {
+      const lockHandler = (e) => {
         e.preventDefault();
-        lockAlert();
-      });
-    
-      downloadBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        lockAlert();
-      });
+        if (typeof window.lockAlert === "function") {
+          window.lockAlert();
+        }
+      };
 
-      shareBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        lockAlert();
-      });
-
-      waShare.addEventListener("click", (e) => {
-        e.preventDefault();
-        lockAlert();
-      });
-
-      tgShare.addEventListener("click", (e) => {
-        e.preventDefault();
-        lockAlert();
-      });
-
-      mailShare.addEventListener("click", (e) => {
-        e.preventDefault();
-        lockAlert();
-      });
+      viewBtn.addEventListener("click", lockHandler);
+      downloadBtn.addEventListener("click", lockHandler);
+      shareBtn.addEventListener("click", lockHandler);
+      waShare.addEventListener("click", lockHandler);
+      tgShare.addEventListener("click", lockHandler);
+      mailShare.addEventListener("click", lockHandler);
     }
 
     async function copyFallback(text) {
@@ -382,10 +386,12 @@
 
     async function sharePdf() {
       if (!isPdfAllowed) {
-        lockAlert();
+        if (typeof window.lockAlert === "function") {
+          window.lockAlert();
+        }
         return;
       }
-      
+
       if (!hasValidParams) {
         showToast("Invalid PDF link ⚠️");
         return;
