@@ -4,13 +4,13 @@
 // Storage Helpers
 // ----------------------------
 
-async function getCurrentUserId() {
-  try {
-    const { data } = await supabaseClient.auth.getUser();
-    return data?.user?.id || null;
-  } catch {
-    return null;
-  }
+const raw = localStorage.getItem("supabase.auth.token");
+
+import { getAuth } from "firebase/auth";
+
+function getUserKeySuffix() {
+  const user = getAuth().currentUser;
+  return user?.uid || "guest";
 }
 
 function dnStorageGet(key) {
@@ -204,73 +204,52 @@ function clearPendingOrderId() {
   dnStorageRemove(getPendingOrderIdKey());
 }
 
-// ----------------------------
-// 🔥 GET USER STATE FROM SERVER (/me)
-// ----------------------------
+import { getDatabase, ref, onValue } from "firebase/database";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
-async function fetchUserStateFromServer() {
-  try {
-    const session = await supabaseClient.auth.getSession();
-    const token = session?.data?.session?.access_token;
+function startFirebaseSync() {
+  const auth = getAuth();
+  const db = getDatabase();
 
-    if (!token) return null;
-
-    const res = await fetch(
-      DN_CONFIG.BACKEND.API_BASE_URL + DN_CONFIG.BACKEND.AUTH_ME_URL,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-
-    if (!res.ok) return null;
-
-    const data = await res.json();
-
-    return data;
-  } catch (e) {
-    console.log("User state fetch failed:", e);
-    return null;
-  }
-}
-
-// ----------------------------
-// Server Sync (IMPORTANT)
-// ----------------------------
-
-async function syncUnlockWithServer() {
-  try {
-    const data = await fetchUserStateFromServer();
-
-    if (!data || !data.ok) return;
-
-    const expiresAtRaw =
-      data.entitlement?.expires_at ||
-      data.subscription_expires_at ||
-      data.expires_at ||
-      "";
-
-    const expiresAtMs = expiresAtRaw ? new Date(expiresAtRaw).getTime() : 0;
-    const isActive =
-      Boolean(data.paid) &&
-      Number.isFinite(expiresAtMs) &&
-      expiresAtMs > Date.now();
-
-    if (isActive) {
-      activatePaidAccess({
-        source: "server",
-        orderId: data.entitlement?.order_id || "",
-        expiresAt: expiresAtMs,
-      });
-    } else {
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
       clearPaidAccess();
+      return;
     }
-  } catch (e) {
-    console.log("Unlock sync failed:", e);
-  }
+
+    const userRef = ref(db, "users/" + user.uid);
+
+    onValue(userRef, (snapshot) => {
+      const data = snapshot.val();
+
+      if (!data) return;
+
+      const expiresAt = data.expiresAt || 0;
+
+      if (expiresAt > Date.now()) {
+        activatePaidAccess({
+          source: "firebase",
+          orderId: data.orderId || "",
+          expiresAt: expiresAt,
+        });
+      } else {
+        clearPaidAccess();
+      }
+    });
+  });
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  startFirebaseSync();
+
+  const days = getRemainingDays();
+
+  if (hasPaidAccess() && days > 0 && days <= 3) {
+    showDnMessage(
+      `⏳ Subscription expires in ${days} day${days === 1 ? "" : "s"}`
+    );
+  }
+});
 
 // ----------------------------
 // Payment Start
