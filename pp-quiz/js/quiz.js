@@ -245,15 +245,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function getCurrentUserId() {
     try {
+      const firebaseUid = window.firebaseAuth?.currentUser?.uid;
+      if (firebaseUid) return firebaseUid;
+
       const cachedUser = JSON.parse(localStorage.getItem("dn_user") || "null");
       if (cachedUser?.id) return cachedUser.id;
-
-      const rawSupabase = localStorage.getItem("supabase.auth.token");
-      if (rawSupabase) {
-        const parsed = JSON.parse(rawSupabase);
-        const sessionUser = parsed?.currentSession?.user || parsed?.user || null;
-        if (sessionUser?.id) return sessionUser.id;
-      }
     } catch (error) {
       console.warn("Could not resolve current user id:", error);
     }
