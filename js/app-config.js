@@ -7,7 +7,7 @@ const DN_CONFIG = {
   },
 
   ACCESS: {
-    FREE_PDF_SUBJECTS: ["gravitational-field", "current-electricity", "units"],
+    FREE_PDF_SUBJECTS: ["gravitational-field"],
     FREE_QUIZ_TOPICS: ["units"],
     OWNER_CODE: "DN-OWNER-2026",
   },
