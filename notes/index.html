@@ -453,27 +453,7 @@
       const freeSubjects = (window.DN_CONFIG?.ACCESS?.FREE_PDF_SUBJECTS || [])
         .map(normalizeAccessSlug);
 
-      if (freeSubjects.includes(normalizedSubject)) {
-        return true;
-      }
-
-      try {
-        if (typeof window.isOwnerMode === "function" && window.isOwnerMode()) {
-          return true;
-        }
-
-        if (typeof window.hasPaidAccess === "function" && window.hasPaidAccess()) {
-          return true;
-        }
-
-        if (typeof window.canAccessPdfFast === "function") {
-          return window.canAccessPdfFast(subjectSlug);
-        }
-      } catch (error) {
-        console.warn("Subject access check failed:", error);
-      }
-
-      return false;
+      return freeSubjects.includes(normalizedSubject);
     }
 
     async function loadSubjectsFromCatalog() {
