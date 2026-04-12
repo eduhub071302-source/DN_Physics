@@ -929,7 +929,7 @@
       const hasAccess =
         typeof window.canAccessPdf === "function"
           ? window.canAccessPdf(subjectSlug)
-          : true;
+          : false;
 
       if (!hasAccess) {
         if (typeof window.lockAlert === "function") {
