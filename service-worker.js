@@ -1,4 +1,4 @@
-const CACHE_NAME = "dn-physics-v263"; // 🔥 increase version
+const CACHE_NAME = "dn-physics-v264";
 const META_CACHE = "dn-physics-meta";
 
 const CORE_FILES = [
@@ -17,9 +17,20 @@ const CORE_FILES = [
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_FILES)),
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+
+      for (const file of CORE_FILES) {
+        try {
+          await cache.add(file);
+        } catch (error) {
+          console.warn("[SW] Failed to cache during install:", file, error);
+        }
+      }
+
+      await self.skipWaiting();
+    })(),
   );
-  self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
@@ -32,6 +43,7 @@ self.addEventListener("activate", (event) => {
           if (key !== CACHE_NAME && key !== META_CACHE) {
             return caches.delete(key);
           }
+          return Promise.resolve();
         }),
       );
 
@@ -48,16 +60,20 @@ self.addEventListener("activate", (event) => {
         includeUncontrolled: true,
       });
 
-      // 🔥 FORCE RELOAD (clean upgrade)
-      clients.forEach((client) => {
-        client.postMessage({ type: "FORCE_RELOAD" });
-      });
+      for (const client of clients) {
+        client.postMessage({
+          type: "SW_VERSION_READY",
+          version: CACHE_NAME,
+          previousVersion: oldVersion,
+        });
+      }
 
       if (oldVersion && oldVersion !== CACHE_NAME) {
         for (const client of clients) {
           client.postMessage({
             type: "SW_UPDATED",
             version: CACHE_NAME,
+            previousVersion: oldVersion,
           });
         }
       }
@@ -95,16 +111,15 @@ self.addEventListener("fetch", (event) => {
   const isImage = /\.(png|jpg|jpeg|webp|svg|gif|ico)$/.test(url.pathname);
   const isAudio = /\.(mp3|wav|ogg)$/.test(url.pathname);
 
-  // 🔥 HTML navigation
   if (isNavigate) {
     event.respondWith(
       (async () => {
         const cache = await caches.open(CACHE_NAME);
 
         try {
-          const network = await fetch(request);
+          const network = await fetch(request, { cache: "no-store" });
           if (network && network.ok) {
-            cache.put(request, network.clone());
+            await cache.put(request, network.clone());
           }
           return network;
         } catch {
@@ -118,19 +133,16 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // CSS & JS → network first
-  if (isCSS || isJS) {
+  if (isCSS || isJS || isJSON || isPDF) {
     event.respondWith(
       (async () => {
         const cache = await caches.open(CACHE_NAME);
 
         try {
-          const network = await fetch(request);
-
+          const network = await fetch(request, { cache: "no-store" });
           if (network && network.ok) {
             await cache.put(request, network.clone());
           }
-
           return network;
         } catch {
           return await cache.match(request);
@@ -140,52 +152,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // JSON
-  if (isJSON) {
-    event.respondWith(
-      (async () => {
-        const cache = await caches.open(CACHE_NAME);
-
-        try {
-          const network = await fetch(request);
-          if (network && network.ok) {
-            cache.put(request, network.clone());
-          }
-          return network;
-        } catch {
-          return await cache.match(request);
-        }
-      })(),
-    );
-    return;
-  }
-
-  // PDF
-  if (isPDF) {
-    event.respondWith(
-      (async () => {
-        const cache = await caches.open(CACHE_NAME);
-
-        try {
-          const network = await fetch(request);
-
-          if (network && network.ok) {
-            await cache.put(request, network.clone());
-          }
-
-          return network;
-        } catch {
-          return await cache.match(request);
-        }
-      })(),
-    );
-    return;
-  }
-
-  // AUDIO (no cache control)
   if (isAudio) return;
 
-  // IMAGES
   if (isImage) {
     event.respondWith(
       (async () => {
@@ -196,7 +164,7 @@ self.addEventListener("fetch", (event) => {
         try {
           const network = await fetch(request);
           if (network && network.ok) {
-            cache.put(request, network.clone());
+            await cache.put(request, network.clone());
           }
           return network;
         } catch {
@@ -207,5 +175,9 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  event.respondWith(caches.match(request).then((res) => res || fetch(request)));
+  event.respondWith(
+    caches.match(request).then((res) => {
+      return res || fetch(request);
+    }),
+  );
 });
