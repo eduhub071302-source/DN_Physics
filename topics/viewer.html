@@ -602,7 +602,7 @@
         const quizAllowed =
           typeof window.canAccessQuiz === "function"
             ? window.canAccessQuiz(subjectSlug || "")
-            : true;
+            : false;
 
         quizBtn.textContent = quizAllowed ? "🎯 Practice Quiz" : "🔒 Quiz Locked";
         quizBtn.href = quizAllowed
