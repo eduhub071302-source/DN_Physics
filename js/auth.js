@@ -1,15 +1,26 @@
-function getFirebaseDb() {
-  return window.firebaseDb || null;
-}
-// 🔐 DN Physics Auth System — Premium Organized Final Version
-// Safe for your current modal IDs and current app flow.
+// 🔐 DN Physics Auth System — Firebase-only Final Version
+
+import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  signOut,
+} from "firebase/auth";
+
+import {
+  getDatabase,
+  ref,
+  get,
+  set,
+} from "firebase/database";
 
 (() => {
   "use strict";
 
   const APP_PATH = "";
   const OFFLINE_URL = `${APP_PATH}/offline.html`;
-  const RESET_PASSWORD_URL = `${window.location.origin}${APP_PATH}/reset-password.html`;
   const USER_KEY = "dn_user";
   const PROFILE_KEY = "dn_profile";
   const DEFAULT_AVATAR = "avatar-01";
@@ -34,9 +45,7 @@ function getFirebaseDb() {
 
       togglePasswordBtn: document.getElementById("togglePasswordBtn"),
       eyeIcon: document.getElementById("eyeIcon"),
-      toggleConfirmPasswordBtn: document.getElementById(
-        "toggleConfirmPasswordBtn",
-      ),
+      toggleConfirmPasswordBtn: document.getElementById("toggleConfirmPasswordBtn"),
       confirmEyeIcon: document.getElementById("confirmEyeIcon"),
       forgotBtn: document.getElementById("forgotPasswordBtn"),
 
@@ -56,18 +65,18 @@ function getFirebaseDb() {
     };
   }
 
+  function getFirebaseAuthSafe() {
+    return window.firebaseAuth || getAuth();
+  }
+
+  function getFirebaseDbSafe() {
+    return window.firebaseDb || getDatabase();
+  }
+
   function buildPresetAvatarUrl(avatarValue, version = "") {
     const safeValue = avatarValue || DEFAULT_AVATAR;
     const suffix = version ? `?v=${encodeURIComponent(version)}` : "";
     return `${APP_PATH}/assets/avatars/${safeValue}.png${suffix}`;
-  }
-
-  // =========================
-  // CORE HELPERS
-  // =========================
-
-  function getFirebaseAuth() {
-    return window.firebaseAuth || null;
   }
 
   function getConfigStorageKey(name, fallback = "") {
@@ -107,18 +116,12 @@ function getFirebaseDb() {
     window.location.href = OFFLINE_URL;
   }
 
-  function isOfflineError(error) {
-    return !navigator.onLine || error instanceof TypeError;
-  }
-
   function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
   }
 
   function normalizeEmail(email) {
-    return String(email || "")
-      .trim()
-      .toLowerCase();
+    return String(email || "").trim().toLowerCase();
   }
 
   function getPresetAvatarList() {
@@ -195,10 +198,6 @@ function getFirebaseDb() {
         console.warn("updateProfileUI failed:", error);
       }
     }
-  }
-
-  function updateAccountButton() {
-    syncProfileUiEverywhere();
   }
 
   function closeAuthModal() {
@@ -280,23 +279,18 @@ function getFirebaseDb() {
   }
 
   async function isUserLoggedIn() {
-    const client = getFirebaseDb();
-    if (!client) return false;
-
-    const { data } = await client.auth.getSession();
-    return !!data?.session?.user;
+    const auth = getFirebaseAuthSafe();
+    return !!auth.currentUser;
   }
 
-  // =========================
-  // PROFILE DATA
-  // =========================
-
   async function loadUserProfile(userId) {
-    const db = getFirebaseDb();
+    const db = getFirebaseDbSafe();
     if (!db || !userId) return null;
+
     try {
-      const snapshot = await db.ref(`/profiles/${userId}`).get();
+      const snapshot = await get(ref(db, `/profiles/${userId}`));
       const data = snapshot.exists() ? snapshot.val() : null;
+
       if (data) {
         if (!data.profile_photo_url && data.avatar_value) {
           data.profile_photo_url = buildPresetAvatarUrl(data.avatar_value);
@@ -305,6 +299,7 @@ function getFirebaseDb() {
         syncProfileUiEverywhere();
         return data;
       }
+
       return null;
     } catch (error) {
       console.warn("Profile fetch warning:", error);
@@ -313,57 +308,60 @@ function getFirebaseDb() {
   }
 
   async function ensureProfile(user) {
-    const db = getFirebaseDb();
+    const db = getFirebaseDbSafe();
     if (!db || !user?.uid || !user?.email) return null;
-    const existing = getProfileCache();
+
+    const existing = await loadUserProfile(user.uid);
+
+    if (existing) {
+      return existing;
+    }
+
     const profilePayload = {
       id: user.uid,
       email: user.email,
-      name: existing?.name || user.email.split("@")[0],
-      bio: existing?.bio || null,
-      avatar_type: existing?.avatar_type || "preset",
-      avatar_value: existing?.avatar_value || DEFAULT_AVATAR,
-      profile_photo_url:
-        existing?.profile_photo_url ||
-        buildPresetAvatarUrl(existing?.avatar_value || DEFAULT_AVATAR),
+      name: user.email.split("@")[0],
+      bio: null,
+      avatar_type: "preset",
+      avatar_value: DEFAULT_AVATAR,
+      profile_photo_url: buildPresetAvatarUrl(DEFAULT_AVATAR),
     };
+
     try {
-      await db.ref(`/profiles/${user.uid}`).set(profilePayload);
+      await set(ref(db, `/profiles/${user.uid}`), profilePayload);
       setProfileCache(profilePayload);
       syncProfileUiEverywhere();
       return profilePayload;
     } catch (error) {
-      console.warn("Profile upsert failed:", error);
-      const merged = { ...(existing || {}), ...profilePayload };
-      setProfileCache(merged);
+      console.warn("Profile create failed:", error);
+      setProfileCache(profilePayload);
       syncProfileUiEverywhere();
-      return merged;
+      return profilePayload;
     }
   }
 
   async function saveUserProfile(userId, payload) {
-    const db = getFirebaseDb();
+    const db = getFirebaseDbSafe();
     if (!db) return { ok: false, message: "Firebase DB not ready." };
     if (!userId) return { ok: false, message: "User ID missing." };
+
     try {
       const finalPayload = {
         id: userId,
         ...payload,
         updated_at: new Date().toISOString(),
       };
-      await db.ref(`/profiles/${userId}`).set(finalPayload);
+
+      await set(ref(db, `/profiles/${userId}`), finalPayload);
       setProfileCache(finalPayload);
       syncProfileUiEverywhere();
+
       return { ok: true, data: finalPayload };
     } catch (error) {
       console.error("saveUserProfile failed:", error);
       return { ok: false, message: "Could not save profile." };
     }
   }
-
-  // =========================
-  // SESSION + AUTH
-  // =========================
 
   async function syncProgressIfAvailable() {
     if (typeof window.syncCloudProgressToLocal === "function") {
@@ -376,23 +374,24 @@ function getFirebaseDb() {
   }
 
   async function applyAuthenticatedUser(user, accessToken = "") {
-    // Expose for global use (e.g., from index.html onAuthStateChanged)
-    window.applyAuthenticatedUser = applyAuthenticatedUser;
     if (!user) return;
 
-    // Always use user.uid for Firebase Auth users
-    const userObj = { ...user, id: user.uid };
+    window.applyAuthenticatedUser = applyAuthenticatedUser;
+
+    const userObj = {
+      uid: user.uid,
+      id: user.uid,
+      email: user.email || "",
+    };
+
     setUser(userObj);
     setSessionToken(accessToken || "");
 
     const profile = await ensureProfile(user);
     await loadUserProfile(user.uid);
-    // 🔄 FULL SYNC (bi-directional)
 
-    // 1. Pull cloud → local
     await syncProgressIfAvailable();
 
-    // 2. Push local → cloud (important for offline users)
     if (typeof window.syncLocalProgressToCloud === "function") {
       try {
         await window.syncLocalProgressToCloud();
@@ -402,18 +401,13 @@ function getFirebaseDb() {
     }
 
     try {
-      const topProfileAvatarImg = document.getElementById(
-        "topProfileAvatarImg",
-      );
+      const topProfileAvatarImg = document.getElementById("topProfileAvatarImg");
       const topProfileAvatar = document.getElementById("topProfileAvatar");
       const userEmailDisplay = document.getElementById("userEmailDisplay");
 
       const avatarUrl =
         profile?.profile_photo_url ||
-        buildPresetAvatarUrl(
-          profile?.avatar_value || DEFAULT_AVATAR,
-          Date.now(),
-        );
+        buildPresetAvatarUrl(profile?.avatar_value || DEFAULT_AVATAR, Date.now());
 
       if (topProfileAvatarImg) {
         topProfileAvatarImg.src = avatarUrl;
@@ -435,8 +429,8 @@ function getFirebaseDb() {
   }
 
   async function clearAuthenticatedUser() {
-    // Expose for global use (e.g., from index.html onAuthStateChanged)
     window.clearAuthenticatedUser = clearAuthenticatedUser;
+
     clearUser();
     clearSessionToken();
     clearProfileCache();
@@ -450,18 +444,9 @@ function getFirebaseDb() {
     }
 
     try {
-      localStorage.removeItem("dn_user");
-    } catch {}
-
-    try {
-      const topProfileAvatarImg = document.getElementById(
-        "topProfileAvatarImg",
-      );
+      const topProfileAvatarImg = document.getElementById("topProfileAvatarImg");
       if (topProfileAvatarImg) {
-        topProfileAvatarImg.src = buildPresetAvatarUrl(
-          DEFAULT_AVATAR,
-          Date.now(),
-        );
+        topProfileAvatarImg.src = buildPresetAvatarUrl(DEFAULT_AVATAR, Date.now());
       }
 
       const topProfileAvatar = document.getElementById("topProfileAvatar");
@@ -481,58 +466,42 @@ function getFirebaseDb() {
     syncProfileUiEverywhere();
   }
 
-  async function restoreUserSession() {
-    const client = getClient();
-    if (!client) return;
-
-    try {
-      const { data } = await client.auth.getSession();
-      const session = data?.session;
-
-      if (session?.user) {
-        await applyAuthenticatedUser(session.user, session.access_token || "");
-      } else {
-        await clearAuthenticatedUser();
-      }
-    } catch (error) {
-      console.error("Restore session failed:", error);
-      await clearAuthenticatedUser();
-    }
-  }
-
   async function logout() {
-    const auth = getFirebaseAuth();
+    const auth = getFirebaseAuthSafe();
     if (!auth) return;
+
     const els = getEls();
+
     if (!navigator.onLine) {
       redirectOffline();
       return;
     }
+
     try {
-      await auth.signOut();
+      await signOut(auth);
     } catch (error) {
       console.error("Logout error:", error);
-      if (!navigator.onLine) {
-        redirectOffline();
-        return;
-      }
       showAuthError("Unable to log out right now. Please try again.");
       return;
     }
+
     await clearAuthenticatedUser();
+
     if (els.logoutModal) {
       els.logoutModal.classList.add("hidden");
     }
+
     closeAuthModal();
     syncProfileUiEverywhere();
+
     if (typeof window.showToast === "function") {
       window.showToast("👋 Logged out");
     }
   }
 
   async function switchAccount(renderAuthModeRef) {
-    const client = getClient();
-    if (!client) return;
+    const auth = getFirebaseAuthSafe();
+    if (!auth) return;
 
     const els = getEls();
 
@@ -542,15 +511,9 @@ function getFirebaseDb() {
     }
 
     try {
-      await client.auth.signOut();
+      await signOut(auth);
     } catch (error) {
       console.error("Switch account error:", error);
-
-      if (!navigator.onLine) {
-        redirectOffline();
-        return;
-      }
-
       showAuthError("Unable to switch account right now. Please try again.");
       return;
     }
@@ -580,10 +543,6 @@ function getFirebaseDb() {
     }, 150);
   }
 
-  // =========================
-  // AVATAR MODAL
-  // =========================
-
   function ensureAvatarModalExists() {
     let avatarModal = document.getElementById("avatarModal");
     if (avatarModal) return avatarModal;
@@ -608,64 +567,8 @@ function getFirebaseDb() {
     return avatarModal;
   }
 
-  // =========================
-  // INIT
-  // =========================
-
   document.addEventListener("DOMContentLoaded", () => {
-    // Firebase session restore: always update UI after refresh
-    if (
-      window.firebaseAuth &&
-      typeof window.firebaseAuth.onAuthStateChanged === "function"
-    ) {
-      window.firebaseAuth.onAuthStateChanged((user) => {
-        if (user) {
-          applyAuthenticatedUser(user);
-        } else {
-          clearAuthenticatedUser();
-        }
-      });
-    }
-    const els = {
-      authModal: document.getElementById("authModal"),
-      authSubmitBtn: document.getElementById("authSubmitBtn"),
-      authSecondaryBtn: document.getElementById("authSecondaryBtn"),
-      switchAccountBtn: document.getElementById("switchAccountBtn"),
-      authCloseBtn: document.getElementById("authCloseBtn"),
-
-      authEmail: document.getElementById("authEmail"),
-      authPassword: document.getElementById("authPassword"),
-      authConfirmPassword: document.getElementById("authConfirmPassword"),
-
-      authConfirmRow: document.getElementById("authConfirmRow"),
-      authPasswordRow: document.getElementById("authPasswordRow"),
-
-      authTitle: document.getElementById("authTitle"),
-      authToggleText: document.getElementById("authToggleText"),
-
-      togglePasswordBtn: document.getElementById("togglePasswordBtn"),
-      eyeIcon: document.getElementById("eyeIcon"),
-      toggleConfirmPasswordBtn: document.getElementById(
-        "toggleConfirmPasswordBtn",
-      ),
-      confirmEyeIcon: document.getElementById("confirmEyeIcon"),
-      forgotBtn: document.getElementById("forgotPasswordBtn"),
-
-      loginBtn: document.getElementById("loginBtn"),
-
-      profileEditorSection: document.getElementById("profileEditorSection"),
-      profileNameInput: document.getElementById("profileNameInput"),
-      profileBioInput: document.getElementById("profileBioInput"),
-      presetAvatarGrid: document.getElementById("presetAvatarGrid"),
-      profileAvatarPreview: document.getElementById("profileAvatarPreview"),
-
-      openAvatarModalBtn: document.getElementById("openAvatarModalBtn"),
-
-      confirmLogoutBtn: document.getElementById("confirmLogoutBtn"),
-      cancelLogoutBtn: document.getElementById("cancelLogoutBtn"),
-      logoutModal: document.getElementById("logoutModal"),
-    };
-
+    const els = getEls();
     let isLoginMode = true;
     let selectedAvatarValue = DEFAULT_AVATAR;
     let isSubmitting = false;
@@ -679,27 +582,23 @@ function getFirebaseDb() {
         els.profileAvatarPreview.src = freshUrl;
       }
 
-      const topProfileAvatarImg = document.getElementById(
-        "topProfileAvatarImg",
-      );
+      const topProfileAvatarImg = document.getElementById("topProfileAvatarImg");
       if (topProfileAvatarImg) {
         topProfileAvatarImg.src = freshUrl;
       }
 
       if (!els.presetAvatarGrid) return;
 
-      els.presetAvatarGrid
-        .querySelectorAll("[data-avatar-id]")
-        .forEach((btn) => {
-          const active = btn.dataset.avatarId === selectedAvatarValue;
-          btn.style.borderColor = active
-            ? "rgba(78,161,255,0.8)"
-            : "rgba(255,255,255,0.08)";
-          btn.style.boxShadow = active
-            ? "0 0 0 3px rgba(78,161,255,0.16), 0 12px 22px rgba(0,0,0,0.26)"
-            : "0 8px 18px rgba(0,0,0,0.18)";
-          btn.style.transform = active ? "scale(1.06)" : "scale(1)";
-        });
+      els.presetAvatarGrid.querySelectorAll("[data-avatar-id]").forEach((btn) => {
+        const active = btn.dataset.avatarId === selectedAvatarValue;
+        btn.style.borderColor = active
+          ? "rgba(78,161,255,0.8)"
+          : "rgba(255,255,255,0.08)";
+        btn.style.boxShadow = active
+          ? "0 0 0 3px rgba(78,161,255,0.16), 0 12px 22px rgba(0,0,0,0.26)"
+          : "0 8px 18px rgba(0,0,0,0.18)";
+        btn.style.transform = active ? "scale(1.06)" : "scale(1)";
+      });
     }
 
     function renderPresetAvatarGrid(selectedId = DEFAULT_AVATAR) {
@@ -738,13 +637,9 @@ function getFirebaseDb() {
         )
         .join("");
 
-      els.presetAvatarGrid
-        .querySelectorAll("[data-avatar-id]")
-        .forEach((btn) => {
-          btn.addEventListener("click", () =>
-            setSelectedAvatar(btn.dataset.avatarId),
-          );
-        });
+      els.presetAvatarGrid.querySelectorAll("[data-avatar-id]").forEach((btn) => {
+        btn.addEventListener("click", () => setSelectedAvatar(btn.dataset.avatarId));
+      });
 
       setSelectedAvatar(selectedId);
     }
@@ -752,8 +647,7 @@ function getFirebaseDb() {
     function renderAvatarModalGrid() {
       const avatarModal = ensureAvatarModalExists();
       const avatarGridModal = avatarModal.querySelector("#avatarGridModal");
-      const closeAvatarModalBtn =
-        avatarModal.querySelector("#closeAvatarModal");
+      const closeAvatarModalBtn = avatarModal.querySelector("#closeAvatarModal");
 
       if (!avatarGridModal) return;
 
@@ -878,19 +772,10 @@ function getFirebaseDb() {
       }
 
       if (els.eyeIcon && els.authPassword && els.togglePasswordBtn) {
-        setEyeState(
-          els.authPassword,
-          els.togglePasswordBtn,
-          els.eyeIcon,
-          false,
-        );
+        setEyeState(els.authPassword, els.togglePasswordBtn, els.eyeIcon, false);
       }
 
-      if (
-        els.confirmEyeIcon &&
-        els.authConfirmPassword &&
-        els.toggleConfirmPasswordBtn
-      ) {
+      if (els.confirmEyeIcon && els.authConfirmPassword && els.toggleConfirmPasswordBtn) {
         setEyeState(
           els.authConfirmPassword,
           els.toggleConfirmPasswordBtn,
@@ -911,9 +796,7 @@ function getFirebaseDb() {
       }
 
       if (els.authSubmitBtn) {
-        els.authSubmitBtn.textContent = isLoginMode
-          ? "Login"
-          : "Create Account";
+        els.authSubmitBtn.textContent = isLoginMode ? "Login" : "Create Account";
         els.authSubmitBtn.dataset.mode = isLoginMode ? "login" : "signup";
       }
 
@@ -922,10 +805,7 @@ function getFirebaseDb() {
       }
 
       if (els.forgotBtn) {
-        els.forgotBtn.parentElement?.classList.toggle(
-          "is-hidden",
-          !isLoginMode,
-        );
+        els.forgotBtn.parentElement?.classList.toggle("is-hidden", !isLoginMode);
       }
 
       if (els.authToggleText) {
@@ -935,87 +815,6 @@ function getFirebaseDb() {
       }
 
       attachAuthModalEventHandlers();
-    }
-
-    function attachAuthModalEventHandlers() {
-      // Toggle between login/signup
-      const toggle = document.getElementById("authToggleBtn");
-      if (toggle) {
-        toggle.onclick = () => {
-          isLoginMode = !isLoginMode;
-          clearAuthError();
-          renderAuthMode();
-        };
-      }
-      // Close button
-      if (els.authCloseBtn) {
-        els.authCloseBtn.onclick = (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          clearAuthError();
-          closeAuthModal();
-        };
-      }
-      // Submit button
-      if (els.authSubmitBtn) {
-        els.authSubmitBtn.onclick = handleAuthSubmit;
-      }
-      // Secondary button (Logout)
-      if (els.authSecondaryBtn) {
-        els.authSecondaryBtn.onclick = () => {
-          closeAuthModal();
-          els.logoutModal?.classList.remove("hidden");
-          // Re-attach logout modal button handlers every time modal is shown
-          const confirmBtn = document.getElementById("confirmLogoutBtn");
-          const cancelBtn = document.getElementById("cancelLogoutBtn");
-          const logoutModal = document.getElementById("logoutModal");
-          if (cancelBtn && logoutModal) {
-            cancelBtn.onclick = () => {
-              logoutModal.classList.add("hidden");
-            };
-          }
-          if (confirmBtn) {
-            confirmBtn.onclick = async () => {
-              await logout();
-            };
-          }
-        };
-      }
-      // Forgot password
-      if (els.forgotBtn) {
-        els.forgotBtn.onclick = handleForgotPassword;
-      }
-      // Switch account
-      if (els.switchAccountBtn) {
-        els.switchAccountBtn.onclick = async () => {
-          isLoginMode = true;
-          await switchAccount(() => {
-            isLoginMode = true;
-            renderAuthMode();
-            openAuthModal();
-          });
-        };
-      }
-      // Open avatar modal
-      if (els.openAvatarModalBtn) {
-        els.openAvatarModalBtn.onclick = (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          openAvatarModal();
-        };
-      }
-      // Enter key for inputs
-      [els.authEmail, els.authPassword, els.authConfirmPassword].forEach(
-        (input) => {
-          if (!input) return;
-          input.onkeydown = async (e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              await handleAuthSubmit();
-            }
-          };
-        },
-      );
     }
 
     function renderProfileMode() {
@@ -1066,8 +865,7 @@ function getFirebaseDb() {
       }
 
       if (els.profileNameInput) {
-        els.profileNameInput.value =
-          profile?.name || user.email.split("@")[0] || "";
+        els.profileNameInput.value = profile?.name || user.email.split("@")[0] || "";
       }
 
       if (els.profileBioInput) {
@@ -1098,7 +896,8 @@ function getFirebaseDb() {
       }
 
       if (els.authToggleText) {
-        els.authToggleText.innerHTML = `This account owns your synced profile, progress, and subscription access.`;
+        els.authToggleText.innerHTML =
+          `This account owns your synced profile, progress, and subscription access.`;
       }
 
       if (els.forgotBtn) {
@@ -1106,8 +905,69 @@ function getFirebaseDb() {
       }
     }
 
-    // Ensure all event handlers are attached after rendering profile mode
-    attachAuthModalEventHandlers();
+    function attachAuthModalEventHandlers() {
+      const toggle = document.getElementById("authToggleBtn");
+      if (toggle) {
+        toggle.onclick = () => {
+          isLoginMode = !isLoginMode;
+          clearAuthError();
+          renderAuthMode();
+        };
+      }
+
+      if (els.authCloseBtn) {
+        els.authCloseBtn.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          clearAuthError();
+          closeAuthModal();
+        };
+      }
+
+      if (els.authSubmitBtn) {
+        els.authSubmitBtn.onclick = handleAuthSubmit;
+      }
+
+      if (els.authSecondaryBtn) {
+        els.authSecondaryBtn.onclick = () => {
+          closeAuthModal();
+          els.logoutModal?.classList.remove("hidden");
+        };
+      }
+
+      if (els.forgotBtn) {
+        els.forgotBtn.onclick = handleForgotPassword;
+      }
+
+      if (els.switchAccountBtn) {
+        els.switchAccountBtn.onclick = async () => {
+          isLoginMode = true;
+          await switchAccount(() => {
+            isLoginMode = true;
+            renderAuthMode();
+            openAuthModal();
+          });
+        };
+      }
+
+      if (els.openAvatarModalBtn) {
+        els.openAvatarModalBtn.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          openAvatarModal();
+        };
+      }
+
+      [els.authEmail, els.authPassword, els.authConfirmPassword].forEach((input) => {
+        if (!input) return;
+        input.onkeydown = async (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            await handleAuthSubmit();
+          }
+        };
+      });
+    }
 
     async function handleSaveProfile() {
       const user = getUser();
@@ -1138,10 +998,7 @@ function getFirebaseDb() {
           bio: bio || null,
           avatar_type: "preset",
           avatar_value: selectedAvatarValue,
-          profile_photo_url: buildPresetAvatarUrl(
-            selectedAvatarValue,
-            cacheVersion,
-          ),
+          profile_photo_url: buildPresetAvatarUrl(selectedAvatarValue, cacheVersion),
         };
 
         const result = await saveUserProfile(user.id, payload);
@@ -1158,9 +1015,7 @@ function getFirebaseDb() {
           els.profileAvatarPreview.src = savedProfile.profile_photo_url;
         }
 
-        const topProfileAvatarImg = document.getElementById(
-          "topProfileAvatarImg",
-        );
+        const topProfileAvatarImg = document.getElementById("topProfileAvatarImg");
         if (topProfileAvatarImg) {
           topProfileAvatarImg.src = savedProfile.profile_photo_url;
         }
@@ -1172,7 +1027,6 @@ function getFirebaseDb() {
         }
 
         syncProfileUiEverywhere();
-
         showAuthError("✅ Profile saved successfully.", true);
 
         setTimeout(() => {
@@ -1188,52 +1042,45 @@ function getFirebaseDb() {
 
     async function handleLogin(email, password) {
       if (!navigator.onLine) {
-        showAuthError(
-          "You appear to be offline. Please check your internet connection and try again.",
-        );
+        showAuthError("You appear to be offline. Please check your internet connection and try again.");
         return;
       }
+
       if (els.authSubmitBtn) {
         els.authSubmitBtn.disabled = true;
         els.authSubmitBtn.textContent = "Logging in...";
       }
+
       try {
-        const auth = getFirebaseAuth();
-        const userCredential = await window.signInWithEmailAndPassword(
-          auth,
-          email,
-          password,
-        );
+        const auth = getFirebaseAuthSafe();
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
+
         if (!user) {
           showAuthError("Incorrect email or password.");
           return;
         }
+
         try {
-          await applyAuthenticatedUser(user);
+          const accessToken = await user.getIdToken();
+          await applyAuthenticatedUser(user, accessToken);
         } catch (innerError) {
           console.warn("Post-login setup failed (non-critical):", innerError);
         }
+
         closeAuthModal();
+
         if (typeof window.showToast === "function") {
           window.showToast("✅ Logged in successfully");
         }
+
         syncProfileUiEverywhere();
       } catch (error) {
-        console.error(
-          "Login failed:",
-          error,
-          error && error.code,
-          error && error.message,
-        );
-        if (!navigator.onLine) {
-          showAuthError(
-            "You appear to be offline. Please check your internet connection and try again.",
-          );
-          return;
-        }
+        console.error("Login failed:", error);
+
         const msg = String(error.message || "").toLowerCase();
         const code = error.code || "";
+
         if (
           code === "auth/user-not-found" ||
           msg.includes("user not found") ||
@@ -1242,6 +1089,7 @@ function getFirebaseDb() {
           showAuthError("No account exists for this email.");
           return;
         }
+
         if (
           code === "auth/wrong-password" ||
           code === "auth/invalid-credential" ||
@@ -1252,6 +1100,7 @@ function getFirebaseDb() {
           showAuthError("Incorrect email or password.");
           return;
         }
+
         showAuthError("Login failed. Please try again.");
       } finally {
         if (els.authSubmitBtn) {
@@ -1266,84 +1115,77 @@ function getFirebaseDb() {
         showAuthError("Please confirm your password.");
         return;
       }
+
       if (password !== confirmPassword) {
         showAuthError("Passwords do not match.");
         return;
       }
+
       if (password.length < 6) {
         showAuthError("Password must be at least 6 characters.");
         return;
       }
+
       if (!navigator.onLine) {
-        showAuthError(
-          "You appear to be offline. Please check your internet connection and try again.",
-        );
+        showAuthError("You appear to be offline. Please check your internet connection and try again.");
         return;
       }
+
       if (els.authSubmitBtn) {
         els.authSubmitBtn.disabled = true;
         els.authSubmitBtn.textContent = "Creating account...";
       }
+
       try {
-        const auth = getFirebaseAuth();
-        const userCredential = await window.createUserWithEmailAndPassword(
-          auth,
-          email,
-          password,
-        );
+        const auth = getFirebaseAuthSafe();
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
+
         if (!user) {
           showAuthError("Could not create account.");
           return;
         }
-        // Do not auto-login or close modal. Show message and switch to login mode.
+
+        await ensureProfile(user);
+
         showAuthError("✅ Account created. Please log in.", true);
         isLoginMode = true;
         renderAuthMode();
-        // Optionally, clear password fields
+
         if (els.authPassword) els.authPassword.value = "";
         if (els.authConfirmPassword) els.authConfirmPassword.value = "";
-        if (els.authSubmitBtn) {
-          els.authSubmitBtn.disabled = false;
-          els.authSubmitBtn.textContent = "Login";
-        }
+
         if (typeof window.showToast === "function") {
           window.showToast("✅ Account created. Please log in.");
         }
+
         syncProfileUiEverywhere();
       } catch (error) {
         console.error("Signup failed:", error);
-        if (!navigator.onLine) {
-          showAuthError(
-            "You appear to be offline. Please check your internet connection and try again.",
-          );
-          return;
-        }
-        let msg = String(error.message || "").toLowerCase();
+
+        const msg = String(error.message || "").toLowerCase();
+        const code = error.code || "";
+
         if (
+          code === "auth/email-already-in-use" ||
           msg.includes("already") ||
           msg.includes("registered") ||
-          msg.includes("exists") ||
-          msg.includes("user already")
+          msg.includes("exists")
         ) {
-          showAuthError(
-            "An account with this email already exists. Please login.",
-          );
+          showAuthError("An account with this email already exists. Please login.");
           return;
         }
-        // Only show length error if message is about length, otherwise show real error
-        if (msg.includes("password") && msg.includes("6")) {
+
+        if (code === "auth/weak-password" || (msg.includes("password") && msg.includes("6"))) {
           showAuthError("Password must be at least 6 characters.");
           return;
         }
-        if (msg.includes("password")) {
-          showAuthError(error.message || "Password error.");
-          return;
-        }
-        if (msg.includes("email")) {
+
+        if (code === "auth/invalid-email" || msg.includes("email")) {
           showAuthError("Enter a valid email address.");
           return;
         }
+
         showAuthError(error.message || "Could not create account.");
       } finally {
         if (els.authSubmitBtn) {
@@ -1355,47 +1197,40 @@ function getFirebaseDb() {
 
     async function handleForgotPassword() {
       const email = normalizeEmail(els.authEmail?.value || "");
+
       if (!email) {
         showAuthError("Enter your email first.");
         return;
       }
+
       if (!isValidEmail(email)) {
         showAuthError("Enter a valid email address.");
         return;
       }
+
       if (!navigator.onLine) {
-        showAuthError(
-          "You appear to be offline. Please check your internet connection and try again.",
-        );
+        showAuthError("You appear to be offline. Please check your internet connection and try again.");
         return;
       }
+
       try {
-        const auth = getFirebaseAuth();
-        await auth.sendPasswordResetEmail(email);
+        const auth = getFirebaseAuthSafe();
+        await sendPasswordResetEmail(auth, email);
+
         showAuthError(
           `📩 If an account exists, a password reset link has been sent to ${email}. Please check your inbox.`,
           true,
         );
       } catch (error) {
         console.error("Forgot password failed:", error);
-        if (!navigator.onLine) {
-          showAuthError(
-            "You appear to be offline. Please check your internet connection and try again.",
-          );
-          return;
-        }
         showAuthError("Unable to send reset email. Please try again.");
       }
     }
 
     async function handleAuthSubmit() {
-      if (isSubmitting) {
-        return; // Prevent multiple submissions
-      }
+      if (isSubmitting) return;
 
-      const mode =
-        els.authSubmitBtn?.dataset.mode || (isLoginMode ? "login" : "signup");
-
+      const mode = els.authSubmitBtn?.dataset.mode || (isLoginMode ? "login" : "signup");
       clearAuthError();
 
       if (mode === "save-profile") {
@@ -1405,11 +1240,7 @@ function getFirebaseDb() {
 
       const email = normalizeEmail(els.authEmail?.value || "");
       const password = String(els.authPassword?.value || "").trim();
-      const confirmPassword = String(
-        els.authConfirmPassword?.value || "",
-      ).trim();
-
-      console.log("Normalized email:", email); // Debug log
+      const confirmPassword = String(els.authConfirmPassword?.value || "").trim();
 
       if (!email || !password) {
         showAuthError("Please enter your email and password.");
@@ -1421,7 +1252,6 @@ function getFirebaseDb() {
         return;
       }
 
-      // Password confirmation checks BEFORE isSubmitting
       if (mode === "signup") {
         if (!confirmPassword) {
           showAuthError("Please confirm your password.");
@@ -1444,28 +1274,17 @@ function getFirebaseDb() {
           await handleLogin(email, password);
           return;
         }
+
         if (mode === "signup") {
           await handleSignup(email, password, confirmPassword);
         }
       } catch (error) {
         console.error("Auth submit error:", error);
-        if (!navigator.onLine) {
-          showAuthError(
-            "You appear to be offline. Please check your internet connection and try again.",
-          );
-          return;
-        }
-        showAuthError(
-          "⚠️ A small issue happened after the action. Please try once more if needed.",
-        );
+        showAuthError("⚠️ A small issue happened after the action. Please try once more if needed.");
       } finally {
         isSubmitting = false;
       }
     }
-
-    // =========================
-    // EVENTS
-    // =========================
 
     if (els.togglePasswordBtn && els.authPassword && els.eyeIcon) {
       els.togglePasswordBtn.onclick = () => {
@@ -1474,11 +1293,7 @@ function getFirebaseDb() {
       };
     }
 
-    if (
-      els.toggleConfirmPasswordBtn &&
-      els.authConfirmPassword &&
-      els.confirmEyeIcon
-    ) {
+    if (els.toggleConfirmPasswordBtn && els.authConfirmPassword && els.confirmEyeIcon) {
       els.toggleConfirmPasswordBtn.onclick = () => {
         const show = els.authConfirmPassword.type === "password";
         setEyeState(
@@ -1494,16 +1309,16 @@ function getFirebaseDb() {
       .filter(Boolean)
       .forEach((el) => el.addEventListener("input", clearAuthError));
 
-    // Improved real-time password match check (character-by-character)
     if (els.authConfirmPassword && els.authPassword) {
       els.authConfirmPassword.addEventListener("input", () => {
         const password = els.authPassword.value;
         const confirm = els.authConfirmPassword.value;
+
         if (!confirm) {
           clearAuthError();
           return;
         }
-        // Only show error if confirm diverges from password at any character
+
         if (
           confirm.length > password.length ||
           password.slice(0, confirm.length) !== confirm
@@ -1513,13 +1328,16 @@ function getFirebaseDb() {
           clearAuthError();
         }
       });
+
       els.authPassword.addEventListener("input", () => {
         const password = els.authPassword.value;
         const confirm = els.authConfirmPassword.value;
+
         if (!confirm) {
           clearAuthError();
           return;
         }
+
         if (
           confirm.length > password.length ||
           password.slice(0, confirm.length) !== confirm
@@ -1548,114 +1366,62 @@ function getFirebaseDb() {
         isLoginMode = true;
         renderAuthMode();
         openAuthModal();
-        attachAuthModalEventHandlers();
       });
     }
 
-    if (e.target === avatarModal) {
-      avatarModal.classList.add("hidden");
+    if (els.openAvatarModalBtn) {
+      els.openAvatarModalBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openAvatarModal();
+      });
     }
-  });
 
-  if (els.openAvatarModalBtn) {
-    els.openAvatarModalBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      openAvatarModal();
+    if (els.cancelLogoutBtn) {
+      els.cancelLogoutBtn.onclick = () => {
+        els.logoutModal?.classList.add("hidden");
+      };
+    }
+
+    if (els.confirmLogoutBtn) {
+      els.confirmLogoutBtn.onclick = async () => {
+        await logout();
+      };
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+
+      const avatarModal = document.getElementById("avatarModal");
+      if (avatarModal && !avatarModal.classList.contains("hidden")) {
+        avatarModal.classList.add("hidden");
+        return;
+      }
+
+      if (els.logoutModal && !els.logoutModal.classList.contains("hidden")) {
+        els.logoutModal.classList.add("hidden");
+        return;
+      }
+
+      if (els.authModal && !els.authModal.classList.contains("hidden")) {
+        closeAuthModal();
+      }
     });
-  }
 
-  if (els.cancelLogoutBtn) {
-    els.cancelLogoutBtn.onclick = () => {
-      els.logoutModal?.classList.add("hidden");
-    };
-  }
+    renderAuthMode();
 
-  if (els.confirmLogoutBtn) {
-    els.confirmLogoutBtn.onclick = async () => {
-      await logout();
-    };
-  }
-
-  if (els.authCloseBtn) {
-    els.authCloseBtn.onclick = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      clearAuthError();
-      closeAuthModal();
-    };
-  }
-
-  if (els.authSecondaryBtn) {
-    els.authSecondaryBtn.onclick = () => {
-      closeAuthModal();
-      els.logoutModal?.classList.remove("hidden");
-      // Re-attach logout modal button handlers every time modal is shown
-      const confirmBtn = document.getElementById("confirmLogoutBtn");
-      const cancelBtn = document.getElementById("cancelLogoutBtn");
-      const logoutModal = document.getElementById("logoutModal");
-      if (cancelBtn && logoutModal) {
-        cancelBtn.onclick = () => {
-          logoutModal.classList.add("hidden");
-        };
-      }
-      if (confirmBtn) {
-        confirmBtn.onclick = async () => {
-          await logout();
-        };
-      }
-    };
-  }
-
-  if (els.authSubmitBtn) {
-    els.authSubmitBtn.onclick = handleAuthSubmit;
-  }
-
-  if (els.forgotBtn) {
-    els.forgotBtn.onclick = handleForgotPassword;
-  }
-
-  if (els.switchAccountBtn) {
-    els.switchAccountBtn.onclick = async () => {
-      isLoginMode = true;
-      await switchAccount(() => {
-        isLoginMode = true;
-        renderAuthMode();
-        openAuthModal();
-      });
-    };
-  }
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key !== "Escape") return;
-
-    const avatarModal = document.getElementById("avatarModal");
-    if (avatarModal && !avatarModal.classList.contains("hidden")) {
-      avatarModal.classList.add("hidden");
-      return;
-    }
-
-    if (els.logoutModal && !els.logoutModal.classList.contains("hidden")) {
-      els.logoutModal.classList.add("hidden");
-      return;
-    }
-
-    if (els.authModal && !els.authModal.classList.contains("hidden")) {
-      closeAuthModal();
-    }
-  });
-
-  [els.authEmail, els.authPassword, els.authConfirmPassword].forEach(
-    (input) => {
-      if (!input) return;
-      input.addEventListener("keydown", async (e) => {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          await handleAuthSubmit();
+    const auth = getFirebaseAuthSafe();
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const token = await user.getIdToken();
+          await applyAuthenticatedUser(user, token);
+        } catch (error) {
+          console.warn("onAuthStateChanged apply user failed:", error);
         }
-      });
-    },
-  );
-
-  // Removed obsolete Supabase session and event logic. File now ends cleanly for Firebase-only setup.
+      } else {
+        await clearAuthenticatedUser();
+      }
+    });
+  });
 })();
