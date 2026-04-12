@@ -350,6 +350,7 @@
 
   <script src="/js/app-config.js"></script>
   <script type="module" src="/js/unlock.js"></script>
+  <script src="/js/access-control.js"></script>
 
   <script type="module">
     import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
@@ -1109,41 +1110,17 @@
       shareTitle = safeDecode(rawTitle, fileName.replace(/\.pdf$/i, ""));
       backUrl = rawBack
         ? normalizePath(safeDecode(rawBack))
-        : (subjectSlug ? `/subjects/${subjectSlug}/index.html` : "/index.html");
+        : (subjectSlug ? `/subjects/index.html?subject=${encodeURIComponent(subjectSlug)}` : "/index.html");
 
-      function normalizeAccessSlug(value) {
-        return String(value || "")
-          .trim()
-          .toLowerCase()
-          .replace(/\s+/g, "-");
-      }
+      viewerHasAccess =
+        typeof window.canAccessPdfFast === "function"
+          ? window.canAccessPdfFast(subjectSlug)
+          : false;
 
-      function canAccessPdfFast(subject) {
-        if (typeof window.canAccessPdf === "function") {
-          return window.canAccessPdf(subject);
-        }
-
-        const normalizedSubject = normalizeAccessSlug(subject);
-        const freeSubjects = (window.DN_CONFIG?.ACCESS?.FREE_PDF_SUBJECTS || [])
-          .map(normalizeAccessSlug);
-
-        return freeSubjects.includes(normalizedSubject);
-      }
-
-      function canAccessQuizFast(topic) {
-        if (typeof window.canAccessQuiz === "function") {
-          return window.canAccessQuiz(topic);
-        }
-
-        const normalizedTopic = normalizeAccessSlug(topic);
-        const freeTopics = (window.DN_CONFIG?.ACCESS?.FREE_QUIZ_TOPICS || [])
-          .map(normalizeAccessSlug);
-
-        return freeTopics.includes(normalizedTopic);
-      }
-
-      viewerHasAccess = canAccessPdfFast(subjectSlug);
-      viewerQuizAllowed = canAccessQuizFast(subjectSlug || "");
+      viewerQuizAllowed =
+        typeof window.canAccessQuizFast === "function"
+          ? window.canAccessQuizFast(subjectSlug || "")
+          : false;
 
       if (!viewerHasAccess) {
         viewerTitleEl.textContent = "Locked PDF";
@@ -1157,7 +1134,7 @@
       }
 
       const subjectPageUrl = subjectSlug
-        ? `/subjects/${subjectSlug}/index.html`
+        ? `/subjects/index.html?subject=${encodeURIComponent(subjectSlug)}`
         : "/index.html";
 
       viewerTitleEl.textContent = shareTitle;
