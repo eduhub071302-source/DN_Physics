@@ -34,6 +34,7 @@
           🔄
         </button>
       </div>
+    </div>
   </header>
 
   <main>
@@ -438,7 +439,7 @@
           const category = getSubjectCategory(subjectSlug);
           const description = getSubjectDescription(subjectSlug);
           const badge = getBadgeText(index);
-          const link = `/subjects/${subjectSlug}/index.html`;
+          const link = `/subjects/index.html?subject=${encodeURIComponent(subjectSlug)}`;
 
           SUBJECTS[subjectName] = {
             title: subjectName,
