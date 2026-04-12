@@ -1,5 +1,5 @@
 // 🔐 Access Control Layer for DN Physics
-// Single source of truth for PDF and Quiz access checks
+// Stable access checks for notes and quiz
 
 function dnNormalizeAccessSlug(value) {
   return String(value || "")
@@ -18,38 +18,66 @@ function dnGetFreeQuizTopics() {
     .map(dnNormalizeAccessSlug);
 }
 
-function dnHasPaidOrOwnerAccess() {
+function dnIsOwnerModeSafe() {
   try {
-    if (typeof window.isOwnerMode === "function" && window.isOwnerMode()) {
-      return true;
-    }
-
-    if (typeof window.hasPaidAccess === "function" && window.hasPaidAccess()) {
-      return true;
+    if (typeof window.isOwnerMode === "function") {
+      return window.isOwnerMode();
     }
   } catch (error) {
-    console.warn("dnHasPaidOrOwnerAccess failed:", error);
+    console.warn("dnIsOwnerModeSafe failed:", error);
   }
 
   return false;
 }
 
-function canAccessPdfFast(subject) {
-  if (dnHasPaidOrOwnerAccess()) return true;
+function dnHasPaidAccessSafe() {
+  try {
+    if (typeof window.hasPaidAccess === "function") {
+      return window.hasPaidAccess();
+    }
+  } catch (error) {
+    console.warn("dnHasPaidAccessSafe failed:", error);
+  }
 
+  return false;
+}
+
+function dnHasPaidOrOwnerAccess() {
+  return dnIsOwnerModeSafe() || dnHasPaidAccessSafe();
+}
+
+function canAccessPdfFast(subject) {
   const normalizedSubject = dnNormalizeAccessSlug(subject);
   const freeSubjects = dnGetFreePdfSubjects();
 
-  return freeSubjects.includes(normalizedSubject);
+  // ✅ Free subjects should always work immediately
+  if (freeSubjects.includes(normalizedSubject)) {
+    return true;
+  }
+
+  // ✅ Paid / owner unlocks all others
+  if (dnHasPaidOrOwnerAccess()) {
+    return true;
+  }
+
+  return false;
 }
 
 function canAccessQuizFast(topic) {
-  if (dnHasPaidOrOwnerAccess()) return true;
-
   const normalizedTopic = dnNormalizeAccessSlug(topic);
   const freeTopics = dnGetFreeQuizTopics();
 
-  return freeTopics.includes(normalizedTopic);
+  // ✅ Free quiz topics should always work immediately
+  if (freeTopics.includes(normalizedTopic)) {
+    return true;
+  }
+
+  // ✅ Paid / owner unlocks all others
+  if (dnHasPaidOrOwnerAccess()) {
+    return true;
+  }
+
+  return false;
 }
 
 function getPdfLockState(subject) {
@@ -72,10 +100,11 @@ function getQuizLockState(topic) {
   };
 }
 
-// Expose globals
 window.dnNormalizeAccessSlug = dnNormalizeAccessSlug;
 window.dnGetFreePdfSubjects = dnGetFreePdfSubjects;
 window.dnGetFreeQuizTopics = dnGetFreeQuizTopics;
+window.dnIsOwnerModeSafe = dnIsOwnerModeSafe;
+window.dnHasPaidAccessSafe = dnHasPaidAccessSafe;
 window.dnHasPaidOrOwnerAccess = dnHasPaidOrOwnerAccess;
 window.canAccessPdfFast = canAccessPdfFast;
 window.canAccessQuizFast = canAccessQuizFast;
