@@ -125,14 +125,29 @@ function hasPaidAccess() {
   return true;
 }
 
+function normalizeAccessSlug(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-");
+}
+
 function canAccessPdf(subject) {
   if (isOwnerMode() || hasPaidAccess()) return true;
-  return DN_CONFIG.ACCESS.FREE_PDF_SUBJECTS.includes(subject);
+
+  const normalizedSubject = normalizeAccessSlug(subject);
+  const freeSubjects = (DN_CONFIG?.ACCESS?.FREE_PDF_SUBJECTS || []).map(normalizeAccessSlug);
+
+  return freeSubjects.includes(normalizedSubject);
 }
 
 function canAccessQuiz(topic) {
   if (isOwnerMode() || hasPaidAccess()) return true;
-  return DN_CONFIG.ACCESS.FREE_QUIZ_TOPICS.includes(topic);
+
+  const normalizedTopic = normalizeAccessSlug(topic);
+  const freeTopics = (DN_CONFIG?.ACCESS?.FREE_QUIZ_TOPICS || []).map(normalizeAccessSlug);
+
+  return freeTopics.includes(normalizedTopic);
 }
 
 // ----------------------------
