@@ -1,33 +1,17 @@
-// 🔥 Firebase Client - Scalable Auth for Millions of Users
-// Replace the config values with your Firebase project credentials
+// firebase-client.js
+
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY", // Replace with your API key
-  authDomain: "YOUR_PROJECT.firebaseapp.com", // Replace with your auth domain
-  projectId: "YOUR_PROJECT_ID", // Replace with your project ID
-  storageBucket: "YOUR_PROJECT.appspot.com", // Replace with your storage bucket
-  messagingSenderId: "YOUR_MESSAGING_ID", // Replace with your messaging ID
-  appId: "YOUR_APP_ID", // Replace with your app ID
+  apiKey: "AIzaSyA8MHkxCeD1hUkPFZA15mUpaB87B21ZZ04",
+  authDomain: "dn-physics.firebaseapp.com",
+  databaseURL: "https://dn-physics-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "dn-physics",
 };
 
-// Import Firebase modules (using CDN version in HTML)
-// Add this to your index.html <head>:
-// <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-// <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
-// <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+const app = initializeApp(firebaseConfig);
 
-// Or use ES modules if you have a bundler
-
-(() => {
-  "use strict";
-
-  // Initialize Firebase
-  if (typeof firebase !== "undefined") {
-    firebase.initializeApp(firebaseConfig);
-    window.firebaseAuth = firebase.auth();
-    window.firebaseDb = firebase.firestore();
-    console.log("✅ Firebase initialized successfully");
-  } else {
-    console.error("❌ Firebase SDK not loaded. Add it to index.html");
-  }
-})();
+export const auth = getAuth(app);
+export const db = getDatabase(app);
