@@ -167,6 +167,10 @@
     }
   </script>
 
+  <script src="/js/app-config.js"></script>
+  <script type="module" src="/js/unlock.js"></script>
+  <script src="/js/access-control.js"></script>
+
   <script>
     const refreshBtn = document.getElementById("refreshBtn");
     const searchInput = document.getElementById("subjectSearch");
@@ -184,6 +188,15 @@
         .replace(/-/g, " ")
         .replace(/\b\w/g, (c) => c.toUpperCase())
         .trim();
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     }
 
     function getSubjectDescription(subjectSlug) {
@@ -302,9 +315,18 @@
       actions.className = "actions";
 
       const link = document.createElement("a");
-      link.className = "btn";
-      link.href = subject.link;
-      link.textContent = "Explore";
+      link.className = `btn ${subject.allowed ? "" : "locked-btn"}`;
+      link.href = subject.allowed ? subject.link : "#";
+      link.textContent = subject.allowed ? "Explore" : "🔒 Locked";
+
+      if (!subject.allowed) {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          if (typeof window.lockAlert === "function") {
+            window.lockAlert();
+          }
+        });
+      }
 
       actions.appendChild(link);
       wrapper.appendChild(actions);
@@ -418,6 +440,14 @@
       filterSubjects();
     }
 
+    function canAccessSubjectCard(subjectSlug) {
+      if (typeof window.canAccessPdfFast === "function") {
+        return window.canAccessPdfFast(subjectSlug);
+      }
+
+      return false;
+    }
+
     async function loadSubjectsFromCatalog() {
       try {
         const res = await fetch("/pdfs/catalog.json", { cache: "no-store" });
@@ -440,31 +470,38 @@
           const description = getSubjectDescription(subjectSlug);
           const badge = getBadgeText(index);
           const link = `/subjects/index.html?subject=${encodeURIComponent(subjectSlug)}`;
+          const allowed = canAccessSubjectCard(subjectSlug);
 
           SUBJECTS[subjectName] = {
             title: subjectName,
             badge,
             description,
-            link
+            link,
+            allowed
           };
 
           return `
             <div
               class="card subject-card"
-              data-title="${subjectName}"
-              data-category="${category}"
-              data-keywords="${subjectName.toLowerCase()} ${subjectSlug.replace(/-/g, " ")} physics formulas revision notes"
+              data-title="${escapeHtml(subjectName)}"
+              data-category="${escapeHtml(category)}"
+              data-keywords="${escapeHtml(subjectName.toLowerCase())} ${escapeHtml(subjectSlug.replace(/-/g, " "))} physics formulas revision notes"
             >
               <div class="card-top">
                 <div class="badge">${badge}</div>
-                <button class="pin-btn" data-subject="${subjectName}" type="button" aria-label="Pin ${subjectName}">
+                <button class="pin-btn" data-subject="${escapeHtml(subjectName)}" type="button" aria-label="Pin ${escapeHtml(subjectName)}">
                   ☆
                 </button>
               </div>
-              <h3>${subjectName}</h3>
-              <p>${description}</p>
+              <h3>${escapeHtml(subjectName)}</h3>
+              <p>${escapeHtml(description)}</p>
               <div class="actions">
-                <a class="btn" href="${link}">Explore</a>
+                <a
+                  class="btn ${allowed ? "" : "locked-btn"}"
+                  href="${allowed ? link : "#"}"
+                  ${allowed ? "" : `onclick="event.preventDefault(); if (window.lockAlert) window.lockAlert();"`}>
+                  ${allowed ? "Explore" : "🔒 Locked"}
+                </a>
               </div>
             </div>
           `;
@@ -485,7 +522,21 @@
       }
     }
 
-    refreshBtn.addEventListener("click", () => location.reload());
+    refreshBtn.addEventListener("click", async () => {
+      try {
+        if ("serviceWorker" in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (const registration of registrations) {
+            await registration.update();
+          }
+        }
+      } catch (error) {
+        console.log("Refresh warning:", error);
+      }
+
+      location.reload();
+    });
+
     searchInput.addEventListener("input", filterSubjects);
     categoryFilter.addEventListener("change", filterSubjects);
 
