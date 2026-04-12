@@ -139,6 +139,31 @@
 
   <audio id="bgMusic" loop></audio>
 
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+    import { getDatabase } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
+
+    if (!window.firebaseApp) {
+      const firebaseConfig = {
+        apiKey: "AIzaSyA8MHkxCeD1hUkPFZA15mUpaB87B21ZZ04",
+        authDomain: "dn-physics.firebaseapp.com",
+        databaseURL:
+          "https://dn-physics-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "dn-physics",
+        storageBucket: "dn-physics.firebasestorage.app",
+        messagingSenderId: "550016753421",
+        appId: "1:550016753421:web:8c68d2471cb87192809a44",
+        measurementId: "G-JB216F8CQ9",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      window.firebaseApp = app;
+      window.firebaseAuth = getAuth(app);
+      window.firebaseDb = getDatabase(app);
+    }
+  </script>
+
   <script>
     const refreshBtn = document.getElementById("refreshBtn");
     const searchInput = document.getElementById("subjectSearch");
@@ -179,15 +204,11 @@
 
     function getCurrentUserId() {
       try {
+        const firebaseUid = window.firebaseAuth?.currentUser?.uid;
+        if (firebaseUid) return firebaseUid;
+
         const cachedUser = JSON.parse(localStorage.getItem("dn_user") || "null");
         if (cachedUser?.id) return cachedUser.id;
-
-        const rawSupabase = localStorage.getItem("supabase.auth.token");
-        if (rawSupabase) {
-          const parsed = JSON.parse(rawSupabase);
-          const sessionUser = parsed?.currentSession?.user || parsed?.user || null;
-          if (sessionUser?.id) return sessionUser.id;
-        }
       } catch (error) {
         console.warn("Could not resolve current user id:", error);
       }
