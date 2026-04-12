@@ -273,6 +273,7 @@
 
   <script src="/js/app-config.js"></script>
   <script type="module" src="/js/unlock.js"></script>
+  <script src="/js/access-control.js"></script>
 
   <script>
     const params = new URLSearchParams(window.location.search);
@@ -354,33 +355,17 @@
       topicSubjectPill.textContent = prettySubject;
 
       const subjectPage = subject
-        ? `/subjects/${subject}/index.html`
+        ? `/subjects/index.html?subject=${encodeURIComponent(subject)}`
         : "/index.html";
 
       backLink.href = subjectPage;
       subjectNavLink.href = subjectPage;
       subjectNavLink.textContent = prettySubject;
 
-      function normalizeAccessSlug(value) {
-        return String(value || "")
-          .trim()
-          .toLowerCase()
-          .replace(/\s+/g, "-");
-      }
-
-      function canAccessPdfFast(subject) {
-        if (typeof window.canAccessPdf === "function") {
-          return window.canAccessPdf(subject);
-        }
-
-        const normalizedSubject = normalizeAccessSlug(subject);
-        const freeSubjects = (window.DN_CONFIG?.ACCESS?.FREE_PDF_SUBJECTS || [])
-          .map(normalizeAccessSlug);
-
-        return freeSubjects.includes(normalizedSubject);
-      }
-
-      const isPdfAllowed = canAccessPdfFast(subject);
+      const isPdfAllowed =
+        typeof window.canAccessPdfFast === "function"
+          ? window.canAccessPdfFast(subject)
+          : false;
 
       const pdfPath = hasValidParams
         ? `/pdfs/${subject}/${file}`
