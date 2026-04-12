@@ -168,8 +168,8 @@
   </script>
 
   <script src="/js/app-config.js"></script>
-  <script type="module" src="/js/unlock.js"></script>
   <script src="/js/access-control.js"></script>
+  <script type="module" src="/js/unlock.js"></script>
 
   <script>
     const refreshBtn = document.getElementById("refreshBtn");
@@ -449,11 +449,7 @@
     }
 
     function canAccessSubjectCard(subjectSlug) {
-      const normalizedSubject = normalizeAccessSlug(subjectSlug);
-      const freeSubjects = (window.DN_CONFIG?.ACCESS?.FREE_PDF_SUBJECTS || [])
-        .map(normalizeAccessSlug);
-
-      return freeSubjects.includes(normalizedSubject);
+      return normalizeAccessSlug(subjectSlug) === "gravitational-field";
     }
 
     async function loadSubjectsFromCatalog() {
