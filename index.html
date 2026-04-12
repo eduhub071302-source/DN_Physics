@@ -782,8 +782,17 @@
               if (!event.data) return;
 
               if (event.data.type === "SW_UPDATED") {
+                console.log("✅ Service worker updated:", event.data.version);
                 showToast("🚀 Updating app...");
-                performSafeUpdate();
+                setTimeout(() => {
+                  window.location.reload();
+                }, 300);
+                return;
+              }
+
+              if (event.data.type === "SW_VERSION_READY") {
+                console.log("✅ Service worker ready:", event.data.version);
+                return;
               }
 
               if (event.data.type === "FORCE_RELOAD") {
