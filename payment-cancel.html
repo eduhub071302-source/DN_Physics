@@ -10,7 +10,6 @@
   <main class="section">
     <div class="container">
       <div class="card" style="max-width:700px; margin:40px auto; text-align:center;">
-        
         <div style="font-size:48px; margin-bottom:12px;">❌</div>
 
         <h1>Payment Cancelled</h1>
@@ -20,9 +19,15 @@
           No charges were applied. You can try again anytime.
         </p>
 
-        <div id="orderInfo" style="margin-top:10px; font-size:13px; color:#7cc4ff;"></div>
+        <div
+          id="orderInfo"
+          style="margin-top:10px; font-size:13px; color:#7cc4ff;"
+        ></div>
 
-        <div class="actions" style="margin-top:20px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        <div
+          class="actions"
+          style="margin-top:20px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;"
+        >
           <button id="retryBtn" class="btn btn-primary" type="button">
             🔁 Try Again
           </button>
@@ -31,38 +36,66 @@
             🏠 Back to Home
           </a>
         </div>
-
       </div>
     </div>
   </main>
 
   <script src="/js/app-config.js"></script>
-  <script src="/js/unlock.js"></script>
+  <script type="module" src="/js/unlock.js"></script>
 
   <script>
-    (function () {
+    window.addEventListener("load", () => {
       const params = new URLSearchParams(window.location.search);
-      const orderId = params.get("order_id") || getPendingOrderId();
-
       const orderInfo = document.getElementById("orderInfo");
       const retryBtn = document.getElementById("retryBtn");
 
-      // 🔥 Clear pending order (VERY IMPORTANT)
-      clearPendingOrderId();
+      let orderId = "";
 
-      if (orderId) {
+      try {
+        orderId =
+          params.get("order_id") ||
+          params.get("orderId") ||
+          params.get("merchant_id") ||
+          (typeof getPendingOrderId === "function" ? getPendingOrderId() : "") ||
+          "";
+      } catch {
+        orderId = "";
+      }
+
+      try {
+        if (typeof clearPendingOrderId === "function") {
+          clearPendingOrderId();
+        }
+      } catch (error) {
+        console.warn("Could not clear pending order id:", error);
+      }
+
+      if (orderId && orderInfo) {
         orderInfo.textContent = "Order ID: " + orderId;
       }
 
-      retryBtn.addEventListener("click", async () => {
-        try {
-          await startFullUnlockCheckout();
-        } catch (e) {
-          console.log("Retry failed:", e);
-          alert("Unable to start payment. Please try again.");
-        }
-      });
-    })();
+      if (retryBtn) {
+        retryBtn.addEventListener("click", async () => {
+          try {
+            if (typeof startFullUnlockCheckout !== "function") {
+              alert("Payment system is not ready yet. Please return home and try again.");
+              return;
+            }
+
+            retryBtn.disabled = true;
+            retryBtn.textContent = "Starting...";
+
+            await startFullUnlockCheckout();
+          } catch (e) {
+            console.log("Retry failed:", e);
+            alert("Unable to start payment. Please try again.");
+          } finally {
+            retryBtn.disabled = false;
+            retryBtn.textContent = "🔁 Try Again";
+          }
+        });
+      }
+    });
   </script>
 </body>
-</html>       
+</html>     
