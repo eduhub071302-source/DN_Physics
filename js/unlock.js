@@ -33,7 +33,7 @@ function dnStorageRemove(key) {
 
 function getUserKeySuffix() {
   try {
-    const auth = getAuth();
+    const auth = window.firebaseAuth || getAuth();
     return auth.currentUser?.uid || "guest";
   } catch {
     return "guest";
@@ -100,6 +100,15 @@ function getRemainingDays() {
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
 
+function clearPaidAccess() {
+  dnStorageRemove(getPaidUnlockKey());
+  dnStorageRemove(getUnlockSourceKey());
+  dnStorageRemove(getUnlockTimeKey());
+  dnStorageRemove(getUnlockOrderIdKey());
+  dnStorageRemove(getPendingOrderIdKey());
+  dnStorageRemove(getUnlockExpiresAtKey());
+}
+
 function hasPaidAccess() {
   if (isOwnerMode()) return true;
 
@@ -146,19 +155,6 @@ function activatePaidAccess(meta = {}) {
   }
 }
 
-function clearPaidAccess() {
-  dnStorageRemove(getPaidUnlockKey());
-  dnStorageRemove(getUnlockSourceKey());
-  dnStorageRemove(getUnlockTimeKey());
-  dnStorageRemove(getUnlockOrderIdKey());
-  dnStorageRemove(getPendingOrderIdKey());
-  dnStorageRemove(getUnlockExpiresAtKey());
-}
-
-// ----------------------------
-// Owner Mode
-// ----------------------------
-
 function enableOwnerMode() {
   dnStorageSet(getOwnerModeKey(), "true");
   activatePaidAccess({ source: "owner" });
@@ -203,8 +199,8 @@ function clearPendingOrderId() {
 let unlockValueUnsubscribe = null;
 
 function startFirebaseSync() {
-  const auth = getAuth();
-  const db = getDatabase();
+  const auth = window.firebaseAuth || getAuth();
+  const db = window.firebaseDb || getDatabase();
 
   onAuthStateChanged(auth, (user) => {
     if (unlockValueUnsubscribe) {
@@ -422,6 +418,38 @@ function closeUnlockModal() {
 function lockAlert() {
   openUnlockModal();
 }
+
+// ----------------------------
+// Expose Globals
+// ----------------------------
+
+window.isOwnerMode = isOwnerMode;
+window.getSubscriptionExpiresAt = getSubscriptionExpiresAt;
+window.isSubscriptionActive = isSubscriptionActive;
+window.getRemainingDays = getRemainingDays;
+window.hasPaidAccess = hasPaidAccess;
+window.canAccessPdf = canAccessPdf;
+window.canAccessQuiz = canAccessQuiz;
+
+window.activatePaidAccess = activatePaidAccess;
+window.clearPaidAccess = clearPaidAccess;
+window.enableOwnerMode = enableOwnerMode;
+window.disableOwnerMode = disableOwnerMode;
+window.unlockWithOwnerCode = unlockWithOwnerCode;
+
+window.setPendingOrderId = setPendingOrderId;
+window.getPendingOrderId = getPendingOrderId;
+window.clearPendingOrderId = clearPendingOrderId;
+
+window.startFullUnlockCheckout = startFullUnlockCheckout;
+window.checkServerUnlockStatus = checkServerUnlockStatus;
+window.applyServerUnlock = applyServerUnlock;
+window.syncUnlockWithServer = syncUnlockWithServer;
+
+window.openUnlockModal = openUnlockModal;
+window.closeUnlockModal = closeUnlockModal;
+window.lockAlert = lockAlert;
+window.showDnMessage = showDnMessage;
 
 // ----------------------------
 // INIT
