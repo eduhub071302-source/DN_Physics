@@ -3,22 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Electronics | DinuuNOVA Physics</title>
-  <link rel="stylesheet" href="../../css/style.css" />
+  <title>Subject Notes | DinuuNOVA Physics</title>
+
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#4ea1ff" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
-
   <header>
     <div class="container nav">
       <div class="brand">DinuuNOVA <span>Physics</span></div>
 
       <div class="topbar-right">
         <nav class="nav-links">
-          <a href="../../index.html">Home</a>
-          <a href="index.html" class="active">Electronics</a>
+          <a href="/index.html">Home</a>
+          <a href="#" id="subjectNavLink" class="active">Subject</a>
         </nav>
 
-        <button id="refreshBtn" class="btn refresh-top-btn" type="button" title="Refresh app">
+        <button
+          id="refreshBtn"
+          class="btn refresh-top-btn"
+          type="button"
+          title="Refresh app"
+          aria-label="Refresh app"
+        >
           🔄
         </button>
       </div>
@@ -27,8 +39,8 @@
 
   <section class="page-title">
     <div class="container">
-      <a class="back-link" href="../../index.html">← Back to Home</a>
-      <h1 id="subjectTitle">Electronics</h1>
+      <a class="back-link" href="/notes/index.html">← Back to Notes</a>
+      <h1 id="subjectTitle">Subject</h1>
       <p id="subjectDesc">Choose a subtopic to view formula notes.</p>
     </div>
   </section>
@@ -47,9 +59,16 @@
     </div>
   </footer>
 
-  <!-- MUSIC PLAYER -->
   <div class="music-player-wrap">
-    <button id="musicToggleBtn" class="btn" type="button">🎧 Focus</button>
+    <button
+      id="musicToggleBtn"
+      class="btn"
+      type="button"
+      aria-expanded="false"
+      aria-controls="musicPanel"
+    >
+      🎧 Focus
+    </button>
 
     <div id="musicPanel" class="music-panel">
       <div class="music-panel-title">Focus Mode 🎧</div>
@@ -63,7 +82,15 @@
       </div>
 
       <label for="volumeSlider" class="music-label">Volume 🔊</label>
-      <input id="volumeSlider" class="volume-slider" type="range" min="0" max="1" step="0.01" value="0.35" />
+      <input
+        id="volumeSlider"
+        class="volume-slider"
+        type="range"
+        min="0"
+        max="1"
+        step="0.01"
+        value="0.35"
+      />
 
       <div id="currentTrackLabel" class="music-track-label">Current: None</div>
     </div>
@@ -71,38 +98,99 @@
 
   <audio id="bgMusic" loop></audio>
 
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+    import { getDatabase } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
+
+    if (!window.firebaseApp) {
+      const firebaseConfig = {
+        apiKey: "AIzaSyA8MHkxCeD1hUkPFZA15mUpaB87B21ZZ04",
+        authDomain: "dn-physics.firebaseapp.com",
+        databaseURL:
+          "https://dn-physics-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "dn-physics",
+        storageBucket: "dn-physics.firebasestorage.app",
+        messagingSenderId: "550016753421",
+        appId: "1:550016753421:web:8c68d2471cb87192809a44",
+        measurementId: "G-JB216F8CQ9",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      window.firebaseApp = app;
+      window.firebaseAuth = getAuth(app);
+      window.firebaseDb = getDatabase(app);
+    }
+  </script>
+
   <script src="/js/app-config.js"></script>
-  <script src="/js/unlock.js"></script>
+  <script type="module" src="/js/unlock.js"></script>
 
   <script>
     const grid = document.getElementById("subjectGrid");
     const refreshBtn = document.getElementById("refreshBtn");
+    const subjectTitleEl = document.getElementById("subjectTitle");
+    const subjectDescEl = document.getElementById("subjectDesc");
+    const subjectNavLink = document.getElementById("subjectNavLink");
 
     function prettifyTopicName(fileName) {
       return (fileName || "")
         .replace(/\.pdf$/i, "")
         .replace(/-formulas$/i, "")
         .replace(/-/g, " ")
-        .replace(/\b\w/g, c => c.toUpperCase())
+        .replace(/\b\w/g, (c) => c.toUpperCase())
         .trim() || "Untitled";
     }
 
-    function buildTopicPage(subject, file) {
-      const base = file.replace(/-formulas\.pdf$/i, "").replace(/\.pdf$/i, "");
-      return `../../topics/${subject}/${base}.html`;
+    function prettifySubjectName(subject) {
+      return (subject || "")
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase())
+        .trim() || "Subject";
+    }
+
+    function getCurrentSubject() {
+      const pathParts = window.location.pathname.split("/").filter(Boolean);
+      const subjectsIndex = pathParts.indexOf("subjects");
+      return subjectsIndex !== -1 ? pathParts[subjectsIndex + 1] || "" : "";
+    }
+
+    function getPdfPath(item) {
+      if (item.pdf) return item.pdf;
+      if (item.url) return item.url;
+      return `/pdfs/${item.subject}/${item.file}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     }
 
     async function loadSubjectCards() {
       try {
-        const pathParts = window.location.pathname.split("/").filter(Boolean);
-        const subjectsIndex = pathParts.indexOf("subjects");
-        const currentSubject = subjectsIndex !== -1 ? pathParts[subjectsIndex + 1] : "";
+        const currentSubject = getCurrentSubject();
+        const prettySubject = prettifySubjectName(currentSubject);
 
-        const res = await fetch("/pdfs/catalog.json");
+        if (!currentSubject) {
+          grid.innerHTML = `<div class="empty-state">Could not detect subject.</div>`;
+          return;
+        }
+
+        document.title = `${prettySubject} | DinuuNOVA Physics`;
+        subjectTitleEl.textContent = prettySubject;
+        subjectDescEl.textContent = "Choose a subtopic to view formula notes.";
+        subjectNavLink.textContent = prettySubject;
+        subjectNavLink.href = window.location.pathname;
+
+        const res = await fetch("/pdfs/catalog.json", { cache: "no-store" });
         if (!res.ok) throw new Error("Could not load catalog.json");
 
         const items = await res.json();
-        const subjectItems = items.filter(item => item.subject === currentSubject);
+        const subjectItems = items.filter((item) => item.subject === currentSubject);
 
         if (!subjectItems.length) {
           grid.innerHTML = `<div class="empty-state">No subtopics found for this subject yet.</div>`;
@@ -111,25 +199,38 @@
 
         grid.innerHTML = subjectItems.map((item, index) => {
           const topicTitle = item.title || prettifyTopicName(item.file);
-          const topicPage = `../../topics/topic.html?subject=${encodeURIComponent(item.subject)}&file=${encodeURIComponent(item.file)}&title=${encodeURIComponent(topicTitle)}`;
-          const viewerPage = `../../topics/viewer.html?pdf=${encodeURIComponent(`/pdfs/${item.subject}/${item.file}`)}&title=${encodeURIComponent(topicTitle)}&back=${encodeURIComponent(window.location.pathname)}&subjectName=${encodeURIComponent(document.getElementById('subjectTitle').textContent)}`;
-          const isAllowed = canAccessPdf(item.subject);
+          const topicPage =
+            `/topics/topic.html?subject=${encodeURIComponent(item.subject)}` +
+            `&file=${encodeURIComponent(item.file)}` +
+            `&title=${encodeURIComponent(topicTitle)}`;
+
+          const viewerPage =
+            `/topics/viewer.html?pdf=${encodeURIComponent(getPdfPath(item))}` +
+            `&title=${encodeURIComponent(topicTitle)}` +
+            `&back=${encodeURIComponent(item.subjectPage || window.location.pathname)}` +
+            `&subjectName=${encodeURIComponent(prettySubject)}`;
+
+          const isAllowed =
+            typeof window.canAccessPdf === "function"
+              ? window.canAccessPdf(item.subject)
+              : true;
 
           return `
             <div class="card">
               <div class="badge">Subtopic ${String(index + 1).padStart(2, "0")}</div>
-              <h3>${topicTitle}</h3>
-              <p>Core formulas and revision notes for ${topicTitle.toLowerCase()}.</p>
+              <h3>${escapeHtml(topicTitle)}</h3>
               <div class="actions">
-                <a class="btn ${isAllowed ? "" : "locked-btn"}"
+                <a
+                  class="btn ${isAllowed ? "" : "locked-btn"}"
                   href="${isAllowed ? topicPage : "#"}"
-                  ${isAllowed ? "" : `onclick="event.preventDefault(); lockAlert();"`}>
-                 ${isAllowed ? `Open ${topicTitle}` : "🔒 Locked"}
+                  ${isAllowed ? "" : `onclick="event.preventDefault(); if (window.lockAlert) window.lockAlert();"`}>
+                  ${isAllowed ? `Open ${escapeHtml(topicTitle)}` : "🔒 Locked"}
                 </a>
 
-                <a class="btn btn-primary ${isAllowed ? "" : "locked-btn"}"
-                   href="${isAllowed ? viewerPage : "#"}"
-                   ${isAllowed ? "" : `onclick="event.preventDefault(); lockAlert();"`}>
+                <a
+                  class="btn btn-primary ${isAllowed ? "" : "locked-btn"}"
+                  href="${isAllowed ? viewerPage : "#"}"
+                  ${isAllowed ? "" : `onclick="event.preventDefault(); if (window.lockAlert) window.lockAlert();"`}>
                   ${isAllowed ? "View PDF" : "🔒 Locked"}
                 </a>
               </div>
@@ -137,6 +238,7 @@
           `;
         }).join("");
       } catch (error) {
+        console.error(error);
         grid.innerHTML = `<div class="empty-state">Could not load subtopics.</div>`;
       }
     }
