@@ -1,16 +1,15 @@
-const CACHE_NAME = "dn-physics-v268";
+const CACHE_NAME = "dn-physics-v270";
 const META_CACHE = "dn-physics-meta";
 
 const CORE_FILES = [
   "/",
-  "/index.html",
   "/offline.html",
   "/manifest.json",
   "/icon-192.png",
   "/icon-512.png",
   "/css/style.css",
-  "/topics/viewer.html",
   "/topics/topic.html",
+  "/topics/viewer.html",
   "/js/music-player.js",
   "/pdfs/catalog.json",
 ];
@@ -52,7 +51,6 @@ self.addEventListener("activate", (event) => {
       const oldVersion = oldVersionRes ? await oldVersionRes.text() : null;
 
       await metaCache.put("version", new Response(CACHE_NAME));
-
       await self.clients.claim();
 
       const clients = await self.clients.matchAll({
@@ -96,6 +94,54 @@ self.addEventListener("message", (event) => {
   }
 });
 
+async function networkFirst(request, fallbackUrl = null) {
+  const cache = await caches.open(CACHE_NAME);
+
+  try {
+    const network = await fetch(request, { cache: "no-store" });
+
+    if (network && network.ok) {
+      await cache.put(request, network.clone());
+    }
+
+    return network;
+  } catch (error) {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+
+    if (fallbackUrl) {
+      const fallback = await caches.match(fallbackUrl);
+      if (fallback) return fallback;
+    }
+
+    throw error;
+  }
+}
+
+async function staleWhileRevalidate(request) {
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(request);
+
+  const networkPromise = fetch(request, { cache: "no-store" })
+    .then(async (response) => {
+      if (response && response.ok) {
+        await cache.put(request, response.clone());
+      }
+      return response;
+    })
+    .catch(() => null);
+
+  if (cached) {
+    networkPromise.catch(() => null);
+    return cached;
+  }
+
+  const network = await networkPromise;
+  if (network) return network;
+
+  return new Response("Offline", { status: 503 });
+}
+
 self.addEventListener("fetch", (event) => {
   const request = event.request;
 
@@ -104,6 +150,9 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   const isNavigate = request.mode === "navigate";
 
+  const isHTML =
+    request.headers.get("accept")?.includes("text/html") || isNavigate;
+
   const isJSON = url.pathname.endsWith(".json");
   const isPDF = url.pathname.endsWith(".pdf");
   const isCSS = url.pathname.endsWith(".css");
@@ -111,73 +160,30 @@ self.addEventListener("fetch", (event) => {
   const isImage = /\.(png|jpg|jpeg|webp|svg|gif|ico)$/.test(url.pathname);
   const isAudio = /\.(mp3|wav|ogg)$/.test(url.pathname);
 
-  if (isNavigate) {
-    event.respondWith(
-      (async () => {
-        const cache = await caches.open(CACHE_NAME);
-
-        try {
-          const network = await fetch(request, { cache: "no-store" });
-          if (network && network.ok) {
-            await cache.put(request, network.clone());
-          }
-          return network;
-        } catch {
-          return (
-            (await cache.match(request)) ||
-            (await caches.match("/offline.html"))
-          );
-        }
-      })(),
-    );
+  // HTML pages -> always latest first
+  if (isHTML) {
+    event.respondWith(networkFirst(request, "/offline.html"));
     return;
   }
 
+  // CSS / JS / JSON / PDF -> latest first
   if (isCSS || isJS || isJSON || isPDF) {
-    event.respondWith(
-      (async () => {
-        const cache = await caches.open(CACHE_NAME);
-
-        try {
-          const network = await fetch(request, { cache: "no-store" });
-          if (network && network.ok) {
-            await cache.put(request, network.clone());
-          }
-          return network;
-        } catch {
-          return await cache.match(request);
-        }
-      })(),
-    );
+    event.respondWith(networkFirst(request));
     return;
   }
 
+  // images -> quick cache, refresh in background
+  if (isImage) {
+    event.respondWith(staleWhileRevalidate(request));
+    return;
+  }
+
+  // audio -> bypass SW cache
   if (isAudio) return;
 
-  if (isImage) {
-    event.respondWith(
-      (async () => {
-        const cache = await caches.open(CACHE_NAME);
-        const cached = await cache.match(request);
-        if (cached) return cached;
-
-        try {
-          const network = await fetch(request);
-          if (network && network.ok) {
-            await cache.put(request, network.clone());
-          }
-          return network;
-        } catch {
-          return new Response("Offline", { status: 503 });
-        }
-      })(),
-    );
-    return;
-  }
-
   event.respondWith(
-    caches.match(request).then((res) => {
-      return res || fetch(request);
+    caches.match(request).then((cached) => {
+      return cached || fetch(request, { cache: "no-store" });
     }),
   );
 });
