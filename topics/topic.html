@@ -362,11 +362,6 @@
       subjectNavLink.href = subjectPage;
       subjectNavLink.textContent = prettySubject;
 
-      const isPdfAllowed =
-        typeof window.canAccessPdfFast === "function"
-          ? window.canAccessPdfFast(subject)
-          : false;
-
       const pdfPath = hasValidParams
         ? `/pdfs/${subject}/${file}`
         : "/index.html";
@@ -375,55 +370,22 @@
         ? `${location.origin}${pdfPath}`
         : `${location.origin}/index.html`;
 
-      if (hasValidParams && isPdfAllowed) {
-        viewBtn.href =
-          `/topics/viewer.html?pdf=${encodeURIComponent(pdfPath)}` +
-          `&title=${encodeURIComponent(title + " Formula Sheet")}` +
-          `&back=${encodeURIComponent(subjectPage)}` +
-          `&subjectName=${encodeURIComponent(prettySubject)}`;
+      viewBtn.href =
+        `/topics/viewer.html?pdf=${encodeURIComponent(pdfPath)}` +
+        `&title=${encodeURIComponent(title + " Formula Sheet")}` +
+        `&back=${encodeURIComponent(subjectPage)}` +
+        `&subjectName=${encodeURIComponent(prettySubject)}`;
 
-        downloadBtn.href = pdfPath;
+      downloadBtn.href = pdfPath;
 
-        waShare.href = "https://wa.me/?text=" + encodeURIComponent(fullPdfUrl);
-        tgShare.href = "https://t.me/share/url?url=" + encodeURIComponent(fullPdfUrl);
-        mailShare.href =
-          "mailto:?subject=" + encodeURIComponent(title) +
-          "&body=" + encodeURIComponent(fullPdfUrl);
-      } else {
-        viewBtn.textContent = "🔒 Locked";
-        downloadBtn.textContent = "🔒 Locked";
-        shareBtn.textContent = "🔒 Locked";
-
-        viewBtn.href = "#";
-        downloadBtn.href = "#";
-        waShare.href = "#";
-        tgShare.href = "#";
-        mailShare.href = "#";
-
-        const lockHandler = (e) => {
-          e.preventDefault();
-          if (typeof window.lockAlert === "function") {
-            window.lockAlert();
-          }
-        };
-
-        viewBtn.addEventListener("click", lockHandler);
-        downloadBtn.addEventListener("click", lockHandler);
-        shareBtn.addEventListener("click", lockHandler);
-        waShare.addEventListener("click", lockHandler);
-        tgShare.addEventListener("click", lockHandler);
-        mailShare.addEventListener("click", lockHandler);
-      }
+      waShare.href = "https://wa.me/?text=" + encodeURIComponent(fullPdfUrl);
+      tgShare.href = "https://t.me/share/url?url=" + encodeURIComponent(fullPdfUrl);
+      mailShare.href =
+        "mailto:?subject=" + encodeURIComponent(title) +
+        "&body=" + encodeURIComponent(fullPdfUrl);
 
       if (shareBtn) {
         shareBtn.addEventListener("click", async () => {
-          if (!isPdfAllowed) {
-            if (typeof window.lockAlert === "function") {
-              window.lockAlert();
-            }
-            return;
-          }
-
           if (!hasValidParams) {
             showToast("Invalid PDF link ⚠️");
             return;
