@@ -300,76 +300,26 @@
         .replace(/\b\w/g, (char) => char.toUpperCase());
     }
 
-    const prettySubject = prettifySubject(subject);
-    const title = rawTitle.trim() || "Topic";
+    function waitForUnlockApi(timeout = 3000) {
+      return new Promise((resolve) => {
+        const start = Date.now();
 
-    const hasValidParams = Boolean(subject && file);
+        function check() {
+          if (typeof window.canAccessPdf === "function") {
+            resolve(true);
+            return;
+          }
 
-    const isPdfAllowed =
-      typeof window.canAccessPdf === "function"
-        ? window.canAccessPdf(subject)
-        : false;
+          if (Date.now() - start >= timeout) {
+            resolve(false);
+            return;
+          }
 
-    const pdfPath = hasValidParams
-      ? `/pdfs/${subject}/${file}`
-      : "/index.html";
-
-    const subjectPage = subject
-      ? `/subjects/${subject}/index.html`
-      : "/index.html";
-
-    const fullPdfUrl = hasValidParams
-      ? `${location.origin}${pdfPath}`
-      : `${location.origin}/index.html`;
-
-    topicTitle.textContent = title;
-    sheetTitle.textContent = `${title} Formula Sheet`;
-    topicSubjectPill.textContent = prettySubject;
-
-    backLink.href = subjectPage;
-    subjectNavLink.href = subjectPage;
-    subjectNavLink.textContent = prettySubject;
-
-    if (hasValidParams && isPdfAllowed) {
-      viewBtn.href =
-        `/topics/viewer.html?pdf=${encodeURIComponent(pdfPath)}` +
-        `&title=${encodeURIComponent(title + " Formula Sheet")}` +
-        `&back=${encodeURIComponent(subjectPage)}` +
-        `&subjectName=${encodeURIComponent(prettySubject)}`;
-
-      downloadBtn.href = pdfPath;
-
-      waShare.href = "https://wa.me/?text=" + encodeURIComponent(fullPdfUrl);
-      tgShare.href = "https://t.me/share/url?url=" + encodeURIComponent(fullPdfUrl);
-      mailShare.href =
-        "mailto:?subject=" + encodeURIComponent(title) +
-        "&body=" + encodeURIComponent(fullPdfUrl);
-    }
-
-    if (hasValidParams && !isPdfAllowed) {
-      viewBtn.textContent = "🔒 Locked";
-      downloadBtn.textContent = "🔒 Locked";
-      shareBtn.textContent = "🔒 Locked";
-
-      viewBtn.href = "#";
-      downloadBtn.href = "#";
-      waShare.href = "#";
-      tgShare.href = "#";
-      mailShare.href = "#";
-
-      const lockHandler = (e) => {
-        e.preventDefault();
-        if (typeof window.lockAlert === "function") {
-          window.lockAlert();
+          setTimeout(check, 50);
         }
-      };
 
-      viewBtn.addEventListener("click", lockHandler);
-      downloadBtn.addEventListener("click", lockHandler);
-      shareBtn.addEventListener("click", lockHandler);
-      waShare.addEventListener("click", lockHandler);
-      tgShare.addEventListener("click", lockHandler);
-      mailShare.addEventListener("click", lockHandler);
+        check();
+      });
     }
 
     async function copyFallback(text) {
@@ -383,38 +333,6 @@
       ta.select();
       document.execCommand("copy");
       document.body.removeChild(ta);
-    }
-
-    async function sharePdf() {
-      if (!isPdfAllowed) {
-        if (typeof window.lockAlert === "function") {
-          window.lockAlert();
-        }
-        return;
-      }
-
-      if (!hasValidParams) {
-        showToast("Invalid PDF link ⚠️");
-        return;
-      }
-
-      if (navigator.share) {
-        try {
-          await navigator.share({
-            title: title,
-            url: fullPdfUrl
-          });
-          return;
-        } catch (error) {}
-      }
-
-      try {
-        await navigator.clipboard.writeText(fullPdfUrl);
-        showToast("Link copied ✅");
-      } catch (error) {
-        await copyFallback(fullPdfUrl);
-        showToast("Link copied ✅");
-      }
     }
 
     async function refreshPage() {
@@ -432,14 +350,6 @@
       location.reload();
     }
 
-    if (shareBtn) {
-      shareBtn.addEventListener("click", sharePdf);
-    }
-
-    if (refreshBtn) {
-      refreshBtn.addEventListener("click", refreshPage);
-    }
-
     function showToast(message) {
       let toast = document.getElementById("globalToast");
 
@@ -455,6 +365,119 @@
 
       setTimeout(() => toast.classList.remove("show"), 2200);
     }
+
+    async function initTopicPage() {
+      const prettySubject = prettifySubject(subject);
+      const title = rawTitle.trim() || "Topic";
+      const hasValidParams = Boolean(subject && file);
+
+      topicTitle.textContent = title;
+      sheetTitle.textContent = `${title} Formula Sheet`;
+      topicSubjectPill.textContent = prettySubject;
+
+      const subjectPage = subject
+        ? `/subjects/${subject}/index.html`
+        : "/index.html";
+
+      backLink.href = subjectPage;
+      subjectNavLink.href = subjectPage;
+      subjectNavLink.textContent = prettySubject;
+
+      await waitForUnlockApi();
+
+      const isPdfAllowed =
+        typeof window.canAccessPdf === "function"
+          ? window.canAccessPdf(subject)
+          : false;
+
+      const pdfPath = hasValidParams
+        ? `/pdfs/${subject}/${file}`
+        : "/index.html";
+
+      const fullPdfUrl = hasValidParams
+        ? `${location.origin}${pdfPath}`
+        : `${location.origin}/index.html`;
+
+      if (hasValidParams && isPdfAllowed) {
+        viewBtn.href =
+          `/topics/viewer.html?pdf=${encodeURIComponent(pdfPath)}` +
+          `&title=${encodeURIComponent(title + " Formula Sheet")}` +
+          `&back=${encodeURIComponent(subjectPage)}` +
+          `&subjectName=${encodeURIComponent(prettySubject)}`;
+
+        downloadBtn.href = pdfPath;
+
+        waShare.href = "https://wa.me/?text=" + encodeURIComponent(fullPdfUrl);
+        tgShare.href = "https://t.me/share/url?url=" + encodeURIComponent(fullPdfUrl);
+        mailShare.href =
+          "mailto:?subject=" + encodeURIComponent(title) +
+          "&body=" + encodeURIComponent(fullPdfUrl);
+      } else {
+        viewBtn.textContent = "🔒 Locked";
+        downloadBtn.textContent = "🔒 Locked";
+        shareBtn.textContent = "🔒 Locked";
+
+        viewBtn.href = "#";
+        downloadBtn.href = "#";
+        waShare.href = "#";
+        tgShare.href = "#";
+        mailShare.href = "#";
+
+        const lockHandler = (e) => {
+          e.preventDefault();
+          if (typeof window.lockAlert === "function") {
+            window.lockAlert();
+          }
+        };
+
+        viewBtn.addEventListener("click", lockHandler);
+        downloadBtn.addEventListener("click", lockHandler);
+        shareBtn.addEventListener("click", lockHandler);
+        waShare.addEventListener("click", lockHandler);
+        tgShare.addEventListener("click", lockHandler);
+        mailShare.addEventListener("click", lockHandler);
+      }
+
+      if (shareBtn) {
+        shareBtn.addEventListener("click", async () => {
+          if (!isPdfAllowed) {
+            if (typeof window.lockAlert === "function") {
+              window.lockAlert();
+            }
+            return;
+          }
+
+          if (!hasValidParams) {
+            showToast("Invalid PDF link ⚠️");
+            return;
+          }
+
+          if (navigator.share) {
+            try {
+              await navigator.share({
+                title: title,
+                url: fullPdfUrl
+              });
+              return;
+            } catch (error) {}
+          }
+
+          try {
+            await navigator.clipboard.writeText(fullPdfUrl);
+            showToast("Link copied ✅");
+          } catch (error) {
+            await copyFallback(fullPdfUrl);
+            showToast("Link copied ✅");
+          }
+        });
+      }
+    }
+
+    if (refreshBtn) {
+      refreshBtn.addEventListener("click", refreshPage);
+    }
+
+    initTopicPage();
   </script>
 
   <script src="/js/music-player.js"></script>
