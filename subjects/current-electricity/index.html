@@ -213,7 +213,7 @@
           const isAllowed =
             typeof window.canAccessPdf === "function"
               ? window.canAccessPdf(item.subject)
-              : true;
+              : false;
 
           return `
             <div class="card">
