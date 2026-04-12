@@ -383,31 +383,6 @@
       return "guest";
     }
 
-    function waitForUnlockApi(timeout = 3000) {
-      return new Promise((resolve) => {
-        const start = Date.now();
-
-        function check() {
-          const pdfReady = typeof window.canAccessPdf === "function";
-          const quizReady = typeof window.canAccessQuiz === "function";
-
-          if (pdfReady && quizReady) {
-            resolve(true);
-            return;
-          }
-
-          if (Date.now() - start >= timeout) {
-            resolve(false);
-            return;
-          }
-
-          setTimeout(check, 50);
-        }
-
-        check();
-      });
-    }
-
     const PDF_STORAGE_KEYS = {
       RECENT: () => `dnPdfRecent_${getCurrentUserId()}`,
       FAVORITES: () => `dnPdfFavorites_${getCurrentUserId()}`,
@@ -1136,17 +1111,39 @@
         ? normalizePath(safeDecode(rawBack))
         : (subjectSlug ? `/subjects/${subjectSlug}/index.html` : "/index.html");
 
-      await waitForUnlockApi();
+      function normalizeAccessSlug(value) {
+        return String(value || "")
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, "-");
+      }
 
-      viewerHasAccess =
-        typeof window.canAccessPdf === "function"
-          ? window.canAccessPdf(subjectSlug)
-          : false;
+      function canAccessPdfFast(subject) {
+        if (typeof window.canAccessPdf === "function") {
+          return window.canAccessPdf(subject);
+        }
 
-      viewerQuizAllowed =
-        typeof window.canAccessQuiz === "function"
-          ? window.canAccessQuiz(subjectSlug || "")
-          : false;
+        const normalizedSubject = normalizeAccessSlug(subject);
+        const freeSubjects = (window.DN_CONFIG?.ACCESS?.FREE_PDF_SUBJECTS || [])
+          .map(normalizeAccessSlug);
+
+        return freeSubjects.includes(normalizedSubject);
+      }
+
+      function canAccessQuizFast(topic) {
+        if (typeof window.canAccessQuiz === "function") {
+          return window.canAccessQuiz(topic);
+        }
+
+        const normalizedTopic = normalizeAccessSlug(topic);
+        const freeTopics = (window.DN_CONFIG?.ACCESS?.FREE_QUIZ_TOPICS || [])
+          .map(normalizeAccessSlug);
+
+        return freeTopics.includes(normalizedTopic);
+      }
+
+      viewerHasAccess = canAccessPdfFast(subjectSlug);
+      viewerQuizAllowed = canAccessQuizFast(subjectSlug || "");
 
       if (!viewerHasAccess) {
         viewerTitleEl.textContent = "Locked PDF";
