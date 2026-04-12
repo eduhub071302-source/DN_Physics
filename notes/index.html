@@ -199,12 +199,20 @@
         .replace(/'/g, "&#39;");
     }
 
+    function normalizeAccessSlug(value) {
+      return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "-");
+    }
+
     function getSubjectDescription(subjectSlug) {
       const descriptions = {
         "units": "Measurement units, conversions, and basic formula revision notes.",
         "current-electricity": "Basics, current flow, charge, equations, and circuit-based revision notes.",
         "mechanics": "Vectors, kinematics, Newton’s laws, work-energy-power, and more.",
-        "thermal-physics": "Formula sheets and quick revision pages for thermal concepts."
+        "thermal-physics": "Formula sheets and quick revision pages for thermal concepts.",
+        "gravitational-field": "Free access subject with full subtopics and PDF notes."
       };
 
       return descriptions[subjectSlug] || "Explore formula notes and quick revision sheets.";
@@ -440,13 +448,6 @@
       filterSubjects();
     }
 
-    function normalizeAccessSlug(value) {
-      return String(value || "")
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, "-");
-    }
-
     function canAccessSubjectCard(subjectSlug) {
       const normalizedSubject = normalizeAccessSlug(subjectSlug);
       const freeSubjects = (window.DN_CONFIG?.ACCESS?.FREE_PDF_SUBJECTS || [])
@@ -456,12 +457,25 @@
         return true;
       }
 
-      if (typeof window.canAccessPdfFast === "function") {
-        return window.canAccessPdfFast(subjectSlug);
+      try {
+        if (typeof window.isOwnerMode === "function" && window.isOwnerMode()) {
+          return true;
+        }
+
+        if (typeof window.hasPaidAccess === "function" && window.hasPaidAccess()) {
+          return true;
+        }
+
+        if (typeof window.canAccessPdfFast === "function") {
+          return window.canAccessPdfFast(subjectSlug);
+        }
+      } catch (error) {
+        console.warn("Subject access check failed:", error);
       }
 
       return false;
     }
+
     async function loadSubjectsFromCatalog() {
       try {
         const res = await fetch("/pdfs/catalog.json", { cache: "no-store" });
