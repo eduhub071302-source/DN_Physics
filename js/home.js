@@ -126,19 +126,30 @@ function setupPullToRefresh() {
 
 function setupSplash() {
   const appSplash = getEl("appSplash");
+  const SPLASH_TOTAL_MS = 5200;
+  const SPLASH_FADE_MS = 700;
 
   window.addEventListener("load", () => {
-    setTimeout(() => {
-      if (appSplash) {
-        appSplash.classList.add("hide");
-      }
-
+    if (!appSplash) {
       document.body.classList.add("app-ready");
-
       setTimeout(() => {
         startOnboarding();
       }, 300);
-    }, 1200);
+      return;
+    }
+
+    document.body.classList.remove("app-ready");
+
+    setTimeout(() => {
+      appSplash.classList.add("hide");
+    }, SPLASH_TOTAL_MS - SPLASH_FADE_MS);
+
+    setTimeout(() => {
+      document.body.classList.add("app-ready");
+      setTimeout(() => {
+        startOnboarding();
+      }, 250);
+    }, SPLASH_TOTAL_MS);
   });
 }
 
