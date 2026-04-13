@@ -1266,7 +1266,12 @@
           return;
         }
 
-        await sdk.sendPasswordResetEmail(auth, email);
+        const actionCodeSettings = {
+          url: "https://dnphysics.com.lk/reset-password.html",
+          handleCodeInApp: false,
+        };
+
+        await sdk.sendPasswordResetEmail(auth, email, actionCodeSettings);
 
         showAuthError(
           `📩 If an account exists, a password reset link has been sent to ${email}. Please check your inbox.`,
