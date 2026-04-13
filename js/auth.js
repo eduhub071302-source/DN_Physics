@@ -1252,7 +1252,7 @@
         showAuthError("Enter a valid email address.");
         return;
       }
-
+    
       if (!navigator.onLine) {
         showAuthError("You appear to be offline. Please check your internet connection and try again.");
         return;
@@ -1270,7 +1270,7 @@
           url: "https://dnphysics.com.lk/reset-password.html",
           handleCodeInApp: false,
         };
-
+  
         await sdk.sendPasswordResetEmail(auth, email, actionCodeSettings);
 
         showAuthError(
