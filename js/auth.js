@@ -72,11 +72,11 @@
   }
 
   function getFirebaseAuthSafe() {
-    return window.firebaseAuth || null();
+    return window.firebaseAuth || null;
   }
 
   function getFirebaseDbSafe() {
-    return window.firebaseDb || null();
+    return window.firebaseDb || null;
   }
 
   function buildPresetAvatarUrl(avatarValue, version = "") {
