@@ -54,7 +54,9 @@ import {
       profileEditorSection: document.getElementById("profileEditorSection"),
       profileNameInput: document.getElementById("profileNameInput"),
       profileBioInput: document.getElementById("profileBioInput"),
-      presetAvatarGrid: document.getElementById("presetAvatarGrid"),
+      presetAvatarGrid:
+        document.getElementById("presetAvatarGrid") ||
+        document.getElementById("avatarGridModal"),
       profileAvatarPreview: document.getElementById("profileAvatarPreview"),
 
       openAvatarModalBtn: document.getElementById("openAvatarModalBtn"),
@@ -217,6 +219,10 @@ import {
     modal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
   }
+
+  window.openDnAuthModal = function openDnAuthModal() {
+    openAuthModal();
+  };
 
   function clearAuthError() {
     const errorBox = document.getElementById("authErrorBox");
@@ -567,7 +573,7 @@ import {
     return avatarModal;
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  function initAuthUi() {
     const els = getEls();
     let isLoginMode = true;
     let selectedAvatarValue = DEFAULT_AVATAR;
@@ -1423,5 +1429,11 @@ import {
         await clearAuthenticatedUser();
       }
     });
-  });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAuthUi, { once: true });
+  } else {
+    initAuthUi();
+  }
 })();
