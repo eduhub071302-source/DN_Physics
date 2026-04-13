@@ -603,8 +603,20 @@
     <!-- FIREBASE INIT -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-      import { getAuth } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
-      import { getDatabase } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signInWithEmailAndPassword,
+        createUserWithEmailAndPassword,
+        sendPasswordResetEmail,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+      import {
+        getDatabase,
+        ref,
+        get,
+        set,
+      } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyA8MHkxCeD1hUkPFZA15mUpaB87B21ZZ04",
@@ -619,10 +631,23 @@
       };
 
       const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getDatabase(app);
 
       window.firebaseApp = app;
-      window.firebaseAuth = getAuth(app);
-      window.firebaseDb = getDatabase(app);
+      window.firebaseAuth = auth;
+      window.firebaseDb = db;
+
+      window.firebaseSdk = {
+        onAuthStateChanged,
+        signInWithEmailAndPassword,
+        createUserWithEmailAndPassword,
+        sendPasswordResetEmail,
+        signOut,
+        ref,
+        get,
+        set,
+      };
     </script>
 
     <script src="/js/app-config.js"></script>
