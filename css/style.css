@@ -1160,6 +1160,127 @@ header,
     0 -30px 80px rgba(96, 176, 255, 0.12);
 }
 
+.space-station {
+  position: absolute;
+  left: 50%;
+  bottom: 15.8%;
+  width: 180px;
+  height: 64px;
+  margin-left: -90px;
+  opacity: 0.95;
+  transform-origin: center center;
+  animation: stationFadeOut 5.2s ease forwards;
+}
+
+.station-core {
+  position: absolute;
+  left: 50%;
+  top: 16px;
+  width: 44px;
+  height: 20px;
+  margin-left: -22px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #bcc7d8 0%, #697587 100%);
+  box-shadow:
+    0 0 12px rgba(255,255,255,0.08),
+    0 10px 24px rgba(0,0,0,0.22);
+}
+
+.station-arm {
+  position: absolute;
+  top: 24px;
+  width: 64px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #8b97aa 0%, #4e5868 100%);
+}
+
+.station-arm-left {
+  left: 18px;
+}
+
+.station-arm-right {
+  right: 18px;
+}
+
+.station-dish {
+  position: absolute;
+  left: 50%;
+  top: 2px;
+  width: 26px;
+  height: 26px;
+  margin-left: -13px;
+  border-radius: 50%;
+  border: 3px solid rgba(170, 198, 235, 0.8);
+  border-top-color: transparent;
+  border-left-color: rgba(170, 198, 235, 0.45);
+  transform: rotate(-24deg);
+}
+
+.station-light {
+  position: absolute;
+  top: 22px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #9ed0ff;
+  box-shadow: 0 0 12px rgba(124,196,255,0.7);
+}
+
+.station-light-1 {
+  left: 42px;
+}
+
+.station-light-2 {
+  right: 42px;
+}
+
+.rocket-debris {
+  position: absolute;
+  left: 72%;
+  top: 40%;
+  width: 10px;
+  height: 22px;
+  border-radius: 10px;
+  opacity: 0;
+  background: linear-gradient(180deg, #d8e3f2 0%, #8fa6c7 100%);
+  box-shadow: 0 0 12px rgba(255,255,255,0.08);
+}
+
+.rocket-debris-1 {
+  animation: debrisFly1 5.2s ease forwards;
+}
+
+.rocket-debris-2 {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffb17a 0%, #9e4b38 100%);
+  animation: debrisFly2 5.2s ease forwards;
+}
+
+.rocket-debris-3 {
+  width: 8px;
+  height: 26px;
+  animation: debrisFly3 5.2s ease forwards;
+}
+
+.rocket-debris-4 {
+  width: 16px;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #c0d1e8 0%, #6f86aa 100%);
+  animation: debrisFly4 5.2s ease forwards;
+}
+
+.rocket-debris-5 {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffe0a8 0%, #c8743f 100%);
+  animation: debrisFly5 5.2s ease forwards;
+}
+
 .launch-pad {
   position: absolute;
   left: 50%;
@@ -1799,6 +1920,96 @@ header,
     opacity: 1;
     transform: translateY(0) scale(1);
     filter: blur(0);
+  }
+}
+
+@keyframes stationFadeOut {
+  0%, 28% {
+    opacity: 0.95;
+    transform: scale(1);
+  }
+  52% {
+    opacity: 0.55;
+    transform: scale(0.82);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.28);
+  }
+}
+
+@keyframes debrisFly1 {
+  0%, 86% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(0.4);
+  }
+  90% {
+    opacity: 1;
+    transform: translate3d(-10px, -12px, 0) rotate(20deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(-120px, -90px, 0) rotate(160deg) scale(0.4);
+  }
+}
+
+@keyframes debrisFly2 {
+  0%, 86% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.4);
+  }
+  90% {
+    opacity: 1;
+    transform: translate3d(8px, 4px, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(140px, -30px, 0) scale(0.35);
+  }
+}
+
+@keyframes debrisFly3 {
+  0%, 86% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(0.4);
+  }
+  90% {
+    opacity: 1;
+    transform: translate3d(-4px, 8px, 0) rotate(-18deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(-70px, 120px, 0) rotate(-220deg) scale(0.3);
+  }
+}
+
+@keyframes debrisFly4 {
+  0%, 86% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(0.4);
+  }
+  90% {
+    opacity: 1;
+    transform: translate3d(6px, -8px, 0) rotate(12deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(110px, 90px, 0) rotate(200deg) scale(0.34);
+  }
+}
+
+@keyframes debrisFly5 {
+  0%, 86% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.4);
+  }
+  90% {
+    opacity: 1;
+    transform: translate3d(-2px, 2px, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(40px, -130px, 0) scale(0.25);
   }
 }
 
@@ -2892,10 +3103,6 @@ header,
     right: 12px;
     bottom: 12px;
     max-width: none;
-  }
-
-  .app-splash-content {
-    width: min(92vw, 380px);
   }
 
   .music-controls {
