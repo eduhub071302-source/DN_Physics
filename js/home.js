@@ -166,7 +166,8 @@ function setupPullToRefresh() {
 
 function setupSplash() {
   const appSplash = getEl("appSplash");
-  const SPLASH_TOTAL_MS = 5200;
+  const isLowPerf = document.documentElement.classList.contains("perf-low");
+  const SPLASH_TOTAL_MS = isLowPerf ? 4400 : 5200;
   const SPLASH_FADE_MS = 700;
 
   window.addEventListener("load", () => {
