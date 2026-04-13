@@ -18,6 +18,46 @@ function getEl(id) {
   return document.getElementById(id);
 }
 
+function shouldUseLowPerformanceMode() {
+  try {
+    const saveDataEnabled =
+      navigator.connection &&
+      typeof navigator.connection.saveData === "boolean" &&
+      navigator.connection.saveData;
+
+    const lowMemoryDevice =
+      typeof navigator.deviceMemory === "number" &&
+      navigator.deviceMemory > 0 &&
+      navigator.deviceMemory <= 4;
+
+    const lowCpuDevice =
+      typeof navigator.hardwareConcurrency === "number" &&
+      navigator.hardwareConcurrency > 0 &&
+      navigator.hardwareConcurrency <= 4;
+
+    const smallMobileViewport = window.matchMedia("(max-width: 768px)").matches;
+
+    return Boolean(
+      saveDataEnabled ||
+      (smallMobileViewport && lowMemoryDevice) ||
+      (smallMobileViewport && lowCpuDevice),
+    );
+  } catch (error) {
+    console.warn("Performance detection fallback:", error);
+    return false;
+  }
+}
+
+function applyPerformanceMode() {
+  const root = document.documentElement;
+
+  if (shouldUseLowPerformanceMode()) {
+    root.classList.add("perf-low");
+  } else {
+    root.classList.remove("perf-low");
+  }
+}
+
 function showToast(message = "Done") {
   let toast = getEl("globalToast");
 
@@ -317,6 +357,8 @@ function setupUnlockButton() {
 }
 
 async function initPage() {
+  applyPerformanceMode();
+
   setupInstallPrompt();
   setupRefreshActions();
   setupPullToRefresh();
