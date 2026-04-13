@@ -1,23 +1,27 @@
 // 🔐 DN Physics Auth System — Firebase-only Final Version
 
-import {
-  getAuth,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  sendPasswordResetEmail,
-  signOut,
-} from "firebase/auth";
-
-import {
-  getDatabase,
-  ref,
-  get,
-  set,
-} from "firebase/database";
-
 (() => {
   "use strict";
+
+  function getFirebaseSdk() {
+    const sdk = window.firebaseSdk || null;
+
+    if (
+      !sdk ||
+      typeof sdk.onAuthStateChanged !== "function" ||
+      typeof sdk.signInWithEmailAndPassword !== "function" ||
+      typeof sdk.createUserWithEmailAndPassword !== "function" ||
+      typeof sdk.sendPasswordResetEmail !== "function" ||
+      typeof sdk.signOut !== "function" ||
+      typeof sdk.ref !== "function" ||
+      typeof sdk.get !== "function" ||
+      typeof sdk.set !== "function"
+    ) {
+      return null;
+    }
+
+    return sdk;
+  }
 
   const APP_PATH = "";
   const OFFLINE_URL = `${APP_PATH}/offline.html`;
@@ -68,11 +72,11 @@ import {
   }
 
   function getFirebaseAuthSafe() {
-    return window.firebaseAuth || getAuth();
+    return window.firebaseAuth || null();
   }
 
   function getFirebaseDbSafe() {
-    return window.firebaseDb || getDatabase();
+    return window.firebaseDb || null();
   }
 
   function buildPresetAvatarUrl(avatarValue, version = "") {
@@ -294,7 +298,10 @@ import {
     if (!db || !userId) return null;
 
     try {
-      const snapshot = await get(ref(db, `/profiles/${userId}`));
+      const sdk = getFirebaseSdk();
+      if (!sdk) return null;
+
+      const snapshot = await sdk.get(sdk.ref(db, `/profiles/${userId}`));
       const data = snapshot.exists() ? snapshot.val() : null;
 
       if (data) {
@@ -334,7 +341,10 @@ import {
     };
 
     try {
-      await set(ref(db, `/profiles/${user.uid}`), profilePayload);
+      const sdk = getFirebaseSdk();
+      if (!sdk) return profilePayload;
+
+      await sdk.set(sdk.ref(db, `/profiles/${user.uid}`), profilePayload);
       setProfileCache(profilePayload);
       syncProfileUiEverywhere();
       return profilePayload;
@@ -358,7 +368,12 @@ import {
         updated_at: new Date().toISOString(),
       };
 
-      await set(ref(db, `/profiles/${userId}`), finalPayload);
+      const sdk = getFirebaseSdk();
+      if (!sdk) {
+        return { ok: false, message: "Firebase SDK not ready." };
+      }
+
+      await sdk.set(sdk.ref(db, `/profiles/${userId}`), finalPayload);
       setProfileCache(finalPayload);
       syncProfileUiEverywhere();
 
@@ -484,7 +499,13 @@ import {
     }
 
     try {
-      await signOut(auth);
+      const sdk = getFirebaseSdk();
+      if (!sdk) {
+        showAuthError("Authentication system is not ready yet. Please refresh the app.");
+        return;
+      }
+
+      await sdk.signOut(auth);
     } catch (error) {
       console.error("Logout error:", error);
       showAuthError("Unable to log out right now. Please try again.");
@@ -517,7 +538,13 @@ import {
     }
 
     try {
-      await signOut(auth);
+      const sdk = getFirebaseSdk();
+      if (!sdk) {
+        showAuthError("Authentication system is not ready yet. Please refresh the app.");
+        return;
+      }
+
+      await sdk.signOut(auth);
     } catch (error) {
       console.error("Switch account error:", error);
       showAuthError("Unable to switch account right now. Please try again.");
@@ -1059,7 +1086,13 @@ import {
 
       try {
         const auth = getFirebaseAuthSafe();
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const sdk = getFirebaseSdk();
+        if (!sdk) {
+          showAuthError("Authentication system is not ready yet. Please refresh the app.");
+          return;
+        }
+
+        const userCredential = await sdk.signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
         if (!user) {
@@ -1144,7 +1177,13 @@ import {
 
       try {
         const auth = getFirebaseAuthSafe();
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const sdk = getFirebaseSdk();
+        if (!sdk) {
+          showAuthError("Authentication system is not ready yet. Please refresh the app.");
+          return;
+        }
+
+        const userCredential = await sdk.createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
         if (!user) {
@@ -1221,7 +1260,13 @@ import {
 
       try {
         const auth = getFirebaseAuthSafe();
-        await sendPasswordResetEmail(auth, email);
+        const sdk = getFirebaseSdk();
+        if (!sdk) {
+          showAuthError("Authentication system is not ready yet. Please refresh the app.");
+          return;
+        }
+
+        await sdk.sendPasswordResetEmail(auth, email);
 
         showAuthError(
           `📩 If an account exists, a password reset link has been sent to ${email}. Please check your inbox.`,
@@ -1417,7 +1462,13 @@ import {
     renderAuthMode();
 
     const auth = getFirebaseAuthSafe();
-    onAuthStateChanged(auth, async (user) => {
+    const sdk = getFirebaseSdk();
+    if (!auth || !sdk) {
+      console.warn("Firebase auth SDK not ready.");
+      return;
+    }
+
+    sdk.onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
           const token = await user.getIdToken();
