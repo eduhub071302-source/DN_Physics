@@ -7,6 +7,18 @@ import { getDatabase, ref, onValue } from "firebase/database";
 // Storage Helpers
 // ----------------------------
 
+function getAppMode() {
+  try {
+    return localStorage.getItem("dn_app_mode") || "guest";
+  } catch {
+    return "guest";
+  }
+}
+
+function isGuestMode() {
+  return getAppMode() === "guest";
+}
+
 function dnStorageGet(key) {
   try {
     return localStorage.getItem(key);
@@ -254,6 +266,18 @@ function startFirebaseSync() {
 // ----------------------------
 
 async function startFullUnlockCheckout() {
+    if (isGuestMode()) {
+    showDnMessage("🔒 Please log in or create an account before purchasing DN Physics Pro.");
+
+    if (typeof window.openDnAuthModal === "function") {
+      setTimeout(() => {
+        window.openDnAuthModal();
+      }, 120);
+    }
+
+    return;
+  }
+  
   if (!DN_CONFIG.BACKEND.CREATE_ORDER_URL) {
     showDnMessage("Payment not configured yet.");
     return;
@@ -360,6 +384,11 @@ function applyServerUnlock(orderId = "", expiresAt = 0) {
 }
 
 async function syncUnlockWithServer() {
+  if (isGuestMode()) {
+    clearPaidAccess();
+    return false;
+  }
+
   const status = await checkServerUnlockStatus();
 
   if (!status.ok) return false;
