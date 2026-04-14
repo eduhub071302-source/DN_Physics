@@ -1,4 +1,4 @@
-// 🔐 Unlock System (Firebase-only Final Version)
+// 🔐 Unlock System (Production Final Version)
 
 // ----------------------------
 // Storage Helpers
@@ -55,10 +55,6 @@ function getUserKeySuffix() {
   return "guest";
 }
 
-function getOwnerModeKey() {
-  return `${DN_CONFIG.STORAGE_KEYS.OWNER_MODE}_${getUserKeySuffix()}`;
-}
-
 function getPaidUnlockKey() {
   return `${DN_CONFIG.STORAGE_KEYS.PAID_UNLOCK}_${getUserKeySuffix()}`;
 }
@@ -88,7 +84,7 @@ function getUnlockExpiresAtKey() {
 // ----------------------------
 
 function isOwnerMode() {
-  return dnStorageGet(getOwnerModeKey()) === "true";
+  return false;
 }
 
 function getSubscriptionExpiresAt() {
@@ -125,8 +121,6 @@ function clearPaidAccess() {
 }
 
 function hasPaidAccess() {
-  if (isOwnerMode()) return true;
-
   const paidFlag = dnStorageGet(getPaidUnlockKey()) === "true";
   if (!paidFlag) return false;
 
@@ -148,7 +142,7 @@ function normalizeAccessSlug(value) {
 }
 
 function canAccessPdf(subject) {
-  if (isOwnerMode() || hasPaidAccess()) return true;
+  if (hasPaidAccess()) return true;
 
   const normalizedSubject = normalizeAccessSlug(subject);
   const freeSubjects = (DN_CONFIG?.ACCESS?.FREE_PDF_SUBJECTS || []).map(normalizeAccessSlug);
@@ -157,7 +151,7 @@ function canAccessPdf(subject) {
 }
 
 function canAccessQuiz(topic) {
-  if (isOwnerMode() || hasPaidAccess()) return true;
+  if (hasPaidAccess()) return true;
 
   const normalizedTopic = normalizeAccessSlug(topic);
   const freeTopics = (DN_CONFIG?.ACCESS?.FREE_QUIZ_TOPICS || []).map(normalizeAccessSlug);
@@ -182,28 +176,6 @@ function activatePaidAccess(meta = {}) {
 
   if (meta.orderId) {
     dnStorageSet(getUnlockOrderIdKey(), meta.orderId);
-  }
-}
-
-function enableOwnerMode() {
-  dnStorageSet(getOwnerModeKey(), "true");
-  activatePaidAccess({ source: "owner" });
-}
-
-function disableOwnerMode() {
-  dnStorageRemove(getOwnerModeKey());
-  clearPaidAccess();
-}
-
-function unlockWithOwnerCode(code) {
-  if (code === DN_CONFIG.ACCESS.OWNER_CODE) {
-    enableOwnerMode();
-    closeOwnerCodeModal();
-    closeUnlockModal();
-    showDnMessage("Owner mode activated 🔓");
-    setTimeout(() => location.reload(), 300);
-  } else {
-    showDnMessage("Invalid owner code ❌");
   }
 }
 
@@ -274,14 +246,6 @@ function startFirebaseSync() {
 // ----------------------------
 // Payment Start
 // ----------------------------
-
-const unlockNowBtn = document.getElementById("unlockNowBtn");
-const originalText = unlockNowBtn?.textContent || "🔓 Unlock Now";
-
-if (unlockNowBtn) {
-  unlockNowBtn.disabled = true;
-  unlockNowBtn.textContent = "Preparing checkout...";
-}
 
 async function startFullUnlockCheckout() {
   const unlockNowBtn = document.getElementById("unlockNowBtn");
@@ -516,7 +480,7 @@ function openUnlockModal() {
       unlockAccountEmail.textContent = "Logged-in account";
     }
   }
-  
+
   unlockModal.scrollTop = 0;
   unlockModal.classList.remove("hidden");
   unlockModal.style.display = "flex";
@@ -534,94 +498,6 @@ function lockAlert() {
   openUnlockModal();
 }
 
-function openOwnerCodeModal() {
-  const ownerCodeModal = document.getElementById("ownerCodeModal");
-  const ownerCodeInput = document.getElementById("ownerCodeInput");
-
-  if (!ownerCodeModal) {
-    showDnMessage("Owner modal missing.");
-    return;
-  }
-
-  ownerCodeModal.classList.remove("hidden");
-  ownerCodeModal.style.display = "flex";
-
-  setTimeout(() => {
-    ownerCodeInput?.focus();
-  }, 80);
-}
-
-function closeOwnerCodeModal() {
-  const ownerCodeModal = document.getElementById("ownerCodeModal");
-  const ownerCodeInput = document.getElementById("ownerCodeInput");
-
-  if (!ownerCodeModal) return;
-
-  ownerCodeModal.classList.add("hidden");
-  ownerCodeModal.style.display = "none";
-
-  if (ownerCodeInput) {
-    ownerCodeInput.value = "";
-  }
-}
-
-function submitOwnerCode() {
-  const ownerCodeInput = document.getElementById("ownerCodeInput");
-  const code = String(ownerCodeInput?.value || "").trim();
-
-  if (!code) {
-    showDnMessage("Enter owner code.");
-    return;
-  }
-
-  unlockWithOwnerCode(code);
-}
-
-function setupOwnerShortcut() {
-  let capsPressed = false;
-
-  window.addEventListener("keydown", (event) => {
-    if (event.key === "CapsLock") {
-      capsPressed = true;
-    }
-
-    const isU = event.key === "u" || event.key === "U";
-
-    if (
-      event.ctrlKey &&
-      event.shiftKey &&
-      capsPressed &&
-      event.key === "Tab"
-    ) {
-      window.__dnOwnerTabArmed = true;
-      return;
-    }
-
-    if (
-      event.ctrlKey &&
-      event.shiftKey &&
-      capsPressed &&
-      window.__dnOwnerTabArmed &&
-      isU
-    ) {
-      event.preventDefault();
-      window.__dnOwnerTabArmed = false;
-      openOwnerCodeModal();
-    }
-  });
-
-  window.addEventListener("keyup", (event) => {
-    if (event.key === "CapsLock") {
-      capsPressed = false;
-    }
-  });
-
-  window.addEventListener("blur", () => {
-    window.__dnOwnerTabArmed = false;
-    capsPressed = false;
-  });
-}
-
 // ----------------------------
 // Expose Globals
 // ----------------------------
@@ -636,9 +512,6 @@ window.canAccessQuiz = canAccessQuiz;
 
 window.activatePaidAccess = activatePaidAccess;
 window.clearPaidAccess = clearPaidAccess;
-window.enableOwnerMode = enableOwnerMode;
-window.disableOwnerMode = disableOwnerMode;
-window.unlockWithOwnerCode = unlockWithOwnerCode;
 
 window.setPendingOrderId = setPendingOrderId;
 window.getPendingOrderId = getPendingOrderId;
@@ -678,12 +551,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const unlockLaterBtn = document.getElementById("unlockLaterBtn");
   const unlockModal = document.getElementById("unlockModal");
 
-  const ownerCodeModal = document.getElementById("ownerCodeModal");
-  const ownerCodeCloseBtn = document.getElementById("ownerCodeCloseBtn");
-  const ownerCodeCancelBtn = document.getElementById("ownerCodeCancelBtn");
-  const ownerCodeSubmitBtn = document.getElementById("ownerCodeSubmitBtn");
-  const ownerCodeInput = document.getElementById("ownerCodeInput");
-
   if (unlockNowBtn) {
     unlockNowBtn.addEventListener("click", async () => {
       await startFullUnlockCheckout();
@@ -709,37 +576,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
   }
-
-  if (ownerCodeCloseBtn) {
-    ownerCodeCloseBtn.addEventListener("click", closeOwnerCodeModal);
-  }
-
-  if (ownerCodeCancelBtn) {
-    ownerCodeCancelBtn.addEventListener("click", closeOwnerCodeModal);
-  }
-
-  if (ownerCodeSubmitBtn) {
-    ownerCodeSubmitBtn.addEventListener("click", submitOwnerCode);
-  }
-
-  if (ownerCodeInput) {
-    ownerCodeInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        submitOwnerCode();
-      }
-    });
-  }
-
-  if (ownerCodeModal) {
-    ownerCodeModal.addEventListener("click", (e) => {
-      if (e.target === ownerCodeModal) {
-        closeOwnerCodeModal();
-      }
-    });
-  }
-
-  setupOwnerShortcut();
 
   setInterval(() => {
     try {
