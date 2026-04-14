@@ -421,6 +421,9 @@ function updateProfileUI(user) {
     const cachedProfile =
       JSON.parse(localStorage.getItem("dn_profile")) || null;
 
+    const appMode = localStorage.getItem("dn_app_mode") || "guest";
+    const isGuest = appMode === "guest";
+
     if (user?.email) {
       const displayName =
         cachedProfile?.name || user.email.split("@")[0] || "Profile";
@@ -449,22 +452,51 @@ function updateProfileUI(user) {
         topProfileAvatar.classList.remove("is-hidden");
         topProfileAvatar.setAttribute("aria-hidden", "false");
       }
-    } else {
-      emailDisplay.textContent = "";
-      loginBtn.innerHTML = isMobile ? "👤" : "👤 Profile";
 
-      if (topProfileAvatar) {
-        topProfileAvatar.classList.add("is-hidden");
-        topProfileAvatar.setAttribute("aria-hidden", "true");
+      return;
+    }
+
+    if (isGuest) {
+      if (isMobile) {
+        emailDisplay.textContent = "";
+      } else {
+        emailDisplay.textContent = "Guest Mode";
       }
+
+      loginBtn.innerHTML = isMobile ? "👤" : "👤 Guest";
+      loginBtn.setAttribute("title", "Guest Mode");
+
+      if (topProfileAvatar && topProfileAvatarImg) {
+        const avatarUrl =
+          cachedProfile?.profile_photo_url ||
+          "/assets/avatars/avatar-01.png";
+
+        const freshAvatarUrl = avatarUrl.includes("?")
+          ? `${avatarUrl}&t=${Date.now()}`
+          : `${avatarUrl}?t=${Date.now()}`;
+
+        topProfileAvatarImg.src = freshAvatarUrl;
+        topProfileAvatar.classList.remove("is-hidden");
+        topProfileAvatar.setAttribute("aria-hidden", "false");
+      }
+
+      return;
+    }
+
+    emailDisplay.textContent = "";
+    loginBtn.innerHTML = isMobile ? "👤" : "👤 Profile";
+
+    if (topProfileAvatar) {
+      topProfileAvatar.classList.add("is-hidden");
+      topProfileAvatar.setAttribute("aria-hidden", "true");
     }
   } catch (error) {
-    if (user?.email) {
-      emailDisplay.textContent = isMobile ? "" : user.email;
-      loginBtn.innerHTML = isMobile ? "👤" : "🧑 Profile";
-    } else {
-      emailDisplay.textContent = "";
-      loginBtn.innerHTML = isMobile ? "👤" : "👤 Profile";
+    emailDisplay.textContent = "";
+    loginBtn.innerHTML = isMobile ? "👤" : "👤 Profile";
+
+    if (topProfileAvatar) {
+      topProfileAvatar.classList.add("is-hidden");
+      topProfileAvatar.setAttribute("aria-hidden", "true");
     }
   }
 }
