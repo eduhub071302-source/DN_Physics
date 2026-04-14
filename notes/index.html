@@ -146,32 +146,9 @@
 
   <audio id="bgMusic" loop></audio>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
-    import { getDatabase } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
-
-    if (!window.firebaseApp) {
-      const firebaseConfig = {
-        apiKey: "AIzaSyA8MHkxCeD1hUkPFZA15mUpaB87B21ZZ04",
-        authDomain: "dn-physics.firebaseapp.com",
-        databaseURL:
-          "https://dn-physics-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "dn-physics",
-        storageBucket: "dn-physics.firebasestorage.app",
-        messagingSenderId: "550016753421",
-        appId: "1:550016753421:web:8c68d2471cb87192809a44",
-        measurementId: "G-JB216F8CQ9",
-      };
-
-      const app = initializeApp(firebaseConfig);
-      window.firebaseApp = app;
-      window.firebaseAuth = getAuth(app);
-      window.firebaseDb = getDatabase(app);
-    }
-  </script>
-
   <script src="/js/app-config.js"></script>
+  <script type="module" src="/js/firebase-client.js"></script>
+  <script type="module" src="/js/pdf-sync.js"></script>
   <script src="/js/access-control.js"></script>
   <script type="module" src="/js/unlock.js"></script>
 
@@ -249,6 +226,10 @@
     }
 
     function getPinnedSubjects() {
+      if (typeof window.dnPdfGetPinnedSubjects === "function") {
+        return window.dnPdfGetPinnedSubjects();
+      }
+
       try {
         return JSON.parse(localStorage.getItem(getPinnedSubjectsKey())) || [];
       } catch {
@@ -256,11 +237,16 @@
       }
     }
 
-    function savePinnedSubjects(items) {
+    async function savePinnedSubjects(items) {
+      if (typeof window.dnPdfSetPinnedSubjects === "function") {
+        await window.dnPdfSetPinnedSubjects(items);
+        return;
+      }
+
       localStorage.setItem(getPinnedSubjectsKey(), JSON.stringify(items));
     }
-
-    function togglePin(subjectName) {
+    
+    async function togglePin(subjectName) {
       const pinned = getPinnedSubjects();
       const exists = pinned.includes(subjectName);
 
@@ -268,7 +254,7 @@
         ? pinned.filter((name) => name !== subjectName)
         : [...pinned, subjectName];
 
-      savePinnedSubjects(updated);
+      await savePinnedSubjects(updated);
       updatePinButtons();
       renderPinnedSubjects();
     }
@@ -308,7 +294,9 @@
       pinBtn.dataset.subject = subject.title;
       pinBtn.setAttribute("aria-label", `Unpin ${subject.title}`);
       pinBtn.title = "Unpin topic";
-      pinBtn.addEventListener("click", () => togglePin(subject.title));
+      pinBtn.addEventListener("click", async () => {
+        await togglePin(subject.title);
+      });
 
       top.appendChild(badge);
       top.appendChild(pinBtn);
@@ -442,8 +430,8 @@
       subjectCards = Array.from(document.querySelectorAll(".subject-card"));
 
       pinButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          togglePin(button.dataset.subject);
+        button.addEventListener("click", async () => {
+          await togglePin(button.dataset.subject);
         });
       });
 
