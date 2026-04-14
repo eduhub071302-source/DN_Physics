@@ -18,6 +18,57 @@ function getEl(id) {
   return document.getElementById(id);
 }
 
+function getAppMode() {
+  try {
+    return localStorage.getItem("dn_app_mode") || "guest";
+  } catch {
+    return "guest";
+  }
+}
+
+function hasSeenEntryChoice() {
+  try {
+    return localStorage.getItem("dn_entry_seen") === "1";
+  } catch {
+    return false;
+  }
+}
+
+function setEntryChoiceSeen() {
+  try {
+    localStorage.setItem("dn_entry_seen", "1");
+  } catch (error) {
+    console.warn("Could not persist entry choice:", error);
+  }
+}
+
+function openEntryModal() {
+  const modal = getEl("entryModal");
+  if (!modal) return;
+
+  modal.classList.remove("hidden");
+  modal.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+}
+
+function closeEntryModal() {
+  const modal = getEl("entryModal");
+  if (!modal) return;
+
+  modal.classList.add("hidden");
+  modal.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+}
+
+function shouldShowEntryModal() {
+  const firebaseUser = window.firebaseAuth?.currentUser || null;
+  const appMode = getAppMode();
+
+  if (firebaseUser) return false;
+  if (appMode === "account") return false;
+  return !hasSeenEntryChoice();
+}
+
 function shouldUseLowPerformanceMode() {
   try {
     const saveDataEnabled =
@@ -78,6 +129,56 @@ function showToast(message = "Done") {
 }
 
 window.showToast = showToast;
+
+function setupEntryModal() {
+  const entryLoginBtn = getEl("entryLoginBtn");
+  const entrySignupBtn = getEl("entrySignupBtn");
+  const entryGuestBtn = getEl("entryGuestBtn");
+
+  if (entryLoginBtn) {
+    entryLoginBtn.addEventListener("click", () => {
+      setEntryChoiceSeen();
+      closeEntryModal();
+
+      if (typeof window.openDnAuthModal === "function") {
+        window.openDnAuthModal();
+      }
+    });
+  }
+
+  if (entrySignupBtn) {
+    entrySignupBtn.addEventListener("click", () => {
+      setEntryChoiceSeen();
+      closeEntryModal();
+
+      if (typeof window.openDnAuthModal === "function") {
+        window.openDnAuthModal();
+
+        setTimeout(() => {
+          const toggle = document.getElementById("authToggleBtn");
+          if (toggle) toggle.click();
+        }, 80);
+      }
+    });
+  }
+
+  if (entryGuestBtn) {
+    entryGuestBtn.addEventListener("click", () => {
+      try {
+        localStorage.setItem("dn_app_mode", "guest");
+      } catch (error) {
+        console.warn("Could not set guest mode:", error);
+      }
+
+      setEntryChoiceSeen();
+      closeEntryModal();
+
+      if (typeof window.showToast === "function") {
+        window.showToast("👤 Continuing in Guest Mode");
+      }
+    });
+  }
+}
 
 function setupInstallPrompt() {
   const installBtn = getEl("installBtn");
@@ -187,6 +288,12 @@ function setupSplash() {
 
     setTimeout(() => {
       document.body.classList.add("app-ready");
+
+      if (shouldShowEntryModal()) {
+        openEntryModal();
+        return;
+      }
+
       setTimeout(() => {
         startOnboarding();
       }, 250);
@@ -360,6 +467,7 @@ function setupUnlockButton() {
 async function initPage() {
   applyPerformanceMode();
 
+  setupEntryModal();
   setupInstallPrompt();
   setupRefreshActions();
   setupPullToRefresh();
