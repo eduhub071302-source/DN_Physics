@@ -130,6 +130,26 @@ function showToast(message = "Done") {
 
 window.showToast = showToast;
 window.renderDashboard = renderDashboard;
+window.refreshWholeAppUi = function refreshWholeAppUi() {
+  try {
+    updateUnlockButton();
+  } catch (error) {
+    console.warn("updateUnlockButton refresh failed:", error);
+  }
+
+  try {
+    renderDashboard();
+  } catch (error) {
+    console.warn("renderDashboard refresh failed:", error);
+  }
+
+  try {
+    const firebaseUser = window.firebaseAuth?.currentUser || null;
+    updateProfileUI(firebaseUser);
+  } catch (error) {
+    console.warn("updateProfileUI refresh failed:", error);
+  }
+};
 
 function setupEntryModal() {
   const entryLoginBtn = getEl("entryLoginBtn");
