@@ -627,30 +627,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const unlockNowBtn = document.getElementById("unlockNowBtn");
   const unlockCloseBtn = document.getElementById("unlockCloseBtn");
-  const unlockModal = document.getElementById("unlockModal");
-
-  if (unlockNowBtn) {
-    unlockNowBtn.addEventListener("click", async () => {
-      await startFullUnlockCheckout();
-    });
-  }
-
-  if (unlockCloseBtn) {
-    unlockCloseBtn.addEventListener("click", () => {
-      closeUnlockModal();
-    });
-  }
-
-  if (unlockModal) {
-    unlockModal.addEventListener("click", (e) => {
-      if (e.target === unlockModal) {
-        closeUnlockModal();
-      }
-    });
-  }
-
-  const unlockNowBtn = document.getElementById("unlockNowBtn");
-  const unlockCloseBtn = document.getElementById("unlockCloseBtn");
   const unlockLaterBtn = document.getElementById("unlockLaterBtn");
   const unlockModal = document.getElementById("unlockModal");
 
