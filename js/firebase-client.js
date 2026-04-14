@@ -1,8 +1,21 @@
 // firebase-client.js
 
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getDatabase } from "firebase/database";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  signOut,
+} from "firebase/auth";
+import {
+  getDatabase,
+  ref,
+  get,
+  set,
+  onValue,
+} from "firebase/database";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA8MHkxCeD1hUkPFZA15mUpaB87B21ZZ04",
@@ -16,7 +29,24 @@ const firebaseConfig = {
 };
 
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
 
-export const auth = getAuth(app);
-export const db = getDatabase(app);
+window.firebaseApp = app;
+window.firebaseAuth = auth;
+window.firebaseDb = db;
+
+window.firebaseSdk = {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  signOut,
+  ref,
+  get,
+  set,
+  onValue,
+};
+
+export { app, auth, db };
 export default app;
