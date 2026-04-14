@@ -451,25 +451,93 @@
     <!-- UNLOCK MODAL -->
     <div id="unlockModal" class="auth-modal hidden" aria-hidden="true">
       <div class="auth-box premium-auth-box unlock-modal-box">
-        <div class="entry-modal-badge">DN Physics Pro</div>
-        <h2 class="entry-modal-title">Unlock Premium Access</h2>
-        <p class="entry-modal-text">
-          Get full notes access, premium quiz flow, and synced learning features across your account.
-        </p>
+        <button
+          id="unlockCloseBtn"
+          class="unlock-modal-close"
+          type="button"
+          aria-label="Close unlock modal"
+        >
+          ✕
+        </button>
 
-        <div class="entry-modal-actions">
+        <div class="unlock-premium-orb"></div>
+
+        <div class="unlock-modal-top">
+          <div class="unlock-modal-badge">DN Physics Pro</div>
+          <h2 class="unlock-modal-title">Unlock Premium Access</h2>
+          <p class="unlock-modal-text">
+            Get the full DN Physics experience with premium notes, smarter quiz flow,
+            faster sync, and a cleaner high-performance study journey.
+          </p>
+        </div>
+
+        <div class="unlock-price-card">
+          <div class="unlock-price-label">Monthly Access</div>
+          <div class="unlock-price-value">LKR 70</div>
+          <div class="unlock-price-sub">per month · synced to your account</div>
+        </div>
+
+        <div class="unlock-account-card">
+          <div class="unlock-account-label">Signed in as</div>
+          <div id="unlockAccountEmail" class="unlock-account-email">Loading account...</div>
+        </div>
+
+        <div class="unlock-feature-list">
+          <div class="unlock-feature-item">✅ Premium note access</div>
+          <div class="unlock-feature-item">✅ Synced learning progress</div>
+          <div class="unlock-feature-item">✅ Better account-based experience</div>
+          <div class="unlock-feature-item">✅ Pro-level practice flow</div>
+        </div>
+
+        <div class="unlock-modal-actions">
           <button id="unlockNowBtn" class="btn btn-primary" type="button">
             🔓 Unlock Now
           </button>
-
-          <button id="unlockCloseBtn" class="btn" type="button">
-            Close
+          <button id="unlockLaterBtn" class="btn" type="button">
+            Maybe Later
           </button>
         </div>
 
-        <p class="entry-modal-note">
-          Subscription is linked to your logged-in account and can sync across devices.
+        <p class="unlock-modal-note">
+          Your subscription stays linked to your logged-in account and can be used across devices.
         </p>
+      </div>
+    </div>
+
+    <!-- OWNER CODE MODAL -->
+    <div id="ownerCodeModal" class="auth-modal hidden" aria-hidden="true">
+      <div class="auth-box premium-auth-box owner-code-modal-box">
+        <button
+          id="ownerCodeCloseBtn"
+          class="unlock-modal-close"
+          type="button"
+          aria-label="Close owner code modal"
+        >
+          ✕
+        </button>
+
+        <div class="unlock-modal-badge">Restricted Access</div>
+        <h2 class="unlock-modal-title">Owner Code Entry</h2>
+        <p class="unlock-modal-text">
+          This area is hidden and intended only for owner-level activation.
+        </p>
+
+        <input
+          id="ownerCodeInput"
+          type="password"
+          placeholder="Enter owner code"
+          autocomplete="off"
+          class="owner-code-input"
+        />
+
+        <div class="unlock-modal-actions">
+          <button id="ownerCodeSubmitBtn" class="btn btn-primary" type="button">
+            Activate
+          </button>
+          <button id="ownerCodeCancelBtn" class="btn" type="button">
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
 
