@@ -288,24 +288,23 @@ function setupPullToRefresh() {
 
 function setupSplash() {
   const appSplash = getEl("appSplash");
+  const skipSplashBtn = getEl("skipSplashBtn");
   const isLowPerf = document.documentElement.classList.contains("perf-low");
   const SPLASH_TOTAL_MS = isLowPerf ? 4400 : 5200;
   const SPLASH_FADE_MS = 700;
 
-  window.addEventListener("load", () => {
-    if (!appSplash) {
-      document.body.classList.add("app-ready");
-      setTimeout(() => {
-        startOnboarding();
-      }, 300);
-      return;
-    }
+  let splashFinished = false;
+  let fadeTimer = null;
+  let doneTimer = null;
 
-    document.body.classList.remove("app-ready");
+  function finishSplashNow() {
+    if (!appSplash || splashFinished) return;
+    splashFinished = true;
 
-    setTimeout(() => {
-      appSplash.classList.add("hide");
-    }, SPLASH_TOTAL_MS - SPLASH_FADE_MS);
+    if (fadeTimer) clearTimeout(fadeTimer);
+    if (doneTimer) clearTimeout(doneTimer);
+
+    appSplash.classList.add("hide");
 
     setTimeout(() => {
       document.body.classList.add("app-ready");
@@ -318,8 +317,34 @@ function setupSplash() {
       setTimeout(() => {
         startOnboarding();
       }, 250);
+    }, 120);
+  }
+
+  window.addEventListener("load", () => {
+    if (!appSplash) {
+      document.body.classList.add("app-ready");
+      setTimeout(() => {
+        startOnboarding();
+      }, 300);
+      return;
+    }
+
+    document.body.classList.remove("app-ready");
+
+    fadeTimer = setTimeout(() => {
+      appSplash.classList.add("hide");
+    }, SPLASH_TOTAL_MS - SPLASH_FADE_MS);
+
+    doneTimer = setTimeout(() => {
+      finishSplashNow();
     }, SPLASH_TOTAL_MS);
   });
+
+  if (skipSplashBtn) {
+    skipSplashBtn.addEventListener("click", () => {
+      finishSplashNow();
+    });
+  }
 }
 
 function openSubjectModal() {
