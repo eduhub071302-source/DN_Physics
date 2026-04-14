@@ -8,16 +8,13 @@
   <link rel="manifest" href="/manifest.json" />
   <link rel="stylesheet" href="/css/style.css" />
   <style>
-    .support-hero-grid {
+    .support-shell {
       display: grid;
-      grid-template-columns: 1.08fr 0.92fr;
       gap: 18px;
       margin-top: 18px;
     }
 
-    .support-form-card,
-    .support-inbox-card,
-    .support-quick-card {
+    .support-panel {
       padding: 22px;
       border-radius: 22px;
       background: linear-gradient(180deg, rgba(17, 26, 43, 0.96), rgba(12, 18, 31, 0.98));
@@ -42,6 +39,20 @@
       background: rgba(255,255,255,0.04);
       color: var(--text);
       outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+    }
+
+    .support-form-grid select {
+      background:
+        linear-gradient(180deg, rgba(17, 26, 43, 0.98), rgba(12, 18, 31, 0.98));
+      color: #e8eefc;
+    }
+
+    .support-form-grid select option {
+      background: #101827;
+      color: #e8eefc;
     }
 
     .support-form-grid textarea {
@@ -67,29 +78,29 @@
       flex: 1 1 180px;
     }
 
-    .support-inbox-list {
-      display: grid;
-      gap: 12px;
-      margin-top: 14px;
+    .support-feedback {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      display: none;
     }
 
-    .support-inbox-item {
-      padding: 14px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-
-    .support-inbox-item strong {
+    .support-feedback.show {
       display: block;
-      margin-bottom: 6px;
-      color: #f4f8ff;
     }
 
-    .support-inbox-item small {
-      color: var(--muted);
-      display: block;
-      margin-top: 6px;
+    .support-feedback.success {
+      background: rgba(76, 175, 80, 0.12);
+      border: 1px solid rgba(76, 175, 80, 0.24);
+      color: #a5efaa;
+    }
+
+    .support-feedback.error {
+      background: rgba(244, 67, 54, 0.12);
+      border: 1px solid rgba(244, 67, 54, 0.24);
+      color: #ffb3ad;
     }
 
     .ticket-history-list {
@@ -122,25 +133,12 @@
       border-radius: 999px;
       font-size: 0.78rem;
       font-weight: 800;
-      letter-spacing: 0.01em;
     }
 
     .ticket-status.open {
       background: rgba(255, 152, 0, 0.12);
       color: #ffcc80;
       border: 1px solid rgba(255, 152, 0, 0.24);
-    }
-
-    .ticket-status.replied {
-      background: rgba(78, 161, 255, 0.12);
-      color: #9fd0ff;
-      border: 1px solid rgba(78, 161, 255, 0.24);
-    }
-
-    .ticket-status.closed {
-      background: rgba(76, 175, 80, 0.12);
-      color: #9be7a0;
-      border: 1px solid rgba(76, 175, 80, 0.24);
     }
 
     .support-note {
@@ -150,35 +148,18 @@
       line-height: 1.6;
     }
 
-    .support-feedback {
-      margin-top: 12px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      font-size: 0.92rem;
-      font-weight: 700;
-      display: none;
-    }
-
-    .support-feedback.show {
-      display: block;
-    }
-
-    .support-feedback.success {
-      background: rgba(76, 175, 80, 0.12);
-      border: 1px solid rgba(76, 175, 80, 0.24);
-      color: #a5efaa;
-    }
-
-    .support-feedback.error {
-      background: rgba(244, 67, 54, 0.12);
-      border: 1px solid rgba(244, 67, 54, 0.24);
-      color: #ffb3ad;
+    .contact-direct-box {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
     }
 
     .floating-help-wrap {
       position: fixed;
-      right: 16px;
-      bottom: 16px;
+      right: 14px;
+      bottom: 14px;
       z-index: 3000;
       display: flex;
       flex-direction: column;
@@ -187,8 +168,8 @@
     }
 
     .floating-help-btn {
-      min-height: 48px;
-      padding: 12px 16px;
+      min-height: 46px;
+      padding: 11px 15px;
       border-radius: 999px;
       border: 1px solid rgba(124, 196, 255, 0.18);
       background: rgba(12, 20, 34, 0.88);
@@ -204,26 +185,33 @@
       transform: translateY(-1px);
     }
 
-    @media (max-width: 900px) {
-      .support-hero-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
     @media (max-width: 768px) {
+      .topic-card {
+        padding: 20px !important;
+      }
+
+      .support-panel {
+        padding: 16px;
+        border-radius: 18px;
+      }
+
       .support-actions {
         flex-direction: column;
       }
 
+      .support-actions .btn {
+        width: 100%;
+      }
+
       .floating-help-wrap {
-        right: 12px;
-        bottom: 12px;
+        right: 10px;
+        bottom: 10px;
       }
 
       .floating-help-btn {
-        font-size: 0.92rem;
-        min-height: 44px;
+        min-height: 42px;
         padding: 10px 14px;
+        font-size: 0.9rem;
       }
     }
   </style>
@@ -249,54 +237,23 @@
       <div class="topic-card fade-slide-up" style="padding: 28px;">
         <h1 style="margin-top: 0;">Contact DN Physics</h1>
         <p class="section-sub" style="margin-bottom: 22px;">
-          Need help with your account, premium access, notes, synced progress, or app performance?
-          Send a support request and keep track of your ticket history.
+          Need help with your account, premium access, notes, sync, or app performance?
+          Send a support request and keep track of your recent tickets.
         </p>
 
-        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
-          <div class="card" style="padding: 18px;">
-            <h3>General Support</h3>
-            <p>Questions about using the app, notes, quiz flow, or learning features.</p>
-          </div>
-
-          <div class="card" style="padding: 18px;">
-            <h3>Account Help</h3>
-            <p>Login issues, password reset help, profile setup, and progress syncing.</p>
-          </div>
-
-          <div class="card" style="padding: 18px;">
-            <h3>Payment Help</h3>
-            <p>Premium access, unlock issues, billing questions, and purchase support.</p>
-          </div>
-        </div>
-
-        <div class="support-hero-grid">
-          <div class="support-form-card">
-            <h2 style="margin-top: 0;">Send a Support Message</h2>
+        <div class="support-shell">
+          <div class="support-panel">
+            <h2 style="margin-top: 0;">Send a Support Ticket</h2>
             <p class="muted-text" style="margin-bottom: 14px;">
-              Messages can be saved into Firebase or your backend collection like
+              This page is ready for a future backend or Firebase collection like
               <span class="code-inline">/support_messages/{ticketId}</span>.
-              This page is ready for that flow.
             </p>
 
             <form id="supportForm" class="support-form-grid">
-              <input
-                id="supportName"
-                type="text"
-                name="name"
-                placeholder="Your Name"
-                required
-              />
+              <input id="supportName" type="text" placeholder="Your Name" required />
+              <input id="supportEmail" type="email" placeholder="Your Email" required />
 
-              <input
-                id="supportEmail"
-                type="email"
-                name="email"
-                placeholder="Your Email"
-                required
-              />
-
-              <select id="supportCategory" name="category" required>
+              <select id="supportCategory" required>
                 <option value="">Choose Support Category</option>
                 <option value="general-support">General Support</option>
                 <option value="account-help">Account Help</option>
@@ -307,14 +264,13 @@
 
               <textarea
                 id="supportMessage"
-                name="message"
                 placeholder="Describe your issue or question..."
                 required
               ></textarea>
 
               <div class="support-actions">
                 <button id="supportSubmitBtn" class="btn btn-primary" type="submit">
-                  📩 Submit Support Ticket
+                  📩 Submit Ticket
                 </button>
 
                 <a
@@ -329,37 +285,35 @@
             <div id="supportFeedback" class="support-feedback"></div>
 
             <p class="support-note">
-              Suggested backend design:
-              <span class="code-inline">/support_messages/{ticketId}</span>,
-              optional admin notifications, and user ticket history view.
+              Later you can connect this to Firebase or your backend, add admin notifications,
+              and build a real support inbox.
             </p>
           </div>
 
-          <div class="support-inbox-card">
-            <h2 style="margin-top: 0;">Support Inbox</h2>
+          <div class="support-panel">
+            <h2 style="margin-top: 0;">Recent Ticket History</h2>
             <p class="muted-text">
-              Premium inbox-style UI for user ticket history. This can later load from Firebase
-              or your backend.
+              Your recent support requests can appear here in a premium inbox-style view.
             </p>
 
             <div id="ticketHistoryList" class="ticket-history-list">
               <div class="ticket-history-item">
                 <div class="ticket-history-top">
-                  <strong>Sample Ticket Preview</strong>
-                  <span class="ticket-status open">Open</span>
+                  <strong>No tickets yet</strong>
+                  <span class="ticket-status open">Ready</span>
                 </div>
-                <div class="muted-text">Your submitted support tickets will appear here.</div>
+                <div class="muted-text">Submitted support tickets will appear here.</div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="support-quick-card" style="margin-top: 18px;">
+        <div class="contact-direct-box">
           <h2 style="margin-top: 0;">Direct Contact</h2>
           <p><strong>Email:</strong> eduhub071302@gmail.com</p>
           <p><strong>Typical response time:</strong> 24–48 hours</p>
           <p class="muted-text" style="margin-bottom: 0;">
-            For faster support, include your account email and a short issue summary.
+            For faster help, include your account email and a short issue summary.
           </p>
         </div>
       </div>
@@ -408,7 +362,7 @@
               <strong>No tickets yet</strong>
               <span class="ticket-status open">Ready</span>
             </div>
-            <div class="muted-text">Your submitted support tickets will appear here.</div>
+            <div class="muted-text">Submitted support tickets will appear here.</div>
           </div>
         `;
         return;
@@ -425,7 +379,7 @@
                 <span class="ticket-status ${ticket.status}">${ticket.statusLabel}</span>
               </div>
               <div>${ticket.message}</div>
-              <small>Ticket ID: ${ticket.id}</small>
+              <small>Ticket ID: ${ticket.id}</small><br>
               <small>Submitted: ${ticket.createdAt}</small>
             </div>
           `;
@@ -489,38 +443,12 @@
       }
 
       try {
-        /*
-          FINAL BACKEND/FIREBASE READY PLACE:
-
-          1. Firebase path:
-             /support_messages/{ticketId}
-
-          2. Example payload:
-             {
-               id,
-               name,
-               email,
-               category,
-               categoryLabel,
-               message,
-               status: "open",
-               createdAt,
-               userId
-             }
-
-          3. Optional:
-             - trigger admin email notification
-             - build admin panel
-             - load user ticket history from backend instead of localStorage
-        */
-
         const existing = getSupportTickets();
         existing.push(payload);
         saveSupportTickets(existing);
 
         renderTicketHistory();
         showSupportFeedback("Support ticket submitted successfully.", "success");
-
         event.target.reset();
       } catch (error) {
         console.error("Support submit failed:", error);
@@ -528,7 +456,7 @@
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.textContent = "📩 Submit Support Ticket";
+          submitBtn.textContent = "📩 Submit Ticket";
         }
       }
     }
