@@ -2380,81 +2380,143 @@ header,
 .unlock-modal-box,
 .owner-code-modal-box {
   position: relative;
-  overflow: hidden;
-  max-width: 560px;
   width: min(560px, 94vw);
+  max-width: 560px;
   max-height: min(88vh, 760px);
   overflow-y: auto;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  padding: 24px;
+  padding: 28px 24px 22px;
+  border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background:
     radial-gradient(circle at top right, rgba(78, 161, 255, 0.18), transparent 34%),
-    linear-gradient(180deg, rgba(19, 24, 38, 0.96), rgba(10, 14, 24, 0.98));
+    linear-gradient(180deg, rgba(19, 24, 38, 0.97), rgba(10, 14, 24, 0.985));
   box-shadow:
     0 30px 80px rgba(0, 0, 0, 0.42),
     0 0 0 1px rgba(255, 255, 255, 0.04) inset;
 }
 
-.unlock-modal-box::-webkit-scrollbar,
-.owner-code-modal-box::-webkit-scrollbar {
-  width: 8px;
-}
-
-.unlock-modal-box::-webkit-scrollbar-thumb,
-.owner-code-modal-box::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.16);
-  border-radius: 999px;
+.unlock-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  color: #ffffff;
+  cursor: pointer;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
 }
 
 .unlock-modal-top {
   display: grid;
-  gap: 10px;
-  margin-bottom: 18px;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-right: 56px;
+}
+
+.unlock-modal-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(78, 161, 255, 0.14);
+  color: #9fd0ff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+
+.unlock-modal-title {
+  margin: 0;
+  font-size: clamp(30px, 4vw, 40px);
+  line-height: 1.08;
+  color: #f5f8ff;
+}
+
+.unlock-modal-text {
+  margin: 0;
+  color: #bcc8e2;
+  line-height: 1.65;
+  font-size: 1rem;
 }
 
 .unlock-price-card,
 .unlock-account-card {
-  padding: 16px 18px;
+  padding: 18px 18px;
   border-radius: 18px;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
   margin-bottom: 14px;
 }
 
+.unlock-price-label,
+.unlock-account-label {
+  color: #9fb0d2;
+  font-size: 0.92rem;
+  margin-bottom: 8px;
+}
+
+.unlock-price-value {
+  font-size: clamp(42px, 6vw, 54px);
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.unlock-price-sub,
+.unlock-account-email {
+  color: #e6eeff;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
 .unlock-feature-list {
   display: grid;
   gap: 10px;
-  margin: 18px 0;
+  margin: 18px 0 20px;
 }
 
 .unlock-feature-item {
-  padding: 12px 14px;
+  padding: 13px 15px;
   border-radius: 14px;
   background: rgba(255,255,255,0.035);
   border: 1px solid rgba(255,255,255,0.06);
   color: #e9f0ff;
+  font-size: 0.98rem;
 }
 
 .unlock-modal-actions {
   position: sticky;
   bottom: 0;
   display: flex;
-  flex-wrap: wrap;
   gap: 12px;
-  margin-top: 18px;
-  padding-top: 14px;
-  background: linear-gradient(180deg, rgba(10,14,24,0), rgba(10,14,24,0.96) 28%);
+  margin-top: 20px;
+  padding-top: 16px;
+  background: linear-gradient(180deg, rgba(10,14,24,0), rgba(10,14,24,0.98) 30%);
 }
 
 .unlock-modal-actions .btn {
-  flex: 1 1 180px;
-  min-height: 48px;
+  flex: 1 1 0;
+  min-height: 50px;
+  font-weight: 700;
 }
 
-.unlockNowBtn,
-#unlockNowBtn {
-  font-weight: 800;
+.unlock-modal-note {
+  margin: 14px 0 0;
+  color: #99a8c7;
+  font-size: 0.93rem;
+  line-height: 1.55;
 }
 
 @media (max-width: 768px) {
@@ -2463,13 +2525,23 @@ header,
     width: 94vw;
     max-width: 94vw;
     max-height: 86vh;
-    padding: 18px;
+    padding: 22px 16px 18px;
     border-radius: 22px;
   }
 
+  .unlock-modal-close {
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .unlock-modal-top {
+    padding-right: 50px;
+  }
+
   .unlock-modal-title {
-    font-size: 1.8rem;
-    line-height: 1.15;
+    font-size: 2rem;
   }
 
   .unlock-price-value {
