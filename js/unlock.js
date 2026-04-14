@@ -43,10 +43,16 @@ function dnStorageRemove(key) {
 function getUserKeySuffix() {
   try {
     const auth = window.firebaseAuth || null;
-    return auth?.currentUser?.uid || "guest";
+    const firebaseUid = auth?.currentUser?.uid;
+    if (firebaseUid) return firebaseUid;
+
+    const cachedUser = JSON.parse(localStorage.getItem("dn_user") || "null");
+    if (cachedUser?.id) return cachedUser.id;
   } catch {
-    return "guest";
+    // ignore
   }
+
+  return "guest";
 }
 
 function getOwnerModeKey() {
@@ -269,25 +275,41 @@ function startFirebaseSync() {
 // Payment Start
 // ----------------------------
 
+const unlockNowBtn = document.getElementById("unlockNowBtn");
+const originalText = unlockNowBtn?.textContent || "🔓 Unlock Now";
+
+if (unlockNowBtn) {
+  unlockNowBtn.disabled = true;
+  unlockNowBtn.textContent = "Preparing checkout...";
+}
+
 async function startFullUnlockCheckout() {
-    if (isGuestMode()) {
-    showDnMessage("🔒 Please log in or create an account before purchasing DN Physics Pro.");
+  const unlockNowBtn = document.getElementById("unlockNowBtn");
+  const originalText = unlockNowBtn?.textContent || "🔓 Unlock Now";
 
-    if (typeof window.openDnAuthModal === "function") {
-      setTimeout(() => {
-        window.openDnAuthModal();
-      }, 120);
-    }
-
-    return;
-  }
-  
-  if (!DN_CONFIG.BACKEND.CREATE_ORDER_URL) {
-    showDnMessage("Payment not configured yet.");
-    return;
+  if (unlockNowBtn) {
+    unlockNowBtn.disabled = true;
+    unlockNowBtn.textContent = "Preparing checkout...";
   }
 
   try {
+    if (isGuestMode()) {
+      showDnMessage("Please log in before purchasing DN Physics Pro.");
+
+      if (typeof window.openDnAuthModal === "function") {
+        setTimeout(() => {
+          window.openDnAuthModal();
+        }, 120);
+      }
+
+      return;
+    }
+
+    if (!DN_CONFIG.BACKEND.CREATE_ORDER_URL) {
+      showDnMessage("Payment is not configured yet.");
+      return;
+    }
+
     const user = JSON.parse(
       localStorage.getItem(DN_CONFIG.STORAGE_KEYS.USER_PROFILE) || "{}",
     );
@@ -312,7 +334,7 @@ async function startFullUnlockCheckout() {
     const data = await res.json();
 
     if (!res.ok || !data.ok) {
-      showDnMessage(data.message || "Payment start failed");
+      showDnMessage(data.message || "Could not start checkout.");
       return;
     }
 
@@ -335,7 +357,12 @@ async function startFullUnlockCheckout() {
     form.submit();
   } catch (e) {
     console.error("startFullUnlockCheckout error:", e);
-    showDnMessage("Payment error");
+    showDnMessage("Checkout failed. Please try again.");
+  } finally {
+    if (unlockNowBtn) {
+      unlockNowBtn.disabled = false;
+      unlockNowBtn.textContent = originalText;
+    }
   }
 }
 
@@ -418,18 +445,34 @@ function showDnMessage(msg = "Done") {
     document.body.appendChild(box);
 
     box.style.cssText = `
-      position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
-      background:#111;color:#fff;padding:12px 16px;border-radius:10px;
-      z-index:100000;font-size:14px;opacity:0;transition:.2s;
+      position: fixed;
+      right: 14px;
+      bottom: 14px;
+      left: auto;
+      transform: none;
+      max-width: min(88vw, 320px);
+      background: rgba(15, 20, 32, 0.96);
+      color: #eef4ff;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.28);
+      z-index: 100000;
+      font-size: 13px;
+      line-height: 1.45;
+      opacity: 0;
+      transition: .2s;
+      pointer-events: none;
     `;
   }
 
   box.textContent = msg;
   box.style.opacity = "1";
 
-  setTimeout(() => {
+  clearTimeout(box._hideTimer);
+  box._hideTimer = setTimeout(() => {
     box.style.opacity = "0";
-  }, 2000);
+  }, 1800);
 }
 
 // ----------------------------
