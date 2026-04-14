@@ -38,6 +38,9 @@
   <body>
     <!-- APP SPLASH -->
     <div id="appSplash" class="app-splash" aria-hidden="true">
+      <button id="skipSplashBtn" class="skip-splash-btn" type="button">
+        Skip ✦
+      </button>
       <div class="cinema-space-bg"></div>
       <div class="cinema-stars stars-layer-1"></div>
       <div class="cinema-stars stars-layer-2"></div>
@@ -130,23 +133,38 @@
       </div>
     </div>
 
-    <!-- UPDATE TOAST -->
+    <!-- FORCED UPDATE MODAL -->
     <div
-      id="updateToast"
-      class="update-toast"
+      id="updateModal"
+      class="update-modal hidden"
       aria-live="polite"
       aria-hidden="true"
     >
-      <h3>New update available</h3>
-      <p>
-        A newer version of the app was found. Refresh to load the latest
-        improvements.
-      </p>
-      <div class="update-toast-actions">
-        <button id="toastRefreshBtn" class="btn btn-primary" type="button">
-          Refresh Now
-        </button>
-        <button id="toastDismissBtn" class="btn" type="button">Later</button>
+      <div class="update-modal-box">
+        <div class="update-modal-badge">DN Physics Update</div>
+        <h3 id="updateModalTitle">New update ready</h3>
+        <p id="updateModalText">
+          A new version of the app is available. Update to continue with the latest improvements.
+        </p>
+
+        <div class="update-progress-wrap">
+          <div class="update-progress-top">
+            <span id="updateStageText">Waiting to start...</span>
+            <span id="updatePercentText">0%</span>
+          </div>
+
+          <div class="update-progress-bar">
+            <div id="updateProgressFill" class="update-progress-fill"></div>
+          </div>
+
+          <div id="updateSizeText" class="update-size-text">0 KB / 0 KB</div>
+        </div>
+
+        <div class="update-modal-actions">
+          <button id="updateNowBtn" class="btn btn-primary" type="button">
+            🚀 Update Now
+          </button>
+        </div>
       </div>
     </div>
 
