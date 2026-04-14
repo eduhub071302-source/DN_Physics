@@ -1,8 +1,5 @@
 // 🔐 Unlock System (Firebase-only Final Version)
 
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getDatabase, ref, onValue } from "firebase/database";
-
 // ----------------------------
 // Storage Helpers
 // ----------------------------
@@ -45,8 +42,8 @@ function dnStorageRemove(key) {
 
 function getUserKeySuffix() {
   try {
-    const auth = window.firebaseAuth || getAuth();
-    return auth.currentUser?.uid || "guest";
+    const auth = window.firebaseAuth || null;
+    return auth?.currentUser?.uid || "guest";
   } catch {
     return "guest";
   }
@@ -226,10 +223,16 @@ function clearPendingOrderId() {
 let unlockValueUnsubscribe = null;
 
 function startFirebaseSync() {
-  const auth = window.firebaseAuth || getAuth();
-  const db = window.firebaseDb || getDatabase();
+  const auth = window.firebaseAuth || null;
+  const db = window.firebaseDb || null;
+  const sdk = window.firebaseSdk || null;
 
-  onAuthStateChanged(auth, (user) => {
+  if (!auth || !db || !sdk?.onAuthStateChanged || !sdk?.ref || !sdk?.onValue) {
+    console.warn("Unlock Firebase sync not ready.");
+    return;
+  }
+
+  sdk.onAuthStateChanged(auth, (user) => {
     if (unlockValueUnsubscribe) {
       unlockValueUnsubscribe();
       unlockValueUnsubscribe = null;
@@ -240,9 +243,9 @@ function startFirebaseSync() {
       return;
     }
 
-    const userRef = ref(db, "users/" + user.uid);
+    const userRef = sdk.ref(db, "users/" + user.uid);
 
-    unlockValueUnsubscribe = onValue(userRef, (snapshot) => {
+    unlockValueUnsubscribe = sdk.onValue(userRef, (snapshot) => {
       const data = snapshot.val();
       if (!data) return;
 
