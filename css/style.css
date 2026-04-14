@@ -2382,6 +2382,11 @@ header,
   position: relative;
   overflow: hidden;
   max-width: 560px;
+  width: min(560px, 94vw);
+  max-height: min(88vh, 760px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 24px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background:
     radial-gradient(circle at top right, rgba(78, 161, 255, 0.18), transparent 34%),
@@ -2391,61 +2396,21 @@ header,
     0 0 0 1px rgba(255, 255, 255, 0.04) inset;
 }
 
-.unlock-premium-orb {
-  position: absolute;
-  top: -70px;
-  right: -50px;
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(78, 161, 255, 0.28), rgba(78, 161, 255, 0));
-  pointer-events: none;
-  filter: blur(4px);
+.unlock-modal-box::-webkit-scrollbar,
+.owner-code-modal-box::-webkit-scrollbar {
+  width: 8px;
 }
 
-.unlock-modal-close {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 40px;
-  height: 40px;
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 50%;
-  background: rgba(255,255,255,0.05);
-  color: #ffffff;
-  cursor: pointer;
-  z-index: 2;
+.unlock-modal-box::-webkit-scrollbar-thumb,
+.owner-code-modal-box::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.16);
+  border-radius: 999px;
 }
 
 .unlock-modal-top {
   display: grid;
   gap: 10px;
   margin-bottom: 18px;
-}
-
-.unlock-modal-badge {
-  display: inline-flex;
-  align-items: center;
-  width: fit-content;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(78, 161, 255, 0.14);
-  color: #9fd0ff;
-  font-weight: 700;
-  font-size: 0.85rem;
-  letter-spacing: 0.02em;
-}
-
-.unlock-modal-title {
-  margin: 0;
-  font-size: clamp(28px, 4vw, 36px);
-  line-height: 1.1;
-}
-
-.unlock-modal-text {
-  margin: 0;
-  color: #b7c2dc;
-  line-height: 1.6;
 }
 
 .unlock-price-card,
@@ -2455,26 +2420,6 @@ header,
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
   margin-bottom: 14px;
-}
-
-.unlock-price-label,
-.unlock-account-label {
-  color: #9fb0d2;
-  font-size: 0.88rem;
-  margin-bottom: 6px;
-}
-
-.unlock-price-value {
-  font-size: clamp(30px, 5vw, 42px);
-  font-weight: 800;
-  color: #ffffff;
-  line-height: 1;
-}
-
-.unlock-price-sub,
-.unlock-account-email {
-  color: #dce6ff;
-  font-weight: 600;
 }
 
 .unlock-feature-list {
@@ -2492,34 +2437,43 @@ header,
 }
 
 .unlock-modal-actions {
+  position: sticky;
+  bottom: 0;
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 18px;
+  padding-top: 14px;
+  background: linear-gradient(180deg, rgba(10,14,24,0), rgba(10,14,24,0.96) 28%);
 }
 
 .unlock-modal-actions .btn {
   flex: 1 1 180px;
+  min-height: 48px;
 }
 
-.unlock-modal-note {
-  margin: 14px 0 0;
-  color: #98a7c8;
-  font-size: 0.92rem;
-  line-height: 1.5;
-}
-
-.owner-code-input {
-  width: 100%;
-  margin-top: 14px;
-  margin-bottom: 16px;
+.unlockNowBtn,
+#unlockNowBtn {
+  font-weight: 800;
 }
 
 @media (max-width: 768px) {
   .unlock-modal-box,
   .owner-code-modal-box {
+    width: 94vw;
     max-width: 94vw;
-    padding: 20px;
+    max-height: 86vh;
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .unlock-modal-title {
+    font-size: 1.8rem;
+    line-height: 1.15;
+  }
+
+  .unlock-price-value {
+    font-size: 2.5rem;
   }
 
   .unlock-modal-actions {
