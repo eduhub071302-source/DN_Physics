@@ -1586,14 +1586,15 @@
         e.stopPropagation();
 
         const user = getUser();
+        const guestMode = isGuestMode();
         clearAuthError();
 
-        if (user?.email) {
+        if (user?.email || guestMode) {
           renderProfileMode();
           openAuthModal();
           return;
         }
-
+  
         isLoginMode = true;
         renderAuthMode();
         openAuthModal();
