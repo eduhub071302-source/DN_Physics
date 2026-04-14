@@ -516,7 +516,8 @@ function openUnlockModal() {
       unlockAccountEmail.textContent = "Logged-in account";
     }
   }
-
+  
+  unlockModal.scrollTop = 0;
   unlockModal.classList.remove("hidden");
   unlockModal.style.display = "flex";
 }
