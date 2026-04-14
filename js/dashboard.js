@@ -77,6 +77,13 @@ function getQuizProgress() {
   }
 }
 
+function getTotalQuizAttempts() {
+  const store = getQuizProgress();
+  return Object.values(store).reduce((sum, item) => {
+    return sum + (Number(item?.attempts) || 0);
+  }, 0);
+}
+
 function getMostStudiedSubject(recent) {
   if (!recent.length) return null;
 
@@ -231,13 +238,14 @@ function renderDashboard() {
     );
   }
 
+  const totalQuizAttempts = getTotalQuizAttempts();
+
   html += createDashCard(
     "📊 Total Study Sessions",
-    `${recent.length} PDFs opened`,
-    "Open Library",
-    `${APP_PATH}/notes/index.html`,
+    `${totalQuizAttempts} quiz attempt${totalQuizAttempts === 1 ? "" : "s"}`,
+    "Open PP Quiz",
+    `${APP_PATH}/pp-quiz/index.html`,
   );
-
   if (mostStudied) {
     const mostStudiedSlug = mostStudied
       .toLowerCase()
