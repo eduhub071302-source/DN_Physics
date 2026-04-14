@@ -53,6 +53,29 @@ function getRecentPdfs() {
   }
 }
 
+function getMostStudiedSubject(recent) {
+  if (!recent.length) return null;
+
+  const count = {};
+
+  recent.forEach((item) => {
+    if (!item.subject) return;
+    count[item.subject] = (count[item.subject] || 0) + 1;
+  });
+
+  let max = 0;
+  let best = null;
+
+  Object.entries(count).forEach(([key, val]) => {
+    if (val > max) {
+      max = val;
+      best = key;
+    }
+  });
+
+  return best ? prettifySubject(best) : null;
+}
+
 function getFavorites() {
   try {
     return (
