@@ -349,6 +349,8 @@
   </script>
 
   <script src="/js/app-config.js"></script>
+  <script type="module" src="/js/firebase-client.js"></script>
+  <script type="module" src="/js/pdf-sync.js"></script>
   <script type="module" src="/js/unlock.js"></script>
   <script src="/js/access-control.js"></script>
 
@@ -515,10 +517,8 @@
       return `${subjectSlug}__${fileName}`;
     }
 
-    function saveRecentPdf() {
+    async function saveRecentPdf() {
       try {
-        const recent = JSON.parse(localStorage.getItem(PDF_STORAGE_KEYS.RECENT())) || [];
-
         const entry = {
           id: getPdfId(),
           title: shareTitle,
@@ -528,6 +528,12 @@
           lastOpened: new Date().toLocaleDateString()
         };
 
+        if (typeof window.dnPdfSaveRecentEntry === "function") {
+          await window.dnPdfSaveRecentEntry(entry);
+          return;
+        }
+
+        const recent = JSON.parse(localStorage.getItem(PDF_STORAGE_KEYS.RECENT())) || [];
         const filtered = recent.filter((item) => item.id !== entry.id);
         filtered.unshift(entry);
 
@@ -537,11 +543,16 @@
         console.log("Recent save failed", error);
       }
     }
-
     function isFavorite() {
       try {
+        const entryId = getPdfId();
+    
+        if (typeof window.dnPdfIsFavoriteEntry === "function") {
+          return window.dnPdfIsFavoriteEntry(entryId);
+        }
+
         const favorites = JSON.parse(localStorage.getItem(PDF_STORAGE_KEYS.FAVORITES())) || [];
-        return favorites.some((item) => item.id === getPdfId());
+        return favorites.some((item) => item.id === entryId);
       } catch {
         return false;
       }
@@ -553,28 +564,28 @@
       favoriteBtn.textContent = isFavorite() ? "⭐ Favorited" : "☆ Favorite";
     }
 
-    function toggleFavorite() {
+    async function toggleFavorite() {
       try {
-        const favorites = JSON.parse(localStorage.getItem(PDF_STORAGE_KEYS.FAVORITES())) || [];
-        const id = getPdfId();
-        const exists = favorites.find((item) => item.id === id);
+        const entry = {
+          id: getPdfId(),
+          title: shareTitle,
+          subject: subjectSlug,
+          file: fileName,
+          url: pdfUrl
+        };
 
-        let nextFavorites;
-
-        if (exists) {
-          nextFavorites = favorites.filter((item) => item.id !== id);
-        } else {
-          nextFavorites = [
-            ...favorites,
-            {
-              id,
-              title: shareTitle,
-              subject: subjectSlug,
-              file: fileName,
-              url: pdfUrl
-            }
-          ];
+        if (typeof window.dnPdfToggleFavoriteEntry === "function") {
+          await window.dnPdfToggleFavoriteEntry(entry);
+          updateFavoriteUI();
+          return;
         }
+
+        const favorites = JSON.parse(localStorage.getItem(PDF_STORAGE_KEYS.FAVORITES())) || [];
+        const exists = favorites.find((item) => item.id === entry.id);
+
+        const nextFavorites = exists
+          ? favorites.filter((item) => item.id !== entry.id)
+          : [...favorites, entry];
 
         localStorage.setItem(PDF_STORAGE_KEYS.FAVORITES(), JSON.stringify(nextFavorites));
         updateFavoriteUI();
@@ -872,7 +883,7 @@
         currentZoom = getFitWidthZoom(firstViewport.width);
 
         await renderPdfPages(true);
-        saveRecentPdf();
+        await saveRecentPdf();
         addExtraButtons();
       } catch (error) {
         const isOffline = !navigator.onLine;
