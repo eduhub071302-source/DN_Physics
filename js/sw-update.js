@@ -4,6 +4,8 @@ let currentProgress = 0;
 let forceReloadTimer = null;
 let controllerChangeBound = false;
 let stageRotateTimer = null;
+let updateReady = false;
+let lastKnownRegistration = null;
 
 const UPDATE_TOTAL_BYTES = 2.8 * 1024 * 1024;
 
@@ -212,6 +214,7 @@ function clearForceReloadTimer() {
 
 function safeReloadNow() {
   clearForceReloadTimer();
+  updateReady = false;
   finishGameStyleProgress();
 
   setTimeout(() => {
@@ -230,8 +233,44 @@ function bindControllerChangeReload() {
   });
 }
 
+async function hasWaitingUpdate() {
+  try {
+    if (!("serviceWorker" in navigator)) return false;
+
+    const registration =
+      lastKnownRegistration || (await navigator.serviceWorker.getRegistration());
+
+    if (!registration) return false;
+
+    lastKnownRegistration = registration;
+
+    await registration.update();
+
+    if (registration.waiting) {
+      updateReady = true;
+      return true;
+    }
+
+    updateReady = false;
+    return false;
+  } catch (error) {
+    console.log("hasWaitingUpdate check failed:", error);
+    return false;
+  }
+}
+
 async function performSafeUpdate() {
   if (refreshingNow) return;
+
+  const hasUpdate = await hasWaitingUpdate();
+
+  if (!hasUpdate) {
+    if (typeof window.showToast === "function") {
+      window.showToast("✅ App is already up to date");
+    }
+    return;
+  }
+
   refreshingNow = true;
 
   showUpdateModal();
@@ -240,24 +279,23 @@ async function performSafeUpdate() {
   bindControllerChangeReload();
 
   try {
-    if ("serviceWorker" in navigator) {
-      const registration = await navigator.serviceWorker.getRegistration();
+    const registration =
+      lastKnownRegistration || (await navigator.serviceWorker.getRegistration());
 
-      if (registration) {
-        await registration.update();
+    if (registration) {
+      lastKnownRegistration = registration;
 
-        if (registration.waiting) {
-          setUpdateProgress(96, "Applying final patch...");
-          registration.waiting.postMessage({ type: "SKIP_WAITING" });
+      if (registration.waiting) {
+        setUpdateProgress(96, "Applying final patch...");
+        registration.waiting.postMessage({ type: "SKIP_WAITING" });
 
-          clearForceReloadTimer();
-          forceReloadTimer = setTimeout(() => {
-            setUpdateProgress(99, "Restoring connection...");
-            safeReloadNow();
-          }, 8000);
+        clearForceReloadTimer();
+        forceReloadTimer = setTimeout(() => {
+          setUpdateProgress(99, "Restoring connection...");
+          safeReloadNow();
+        }, 8000);
 
-          return;
-        }
+        return;
       }
     }
 
@@ -277,6 +315,7 @@ async function registerServiceWorker(appPath = "") {
     const registration = await navigator.serviceWorker.register(
       `${appPath}/service-worker.js`,
     );
+    lastKnownRegistration = registration;
     console.log("✅ Service Worker registered:", registration.scope);
 
     bindControllerChangeReload();
@@ -297,6 +336,7 @@ async function registerServiceWorker(appPath = "") {
           newWorker.state === "installed" &&
           navigator.serviceWorker.controller
         ) {
+          updateReady = true;
           showUpdateModal();
           setUpdateProgress(0, "Update ready to install");
         }
