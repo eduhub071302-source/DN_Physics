@@ -1,6 +1,8 @@
 let refreshingNow = false;
 let fakeProgressTimer = null;
 let currentProgress = 0;
+let forceReloadTimer = null;
+let controllerChangeBound = false;
 
 const UPDATE_TOTAL_BYTES = 2.8 * 1024 * 1024;
 
@@ -95,22 +97,25 @@ function startGameStyleProgress() {
     } else if (currentProgress < 88) {
       currentProgress += 1.2;
       stage = "Optimizing resources...";
-    } else if (currentProgress < 96) {
-      currentProgress += 0.6;
-      stage = "Finalizing update...";
+    } else if (currentProgress < 94) {
+      currentProgress += 0.5;
+      stage = "Preparing restart...";
     }
 
-    if (currentProgress > 96) currentProgress = 96;
+    if (currentProgress > 94) currentProgress = 94;
     setUpdateProgress(currentProgress, stage);
   }, 180);
 }
 
-function finishGameStyleProgress() {
+function stopGameStyleProgress() {
   if (fakeProgressTimer) {
     clearInterval(fakeProgressTimer);
     fakeProgressTimer = null;
   }
+}
 
+function finishGameStyleProgress() {
+  stopGameStyleProgress();
   setUpdateProgress(100, "Reconnect complete 🚀");
 }
 
@@ -126,6 +131,32 @@ function showBusyUpdateMessage() {
   }, 80);
 }
 
+function clearForceReloadTimer() {
+  if (forceReloadTimer) {
+    clearTimeout(forceReloadTimer);
+    forceReloadTimer = null;
+  }
+}
+
+function safeReloadNow() {
+  clearForceReloadTimer();
+  finishGameStyleProgress();
+  setTimeout(() => {
+    window.location.reload();
+  }, 500);
+}
+
+function bindControllerChangeReload() {
+  if (controllerChangeBound || !("serviceWorker" in navigator)) return;
+  controllerChangeBound = true;
+
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!refreshingNow) return;
+    setUpdateProgress(99, "Reconnecting app...");
+    safeReloadNow();
+  });
+}
+
 async function performSafeUpdate() {
   if (refreshingNow) return;
   refreshingNow = true;
@@ -133,6 +164,7 @@ async function performSafeUpdate() {
   showUpdateModal();
   showLoadingOverlay();
   startGameStyleProgress();
+  bindControllerChangeReload();
 
   try {
     if ("serviceWorker" in navigator) {
@@ -142,25 +174,26 @@ async function performSafeUpdate() {
         await registration.update();
 
         if (registration.waiting) {
-          setUpdateProgress(97, "Applying update...");
+          setUpdateProgress(96, "Applying update...");
           registration.waiting.postMessage({ type: "SKIP_WAITING" });
+
+          clearForceReloadTimer();
+          forceReloadTimer = setTimeout(() => {
+            setUpdateProgress(99, "Finishing update...");
+            safeReloadNow();
+          }, 8000);
+
           return;
         }
       }
     }
 
-    finishGameStyleProgress();
-
-    setTimeout(() => {
-      window.location.reload();
-    }, 700);
+    setUpdateProgress(98, "Finalizing update...");
+    safeReloadNow();
   } catch (error) {
     console.log("Safe update error:", error);
-    finishGameStyleProgress();
-
-    setTimeout(() => {
-      window.location.reload();
-    }, 700);
+    setUpdateProgress(98, "Recovering update...");
+    safeReloadNow();
   }
 }
 
@@ -173,6 +206,7 @@ async function registerServiceWorker(appPath = "") {
     );
     console.log("✅ Service Worker registered:", registration.scope);
 
+    bindControllerChangeReload();
     await registration.update();
 
     setTimeout(() => {
@@ -201,11 +235,8 @@ async function registerServiceWorker(appPath = "") {
 
       if (event.data.type === "SW_UPDATED") {
         console.log("✅ Service worker updated:", event.data.version);
-        finishGameStyleProgress();
-
-        setTimeout(() => {
-          window.location.reload();
-        }, 700);
+        setUpdateProgress(99, "Reconnecting app...");
+        safeReloadNow();
         return;
       }
 
@@ -215,7 +246,7 @@ async function registerServiceWorker(appPath = "") {
       }
 
       if (event.data.type === "FORCE_RELOAD") {
-        window.location.reload();
+        safeReloadNow();
       }
     });
   } catch (error) {
