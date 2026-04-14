@@ -33,6 +33,14 @@ function dnSetProgressStore(store) {
   localStorage.setItem(dnGetProgressStorageKey(), JSON.stringify(store || {}));
 }
 
+function dnClearProgressStoreForCurrentMode() {
+  try {
+    localStorage.removeItem(dnGetProgressStorageKey());
+  } catch (error) {
+    console.warn("dnClearProgressStoreForCurrentMode failed:", error);
+  }
+}
+
 function dnParseProgressKey(key) {
   const parts = String(key || "").split("__");
 
@@ -140,3 +148,4 @@ async function syncLocalProgressToCloud() {
 
 window.syncCloudProgressToLocal = syncCloudProgressToLocal;
 window.syncLocalProgressToCloud = syncLocalProgressToCloud;
+window.dnClearProgressStoreForCurrentMode = dnClearProgressStoreForCurrentMode;
