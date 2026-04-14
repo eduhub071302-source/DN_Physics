@@ -295,7 +295,6 @@ function renderDashboard() {
     );
   }
 
-  const weakQuiz = getWeakQuiz();
   const keepGoingLink = weakQuiz ? buildQuizUrlFromKey(weakQuiz.key) : `${APP_PATH}/pp-quiz/index.html`;
   const keepGoingText = weakQuiz
     ? `Return to ${prettifyQuizLabel(parseQuizKey(weakQuiz.key))} and improve your accuracy.`
