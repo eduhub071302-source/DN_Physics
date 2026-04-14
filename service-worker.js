@@ -1,4 +1,4 @@
-const CACHE_NAME = "dn-physics-v316";
+const CACHE_NAME = "dn-physics-v317";
 const META_CACHE = "dn-physics-meta";
 
 const CORE_FILES = [
@@ -84,6 +84,18 @@ self.addEventListener("message", (event) => {
 
   if (event.data.type === "SKIP_WAITING") {
     self.skipWaiting();
+
+    self.clients.matchAll({
+      type: "window",
+      includeUncontrolled: true,
+    }).then((clients) => {
+      for (const client of clients) {
+        client.postMessage({
+          type: "FORCE_RELOAD",
+          version: CACHE_NAME,
+        });
+      }
+    });
   }
 
   if (event.data.type === "GET_VERSION" && event.source) {
