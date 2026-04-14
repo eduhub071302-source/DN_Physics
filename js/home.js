@@ -129,6 +129,7 @@ function showToast(message = "Done") {
 }
 
 window.showToast = showToast;
+window.renderDashboard = renderDashboard;
 
 function setupEntryModal() {
   const entryLoginBtn = getEl("entryLoginBtn");
