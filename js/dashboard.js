@@ -175,11 +175,19 @@ function prettifyQuizLabel(parsed) {
     return `${subjectName} · ${topicName}`;
   }
 
+  if (topicName && subtopicName) {
+    return `${subjectName} · ${topicName} · ${subtopicName}`;
+  }
+
   if (subtopicName) {
     return `${subjectName} · ${subtopicName}`;
   }
 
-  return `${subjectName} · ${topicName}`;
+  if (topicName) {
+    return `${subjectName} · ${topicName}`;
+  }
+
+  return subjectName;
 }
 
 function getBestQuiz() {
