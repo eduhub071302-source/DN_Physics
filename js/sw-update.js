@@ -3,8 +3,37 @@ let fakeProgressTimer = null;
 let currentProgress = 0;
 let forceReloadTimer = null;
 let controllerChangeBound = false;
+let stageRotateTimer = null;
 
 const UPDATE_TOTAL_BYTES = 2.8 * 1024 * 1024;
+
+const STAGE_GROUPS = {
+  early: [
+    "Scanning update package...",
+    "Checking core files...",
+    "Reading version manifest...",
+  ],
+  download: [
+    "Downloading core assets...",
+    "Updating interface files...",
+    "Refreshing app resources...",
+  ],
+  install: [
+    "Installing update package...",
+    "Applying new files...",
+    "Updating cached resources...",
+  ],
+  optimize: [
+    "Optimizing startup assets...",
+    "Refreshing offline cache...",
+    "Aligning app modules...",
+  ],
+  final: [
+    "Preparing restart...",
+    "Reconnecting services...",
+    "Finalizing update...",
+  ],
+};
 
 function getEl(id) {
   return document.getElementById(id);
@@ -13,8 +42,16 @@ function getEl(id) {
 function formatBytes(bytes) {
   if (bytes < 1024) return `${Math.round(bytes)} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
-  if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes < 1024 * 1024 * 1024) {
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+}
+
+function pickStage(groupName) {
+  const list = STAGE_GROUPS[groupName] || ["Updating app..."];
+  const index = Math.floor(Math.random() * list.length);
+  return list[index];
 }
 
 function showLoadingOverlay() {
@@ -73,6 +110,39 @@ function setUpdateProgress(progress, stageText = "Updating app...") {
   setLoadingText(`${stageText} ${Math.round(safeProgress)}%`);
 }
 
+function stopStageRotation() {
+  if (stageRotateTimer) {
+    clearInterval(stageRotateTimer);
+    stageRotateTimer = null;
+  }
+}
+
+function startStageRotation() {
+  stopStageRotation();
+
+  stageRotateTimer = setInterval(() => {
+    if (currentProgress < 18) {
+      setUpdateProgress(currentProgress, pickStage("early"));
+      return;
+    }
+    if (currentProgress < 42) {
+      setUpdateProgress(currentProgress, pickStage("download"));
+      return;
+    }
+    if (currentProgress < 68) {
+      setUpdateProgress(currentProgress, pickStage("install"));
+      return;
+    }
+    if (currentProgress < 94) {
+      setUpdateProgress(currentProgress, pickStage("optimize"));
+      return;
+    }
+    if (currentProgress < 100) {
+      setUpdateProgress(currentProgress, pickStage("final"));
+    }
+  }, 900);
+}
+
 function startGameStyleProgress() {
   if (fakeProgressTimer) {
     clearInterval(fakeProgressTimer);
@@ -81,25 +151,26 @@ function startGameStyleProgress() {
 
   currentProgress = 0;
   setUpdateProgress(0, "Preparing update...");
+  startStageRotation();
 
   fakeProgressTimer = setInterval(() => {
     let stage = "Preparing update...";
 
     if (currentProgress < 18) {
       currentProgress += 3;
-      stage = "Checking package...";
+      stage = pickStage("early");
     } else if (currentProgress < 42) {
       currentProgress += 2.8;
-      stage = "Downloading assets...";
+      stage = pickStage("download");
     } else if (currentProgress < 68) {
       currentProgress += 2.1;
-      stage = "Installing files...";
+      stage = pickStage("install");
     } else if (currentProgress < 88) {
       currentProgress += 1.2;
-      stage = "Optimizing resources...";
+      stage = pickStage("optimize");
     } else if (currentProgress < 94) {
       currentProgress += 0.5;
-      stage = "Preparing restart...";
+      stage = pickStage("final");
     }
 
     if (currentProgress > 94) currentProgress = 94;
@@ -112,6 +183,7 @@ function stopGameStyleProgress() {
     clearInterval(fakeProgressTimer);
     fakeProgressTimer = null;
   }
+  stopStageRotation();
 }
 
 function finishGameStyleProgress() {
@@ -141,9 +213,10 @@ function clearForceReloadTimer() {
 function safeReloadNow() {
   clearForceReloadTimer();
   finishGameStyleProgress();
+
   setTimeout(() => {
     window.location.reload();
-  }, 500);
+  }, 650);
 }
 
 function bindControllerChangeReload() {
@@ -152,7 +225,7 @@ function bindControllerChangeReload() {
 
   navigator.serviceWorker.addEventListener("controllerchange", () => {
     if (!refreshingNow) return;
-    setUpdateProgress(99, "Reconnecting app...");
+    setUpdateProgress(99, "Reconnecting services...");
     safeReloadNow();
   });
 }
@@ -174,12 +247,12 @@ async function performSafeUpdate() {
         await registration.update();
 
         if (registration.waiting) {
-          setUpdateProgress(96, "Applying update...");
+          setUpdateProgress(96, "Applying final patch...");
           registration.waiting.postMessage({ type: "SKIP_WAITING" });
 
           clearForceReloadTimer();
           forceReloadTimer = setTimeout(() => {
-            setUpdateProgress(99, "Finishing update...");
+            setUpdateProgress(99, "Restoring connection...");
             safeReloadNow();
           }, 8000);
 
@@ -188,7 +261,7 @@ async function performSafeUpdate() {
       }
     }
 
-    setUpdateProgress(98, "Finalizing update...");
+    setUpdateProgress(98, "Completing update...");
     safeReloadNow();
   } catch (error) {
     console.log("Safe update error:", error);
@@ -235,7 +308,7 @@ async function registerServiceWorker(appPath = "") {
 
       if (event.data.type === "SW_UPDATED") {
         console.log("✅ Service worker updated:", event.data.version);
-        setUpdateProgress(99, "Reconnecting app...");
+        setUpdateProgress(99, "Reconnecting services...");
         safeReloadNow();
         return;
       }
@@ -274,7 +347,6 @@ function setupRefreshActions() {
         showBusyUpdateMessage();
         return;
       }
-
       await performSafeUpdate();
     });
   }
