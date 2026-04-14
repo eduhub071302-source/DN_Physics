@@ -1,8 +1,18 @@
 let refreshingNow = false;
 let fakeProgressTimer = null;
+let currentProgress = 0;
+
+const UPDATE_TOTAL_BYTES = 2.8 * 1024 * 1024;
 
 function getEl(id) {
   return document.getElementById(id);
+}
+
+function formatBytes(bytes) {
+  if (bytes < 1024) return `${Math.round(bytes)} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
 }
 
 function showLoadingOverlay() {
@@ -24,58 +34,84 @@ function setLoadingText(text) {
   if (loadingText) loadingText.textContent = text;
 }
 
-function showUpdateToast() {
-  const updateToast = getEl("updateToast");
-  if (!updateToast) return;
-  updateToast.classList.add("show");
-  updateToast.setAttribute("aria-hidden", "false");
+function showUpdateModal() {
+  const modal = getEl("updateModal");
+  if (!modal) return;
+  modal.classList.remove("hidden");
+  modal.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
 }
 
-function hideUpdateToast() {
-  const updateToast = getEl("updateToast");
-  if (!updateToast) return;
-  updateToast.classList.remove("show");
-  updateToast.setAttribute("aria-hidden", "true");
+function hideUpdateModal() {
+  const modal = getEl("updateModal");
+  if (!modal) return;
+  modal.classList.add("hidden");
+  modal.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
 }
 
-function startFakeProgress() {
+function setUpdateProgress(progress, stageText = "Updating app...") {
+  const safeProgress = Math.max(0, Math.min(100, progress));
+  currentProgress = safeProgress;
+
+  const fill = getEl("updateProgressFill");
+  const percent = getEl("updatePercentText");
+  const stage = getEl("updateStageText");
+  const size = getEl("updateSizeText");
+
+  if (fill) fill.style.width = `${safeProgress}%`;
+  if (percent) percent.textContent = `${Math.round(safeProgress)}%`;
+  if (stage) stage.textContent = stageText;
+
+  const doneBytes = (UPDATE_TOTAL_BYTES * safeProgress) / 100;
+  if (size) {
+    size.textContent = `${formatBytes(doneBytes)} / ${formatBytes(UPDATE_TOTAL_BYTES)}`;
+  }
+
+  setLoadingText(`${stageText} ${Math.round(safeProgress)}%`);
+}
+
+function startGameStyleProgress() {
   if (fakeProgressTimer) {
     clearInterval(fakeProgressTimer);
     fakeProgressTimer = null;
   }
 
-  let progress = 0;
-  let stage = "Checking update...";
-
-  setLoadingText(`${stage} 0%`);
+  currentProgress = 0;
+  setUpdateProgress(0, "Preparing update...");
 
   fakeProgressTimer = setInterval(() => {
-    if (progress < 25) {
-      stage = "Checking update...";
-      progress += 5;
-    } else if (progress < 55) {
-      stage = "Downloading files...";
-      progress += 4;
-    } else if (progress < 85) {
-      stage = "Applying update...";
-      progress += 2;
-    } else if (progress < 95) {
-      stage = "Finalizing...";
-      progress += 1;
+    let stage = "Preparing update...";
+
+    if (currentProgress < 18) {
+      currentProgress += 3;
+      stage = "Checking package...";
+    } else if (currentProgress < 42) {
+      currentProgress += 2.8;
+      stage = "Downloading assets...";
+    } else if (currentProgress < 68) {
+      currentProgress += 2.1;
+      stage = "Installing files...";
+    } else if (currentProgress < 88) {
+      currentProgress += 1.2;
+      stage = "Optimizing resources...";
+    } else if (currentProgress < 96) {
+      currentProgress += 0.6;
+      stage = "Finalizing update...";
     }
 
-    if (progress > 95) progress = 95;
-    setLoadingText(`${stage} ${progress}%`);
-  }, 160);
+    if (currentProgress > 96) currentProgress = 96;
+    setUpdateProgress(currentProgress, stage);
+  }, 180);
 }
 
-function finishFakeProgress() {
+function finishGameStyleProgress() {
   if (fakeProgressTimer) {
     clearInterval(fakeProgressTimer);
     fakeProgressTimer = null;
   }
 
-  setLoadingText("Update complete 🚀 100%");
+  setUpdateProgress(100, "Reconnect complete 🚀");
 }
 
 function isUserBusy() {
@@ -83,7 +119,6 @@ function isUserBusy() {
 }
 
 function showBusyUpdateMessage() {
-  hideUpdateToast();
   setTimeout(() => {
     if (typeof window.showToast === "function") {
       window.showToast("Finish quiz first ⚠️");
@@ -95,8 +130,9 @@ async function performSafeUpdate() {
   if (refreshingNow) return;
   refreshingNow = true;
 
+  showUpdateModal();
   showLoadingOverlay();
-  startFakeProgress();
+  startGameStyleProgress();
 
   try {
     if ("serviceWorker" in navigator) {
@@ -106,23 +142,25 @@ async function performSafeUpdate() {
         await registration.update();
 
         if (registration.waiting) {
-          setLoadingText("Applying update... 95%");
+          setUpdateProgress(97, "Applying update...");
           registration.waiting.postMessage({ type: "SKIP_WAITING" });
           return;
         }
       }
     }
 
-    finishFakeProgress();
+    finishGameStyleProgress();
+
     setTimeout(() => {
       window.location.reload();
-    }, 250);
+    }, 700);
   } catch (error) {
     console.log("Safe update error:", error);
-    finishFakeProgress();
+    finishGameStyleProgress();
+
     setTimeout(() => {
       window.location.reload();
-    }, 250);
+    }, 700);
   }
 }
 
@@ -152,7 +190,8 @@ async function registerServiceWorker(appPath = "") {
           newWorker.state === "installed" &&
           navigator.serviceWorker.controller
         ) {
-          showUpdateToast();
+          showUpdateModal();
+          setUpdateProgress(0, "Update ready to install");
         }
       });
     });
@@ -162,12 +201,11 @@ async function registerServiceWorker(appPath = "") {
 
       if (event.data.type === "SW_UPDATED") {
         console.log("✅ Service worker updated:", event.data.version);
-        if (typeof window.showToast === "function") {
-          window.showToast("🚀 Updating app...");
-        }
+        finishGameStyleProgress();
+
         setTimeout(() => {
           window.location.reload();
-        }, 300);
+        }, 700);
         return;
       }
 
@@ -187,8 +225,7 @@ async function registerServiceWorker(appPath = "") {
 
 function setupRefreshActions() {
   const refreshBtn = getEl("refreshBtn");
-  const toastRefreshBtn = getEl("toastRefreshBtn");
-  const toastDismissBtn = getEl("toastDismissBtn");
+  const updateNowBtn = getEl("updateNowBtn");
 
   if (refreshBtn) {
     refreshBtn.addEventListener("click", async () => {
@@ -200,36 +237,30 @@ function setupRefreshActions() {
     });
   }
 
-  if (toastRefreshBtn) {
-    toastRefreshBtn.addEventListener("click", async () => {
+  if (updateNowBtn) {
+    updateNowBtn.addEventListener("click", async () => {
       if (isUserBusy()) {
         showBusyUpdateMessage();
         return;
       }
 
-      hideUpdateToast();
       await performSafeUpdate();
-    });
-  }
-
-  if (toastDismissBtn) {
-    toastDismissBtn.addEventListener("click", () => {
-      hideUpdateToast();
     });
   }
 }
 
 export {
   hideLoadingOverlay,
-  hideUpdateToast,
+  hideUpdateModal,
   isUserBusy,
   performSafeUpdate,
   registerServiceWorker,
   setupRefreshActions,
   setLoadingText,
+  setUpdateProgress,
   showBusyUpdateMessage,
   showLoadingOverlay,
-  showUpdateToast,
-  startFakeProgress,
-  finishFakeProgress,
+  showUpdateModal,
+  startGameStyleProgress,
+  finishGameStyleProgress,
 };
