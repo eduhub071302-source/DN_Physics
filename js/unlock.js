@@ -192,6 +192,7 @@ function disableOwnerMode() {
 function unlockWithOwnerCode(code) {
   if (code === DN_CONFIG.ACCESS.OWNER_CODE) {
     enableOwnerMode();
+    closeOwnerCodeModal();
     closeUnlockModal();
     showDnMessage("Owner mode activated 🔓");
     setTimeout(() => location.reload(), 300);
@@ -440,6 +441,7 @@ function ensureUnlockModal() {}
 function openUnlockModal() {
   const unlockModal = document.getElementById("unlockModal");
   const authModal = document.getElementById("authModal");
+  const unlockAccountEmail = document.getElementById("unlockAccountEmail");
 
   if (isGuestMode()) {
     if (authModal) {
@@ -456,6 +458,22 @@ function openUnlockModal() {
     return;
   }
 
+  try {
+    const auth = window.firebaseAuth || null;
+    const email =
+      auth?.currentUser?.email ||
+      JSON.parse(localStorage.getItem("dn_user") || "null")?.email ||
+      "Logged-in account";
+
+    if (unlockAccountEmail) {
+      unlockAccountEmail.textContent = email;
+    }
+  } catch (error) {
+    if (unlockAccountEmail) {
+      unlockAccountEmail.textContent = "Logged-in account";
+    }
+  }
+
   unlockModal.classList.remove("hidden");
   unlockModal.style.display = "flex";
 }
@@ -468,8 +486,92 @@ function closeUnlockModal() {
   unlockModal.style.display = "none";
 }
 
-function lockAlert() {
-  openUnlockModal();
+function openOwnerCodeModal() {
+  const ownerCodeModal = document.getElementById("ownerCodeModal");
+  const ownerCodeInput = document.getElementById("ownerCodeInput");
+
+  if (!ownerCodeModal) {
+    showDnMessage("Owner modal missing.");
+    return;
+  }
+
+  ownerCodeModal.classList.remove("hidden");
+  ownerCodeModal.style.display = "flex";
+
+  setTimeout(() => {
+    ownerCodeInput?.focus();
+  }, 80);
+}
+
+function closeOwnerCodeModal() {
+  const ownerCodeModal = document.getElementById("ownerCodeModal");
+  const ownerCodeInput = document.getElementById("ownerCodeInput");
+
+  if (!ownerCodeModal) return;
+
+  ownerCodeModal.classList.add("hidden");
+  ownerCodeModal.style.display = "none";
+
+  if (ownerCodeInput) {
+    ownerCodeInput.value = "";
+  }
+}
+
+function submitOwnerCode() {
+  const ownerCodeInput = document.getElementById("ownerCodeInput");
+  const code = String(ownerCodeInput?.value || "").trim();
+
+  if (!code) {
+    showDnMessage("Enter owner code.");
+    return;
+  }
+
+  unlockWithOwnerCode(code);
+}
+
+function setupOwnerShortcut() {
+  let capsPressed = false;
+
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "CapsLock") {
+      capsPressed = true;
+    }
+
+    const isU = event.key === "u" || event.key === "U";
+
+    if (
+      event.ctrlKey &&
+      event.shiftKey &&
+      capsPressed &&
+      event.key === "Tab"
+    ) {
+      window.__dnOwnerTabArmed = true;
+      return;
+    }
+
+    if (
+      event.ctrlKey &&
+      event.shiftKey &&
+      capsPressed &&
+      window.__dnOwnerTabArmed &&
+      isU
+    ) {
+      event.preventDefault();
+      window.__dnOwnerTabArmed = false;
+      openOwnerCodeModal();
+    }
+  });
+
+  window.addEventListener("keyup", (event) => {
+    if (event.key === "CapsLock") {
+      capsPressed = false;
+    }
+  });
+
+  window.addEventListener("blur", () => {
+    window.__dnOwnerTabArmed = false;
+    capsPressed = false;
+  });
 }
 
 // ----------------------------
@@ -546,6 +648,74 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
   }
+
+  const unlockNowBtn = document.getElementById("unlockNowBtn");
+  const unlockCloseBtn = document.getElementById("unlockCloseBtn");
+  const unlockLaterBtn = document.getElementById("unlockLaterBtn");
+  const unlockModal = document.getElementById("unlockModal");
+
+  const ownerCodeModal = document.getElementById("ownerCodeModal");
+  const ownerCodeCloseBtn = document.getElementById("ownerCodeCloseBtn");
+  const ownerCodeCancelBtn = document.getElementById("ownerCodeCancelBtn");
+  const ownerCodeSubmitBtn = document.getElementById("ownerCodeSubmitBtn");
+  const ownerCodeInput = document.getElementById("ownerCodeInput");
+
+  if (unlockNowBtn) {
+    unlockNowBtn.addEventListener("click", async () => {
+      await startFullUnlockCheckout();
+    });
+  }
+
+  if (unlockCloseBtn) {
+    unlockCloseBtn.addEventListener("click", () => {
+      closeUnlockModal();
+    });
+  }
+
+  if (unlockLaterBtn) {
+    unlockLaterBtn.addEventListener("click", () => {
+      closeUnlockModal();
+    });
+  }
+
+  if (unlockModal) {
+    unlockModal.addEventListener("click", (e) => {
+      if (e.target === unlockModal) {
+        closeUnlockModal();
+      }
+    });
+  }
+
+  if (ownerCodeCloseBtn) {
+    ownerCodeCloseBtn.addEventListener("click", closeOwnerCodeModal);
+  }
+
+  if (ownerCodeCancelBtn) {
+    ownerCodeCancelBtn.addEventListener("click", closeOwnerCodeModal);
+  }
+
+  if (ownerCodeSubmitBtn) {
+    ownerCodeSubmitBtn.addEventListener("click", submitOwnerCode);
+  }
+
+  if (ownerCodeInput) {
+    ownerCodeInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        submitOwnerCode();
+      }
+    });
+  }
+
+  if (ownerCodeModal) {
+    ownerCodeModal.addEventListener("click", (e) => {
+      if (e.target === ownerCodeModal) {
+        closeOwnerCodeModal();
+      }
+    });
+  }
+
+  setupOwnerShortcut();
 
   setInterval(() => {
     try {
