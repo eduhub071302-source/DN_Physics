@@ -572,6 +572,14 @@
       }
     }
 
+    if (typeof window.dnPdfPullCloudToCurrentLocal === "function") {
+      try {
+        await window.dnPdfPullCloudToCurrentLocal();
+      } catch (error) {
+        console.warn("dnPdfPullCloudToCurrentLocal failed:", error);
+      }
+    }
+
     try {
       const topProfileAvatarImg = document.getElementById("topProfileAvatarImg");
       const topProfileAvatar = document.getElementById("topProfileAvatar");
