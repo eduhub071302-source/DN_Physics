@@ -285,11 +285,11 @@ if (unlockNowBtn) {
 
 async function startFullUnlockCheckout() {
   const unlockNowBtn = document.getElementById("unlockNowBtn");
-  const originalText = unlockNowBtn?.textContent || "🔓 Unlock Now";
+  const originalText = "🔓 Buy Now";
 
   if (unlockNowBtn) {
     unlockNowBtn.disabled = true;
-    unlockNowBtn.textContent = "Preparing checkout...";
+    unlockNowBtn.textContent = "Opening Checkout...";
   }
 
   try {
