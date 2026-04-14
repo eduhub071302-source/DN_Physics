@@ -1,4 +1,4 @@
-// 🔐 DN Physics App Configuration (Finalized)
+// 🔐 DN Physics App Configuration (Production Final)
 
 const DN_CONFIG = {
   APP: {
@@ -9,7 +9,6 @@ const DN_CONFIG = {
   ACCESS: {
     FREE_PDF_SUBJECTS: ["gravitational-field"],
     FREE_QUIZ_TOPICS: ["units"],
-    OWNER_CODE: "DN-OWNER-2026",
   },
 
   PRODUCT: {
@@ -37,7 +36,6 @@ const DN_CONFIG = {
   },
 
   BACKEND: {
-    // This is your backend host. It can stay here even if frontend auth no longer uses Supabase.
     API_BASE_URL: "https://aqhktwashmnqkgvmauxv.supabase.co/functions/v1",
 
     CREATE_ORDER_URL: "/api/payments/create-order",
@@ -56,7 +54,6 @@ const DN_CONFIG = {
   },
 
   STORAGE_KEYS: {
-    OWNER_MODE: "dn_owner_mode",
     PAID_UNLOCK: "dn_paid_unlock",
     UNLOCK_SOURCE: "dn_unlock_source",
     UNLOCK_TIME: "dn_unlock_time",
