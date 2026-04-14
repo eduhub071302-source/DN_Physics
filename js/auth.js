@@ -27,6 +27,8 @@
   const OFFLINE_URL = `${APP_PATH}/offline.html`;
   const USER_KEY = "dn_user";
   const PROFILE_KEY = "dn_profile";
+  const APP_MODE_KEY = "dn_app_mode";
+  const GUEST_PROFILE_KEY = "dn_guest_profile";
   const DEFAULT_AVATAR = "avatar-01";
 
   function getEls() {
@@ -193,6 +195,95 @@
     const sessionKey = getConfigStorageKey("USER_SESSION_TOKEN");
     if (!sessionKey) return;
     safeRemoveLocal(sessionKey);
+  }
+
+  function getAppMode() {
+     return safeGetLocal(APP_MODE_KEY) || "guest";
+  }
+
+  function setAppMode(mode) {
+    safeSetLocal(APP_MODE_KEY, mode === "account" ? "account" : "guest");
+  }
+
+  function isGuestMode() {
+    return getAppMode() === "guest";
+  }
+
+  function getGuestProfile() {
+    try {
+      return JSON.parse(safeGetLocal(GUEST_PROFILE_KEY)) || {
+        name: "Guest",
+        bio: "Local device only",
+        avatar_type: "preset",
+        avatar_value: DEFAULT_AVATAR,
+        profile_photo_url: buildPresetAvatarUrl(DEFAULT_AVATAR),
+      };
+    } catch {
+      return {
+        name: "Guest",
+        bio: "Local device only",
+        avatar_type: "preset",
+        avatar_value: DEFAULT_AVATAR,
+        profile_photo_url: buildPresetAvatarUrl(DEFAULT_AVATAR),
+      };
+    }
+  }
+  
+  function setGuestProfile(profile) {
+    const finalProfile = {
+      name: "Guest",
+      bio: "Local device only",
+      avatar_type: "preset",
+      avatar_value: DEFAULT_AVATAR,
+      profile_photo_url: buildPresetAvatarUrl(DEFAULT_AVATAR),
+      ...(profile || {}),
+    };
+
+    safeSetLocal(GUEST_PROFILE_KEY, JSON.stringify(finalProfile));
+    return finalProfile;
+  }
+
+  function enterGuestMode() {
+    setAppMode("guest");
+    clearUser();
+    clearSessionToken();
+    clearProfileCache();
+
+    const guestProfile = getGuestProfile();
+    setProfileCache(guestProfile);
+
+    try {
+      const topProfileAvatarImg = document.getElementById("topProfileAvatarImg");
+      const topProfileAvatar = document.getElementById("topProfileAvatar");
+      const userEmailDisplay = document.getElementById("userEmailDisplay");
+
+      if (topProfileAvatarImg) {
+        topProfileAvatarImg.src =
+          guestProfile.profile_photo_url ||
+          buildPresetAvatarUrl(guestProfile.avatar_value || DEFAULT_AVATAR, Date.now());
+      }
+
+      if (topProfileAvatar) {
+        topProfileAvatar.classList.remove("is-hidden");
+        topProfileAvatar.setAttribute("aria-hidden", "false");
+      }
+
+      if (userEmailDisplay) {
+        userEmailDisplay.textContent = "Guest Mode";
+      }
+    } catch (error) {
+      console.warn("Guest mode UI sync failed:", error);
+    }
+
+    if (typeof window.clearPaidAccess === "function") {
+      try {
+        window.clearPaidAccess();
+      } catch (error) {
+        console.warn("clearPaidAccess failed in guest mode:", error);
+      }
+    }
+
+    syncProfileUiEverywhere();
   }
 
   function syncProfileUiEverywhere() {
@@ -405,6 +496,7 @@
       email: user.email || "",
     };
 
+    setAppMode("account");
     setUser(userObj);
     setSessionToken(accessToken || "");
 
@@ -513,6 +605,7 @@
     }
 
     await clearAuthenticatedUser();
+    enterGuestMode();
 
     if (els.logoutModal) {
       els.logoutModal.classList.add("hidden");
@@ -522,7 +615,7 @@
     syncProfileUiEverywhere();
 
     if (typeof window.showToast === "function") {
-      window.showToast("👋 Logged out");
+      window.showToast("👋 Logged out. You are now in Guest Mode.");
     }
   }
 
@@ -853,8 +946,9 @@
     function renderProfileMode() {
       const user = getUser();
       const profile = getProfileCache();
+      const guestMode = isGuestMode();
 
-      if (!user?.email) {
+      if (!guestMode && !user?.email) {
         isLoginMode = true;
         renderAuthMode();
         return;
@@ -864,11 +958,11 @@
       resetAuthFormToDefault();
 
       if (els.authTitle) {
-        els.authTitle.textContent = "Your Profile";
+        els.authTitle.textContent = guestMode ? "Guest Profile" : "Your Profile";
       }
 
       if (els.authEmail) {
-        els.authEmail.value = user.email;
+        els.authEmail.value = guestMode ? "Guest Mode" : (user.email || "");
         els.authEmail.disabled = true;
         els.authEmail.readOnly = true;
       }
@@ -898,7 +992,9 @@
       }
 
       if (els.profileNameInput) {
-        els.profileNameInput.value = profile?.name || user.email.split("@")[0] || "";
+        els.profileNameInput.value = guestMode
+          ? (profile?.name || "Guest")
+          : (profile?.name || user.email.split("@")[0] || "");
       }
 
       if (els.profileBioInput) {
@@ -919,18 +1015,24 @@
       if (els.authSecondaryBtn) {
         els.authSecondaryBtn.classList.remove("is-hidden");
         els.authSecondaryBtn.disabled = false;
-        els.authSecondaryBtn.textContent = "Logout";
+        els.authSecondaryBtn.textContent = guestMode ? "Log In or Create Account" : "Logout";
       }
 
       if (els.switchAccountBtn) {
-        els.switchAccountBtn.classList.remove("is-hidden");
-        els.switchAccountBtn.disabled = false;
-        els.switchAccountBtn.textContent = "Switch Account";
+        if (guestMode) {
+          els.switchAccountBtn.classList.add("is-hidden");
+        } else {
+          els.switchAccountBtn.classList.remove("is-hidden");
+          els.switchAccountBtn.disabled = false;
+          els.switchAccountBtn.textContent = "Switch Account";
+        }
       }
+    }
 
       if (els.authToggleText) {
-        els.authToggleText.innerHTML =
-          `This account owns your synced profile, progress, and subscription access.`;
+        els.authToggleText.innerHTML = guestMode
+          ? `Guest mode saves data only on this device. Log in to sync across devices and unlock account-based features.`
+          : `This account owns your synced profile, progress, and subscription access.`;
       }
 
       if (els.forgotBtn) {
@@ -963,6 +1065,12 @@
 
       if (els.authSecondaryBtn) {
         els.authSecondaryBtn.onclick = () => {
+          if (isGuestMode()) {
+            isLoginMode = true;
+            renderAuthMode();
+            return;
+          }
+
           closeAuthModal();
           els.logoutModal?.classList.remove("hidden");
         };
@@ -1483,6 +1591,7 @@
         }
       } else {
         await clearAuthenticatedUser();
+        enterGuestMode();
       }
     });
   }
