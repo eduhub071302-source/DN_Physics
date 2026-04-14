@@ -441,6 +441,10 @@
     }
 
     function canAccessSubjectCard(subjectSlug) {
+      if (typeof window.canAccessPdf === "function") {
+        return window.canAccessPdf(subjectSlug);
+      }
+
       return normalizeAccessSlug(subjectSlug) === "gravitational-field";
     }
 
