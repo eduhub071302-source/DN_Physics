@@ -1000,7 +1000,7 @@
       if (els.profileBioInput) {
         els.profileBioInput.value = profile?.bio || "";
       }
-
+    
       const avatarToUse = profile?.avatar_value || DEFAULT_AVATAR;
       renderPresetAvatarGrid(avatarToUse);
       setSelectedAvatar(avatarToUse);
@@ -1027,19 +1027,17 @@
           els.switchAccountBtn.textContent = "Switch Account";
         }
       }
-    }
 
       if (els.authToggleText) {
         els.authToggleText.innerHTML = guestMode
-          ? `Guest mode saves data only on this device. Log in to sync across devices and unlock account-based features.`
-          : `This account owns your synced profile, progress, and subscription access.`;
+          ? "Guest mode saves data only on this device. Log in to sync across devices and unlock account-based features."
+          : "This account owns your synced profile, progress, and subscription access.";
       }
 
       if (els.forgotBtn) {
         els.forgotBtn.parentElement?.classList.add("is-hidden");
       }
     }
-
     function attachAuthModalEventHandlers() {
       const toggle = document.getElementById("authToggleBtn");
       if (toggle) {
