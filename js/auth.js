@@ -284,6 +284,14 @@
     }
 
     syncProfileUiEverywhere();
+
+    if (typeof window.renderDashboard === "function") {
+      try {
+        window.renderDashboard();
+      } catch (error) {
+        console.warn("Guest dashboard refresh failed:", error);
+      }
+    }
   }
 
   function syncProfileUiEverywhere() {
@@ -539,6 +547,14 @@
     }
 
     syncProfileUiEverywhere();
+
+    if (typeof window.renderDashboard === "function") {
+      try {
+        window.renderDashboard();
+      } catch (error) {
+        console.warn("Account dashboard refresh failed:", error);
+      }
+    }
   }
 
   async function clearAuthenticatedUser() {
