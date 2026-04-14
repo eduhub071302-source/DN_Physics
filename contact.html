@@ -10,7 +10,7 @@
   <style>
     .support-hero-grid {
       display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
+      grid-template-columns: 1.08fr 0.92fr;
       gap: 18px;
       margin-top: 18px;
     }
@@ -45,7 +45,7 @@
     }
 
     .support-form-grid textarea {
-      min-height: 140px;
+      min-height: 150px;
       resize: vertical;
     }
 
@@ -90,6 +90,89 @@
       color: var(--muted);
       display: block;
       margin-top: 6px;
+    }
+
+    .ticket-history-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .ticket-history-item {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .ticket-history-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .ticket-status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .ticket-status.open {
+      background: rgba(255, 152, 0, 0.12);
+      color: #ffcc80;
+      border: 1px solid rgba(255, 152, 0, 0.24);
+    }
+
+    .ticket-status.replied {
+      background: rgba(78, 161, 255, 0.12);
+      color: #9fd0ff;
+      border: 1px solid rgba(78, 161, 255, 0.24);
+    }
+
+    .ticket-status.closed {
+      background: rgba(76, 175, 80, 0.12);
+      color: #9be7a0;
+      border: 1px solid rgba(76, 175, 80, 0.24);
+    }
+
+    .support-note {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    .support-feedback {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      display: none;
+    }
+
+    .support-feedback.show {
+      display: block;
+    }
+
+    .support-feedback.success {
+      background: rgba(76, 175, 80, 0.12);
+      border: 1px solid rgba(76, 175, 80, 0.24);
+      color: #a5efaa;
+    }
+
+    .support-feedback.error {
+      background: rgba(244, 67, 54, 0.12);
+      border: 1px solid rgba(244, 67, 54, 0.24);
+      color: #ffb3ad;
     }
 
     .floating-help-wrap {
@@ -166,24 +249,24 @@
       <div class="topic-card fade-slide-up" style="padding: 28px;">
         <h1 style="margin-top: 0;">Contact DN Physics</h1>
         <p class="section-sub" style="margin-bottom: 22px;">
-          Need help with your account, premium access, notes, study progress, or app experience?
-          We’re here to help.
+          Need help with your account, premium access, notes, synced progress, or app performance?
+          Send a support request and keep track of your ticket history.
         </p>
 
         <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
           <div class="card" style="padding: 18px;">
             <h3>General Support</h3>
-            <p>Questions about using the app, notes, quiz flow, or study features.</p>
+            <p>Questions about using the app, notes, quiz flow, or learning features.</p>
           </div>
 
           <div class="card" style="padding: 18px;">
             <h3>Account Help</h3>
-            <p>Login issues, password recovery, profile setup, and synced progress support.</p>
+            <p>Login issues, password reset help, profile setup, and progress syncing.</p>
           </div>
 
           <div class="card" style="padding: 18px;">
             <h3>Payment Help</h3>
-            <p>Questions about premium access, subscriptions, billing, or payment issues.</p>
+            <p>Premium access, unlock issues, billing questions, and purchase support.</p>
           </div>
         </div>
 
@@ -191,16 +274,14 @@
           <div class="support-form-card">
             <h2 style="margin-top: 0;">Send a Support Message</h2>
             <p class="muted-text" style="margin-bottom: 14px;">
-              This form uses your email app for now. Later you can connect it to a backend inbox.
+              Messages can be saved into Firebase or your backend collection like
+              <span class="code-inline">/support_messages/{ticketId}</span>.
+              This page is ready for that flow.
             </p>
 
-            <form
-              class="support-form-grid"
-              action="mailto:eduhub071302@gmail.com"
-              method="post"
-              enctype="text/plain"
-            >
+            <form id="supportForm" class="support-form-grid">
               <input
+                id="supportName"
                 type="text"
                 name="name"
                 placeholder="Your Name"
@@ -208,64 +289,66 @@
               />
 
               <input
+                id="supportEmail"
                 type="email"
                 name="email"
                 placeholder="Your Email"
                 required
               />
 
-              <select name="category" required>
+              <select id="supportCategory" name="category" required>
                 <option value="">Choose Support Category</option>
                 <option value="general-support">General Support</option>
                 <option value="account-help">Account Help</option>
                 <option value="payment-help">Payment Help</option>
                 <option value="bug-report">Bug Report</option>
+                <option value="feature-request">Feature Request</option>
               </select>
 
               <textarea
+                id="supportMessage"
                 name="message"
                 placeholder="Describe your issue or question..."
                 required
               ></textarea>
 
               <div class="support-actions">
-                <button class="btn btn-primary" type="submit">
-                  ✉ Send via Email App
+                <button id="supportSubmitBtn" class="btn btn-primary" type="submit">
+                  📩 Submit Support Ticket
                 </button>
 
                 <a
                   class="btn"
                   href="mailto:eduhub071302@gmail.com?subject=DN%20Physics%20Support"
                 >
-                  📩 Open Email Directly
+                  ✉ Email Support
                 </a>
               </div>
             </form>
+
+            <div id="supportFeedback" class="support-feedback"></div>
+
+            <p class="support-note">
+              Suggested backend design:
+              <span class="code-inline">/support_messages/{ticketId}</span>,
+              optional admin notifications, and user ticket history view.
+            </p>
           </div>
 
           <div class="support-inbox-card">
             <h2 style="margin-top: 0;">Support Inbox</h2>
             <p class="muted-text">
-              Premium inbox-style support UI. Later this can connect to real support tickets.
+              Premium inbox-style UI for user ticket history. This can later load from Firebase
+              or your backend.
             </p>
 
-            <div class="support-inbox-list">
-              <div class="support-inbox-item">
-                <strong>Payment Assistance</strong>
-                Billing, subscription unlocks, payment verification, premium access.
-                <small>Priority support category</small>
-              </div>
-
-              <div class="support-inbox-item">
-                <strong>Account & Progress</strong>
-                Login help, password reset, sync issues, guest/account switching.
-                <small>Usually resolved within 24–48 hours</small>
-              </div>
-
-              <div class="support-inbox-item">
-                <strong>App Feedback</strong>
-                Bugs, UI improvements, feature requests, performance issues.
-                <small>Helps improve future releases</small>
+            <div id="ticketHistoryList" class="ticket-history-list">
+              <div class="ticket-history-item">
+                <div class="ticket-history-top">
+                  <strong>Sample Ticket Preview</strong>
+                  <span class="ticket-status open">Open</span>
+                </div>
+                <div class="muted-text">Your submitted support tickets will appear here.</div>
               </div>
             </div>
           </div>
@@ -291,16 +374,167 @@
     >
       ✉ Email Support
     </a>
-
-    <a
-      class="floating-help-btn"
-      href="https://wa.me/94770000000?text=Hello%20DN%20Physics%20Support"
-      target="_blank"
-      rel="noopener"
-      aria-label="WhatsApp support"
-    >
-      💬 WhatsApp Support
-    </a>
   </div>
+
+  <script>
+    const SUPPORT_STORAGE_KEY = "dn_support_ticket_history";
+
+    function getSupportTickets() {
+      try {
+        return JSON.parse(localStorage.getItem(SUPPORT_STORAGE_KEY)) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveSupportTickets(items) {
+      try {
+        localStorage.setItem(SUPPORT_STORAGE_KEY, JSON.stringify(items || []));
+      } catch (error) {
+        console.warn("Could not save support history:", error);
+      }
+    }
+
+    function renderTicketHistory() {
+      const list = document.getElementById("ticketHistoryList");
+      if (!list) return;
+
+      const tickets = getSupportTickets();
+
+      if (!tickets.length) {
+        list.innerHTML = `
+          <div class="ticket-history-item">
+            <div class="ticket-history-top">
+              <strong>No tickets yet</strong>
+              <span class="ticket-status open">Ready</span>
+            </div>
+            <div class="muted-text">Your submitted support tickets will appear here.</div>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = tickets
+        .slice()
+        .reverse()
+        .map((ticket) => {
+          return `
+            <div class="ticket-history-item">
+              <div class="ticket-history-top">
+                <strong>${ticket.categoryLabel}</strong>
+                <span class="ticket-status ${ticket.status}">${ticket.statusLabel}</span>
+              </div>
+              <div>${ticket.message}</div>
+              <small>Ticket ID: ${ticket.id}</small>
+              <small>Submitted: ${ticket.createdAt}</small>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    function showSupportFeedback(message, type = "success") {
+      const box = document.getElementById("supportFeedback");
+      if (!box) return;
+
+      box.className = `support-feedback show ${type}`;
+      box.textContent = message;
+    }
+
+    function buildCategoryLabel(value) {
+      const map = {
+        "general-support": "General Support",
+        "account-help": "Account Help",
+        "payment-help": "Payment Help",
+        "bug-report": "Bug Report",
+        "feature-request": "Feature Request",
+      };
+
+      return map[value] || "Support";
+    }
+
+    function generateTicketId() {
+      return `TICKET-${Date.now()}-${Math.floor(Math.random() * 900 + 100)}`;
+    }
+
+    async function submitSupportTicket(event) {
+      event.preventDefault();
+
+      const submitBtn = document.getElementById("supportSubmitBtn");
+      const nameInput = document.getElementById("supportName");
+      const emailInput = document.getElementById("supportEmail");
+      const categoryInput = document.getElementById("supportCategory");
+      const messageInput = document.getElementById("supportMessage");
+
+      const payload = {
+        id: generateTicketId(),
+        name: String(nameInput?.value || "").trim(),
+        email: String(emailInput?.value || "").trim(),
+        category: String(categoryInput?.value || "").trim(),
+        categoryLabel: buildCategoryLabel(categoryInput?.value || ""),
+        message: String(messageInput?.value || "").trim(),
+        status: "open",
+        statusLabel: "Open",
+        createdAt: new Date().toLocaleString(),
+      };
+
+      if (!payload.name || !payload.email || !payload.category || !payload.message) {
+        showSupportFeedback("Please fill all fields before submitting.", "error");
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Submitting...";
+      }
+
+      try {
+        /*
+          FINAL BACKEND/FIREBASE READY PLACE:
+
+          1. Firebase path:
+             /support_messages/{ticketId}
+
+          2. Example payload:
+             {
+               id,
+               name,
+               email,
+               category,
+               categoryLabel,
+               message,
+               status: "open",
+               createdAt,
+               userId
+             }
+
+          3. Optional:
+             - trigger admin email notification
+             - build admin panel
+             - load user ticket history from backend instead of localStorage
+        */
+
+        const existing = getSupportTickets();
+        existing.push(payload);
+        saveSupportTickets(existing);
+
+        renderTicketHistory();
+        showSupportFeedback("Support ticket submitted successfully.", "success");
+
+        event.target.reset();
+      } catch (error) {
+        console.error("Support submit failed:", error);
+        showSupportFeedback("Could not submit support ticket right now.", "error");
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "📩 Submit Support Ticket";
+        }
+      }
+    }
+
+    document.getElementById("supportForm")?.addEventListener("submit", submitSupportTicket);
+    renderTicketHistory();
+  </script>
 </body>
 </html>
