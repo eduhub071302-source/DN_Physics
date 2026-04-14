@@ -1,6 +1,6 @@
 // firebase-client.js
 
-import { initializeApp, getApps, getApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
 import {
   getAuth,
   onAuthStateChanged,
@@ -8,14 +8,14 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   signOut,
-} from "firebase/auth";
+} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
 import {
   getDatabase,
   ref,
   get,
   set,
   onValue,
-} from "firebase/database";
+} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA8MHkxCeD1hUkPFZA15mUpaB87B21ZZ04",
