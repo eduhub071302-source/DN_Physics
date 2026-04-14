@@ -1,8 +1,5 @@
 // 🔄 DN Physics cloud progress sync (Firebase-only, user-scoped storage)
 
-import { getAuth } from "firebase/auth";
-import { getDatabase, ref, get, set } from "firebase/database";
-
 function dnGetCurrentUserId() {
   try {
     const firebaseUid = window.firebaseAuth?.currentUser?.uid;
@@ -58,8 +55,8 @@ function dnBuildProgressKey(subject, topic, subtopic = "", setName = "set-1") {
 
 async function dnGetAuthedUser() {
   try {
-    const auth = window.firebaseAuth || getAuth();
-    return auth.currentUser || null;
+    const auth = window.firebaseAuth || null;
+    return auth?.currentUser || null;
   } catch (error) {
     console.warn("dnGetAuthedUser failed:", error);
     return null;
@@ -67,8 +64,10 @@ async function dnGetAuthedUser() {
 }
 
 function dnGetProgressRef(userId) {
-  const db = window.firebaseDb || getDatabase();
-  return ref(db, `quiz_progress/${userId}`);
+  const db = window.firebaseDb || null;
+  const sdk = window.firebaseSdk || null;
+  if (!db || !sdk?.ref) return null;
+  return sdk.ref(db, `quiz_progress/${userId}`);
 }
 
 async function syncCloudProgressToLocal() {
@@ -76,7 +75,11 @@ async function syncCloudProgressToLocal() {
   if (!user || !navigator.onLine) return false;
 
   try {
-    const snapshot = await get(dnGetProgressRef(user.uid));
+    const sdk = window.firebaseSdk || null;
+    const progressRef = dnGetProgressRef(user.uid);
+    if (!sdk?.get || !progressRef) return false;
+
+    const snapshot = await sdk.get(progressRef);
     if (!snapshot.exists()) return false;
 
     const cloudData = snapshot.val() || {};
@@ -138,7 +141,11 @@ async function syncLocalProgressToCloud() {
       };
     }
 
-    await set(dnGetProgressRef(user.uid), rows);
+    const sdk = window.firebaseSdk || null;
+    const progressRef = dnGetProgressRef(user.uid);
+    if (!sdk?.set || !progressRef) return false;
+
+    await sdk.set(progressRef, rows);
     return true;
   } catch (error) {
     console.warn("Local -> cloud sync failed:", error);
