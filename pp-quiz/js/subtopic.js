@@ -1,5 +1,21 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  const QUIZ_PROGRESS_KEY = "dnPhysicsQuizProgress";
+  function getCurrentUserId() {
+    try {
+      const firebaseUid = window.firebaseAuth?.currentUser?.uid;
+      if (firebaseUid) return firebaseUid;
+
+      const cachedUser = JSON.parse(localStorage.getItem("dn_user") || "null");
+      if (cachedUser?.id) return cachedUser.id;
+    } catch (error) {
+      console.warn("Could not resolve current user id:", error);
+    }
+
+    return "guest";
+  }
+
+  function getQuizProgressStorageKey() {
+    return `dnPhysicsQuizProgress_${getCurrentUserId()}`;
+  }
 
   const SUBJECT_TOPIC_ORDER = {
     physics: [
@@ -197,7 +213,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function getProgressStore() {
     try {
-      return JSON.parse(localStorage.getItem(QUIZ_PROGRESS_KEY)) || {};
+      return JSON.parse(localStorage.getItem(getQuizProgressStorageKey())) || {};
     } catch {
       return {};
     }
