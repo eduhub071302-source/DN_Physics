@@ -486,6 +486,10 @@ function closeUnlockModal() {
   unlockModal.style.display = "none";
 }
 
+function lockAlert() {
+  openUnlockModal();
+}
+
 function openOwnerCodeModal() {
   const ownerCodeModal = document.getElementById("ownerCodeModal");
   const ownerCodeInput = document.getElementById("ownerCodeInput");
