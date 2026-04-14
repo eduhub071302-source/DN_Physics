@@ -29,6 +29,7 @@
   const PROFILE_KEY = "dn_profile";
   const APP_MODE_KEY = "dn_app_mode";
   const GUEST_PROFILE_KEY = "dn_guest_profile";
+  const ACTIVE_OWNER_KEY = "dn_active_owner";
   const DEFAULT_AVATAR = "avatar-01";
 
   function getEls() {
@@ -197,6 +198,62 @@
     safeRemoveLocal(sessionKey);
   }
 
+  function getActiveOwner() {
+    return safeGetLocal(ACTIVE_OWNER_KEY) || "guest";
+  }
+
+  function setActiveOwner(ownerId) {
+    safeSetLocal(ACTIVE_OWNER_KEY, ownerId || "guest");
+  }
+
+  function showAccountTransition(message = "Switching account...") {
+    const overlay = document.getElementById("accountTransitionOverlay");
+    const text = document.getElementById("accountTransitionText");
+
+    if (text) {
+      text.textContent = message;
+    }
+
+    if (overlay) {
+      overlay.classList.add("show");
+      overlay.setAttribute("aria-hidden", "false");
+    }
+
+    document.body.style.overflow = "hidden";
+  }
+
+  function hideAccountTransition() {
+    const overlay = document.getElementById("accountTransitionOverlay");
+
+    if (overlay) {
+      overlay.classList.remove("show");
+      overlay.setAttribute("aria-hidden", "true");
+    }
+
+    document.body.style.overflow = "";
+  }
+
+  function refreshWholeAppUiIfAvailable() {
+    if (typeof window.refreshWholeAppUi === "function") {
+      try {
+        window.refreshWholeAppUi();
+        return;
+      } catch (error) {
+        console.warn("refreshWholeAppUi failed:", error);
+      }
+    }
+
+    if (typeof window.renderDashboard === "function") {
+      try {
+        window.renderDashboard();
+      } catch (error) {
+        console.warn("renderDashboard fallback failed:", error);
+      }
+    }
+
+    syncProfileUiEverywhere();
+  }
+
   function getAppMode() {
      return safeGetLocal(APP_MODE_KEY) || "guest";
   }
@@ -245,6 +302,7 @@
 
   function enterGuestMode() {
     setAppMode("guest");
+    setActiveOwner("guest");
     clearUser();
     clearSessionToken();
     clearProfileCache();
@@ -283,15 +341,7 @@
       }
     }
 
-    syncProfileUiEverywhere();
-
-    if (typeof window.renderDashboard === "function") {
-      try {
-        window.renderDashboard();
-      } catch (error) {
-        console.warn("Guest dashboard refresh failed:", error);
-      }
-    }
+    refreshWholeAppUiIfAvailable();
   }
 
   function syncProfileUiEverywhere() {
@@ -505,6 +555,7 @@
     };
 
     setAppMode("account");
+    setActiveOwner(user.uid);
     setUser(userObj);
     setSessionToken(accessToken || "");
 
@@ -546,15 +597,7 @@
       console.warn("Topbar applyAuthenticatedUser UI sync failed:", error);
     }
 
-    syncProfileUiEverywhere();
-
-    if (typeof window.renderDashboard === "function") {
-      try {
-        window.renderDashboard();
-      } catch (error) {
-        console.warn("Account dashboard refresh failed:", error);
-      }
-    }
+    refreshWholeAppUiIfAvailable();
   }
 
   async function clearAuthenticatedUser() {
@@ -606,32 +649,36 @@
       return;
     }
 
+    showAccountTransition("Logging out...");
+
     try {
       const sdk = getFirebaseSdk();
       if (!sdk) {
         showAuthError("Authentication system is not ready yet. Please refresh the app.");
+        hideAccountTransition();
         return;
       }
 
       await sdk.signOut(auth);
+      await clearAuthenticatedUser();
+      enterGuestMode();
+
+      if (els.logoutModal) {
+        els.logoutModal.classList.add("hidden");
+      }
+
+      closeAuthModal();
+
+      if (typeof window.showToast === "function") {
+        window.showToast("👋 Logged out. You are now in Guest Mode.");
+      }
     } catch (error) {
       console.error("Logout error:", error);
       showAuthError("Unable to log out right now. Please try again.");
-      return;
-    }
-
-    await clearAuthenticatedUser();
-    enterGuestMode();
-
-    if (els.logoutModal) {
-      els.logoutModal.classList.add("hidden");
-    }
-
-    closeAuthModal();
-    syncProfileUiEverywhere();
-
-    if (typeof window.showToast === "function") {
-      window.showToast("👋 Logged out. You are now in Guest Mode.");
+    } finally {
+      setTimeout(() => {
+        hideAccountTransition();
+      }, 180);
     }
   }
 
@@ -646,43 +693,49 @@
       return;
     }
 
+    showAccountTransition("Preparing account switch...");
+
     try {
       const sdk = getFirebaseSdk();
       if (!sdk) {
         showAuthError("Authentication system is not ready yet. Please refresh the app.");
+        hideAccountTransition();
         return;
       }
 
       await sdk.signOut(auth);
+      await clearAuthenticatedUser();
+      enterGuestMode();
+
+      if (els.logoutModal) {
+        els.logoutModal.classList.add("hidden");
+      }
+
+      if (typeof renderAuthModeRef === "function") {
+        renderAuthModeRef(true);
+      } else {
+        openAuthModal();
+      }
+
+      if (els.authEmail) els.authEmail.value = "";
+      if (els.authPassword) els.authPassword.value = "";
+      if (els.authConfirmPassword) els.authConfirmPassword.value = "";
+
+      if (typeof window.showToast === "function") {
+        window.showToast("🔄 Log in with another account");
+      }
+
+      setTimeout(() => {
+        els.authEmail?.focus();
+      }, 150);
     } catch (error) {
       console.error("Switch account error:", error);
       showAuthError("Unable to switch account right now. Please try again.");
-      return;
+    } finally {
+      setTimeout(() => {
+        hideAccountTransition();
+      }, 180);
     }
-
-    await clearAuthenticatedUser();
-
-    if (els.logoutModal) {
-      els.logoutModal.classList.add("hidden");
-    }
-
-    if (typeof renderAuthModeRef === "function") {
-      renderAuthModeRef(true);
-    } else {
-      openAuthModal();
-    }
-
-    if (els.authEmail) els.authEmail.value = "";
-    if (els.authPassword) els.authPassword.value = "";
-    if (els.authConfirmPassword) els.authConfirmPassword.value = "";
-
-    if (typeof window.showToast === "function") {
-      window.showToast("🔄 Log in with another account");
-    }
-
-    setTimeout(() => {
-      els.authEmail?.focus();
-    }, 150);
   }
 
   function ensureAvatarModalExists() {
