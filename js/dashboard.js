@@ -84,23 +84,26 @@ function getTotalQuizAttempts() {
   }, 0);
 }
 
-function getMostStudiedSubject(recent) {
-  if (!recent.length) return null;
+function getMostStudiedQuizSubject() {
+  const store = getQuizProgress();
+  const counts = {};
 
-  const count = {};
+  Object.entries(store).forEach(([rawKey, item]) => {
+    const parsed = parseQuizKey(rawKey);
+    const subject = parsed.subject || "physics";
+    const attempts = Number(item?.attempts) || 0;
+    if (attempts <= 0) return;
 
-  recent.forEach((item) => {
-    if (!item.subject) return;
-    count[item.subject] = (count[item.subject] || 0) + 1;
+    counts[subject] = (counts[subject] || 0) + attempts;
   });
 
-  let max = 0;
   let best = null;
+  let max = 0;
 
-  Object.entries(count).forEach(([key, val]) => {
-    if (val > max) {
-      max = val;
-      best = key;
+  Object.entries(counts).forEach(([subject, total]) => {
+    if (total > max) {
+      max = total;
+      best = subject;
     }
   });
 
@@ -227,7 +230,7 @@ function renderDashboard() {
   const lastPdf = getLastPdf();
   const recent = getRecentPdfs();
   const favorites = getFavorites();
-  const mostStudied = getMostStudiedSubject(recent);
+  const mostStudied = getMostStudiedQuizSubject() || getMostStudiedSubject(recent);
 
   if (lastPdf && lastPdf.url) {
     html += createDashCard(
@@ -292,11 +295,17 @@ function renderDashboard() {
     );
   }
 
+  const weakQuiz = getWeakQuiz();
+  const keepGoingLink = weakQuiz ? buildQuizUrlFromKey(weakQuiz.key) : `${APP_PATH}/pp-quiz/index.html`;
+  const keepGoingText = weakQuiz
+    ? `Return to ${prettifyQuizLabel(parseQuizKey(weakQuiz.key))} and improve your accuracy.`
+    : "Consistency builds island rank. Stay focused.";
+
   html += createDashCard(
     "🚀 Keep Going",
-    "Consistency builds island rank. Stay focused.",
-    "Open PP Quiz",
-    `${APP_PATH}/pp-quiz/index.html`,
+    keepGoingText,
+    "Continue Practice",
+    keepGoingLink,
   );
 
   dashboardGrid.innerHTML =
