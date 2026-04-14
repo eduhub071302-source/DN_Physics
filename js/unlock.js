@@ -438,28 +438,34 @@ function showDnMessage(msg = "Done") {
 function ensureUnlockModal() {}
 
 function openUnlockModal() {
-  const modal =
-    document.getElementById("unlockModal") ||
-    document.getElementById("authModal");
+  const unlockModal = document.getElementById("unlockModal");
+  const authModal = document.getElementById("authModal");
 
-  if (!modal) {
-    showDnMessage("🔒 Locked — Modal missing in HTML");
+  if (isGuestMode()) {
+    if (authModal) {
+      authModal.classList.remove("hidden");
+      authModal.style.display = "flex";
+    } else {
+      showDnMessage("Please log in first.");
+    }
     return;
   }
 
-  modal.classList.remove("hidden");
-  modal.style.display = "flex";
+  if (!unlockModal) {
+    showDnMessage("Unlock modal missing in HTML.");
+    return;
+  }
+
+  unlockModal.classList.remove("hidden");
+  unlockModal.style.display = "flex";
 }
 
 function closeUnlockModal() {
-  const modal =
-    document.getElementById("unlockModal") ||
-    document.getElementById("authModal");
+  const unlockModal = document.getElementById("unlockModal");
+  if (!unlockModal) return;
 
-  if (!modal) return;
-
-  modal.classList.add("hidden");
-  modal.style.display = "none";
+  unlockModal.classList.add("hidden");
+  unlockModal.style.display = "none";
 }
 
 function lockAlert() {
@@ -515,6 +521,30 @@ document.addEventListener("DOMContentLoaded", async () => {
     showDnMessage(
       `⏳ Subscription expires in ${days} day${days === 1 ? "" : "s"}`,
     );
+  }
+
+  const unlockNowBtn = document.getElementById("unlockNowBtn");
+  const unlockCloseBtn = document.getElementById("unlockCloseBtn");
+  const unlockModal = document.getElementById("unlockModal");
+
+  if (unlockNowBtn) {
+    unlockNowBtn.addEventListener("click", async () => {
+      await startFullUnlockCheckout();
+    });
+  }
+
+  if (unlockCloseBtn) {
+    unlockCloseBtn.addEventListener("click", () => {
+      closeUnlockModal();
+    });
+  }
+
+  if (unlockModal) {
+    unlockModal.addEventListener("click", (e) => {
+      if (e.target === unlockModal) {
+        closeUnlockModal();
+      }
+    });
   }
 
   setInterval(() => {
