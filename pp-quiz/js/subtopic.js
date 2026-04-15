@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   subtopicTitle.textContent = niceName;
   if (heroTitle) heroTitle.textContent = niceName;
   if (heroText) {
-    heroText.textContent = `Practice ${niceName} with structured MCQ sets and track your progress.`;
+    heroText.textContent = `Practice ${niceName} with structured MCQ sets.`;
   }
   if (heroPill) {
     heroPill.textContent = `${getSubjectLabel(subject)} • Subtopic Practice`;
@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   quizSetsGrid.innerHTML = "";
 
   if (!sets || sets.length === 0) {
-    renderEmpty("Add sets.json for this subtopic to display quiz sets.");
+    renderEmpty("No quiz sets available.");
     return;
   }
 
