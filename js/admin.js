@@ -1,6 +1,16 @@
-const ADMIN_UIDS = [
-  "T4qvFnEhm9YPKbh2JScoWFM5Skn2"
+const ADMIN_EMAILS = [
+  "eduhub071302@gmail.com",
+  "eduhub0713@gmail.com"
 ];
+
+function isAdminUser() {
+  try {
+    const email = String(window.firebaseAuth?.currentUser?.email || "").toLowerCase();
+    return Boolean(email && ADMIN_EMAILS.includes(email));
+  } catch {
+    return false;
+  }
+}
 
 const state = {
   allItems: [],
