@@ -65,7 +65,7 @@
 
     .admin-stats {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 12px;
     }
 
@@ -182,6 +182,12 @@
       background: rgba(255, 152, 0, 0.12);
       color: #ffcc80;
       border: 1px solid rgba(255, 152, 0, 0.24);
+    }
+
+    .ticket-status-pill.read {
+      background: rgba(155, 89, 182, 0.12);
+      color: #d7b7ff;
+      border: 1px solid rgba(155, 89, 182, 0.24);
     }
 
     .ticket-status-pill.replied {
@@ -359,6 +365,7 @@
             <select id="adminStatusFilter">
               <option value="all">All Status</option>
               <option value="open">Open</option>
+              <option value="read">Read</option>
               <option value="replied">Replied</option>
               <option value="closed">Closed</option>
             </select>
@@ -373,6 +380,10 @@
             <div class="admin-stat-card">
               <div class="admin-stat-label">Open</div>
               <div id="statOpen" class="admin-stat-value">0</div>
+            </div>
+            <div class="admin-stat-card">
+              <div class="admin-stat-label">Read</div>
+              <div id="statRead" class="admin-stat-value">0</div>
             </div>
             <div class="admin-stat-card">
               <div class="admin-stat-label">Support</div>
