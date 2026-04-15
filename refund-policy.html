@@ -107,6 +107,89 @@
       color: #ffb3ad;
     }
 
+    .history-dropdown {
+      margin-top: 18px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .history-toggle {
+      width: 100%;
+      min-height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      background: transparent;
+      color: #eef5ff;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 800;
+      text-align: left;
+    }
+
+    .history-toggle:hover {
+      background: rgba(255,255,255,0.03);
+    }
+
+    .history-toggle-icon {
+      transition: transform 0.2s ease;
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+
+    .history-dropdown.open .history-toggle-icon {
+      transform: rotate(180deg);
+    }
+
+    .history-content {
+      display: none;
+      padding: 0 16px 16px;
+    }
+
+    .history-dropdown.open .history-content {
+      display: block;
+    }
+
+    .refund-history-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .refund-history-item {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .refund-history-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .refund-status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      background: rgba(255, 152, 0, 0.12);
+      color: #ffcc80;
+      border: 1px solid rgba(255, 152, 0, 0.24);
+    }
+
     @media (max-width: 768px) {
       .topic-card,
       .refund-panel {
@@ -230,6 +313,25 @@
           <div id="refundFeedback" class="refund-feedback"></div>
         </div>
 
+        <div class="history-dropdown" id="refundHistoryDropdown">
+          <button id="refundHistoryToggle" class="history-toggle" type="button">
+            <span>Recent Refund Requests</span>
+            <span class="history-toggle-icon">⌄</span>
+          </button>
+
+          <div class="history-content">
+            <div id="refundHistoryList" class="refund-history-list">
+              <div class="refund-history-item">
+                <div class="refund-history-top">
+                  <strong>No refund requests yet</strong>
+                  <span class="refund-status">Ready</span>
+                </div>
+                <div class="muted-text">Submitted refund requests will appear here.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <p style="margin-top: 24px; color: var(--muted); font-size: 0.92rem;">
           Last updated: April 2026
         </p>
@@ -239,12 +341,80 @@
 
   <script type="module" src="/js/firebase-client.js"></script>
   <script>
+    const REFUND_STORAGE_KEY = "dn_refund_request_history";
+
+    function getRefundRequests() {
+      try {
+        return JSON.parse(localStorage.getItem(REFUND_STORAGE_KEY)) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveRefundRequests(items) {
+      try {
+        localStorage.setItem(REFUND_STORAGE_KEY, JSON.stringify(items || []));
+      } catch (error) {
+        console.warn("Could not save refund history:", error);
+      }
+    }
+
+    function renderRefundHistory() {
+      const list = document.getElementById("refundHistoryList");
+      if (!list) return;
+
+      const items = getRefundRequests();
+
+      if (!items.length) {
+        list.innerHTML = `
+          <div class="refund-history-item">
+            <div class="refund-history-top">
+              <strong>No refund requests yet</strong>
+              <span class="refund-status">Ready</span>
+            </div>
+            <div class="muted-text">Submitted refund requests will appear here.</div>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = items
+        .slice()
+        .reverse()
+        .map((item) => {
+          return `
+            <div class="refund-history-item">
+              <div class="refund-history-top">
+                <strong>${item.reasonLabel}</strong>
+                <span class="refund-status">${item.statusLabel}</span>
+              </div>
+              <div>${item.message}</div>
+              <small>Request ID: ${item.id}</small><br>
+              <small>Order ID: ${item.order_id}</small><br>
+              <small>Submitted: ${item.createdAt}</small>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
     function showRefundFeedback(message, type = "success") {
       const box = document.getElementById("refundFeedback");
       if (!box) return;
 
       box.className = `refund-feedback show ${type}`;
       box.textContent = message;
+    }
+
+    function buildRefundReasonLabel(value) {
+      const map = {
+        "duplicate-payment": "Duplicate Payment",
+        "billing-issue": "Billing Issue",
+        "technical-access-problem": "Technical Access Problem",
+        "other": "Other",
+      };
+
+      return map[value] || "Refund Request";
     }
 
     function generateRefundId() {
@@ -267,8 +437,10 @@
         email: String(emailInput?.value || "").trim(),
         order_id: String(orderIdInput?.value || "").trim(),
         reason: String(reasonInput?.value || "").trim(),
+        reasonLabel: buildRefundReasonLabel(reasonInput?.value || ""),
         message: String(messageInput?.value || "").trim(),
         status: "open",
+        statusLabel: "Open",
         createdAt: new Date().toLocaleString(),
       };
 
@@ -293,6 +465,11 @@
           );
         }
 
+        const existing = getRefundRequests();
+        existing.push(payload);
+        saveRefundRequests(existing);
+
+        renderRefundHistory();
         showRefundFeedback("Refund request submitted successfully.", "success");
         event.target.reset();
       } catch (error) {
@@ -307,6 +484,12 @@
     }
 
     document.getElementById("refundForm")?.addEventListener("submit", submitRefundRequest);
+
+    document.getElementById("refundHistoryToggle")?.addEventListener("click", () => {
+      document.getElementById("refundHistoryDropdown")?.classList.toggle("open");
+    });
+
+    renderRefundHistory();
   </script>
 </body>
 </html>
