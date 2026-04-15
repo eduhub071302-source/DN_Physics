@@ -1,4 +1,6 @@
-const ADMIN_OWNER_CODE = "DN-OWNER-2026";
+const ADMIN_UIDS = [
+  "T4qvFnEhm9YPKbh2JScoWFM5Skn2"
+];
 
 const state = {
   allItems: [],
@@ -27,6 +29,7 @@ function showAdminFeedback(message, type = "success") {
 }
 
 function formatStatusLabel(status) {
+  if (status === "read") return "Read";
   if (status === "replied") return "Replied";
   if (status === "closed") return "Closed";
   return "Open";
@@ -34,7 +37,7 @@ function formatStatusLabel(status) {
 
 function normalizeStatus(value) {
   const v = String(value || "").toLowerCase();
-  if (v === "replied" || v === "closed") return v;
+  if (v === "read" || v === "replied" || v === "closed") return v;
   return "open";
 }
 
@@ -48,15 +51,11 @@ function getCurrentUser() {
 
 function isAdminUser() {
   try {
-    const ownerMode = localStorage.getItem("dn_owner_mode") === "true";
-    if (ownerMode) return true;
-
-    const storedCode = localStorage.getItem("dn_owner_code") || "";
-    if (storedCode && storedCode === ADMIN_OWNER_CODE) return true;
+    const uid = window.firebaseAuth?.currentUser?.uid || "";
+    return Boolean(uid && ADMIN_UIDS.includes(uid));
   } catch {
-    // ignore
+    return false;
   }
-  return false;
 }
 
 function getDb() {
@@ -95,6 +94,7 @@ function buildUnifiedItems(supportMap, refundMap) {
       typeLabel: "Support",
       title: item?.categoryLabel || "Support",
       email: item?.email || "",
+      uid: item?.uid || "",
       name: item?.name || "",
       message: item?.message || "",
       createdAt: item?.createdAt || "",
@@ -111,8 +111,9 @@ function buildUnifiedItems(supportMap, refundMap) {
       id,
       type: "refund",
       typeLabel: "Refund",
-      title: item?.reason || "Refund Request",
+      title: item?.reasonLabel || item?.reason || "Refund Request",
       email: item?.email || "",
+      uid: item?.uid || "",
       name: item?.name || "",
       message: item?.message || "",
       createdAt: item?.createdAt || "",
@@ -133,6 +134,7 @@ function buildUnifiedItems(supportMap, refundMap) {
 function updateStats(items) {
   getEl("statTotal").textContent = String(items.length);
   getEl("statOpen").textContent = String(items.filter((x) => normalizeStatus(x.status) === "open").length);
+  getEl("statRead").textContent = String(items.filter((x) => normalizeStatus(x.status) === "read").length);
   getEl("statSupport").textContent = String(items.filter((x) => x.type === "support").length);
   getEl("statRefund").textContent = String(items.filter((x) => x.type === "refund").length);
 }
@@ -151,16 +153,17 @@ function applyFilters() {
       item.typeLabel,
       item.title,
       item.email,
+      item.uid,
       item.name,
       item.message,
       item.createdAt,
       item.raw?.order_id || "",
+      item.raw?.admin_note || "",
     ]
       .join(" ")
       .toLowerCase();
 
     const matchesSearch = !search || haystack.includes(search);
-
     return matchesType && matchesStatus && matchesSearch;
   });
 
@@ -252,7 +255,7 @@ function renderDetail() {
       </div>
 
       <div class="admin-detail-card">
-        <div class="admin-detail-label">Ticket ID</div>
+        <div class="admin-detail-label">Request ID</div>
         <div class="admin-detail-value">${escapeHtml(item.id)}</div>
       </div>
 
@@ -264,6 +267,11 @@ function renderDetail() {
       <div class="admin-detail-card">
         <div class="admin-detail-label">Email</div>
         <div class="admin-detail-value">${escapeHtml(item.email || "—")}</div>
+      </div>
+
+      <div class="admin-detail-card">
+        <div class="admin-detail-label">UID</div>
+        <div class="admin-detail-value">${escapeHtml(item.uid || "—")}</div>
       </div>
 
       <div class="admin-detail-card">
@@ -281,6 +289,7 @@ function renderDetail() {
       <div class="admin-detail-actions">
         <select id="adminStatusSelect">
           <option value="open" ${item.status === "open" ? "selected" : ""}>Open</option>
+          <option value="read" ${item.status === "read" ? "selected" : ""}>Read</option>
           <option value="replied" ${item.status === "replied" ? "selected" : ""}>Replied</option>
           <option value="closed" ${item.status === "closed" ? "selected" : ""}>Closed</option>
         </select>
@@ -386,7 +395,7 @@ function renderAccessState() {
     return false;
   }
 
-  meta.textContent = `Admin access granted · ${user.email || "Owner mode"}`;
+  meta.textContent = `Admin access granted · ${user.email || user.uid}`;
   return true;
 }
 
@@ -409,7 +418,7 @@ function waitForAuthThenInit() {
   sdk.onAuthStateChanged(auth, async () => {
     const ok = renderAccessState();
     if (!ok) {
-      showLockedAdminScreen("Please log in with owner/admin access.");
+      showLockedAdminScreen("Please log in with your admin account.");
       return;
     }
 
