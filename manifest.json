@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "DN Physics",
-  "short_name": "DN Physics",
-  "description": "Premium A/L Physics notes, formula sheets, and past paper MCQ practice by DinuuNOVA.",
+  "name": "DinuuNOVA",
+  "short_name": "DN",
+  "description": "Clean Physics and Chemistry notes and past paper MCQ practice by DinuuNOVA.",
   "lang": "en",
   "dir": "ltr",
   "start_url": "/index.html",
@@ -12,7 +12,7 @@
   "background_color": "#0b1220",
   "theme_color": "#4ea1ff",
   "orientation": "portrait-primary",
-  "categories": ["education", "productivity", "books", "reference"],
+  "categories": ["education", "reference"],
   "prefer_related_applications": false,
 
   "icons": [
