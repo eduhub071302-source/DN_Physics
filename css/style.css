@@ -24,7 +24,7 @@
   --warning: #ff9800;
   --gold: #ffd54a;
 
-  --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  --shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
   --shadow-soft: 0 10px 26px rgba(0, 0, 0, 0.22);
   --shadow-glow: 0 18px 50px rgba(78, 161, 255, 0.14);
 
@@ -51,6 +51,11 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+}
+
+::selection {
+  background: var(--accent);
+  color: #04101f;
 }
 
 body {
@@ -88,6 +93,11 @@ textarea {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .hidden,
@@ -193,8 +203,8 @@ header,
   z-index: 1000;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(7, 12, 22, 0.74);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
 
@@ -474,6 +484,7 @@ header,
     box-shadow var(--transition-fast),
     background var(--transition-fast),
     filter var(--transition-fast);
+  will-change: transform;
 }
 
 .btn:hover {
@@ -591,8 +602,8 @@ header,
   transform: translateY(-3px);
   border-color: rgba(124, 196, 255, 0.18);
   box-shadow:
-    0 20px 46px rgba(0, 0, 0, 0.34),
-    0 0 0 1px rgba(124, 196, 255, 0.03);
+    0 24px 60px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(124, 196, 255, 0.04);
 }
 
 .card-top {
@@ -711,7 +722,8 @@ header,
     border-color var(--transition-fast),
     box-shadow var(--transition-fast),
     transform var(--transition-fast),
-    background var(--transition-fast);
+    background var(--transition-fast),
+    all 0.2s ease;
 }
 
 .filter-box select {
@@ -2530,8 +2542,7 @@ header,
   margin-top: 8px;
 }
 
-.unlock-modal-box,
-.owner-code-modal-box {
+.unlock-modal-box {
   position: relative;
   width: min(560px, 94vw);
   max-width: 560px;
@@ -2674,7 +2685,6 @@ header,
 
 @media (max-width: 768px) {
   .unlock-modal-box,
-  .owner-code-modal-box {
     width: 94vw;
     max-width: 94vw;
     max-height: 86vh;
@@ -3176,8 +3186,8 @@ header,
     linear-gradient(180deg, rgba(13, 22, 38, 0.96), rgba(8, 14, 25, 0.98));
   color: #eef5ff;
   font-size: 1.15rem;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   box-shadow:
     0 18px 40px rgba(0, 0, 0, 0.34),
     0 0 0 1px rgba(255, 255, 255, 0.03),
@@ -3202,8 +3212,8 @@ header,
   border-radius: 22px;
   background:
     linear-gradient(180deg, rgba(14, 22, 37, 0.97), rgba(9, 15, 27, 0.98));
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   box-shadow:
     0 24px 60px rgba(0, 0, 0, 0.38),
     0 0 0 1px rgba(255, 255, 255, 0.02);
@@ -3444,12 +3454,12 @@ header,
   .topic-card,
   .note-box,
   .pdf-shell {
-    padding: 18px;
+    padding: 16px;
     border-radius: 18px;
   }
 
   .btn {
-    width: 100%;
+    width: auto;
   }
 
   .actions {
