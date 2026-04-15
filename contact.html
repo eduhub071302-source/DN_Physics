@@ -188,6 +188,24 @@
       border: 1px solid rgba(255, 152, 0, 0.24);
     }
 
+    .ticket-status.read {
+      background: rgba(155, 89, 182, 0.12);
+      color: #d7b7ff;
+      border: 1px solid rgba(155, 89, 182, 0.24);
+    }
+
+    .ticket-status.replied {
+      background: rgba(78, 161, 255, 0.12);
+      color: #9fd0ff;
+      border: 1px solid rgba(78, 161, 255, 0.24);
+    }
+
+    .ticket-status.closed {
+      background: rgba(76, 175, 80, 0.12);
+      color: #9be7a0;
+      border: 1px solid rgba(76, 175, 80, 0.24);
+    }
+
     .contact-direct-box {
       margin-top: 18px;
       padding: 18px;
@@ -278,7 +296,7 @@
         <h1 style="margin-top: 0;">Contact DN Physics</h1>
         <p class="section-sub" style="margin-bottom: 22px;">
           Need help with your account, premium access, notes, sync, or app performance?
-          Send a support request and track your recent tickets.
+          Send a support request and track your latest status.
         </p>
 
         <div class="support-shell">
@@ -367,6 +385,30 @@
   <script>
     const SUPPORT_STORAGE_KEY = "dn_support_ticket_history";
 
+    function getFirebaseUser() {
+      return window.firebaseAuth?.currentUser || null;
+    }
+
+    function getStoredUser() {
+      try {
+        return JSON.parse(localStorage.getItem("dn_user") || "null");
+      } catch {
+        return null;
+      }
+    }
+
+    function getCurrentUserId() {
+      return getFirebaseUser()?.uid || getStoredUser()?.id || "";
+    }
+
+    function getCurrentUserEmail() {
+      return (
+        getFirebaseUser()?.email ||
+        getStoredUser()?.email ||
+        ""
+      ).toLowerCase();
+    }
+
     function getSupportTickets() {
       try {
         return JSON.parse(localStorage.getItem(SUPPORT_STORAGE_KEY)) || [];
@@ -383,11 +425,24 @@
       }
     }
 
-    function renderTicketHistory() {
+    function normalizeStatus(value) {
+      const v = String(value || "").toLowerCase();
+      if (v === "read" || v === "replied" || v === "closed") return v;
+      return "open";
+    }
+
+    function formatStatusLabel(status) {
+      if (status === "read") return "Read";
+      if (status === "replied") return "Replied";
+      if (status === "closed") return "Closed";
+      return "Open";
+    }
+
+    function renderTicketHistory(items = null) {
       const list = document.getElementById("ticketHistoryList");
       if (!list) return;
 
-      const tickets = getSupportTickets();
+      const tickets = Array.isArray(items) ? items : getSupportTickets();
 
       if (!tickets.length) {
         list.innerHTML = `
@@ -406,11 +461,14 @@
         .slice()
         .reverse()
         .map((ticket) => {
+          const status = normalizeStatus(ticket.status);
+          const statusLabel = ticket.statusLabel || formatStatusLabel(status);
+
           return `
             <div class="ticket-history-item">
               <div class="ticket-history-top">
                 <strong>${ticket.categoryLabel}</strong>
-                <span class="ticket-status ${ticket.status}">${ticket.statusLabel}</span>
+                <span class="ticket-status ${status}">${statusLabel}</span>
               </div>
               <div>${ticket.message}</div>
               <small>Ticket ID: ${ticket.id}</small><br>
@@ -419,6 +477,47 @@
           `;
         })
         .join("");
+    }
+
+    async function pullSupportHistoryFromFirebase() {
+      try {
+        const db = window.firebaseDb || null;
+        const sdk = window.firebaseSdk || null;
+        const uid = getCurrentUserId();
+        const email = getCurrentUserEmail();
+
+        if (!db || !sdk?.ref || !sdk?.get || !uid) {
+          renderTicketHistory();
+          return;
+        }
+
+        const snapshot = await sdk.get(sdk.ref(db, "support_messages"));
+        const all = snapshot.exists() ? (snapshot.val() || {}) : {};
+
+        const mine = Object.entries(all)
+          .map(([id, item]) => ({ id, ...(item || {}) }))
+          .filter((item) => {
+            const itemUid = String(item.uid || "").trim();
+            const itemEmail = String(item.email || "").trim().toLowerCase();
+            return itemUid === uid || (!!email && itemEmail === email);
+          })
+          .sort((a, b) => {
+            const aTime = new Date(a.createdAt || 0).getTime() || 0;
+            const bTime = new Date(b.createdAt || 0).getTime() || 0;
+            return bTime - aTime;
+          });
+
+        if (mine.length) {
+          saveSupportTickets(mine);
+          renderTicketHistory(mine);
+          return;
+        }
+
+        renderTicketHistory();
+      } catch (error) {
+        console.warn("Could not pull support history from Firebase:", error);
+        renderTicketHistory();
+      }
     }
 
     function showSupportFeedback(message, type = "success") {
@@ -456,6 +555,7 @@
 
       const payload = {
         id: generateTicketId(),
+        uid: getCurrentUserId(),
         name: String(nameInput?.value || "").trim(),
         email: String(emailInput?.value || "").trim(),
         category: String(categoryInput?.value || "").trim(),
@@ -465,6 +565,11 @@
         statusLabel: "Open",
         createdAt: new Date().toLocaleString(),
       };
+
+      if (!payload.uid) {
+        showSupportFeedback("Please log in before sending a support request.", "error");
+        return;
+      }
 
       if (!payload.name || !payload.email || !payload.category || !payload.message) {
         showSupportFeedback("Please fill all fields before submitting.", "error");
@@ -491,7 +596,7 @@
         existing.push(payload);
         saveSupportTickets(existing);
 
-        renderTicketHistory();
+        await pullSupportHistoryFromFirebase();
         showSupportFeedback("Support ticket submitted successfully.", "success");
         event.target.reset();
       } catch (error) {
@@ -507,11 +612,16 @@
 
     document.getElementById("supportForm")?.addEventListener("submit", submitSupportTicket);
 
-    document.getElementById("ticketHistoryToggle")?.addEventListener("click", () => {
+    document.getElementById("ticketHistoryToggle")?.addEventListener("click", async () => {
       document.getElementById("ticketHistoryDropdown")?.classList.toggle("open");
+      await pullSupportHistoryFromFirebase();
     });
 
     renderTicketHistory();
+
+    window.addEventListener("load", () => {
+      pullSupportHistoryFromFirebase();
+    });
   </script>
 </body>
 </html>
