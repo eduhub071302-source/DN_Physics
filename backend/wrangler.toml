@@ -1,0 +1,13 @@
+name = "dn-physics-worker"
+main = "src/index.js"
+compatibility_date = "2026-04-15"
+
+[vars]
+FRONTEND_BASE_URL = "https://dnphysics.com.lk"
+FIREBASE_DATABASE_URL = "https://dn-physics-default-rtdb.asia-southeast1.firebasedatabase.app"
+PAYHERE_SANDBOX = "false"
+PAYHERE_CURRENCY = "LKR"
+PAYHERE_AMOUNT = "70.00"
+PAYHERE_PRODUCT_NAME = "DN Physics Monthly Subscription"
+PAYHERE_DURATION_DAYS = "30"
+ADMIN_EMAIL = "eduhub071302@gmail.com"
