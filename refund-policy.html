@@ -185,9 +185,30 @@
       border-radius: 999px;
       font-size: 0.78rem;
       font-weight: 800;
+    }
+
+    .refund-status.open {
       background: rgba(255, 152, 0, 0.12);
       color: #ffcc80;
       border: 1px solid rgba(255, 152, 0, 0.24);
+    }
+
+    .refund-status.read {
+      background: rgba(155, 89, 182, 0.12);
+      color: #d7b7ff;
+      border: 1px solid rgba(155, 89, 182, 0.24);
+    }
+
+    .refund-status.replied {
+      background: rgba(78, 161, 255, 0.12);
+      color: #9fd0ff;
+      border: 1px solid rgba(78, 161, 255, 0.24);
+    }
+
+    .refund-status.closed {
+      background: rgba(76, 175, 80, 0.12);
+      color: #9be7a0;
+      border: 1px solid rgba(76, 175, 80, 0.24);
     }
 
     @media (max-width: 768px) {
@@ -324,7 +345,7 @@
               <div class="refund-history-item">
                 <div class="refund-history-top">
                   <strong>No refund requests yet</strong>
-                  <span class="refund-status">Ready</span>
+                  <span class="refund-status open">Ready</span>
                 </div>
                 <div class="muted-text">Submitted refund requests will appear here.</div>
               </div>
@@ -343,6 +364,30 @@
   <script>
     const REFUND_STORAGE_KEY = "dn_refund_request_history";
 
+    function getFirebaseUser() {
+      return window.firebaseAuth?.currentUser || null;
+    }
+
+    function getStoredUser() {
+      try {
+        return JSON.parse(localStorage.getItem("dn_user") || "null");
+      } catch {
+        return null;
+      }
+    }
+
+    function getCurrentUserId() {
+      return getFirebaseUser()?.uid || getStoredUser()?.id || "";
+    }
+
+    function getCurrentUserEmail() {
+      return (
+        getFirebaseUser()?.email ||
+        getStoredUser()?.email ||
+        ""
+      ).toLowerCase();
+    }
+
     function getRefundRequests() {
       try {
         return JSON.parse(localStorage.getItem(REFUND_STORAGE_KEY)) || [];
@@ -359,18 +404,31 @@
       }
     }
 
-    function renderRefundHistory() {
+    function normalizeStatus(value) {
+      const v = String(value || "").toLowerCase();
+      if (v === "read" || v === "replied" || v === "closed") return v;
+      return "open";
+    }
+
+    function formatStatusLabel(status) {
+      if (status === "read") return "Read";
+      if (status === "replied") return "Replied";
+      if (status === "closed") return "Closed";
+      return "Open";
+    }
+
+    function renderRefundHistory(items = null) {
       const list = document.getElementById("refundHistoryList");
       if (!list) return;
 
-      const items = getRefundRequests();
+      const requests = Array.isArray(items) ? items : getRefundRequests();
 
-      if (!items.length) {
+      if (!requests.length) {
         list.innerHTML = `
           <div class="refund-history-item">
             <div class="refund-history-top">
               <strong>No refund requests yet</strong>
-              <span class="refund-status">Ready</span>
+              <span class="refund-status open">Ready</span>
             </div>
             <div class="muted-text">Submitted refund requests will appear here.</div>
           </div>
@@ -378,15 +436,18 @@
         return;
       }
 
-      list.innerHTML = items
+      list.innerHTML = requests
         .slice()
         .reverse()
         .map((item) => {
+          const status = normalizeStatus(item.status);
+          const statusLabel = item.statusLabel || formatStatusLabel(status);
+
           return `
             <div class="refund-history-item">
               <div class="refund-history-top">
                 <strong>${item.reasonLabel}</strong>
-                <span class="refund-status">${item.statusLabel}</span>
+                <span class="refund-status ${status}">${statusLabel}</span>
               </div>
               <div>${item.message}</div>
               <small>Request ID: ${item.id}</small><br>
@@ -396,6 +457,47 @@
           `;
         })
         .join("");
+    }
+
+    async function pullRefundHistoryFromFirebase() {
+      try {
+        const db = window.firebaseDb || null;
+        const sdk = window.firebaseSdk || null;
+        const uid = getCurrentUserId();
+        const email = getCurrentUserEmail();
+
+        if (!db || !sdk?.ref || !sdk?.get || !uid) {
+          renderRefundHistory();
+          return;
+        }
+
+        const snapshot = await sdk.get(sdk.ref(db, "refund_requests"));
+        const all = snapshot.exists() ? (snapshot.val() || {}) : {};
+
+        const mine = Object.entries(all)
+          .map(([id, item]) => ({ id, ...(item || {}) }))
+          .filter((item) => {
+            const itemUid = String(item.uid || "").trim();
+            const itemEmail = String(item.email || "").trim().toLowerCase();
+            return itemUid === uid || (!!email && itemEmail === email);
+          })
+          .sort((a, b) => {
+            const aTime = new Date(a.createdAt || 0).getTime() || 0;
+            const bTime = new Date(b.createdAt || 0).getTime() || 0;
+            return bTime - aTime;
+          });
+
+        if (mine.length) {
+          saveRefundRequests(mine);
+          renderRefundHistory(mine);
+          return;
+        }
+
+        renderRefundHistory();
+      } catch (error) {
+        console.warn("Could not pull refund history from Firebase:", error);
+        renderRefundHistory();
+      }
     }
 
     function showRefundFeedback(message, type = "success") {
@@ -433,6 +535,7 @@
 
       const payload = {
         id: generateRefundId(),
+        uid: getCurrentUserId(),
         name: String(nameInput?.value || "").trim(),
         email: String(emailInput?.value || "").trim(),
         order_id: String(orderIdInput?.value || "").trim(),
@@ -443,6 +546,11 @@
         statusLabel: "Open",
         createdAt: new Date().toLocaleString(),
       };
+
+      if (!payload.uid) {
+        showRefundFeedback("Please log in before sending a refund request.", "error");
+        return;
+      }
 
       if (!payload.name || !payload.email || !payload.order_id || !payload.reason || !payload.message) {
         showRefundFeedback("Please fill all fields before submitting.", "error");
@@ -469,7 +577,7 @@
         existing.push(payload);
         saveRefundRequests(existing);
 
-        renderRefundHistory();
+        await pullRefundHistoryFromFirebase();
         showRefundFeedback("Refund request submitted successfully.", "success");
         event.target.reset();
       } catch (error) {
@@ -485,11 +593,16 @@
 
     document.getElementById("refundForm")?.addEventListener("submit", submitRefundRequest);
 
-    document.getElementById("refundHistoryToggle")?.addEventListener("click", () => {
+    document.getElementById("refundHistoryToggle")?.addEventListener("click", async () => {
       document.getElementById("refundHistoryDropdown")?.classList.toggle("open");
+      await pullRefundHistoryFromFirebase();
     });
 
     renderRefundHistory();
+
+    window.addEventListener("load", () => {
+      pullRefundHistoryFromFirebase();
+    });
   </script>
 </body>
 </html>
