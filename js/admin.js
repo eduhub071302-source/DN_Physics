@@ -103,6 +103,7 @@ function buildUnifiedItems(supportMap, refundMap) {
       statusLabel: formatStatusLabel(status),
       raw: item || {},
       path: `support_messages/${id}`,
+      userPath: item?.uid ? `user_support_messages/${item.uid}/${id}` : "",
     };
   });
 
@@ -122,6 +123,7 @@ function buildUnifiedItems(supportMap, refundMap) {
       statusLabel: formatStatusLabel(status),
       raw: item || {},
       path: `refund_requests/${id}`,
+      userPath: item?.uid ? `user_refund_requests/${item.uid}/${id}` : "",
     };
   });
 
@@ -336,6 +338,11 @@ async function saveSelectedItem() {
 
   try {
     await updateNode(item.path, updatedPayload);
+
+    if (item.userPath) {
+      await updateNode(item.userPath, updatedPayload);
+    }
+
     showAdminFeedback("Request updated successfully.", "success");
     await loadAllRequests();
   } catch (error) {
