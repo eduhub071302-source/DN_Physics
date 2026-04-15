@@ -304,7 +304,7 @@ function renderDetail() {
           <button id="adminSaveBtn" class="btn btn-primary" type="button">💾 Save Update</button>
           <a
             class="btn"
-            href="mailto:${encodeURIComponent(item.email || "")}?subject=${encodeURIComponent(`DN Physics ${item.typeLabel} Reply: ${item.id}`)}"
+            href="mailto:${encodeURIComponent(item.email || "")}?subject=${encodeURIComponent(`DinuuNOVA ${item.typeLabel} Reply: ${item.id}`)}"
           >
             ✉ Email User
           </a>
