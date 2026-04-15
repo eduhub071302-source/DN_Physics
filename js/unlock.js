@@ -83,10 +83,6 @@ function getUnlockExpiresAtKey() {
 // Core Access Logic
 // ----------------------------
 
-function isOwnerMode() {
-  return false;
-}
-
 function getSubscriptionExpiresAt() {
   const raw = dnStorageGet(getUnlockExpiresAtKey());
   if (!raw) return 0;
@@ -324,7 +320,7 @@ async function startFullUnlockCheckout() {
     document.body.appendChild(form);
     form.submit();
   } catch (e) {
-    console.error("startFullUnlockCheckout error:", e);
+    console.error("Checkout error");
     showDnMessage("Checkout failed. Please try again.");
   } finally {
     if (unlockNowBtn) {
@@ -506,7 +502,6 @@ function lockAlert() {
 // Expose Globals
 // ----------------------------
 
-window.isOwnerMode = isOwnerMode;
 window.getSubscriptionExpiresAt = getSubscriptionExpiresAt;
 window.isSubscriptionActive = isSubscriptionActive;
 window.getRemainingDays = getRemainingDays;
