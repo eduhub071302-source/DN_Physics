@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const historyCard = document.getElementById("historyCard");
   const historySummary = document.getElementById("historySummary");
 
+  const answerGrid = document.querySelector(".answer-grid");
   const answerButtons = Array.from(document.querySelectorAll(".answer-btn"));
   const attemptInfo = document.getElementById("attemptInfo");
   const performanceSummary = document.getElementById("performanceSummary");
@@ -129,7 +130,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  if (requiredElements.some((el) => !el) || answerButtons.length === 0) {
+  if (requiredElements.some((el) => !el)) {
     console.error("Quiz page elements missing. Check quiz.html IDs and classes.");
     return;
   }
@@ -294,6 +295,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   let retryModeType = "full";
   let retryQuestionList = [];
 
+  let isWrittenQuiz = false;
+
   const imageCache = {};
 
   const MOTIVATION_LINES = [
@@ -402,7 +405,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     localStorage.setItem(getQuizProgressStorageKey(), JSON.stringify(store));
   }
 
-  // 🔄 Sync to cloud after quiz completion
   if (typeof window.syncLocalProgressToCloud === "function") {
     try {
       await window.syncLocalProgressToCloud();
@@ -650,7 +652,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     let text = "";
 
     if (reviewMode) {
-      text = "Review mode active. Learn deeply from every mistake.";
+      text = isWrittenQuiz
+        ? "Answer sheet mode active. Review each solution carefully."
+        : "Review mode active. Learn deeply from every mistake.";
     } else if (progress < 25) {
       text = "Start strong. Focus deeply.";
     } else if (progress < 60) {
@@ -671,7 +675,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       : `/pp-quiz/data/${subject}/${topic}/${routeSubtopic}/${setName}.json`;
 
     try {
-      const response = await fetch(jsonPath);
+      const response = await fetch(jsonPath, { cache: "no-store" });
       if (!response.ok) {
         throw new Error(`Failed to load quiz JSON: ${jsonPath}`);
       }
@@ -682,6 +686,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       explanations = data.explanations || {};
       quizTimeLimitSeconds = Number(data.quizTimeLimitSeconds) || null;
       questionTimeLimitSeconds = Number(data.questionTimeLimitSeconds) || null;
+      isWrittenQuiz = data.quizType === "written";
 
       if (isMaths) {
         quizTitle.textContent = `${makeNiceTitle(topic)} - ${data.title || makeNiceTitle(setName)}`;
@@ -689,6 +694,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else {
         quizTitle.textContent = `${makeNiceTitle(routeSubtopic)} - ${data.title || makeNiceTitle(setName)}`;
         quizSubtitle.textContent = `${makeNiceTitle(subject)} / ${makeNiceTitle(topic)} / ${makeNiceTitle(routeSubtopic)}`;
+      }
+
+      if (isWrittenQuiz) {
+        if (answerGrid) answerGrid.style.display = "none";
+        answerExplanation.style.display = "none";
+        if (reviewNote) {
+          reviewNote.style.display = "block";
+          reviewNote.textContent = "Written quiz mode. Tap Finish Question to move to the next question. Submit to view answer sheets.";
+        }
+        if (finishQuizBtn) finishQuizBtn.textContent = "Finish Question";
+      } else {
+        if (answerGrid) answerGrid.style.display = "flex";
+        if (finishQuizBtn) finishQuizBtn.textContent = "Finish Now";
       }
     } catch (error) {
       console.error(error);
@@ -710,6 +728,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     return isMaths
       ? `/pp-quiz/images/${subject}/${topic}/q${questionNumber}.jpg`
       : `/pp-quiz/images/${subject}/${topic}/${routeSubtopic}/q${questionNumber}.jpg`;
+  }
+
+  function getAnswerImagePath(questionNumber) {
+    return isMaths
+      ? `/pp-quiz/images/${subject}/${topic}/q${questionNumber}-a1.jpg`
+      : "";
   }
 
   function getAnsweredCount() {
@@ -762,7 +786,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function updateExplanationBox() {
-    if (!reviewMode) {
+    if (isWrittenQuiz || !reviewMode) {
       answerExplanation.style.display = "none";
       return;
     }
@@ -781,6 +805,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function updateAnswerButtons() {
     clearReviewClasses();
+
+    if (isWrittenQuiz) {
+      updateExplanationBox();
+      return;
+    }
 
     const questionNumber = getCurrentQuestionNumber();
     const selected = userAnswers[questionNumber];
@@ -871,8 +900,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     const allAnswered = answeredCount === currentTotal && !reviewMode;
 
     submitQuizBtn.style.display = allAnswered ? "inline-flex" : "none";
-    finishQuizBtn.style.display = allAnswered ? "none" : "inline-flex";
+    finishQuizBtn.style.display = reviewMode ? "none" : "inline-flex";
     finishQuizBtn.disabled = reviewMode;
+
+    if (isWrittenQuiz) {
+      submitQuizBtn.textContent = "Submit Full Quiz";
+      finishQuizBtn.textContent = "Finish Question";
+    } else {
+      submitQuizBtn.textContent = "Submit Full Quiz";
+      finishQuizBtn.textContent = "Finish Now";
+    }
 
     updateProgressBar();
     updatePalette();
@@ -967,7 +1004,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       smartSaveSession();
 
       if (quizTimeLimitSeconds && quizElapsedSeconds >= quizTimeLimitSeconds && !reviewMode) {
-        showResult("full");
+        if (isWrittenQuiz) {
+          showMathsAnswerSheet("full");
+        } else {
+          showResult("full");
+        }
       }
     }, 1000);
 
@@ -1002,6 +1043,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     const shownIndex = getCurrentShownIndex();
     const total = getCurrentTotalCount();
 
+    if (isWrittenQuiz) {
+      const q = getCurrentQuestionNumber();
+      if (userAnswers[q] === undefined) {
+        userAnswers[q] = "done";
+      }
+      smartSaveSession();
+    }
+
     if (shownIndex < total) {
       if (retryModeType === "list" || practiceWrongOnlyMode) {
         currentDisplayIndex++;
@@ -1016,7 +1065,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     if (!reviewMode) {
-      showResult("partial");
+      if (isWrittenQuiz) {
+        showMathsAnswerSheet("partial");
+      } else {
+        showResult("partial");
+      }
     }
   }
 
@@ -1034,7 +1087,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     quizElapsedSeconds = 0;
     questionElapsedSeconds = 0;
 
-    reviewNote.style.display = "none";
+    reviewNote.style.display = isWrittenQuiz ? "block" : "none";
+    if (isWrittenQuiz) {
+      reviewNote.textContent = "Written quiz mode. Tap Finish Question to move to the next question. Submit to view answer sheets.";
+    }
     resultCard.style.display = "none";
     historyCard.style.display = "none";
     postResultActions.style.display = "none";
@@ -1049,7 +1105,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (finalScoreEl) finalScoreEl.textContent = "0%";
     if (resultHeadline) resultHeadline.textContent = "Good Try";
-    if (resultMotivation) resultMotivation.textContent = "Keep pushing. Improvement comes from consistency.";
+    if (resultMotivation) {
+      resultMotivation.textContent = isWrittenQuiz
+        ? "Complete the quiz and review the full answer sheet."
+        : "Keep pushing. Improvement comes from consistency.";
+    }
 
     closeJumpWrap();
     clearSavedSession();
@@ -1069,7 +1129,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     userAnswers = {};
     questionElapsedSeconds = 0;
 
-    reviewNote.style.display = "none";
+    reviewNote.style.display = isWrittenQuiz ? "block" : "none";
+    if (isWrittenQuiz) {
+      reviewNote.textContent = "Written quiz mode. Tap Finish Question to move to the next question. Submit to view answer sheets.";
+    }
     resultCard.style.display = "none";
     historyCard.style.display = "none";
     postResultActions.style.display = "none";
@@ -1224,6 +1287,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     wrongQuestionPointer = 0;
 
     reviewNote.style.display = "block";
+    reviewNote.textContent = "Review mode enabled.";
     resultCard.style.display = "block";
     historyCard.style.display = "block";
     postResultActions.style.display = "flex";
@@ -1254,6 +1318,151 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       }, 1500);
     }
+  }
+
+  async function finalizeWrittenAttempt(mode, shownQuestions, answeredQuestions) {
+    const previous = loadAttemptData() || getDefaultAttemptData();
+    const today = getTodayDateString();
+
+    let nextStreak = previous.streak || 0;
+
+    if (!previous.lastPlayedAt) {
+      nextStreak = 1;
+    } else if (previous.lastPlayedAt === today) {
+      nextStreak = previous.streak || 1;
+    } else if (previous.lastPlayedAt === getYesterdayDateString(today)) {
+      nextStreak = (previous.streak || 0) + 1;
+    } else {
+      nextStreak = 1;
+    }
+
+    const fullPercent = totalQuestions > 0 ? ((answeredQuestions / totalQuestions) * 100).toFixed(1) : "0.0";
+    const currentPercent = shownQuestions > 0 ? ((answeredQuestions / shownQuestions) * 100).toFixed(1) : "0.0";
+
+    const history = Array.isArray(previous.bestHistory) ? [...previous.bestHistory] : [];
+    history.unshift({
+      date: today,
+      mode,
+      percentage: mode === "full" ? fullPercent : currentPercent
+    });
+
+    const bestPercentage = Math.max(Number(previous.bestPercentage) || 0, Number(currentPercent) || 0).toFixed(1);
+
+    const newData = {
+      lastCorrect: answeredQuestions,
+      lastAnswered: shownQuestions,
+      lastPercentage: currentPercent,
+      bestCorrect: Number(bestPercentage) === Number(currentPercent) ? answeredQuestions : previous.bestCorrect,
+      bestAnswered: Number(bestPercentage) === Number(currentPercent) ? shownQuestions : previous.bestAnswered,
+      bestPercentage,
+      attempts: (previous.attempts || 0) + 1,
+      bestFullBadgePercentage: previous.bestFullBadgePercentage,
+      lastPlayedAt: today,
+      streak: nextStreak,
+      completedFullQuiz: previous.completedFullQuiz || mode === "full",
+      totalWrongBank: [],
+      bestHistory: history.slice(0, 10)
+    };
+
+    saveAttemptData(newData);
+
+    if (typeof syncLocalProgressToCloud === "function") {
+      try {
+        await syncLocalProgressToCloud();
+      } catch (error) {
+        console.warn("Progress cloud sync warning:", error);
+      }
+    }
+
+    clearSavedSession();
+    renderAttemptInfo();
+    renderPerformanceCard();
+    renderHistoryCard();
+  }
+
+  function renderWrittenAnswerSheet(questionList, mode) {
+    resultCard.style.display = "block";
+    historyCard.style.display = "block";
+    postResultActions.style.display = "flex";
+
+    retryQuizBtn.style.display = "inline-flex";
+    retryWrongBtn.style.display = "none";
+    retryUnansweredBtn.style.display = "none";
+    retryMarkedBtn.style.display = flaggedQuestions.size > 0 ? "inline-flex" : "none";
+    wrongOnlyBtn.style.display = "none";
+
+    reviewMode = true;
+    stopTimers();
+
+    if (finalScoreEl) {
+      const viewedPercent = totalQuestions > 0 ? ((questionList.length / totalQuestions) * 100).toFixed(0) : "0";
+      finalScoreEl.textContent = `${viewedPercent}%`;
+    }
+
+    if (resultHeadline) {
+      resultHeadline.textContent = mode === "full" ? "Full Answer Sheet 📘" : "Answer Sheet 📘";
+    }
+
+    if (resultMotivation) {
+      resultMotivation.textContent =
+        mode === "full"
+          ? "All question answer images are shown below."
+          : "Only completed question answer images are shown below.";
+    }
+
+    const safeQuestions = Array.isArray(questionList)
+      ? questionList.filter((q) => Number.isFinite(Number(q)) && Number(q) > 0)
+      : [];
+
+    const answerImagesHtml = safeQuestions.length
+      ? safeQuestions
+          .map((q) => {
+            const answerPath = getAnswerImagePath(Number(q));
+            return `
+              <div class="written-answer-block">
+                <div class="written-answer-head">Question ${escapeHtml(q)}</div>
+                <img
+                  class="written-answer-image"
+                  src="${escapeHtml(answerPath)}"
+                  alt="Answer sheet for question ${escapeHtml(q)}"
+                  loading="lazy"
+                  onerror="this.closest('.written-answer-block').classList.add('is-missing'); this.insertAdjacentHTML('afterend', '<div class=&quot;written-answer-missing&quot;>Answer image not found for Question ${escapeHtml(q)}.</div>'); this.style.display='none';"
+                />
+              </div>
+            `;
+          })
+          .join("")
+      : `<div class="written-answer-empty">No completed questions yet.</div>`;
+
+    resultSummary.innerHTML = `
+      <div><strong>Mode:</strong> ${mode === "full" ? "Full Submit" : "Finish Now"}</div>
+      <div><strong>Questions Shown:</strong> ${safeQuestions.length}</div>
+      <div><strong>Total Questions:</strong> ${totalQuestions}</div>
+      <div><strong>Viewed Answer Sheets:</strong> Based on completed questions only.</div>
+      <div class="written-answer-sheet">${answerImagesHtml}</div>
+    `;
+
+    reviewNote.style.display = "block";
+    reviewNote.textContent = "Answer sheet mode enabled. Use Retry Full Quiz to start again.";
+
+    closeJumpWrap();
+    hideHintBox();
+    scrollQuestionIntoView();
+  }
+
+  async function showMathsAnswerSheet(mode) {
+    const questionList =
+      mode === "full"
+        ? Array.from({ length: totalQuestions }, (_, i) => i + 1)
+        : getQuestionListForCurrentMode().filter((q) => userAnswers[q] !== undefined);
+
+    await finalizeWrittenAttempt(
+      mode,
+      mode === "full" ? totalQuestions : getCurrentTotalCount(),
+      mode === "full" ? totalQuestions : questionList.length
+    );
+
+    renderWrittenAnswerSheet(questionList, mode);
   }
 
   function showResult(mode) {
@@ -1337,7 +1546,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     wrongQuestionsGlobal = [];
     wrongQuestionPointer = 0;
 
-    reviewNote.style.display = "none";
+    reviewNote.style.display = isWrittenQuiz ? "block" : "none";
+    if (isWrittenQuiz) {
+      reviewNote.textContent = "Written quiz mode. Tap Finish Question to move to the next question. Submit to view answer sheets.";
+    }
     resultCard.style.display = "none";
     postResultActions.style.display = "none";
     answerExplanation.style.display = "none";
@@ -1374,41 +1586,43 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
   }
 
-  answerButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      if (reviewMode) return;
+  if (answerButtons.length > 0) {
+    answerButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        if (reviewMode || isWrittenQuiz) return;
 
-      const questionNumber = getCurrentQuestionNumber();
-      userAnswers[questionNumber] = Number(button.dataset.answer);
+        const questionNumber = getCurrentQuestionNumber();
+        userAnswers[questionNumber] = Number(button.dataset.answer);
 
-      updateAnswerButtons();
-      updateSubmitVisibility();
-      updateMotivationBar();
-      smartSaveSession();
+        updateAnswerButtons();
+        updateSubmitVisibility();
+        updateMotivationBar();
+        smartSaveSession();
 
-      const total = getCurrentTotalCount();
-      const index = getCurrentShownIndex();
+        const total = getCurrentTotalCount();
+        const index = getCurrentShownIndex();
 
-      if (index < total) {
-        if (retryModeType === "list" || practiceWrongOnlyMode) {
-          const nextActualQuestion = retryQuestionList[currentDisplayIndex];
-          const nextNextActualQuestion = retryQuestionList[currentDisplayIndex + 1];
+        if (index < total) {
+          if (retryModeType === "list" || practiceWrongOnlyMode) {
+            const nextActualQuestion = retryQuestionList[currentDisplayIndex];
+            const nextNextActualQuestion = retryQuestionList[currentDisplayIndex + 1];
 
-          preloadQuestionImage(nextActualQuestion);
-          preloadQuestionImage(nextNextActualQuestion);
-        } else {
-          preloadQuestionImage(currentQuestion + 1);
-          preloadQuestionImage(currentQuestion + 2);
-        }
-
-        setTimeout(() => {
-          if (!reviewMode) {
-            nextBtn.click();
+            preloadQuestionImage(nextActualQuestion);
+            preloadQuestionImage(nextNextActualQuestion);
+          } else {
+            preloadQuestionImage(currentQuestion + 1);
+            preloadQuestionImage(currentQuestion + 2);
           }
-        }, 50);
-      }
+
+          setTimeout(() => {
+            if (!reviewMode) {
+              nextBtn.click();
+            }
+          }, 50);
+        }
+      });
     });
-  });
+  }
 
   prevBtn.addEventListener("click", () => {
     const shownIndex = getCurrentShownIndex();
@@ -1447,12 +1661,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   retryQuizBtn.addEventListener("click", resetCurrentQuizState);
 
   retryWrongBtn.addEventListener("click", () => {
-    if (!wrongQuestionsGlobal.length) return;
+    if (!wrongQuestionsGlobal.length || isWrittenQuiz) return;
     practiceWrongOnlyMode = false;
     startListRetryMode(wrongQuestionsGlobal);
   });
 
   retryUnansweredBtn.addEventListener("click", () => {
+    if (isWrittenQuiz) return;
     const unanswered = getQuestionListForCurrentMode().filter((q) => userAnswers[q] === undefined);
     if (!unanswered.length) return;
     practiceWrongOnlyMode = false;
@@ -1467,7 +1682,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   wrongOnlyBtn.addEventListener("click", () => {
-    if (!wrongQuestionsGlobal.length) return;
+    if (!wrongQuestionsGlobal.length || isWrittenQuiz) return;
 
     const questionNo = wrongQuestionsGlobal[wrongQuestionPointer];
     goToQuestionByActualNumber(questionNo);
@@ -1478,9 +1693,42 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  submitQuizBtn.addEventListener("click", () => showResult("full"));
+  submitQuizBtn.addEventListener("click", () => {
+    if (isWrittenQuiz) {
+      showMathsAnswerSheet("full");
+    } else {
+      showResult("full");
+    }
+  });
 
   finishQuizBtn.addEventListener("click", () => {
+    if (isWrittenQuiz) {
+      if (reviewMode) return;
+
+      const q = getCurrentQuestionNumber();
+      userAnswers[q] = "done";
+      updateSubmitVisibility();
+      updateMotivationBar();
+      smartSaveSession();
+
+      const shownIndex = getCurrentShownIndex();
+      const total = getCurrentTotalCount();
+
+      if (shownIndex < total) {
+        if (retryModeType === "list" || practiceWrongOnlyMode) {
+          currentDisplayIndex++;
+        } else {
+          currentQuestion++;
+        }
+        scheduleRender(updateQuestionView);
+        scrollQuestionIntoView();
+        return;
+      }
+
+      showMathsAnswerSheet("partial");
+      return;
+    }
+
     const mode =
       retryModeType === "list" || practiceWrongOnlyMode ? "custom-list" : "partial";
     showResult(mode);
