@@ -2,9 +2,9 @@ const SUBJECTS = {
   physics: {
     pageTitle: "11 Main Topics",
     heroPill: "DinuuNOVA Physics • Past Paper Practice",
-    heroTitle: "Train Like a Real Exam App",
+    heroTitle: "Start MCQ Practice",
     heroDesc:
-      "Choose a topic and start practicing instantly. Focus on accuracy, speed, and consistency.",
+     "Choose a topic and begin focused practice.",
     topics: [
       { slug: "units", title: "Units", icon: "📏" },
       { slug: "mechanics", title: "Mechanics", icon: "⚙️" },
@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const topicsGrid = document.getElementById("topicsGrid");
 
   if (!topicsGrid) {
-    console.error("topicsGrid element not found.");
+    console.error("Topics grid not found");
     return;
   }
 
@@ -81,16 +81,16 @@ function applySubjectPageContent(config) {
   if (heroPillEl) heroPillEl.textContent = config.heroPill;
   if (heroTitleEl) heroTitleEl.textContent = config.heroTitle;
   if (heroDescEl) heroDescEl.textContent = config.heroDesc;
-  if (sectionTitleEl) sectionTitleEl.textContent = "Select a Topic";
-  if (sectionDescEl) sectionDescEl.textContent = "Tap a topic to begin your practice.";
+  if (sectionTitleEl) sectionTitleEl.textContent = "Choose a Topic";
+  if (sectionDescEl) sectionDescEl.textContent = "Tap a topic to begin.";
 
   document.title = `PP Quiz | ${extractBrandName(config.heroPill)}`;
 }
 
 function extractBrandName(heroPillText) {
-  if (!heroPillText) return "DN Physics";
+  if (!heroPillText) return "DinuuNOVA";
   const firstPart = heroPillText.split("•")[0]?.trim();
-  return firstPart || "DN Physics";
+  return firstPart || "DinuuNOVA";
 }
 
 function setupRefreshButton() {
