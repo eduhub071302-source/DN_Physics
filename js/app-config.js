@@ -2,8 +2,8 @@
 
 const DN_CONFIG = {
   APP: {
-    NAME: "DN Physics",
-    VERSION: "1.0.0",
+    NAME: "DinuuNOVA",
+    VERSION: "1.0.1",
   },
 
   ACCESS: {
@@ -13,7 +13,7 @@ const DN_CONFIG = {
 
   PRODUCT: {
     FULL_UNLOCK_ID: "dn-physics-monthly-subscription",
-    FULL_UNLOCK_NAME: "DN Physics Monthly Subscription",
+    FULL_UNLOCK_NAME: "DinuuNOVA Monthly Access",
     PRICE: "70.00",
     CURRENCY: "LKR",
     BILLING_PERIOD: "monthly",
@@ -36,7 +36,7 @@ const DN_CONFIG = {
   },
 
   BACKEND: {
-    API_BASE_URL: "https://aqhktwashmnqkgvmauxv.supabase.co/functions/v1",
+    API_BASE_URL: "",
 
     CREATE_ORDER_URL: "/api/payments/create-order",
     NOTIFY_URL: "/api/payments/notify",
