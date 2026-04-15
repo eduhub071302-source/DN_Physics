@@ -13,7 +13,6 @@
       gap: 18px;
       margin-top: 18px;
     }
-
     .support-panel {
       padding: 20px;
       border-radius: 20px;
@@ -21,13 +20,11 @@
       border: 1px solid rgba(255,255,255,0.07);
       box-shadow: 0 18px 44px rgba(0,0,0,0.24);
     }
-
     .support-form-grid {
       display: grid;
       gap: 12px;
       margin-top: 14px;
     }
-
     .support-form-grid input,
     .support-form-grid select,
     .support-form-grid textarea {
@@ -43,40 +40,27 @@
       -webkit-appearance: none;
       -moz-appearance: none;
     }
-
     .support-form-grid select {
       background: linear-gradient(180deg, rgba(17, 26, 43, 0.98), rgba(12, 18, 31, 0.98));
       color: #e8eefc;
     }
-
     .support-form-grid select option {
       background: #101827;
       color: #e8eefc;
     }
-
     .support-form-grid textarea {
       min-height: 150px;
       resize: vertical;
     }
-
-    .support-form-grid input:focus,
-    .support-form-grid select:focus,
-    .support-form-grid textarea:focus {
-      border-color: rgba(78, 161, 255, 0.45);
-      box-shadow: 0 0 0 3px rgba(78, 161, 255, 0.12);
-    }
-
     .support-actions {
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
       margin-top: 16px;
     }
-
     .support-actions .btn {
       flex: 1 1 180px;
     }
-
     .support-feedback {
       margin-top: 12px;
       padding: 12px 14px;
@@ -85,23 +69,17 @@
       font-weight: 700;
       display: none;
     }
-
-    .support-feedback.show {
-      display: block;
-    }
-
+    .support-feedback.show { display: block; }
     .support-feedback.success {
       background: rgba(76, 175, 80, 0.12);
       border: 1px solid rgba(76, 175, 80, 0.24);
       color: #a5efaa;
     }
-
     .support-feedback.error {
       background: rgba(244, 67, 54, 0.12);
       border: 1px solid rgba(244, 67, 54, 0.24);
       color: #ffb3ad;
     }
-
     .history-dropdown {
       margin-top: 18px;
       border-radius: 18px;
@@ -109,7 +87,6 @@
       border: 1px solid rgba(255,255,255,0.06);
       background: rgba(255,255,255,0.03);
     }
-
     .history-toggle {
       width: 100%;
       min-height: 56px;
@@ -126,43 +103,28 @@
       font-weight: 800;
       text-align: left;
     }
-
-    .history-toggle:hover {
-      background: rgba(255,255,255,0.03);
-    }
-
     .history-toggle-icon {
       transition: transform 0.2s ease;
       font-size: 1rem;
       opacity: 0.9;
     }
-
-    .history-dropdown.open .history-toggle-icon {
-      transform: rotate(180deg);
-    }
-
+    .history-dropdown.open .history-toggle-icon { transform: rotate(180deg); }
     .history-content {
       display: none;
       padding: 0 16px 16px;
     }
-
-    .history-dropdown.open .history-content {
-      display: block;
-    }
-
+    .history-dropdown.open .history-content { display: block; }
     .ticket-history-list {
       display: grid;
       gap: 12px;
       margin-top: 6px;
     }
-
     .ticket-history-item {
       padding: 14px;
       border-radius: 16px;
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.06);
     }
-
     .ticket-history-top {
       display: flex;
       justify-content: space-between;
@@ -170,7 +132,6 @@
       flex-wrap: wrap;
       margin-bottom: 8px;
     }
-
     .ticket-status {
       display: inline-flex;
       align-items: center;
@@ -181,96 +142,32 @@
       font-size: 0.78rem;
       font-weight: 800;
     }
-
     .ticket-status.open {
       background: rgba(255, 152, 0, 0.12);
       color: #ffcc80;
       border: 1px solid rgba(255, 152, 0, 0.24);
     }
-
     .ticket-status.read {
       background: rgba(155, 89, 182, 0.12);
       color: #d7b7ff;
       border: 1px solid rgba(155, 89, 182, 0.24);
     }
-
     .ticket-status.replied {
       background: rgba(78, 161, 255, 0.12);
       color: #9fd0ff;
       border: 1px solid rgba(78, 161, 255, 0.24);
     }
-
     .ticket-status.closed {
       background: rgba(76, 175, 80, 0.12);
       color: #9be7a0;
       border: 1px solid rgba(76, 175, 80, 0.24);
     }
-
     .contact-direct-box {
       margin-top: 18px;
       padding: 18px;
       border-radius: 18px;
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.06);
-    }
-
-    .floating-help-wrap {
-      position: fixed;
-      right: 14px;
-      bottom: 14px;
-      z-index: 3000;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      align-items: flex-end;
-    }
-
-    .floating-help-btn {
-      min-height: 46px;
-      padding: 11px 15px;
-      border-radius: 999px;
-      border: 1px solid rgba(124, 196, 255, 0.18);
-      background: rgba(12, 20, 34, 0.88);
-      color: #eef5ff;
-      font-weight: 700;
-      box-shadow: 0 14px 32px rgba(0,0,0,0.24);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-    }
-
-    .floating-help-btn:hover {
-      border-color: rgba(124, 196, 255, 0.34);
-      transform: translateY(-1px);
-    }
-
-    @media (max-width: 768px) {
-      .topic-card {
-        padding: 20px !important;
-      }
-
-      .support-panel {
-        padding: 16px;
-        border-radius: 18px;
-      }
-
-      .support-actions {
-        flex-direction: column;
-      }
-
-      .support-actions .btn {
-        width: 100%;
-      }
-
-      .floating-help-wrap {
-        right: 10px;
-        bottom: 10px;
-      }
-
-      .floating-help-btn {
-        min-height: 42px;
-        padding: 10px 14px;
-        font-size: 0.9rem;
-      }
     }
   </style>
 </head>
@@ -316,23 +213,11 @@
                 <option value="feature-request">Feature Request</option>
               </select>
 
-              <textarea
-                id="supportMessage"
-                placeholder="Describe your issue or question..."
-                required
-              ></textarea>
+              <textarea id="supportMessage" placeholder="Describe your issue or question..." required></textarea>
 
               <div class="support-actions">
-                <button id="supportSubmitBtn" class="btn btn-primary" type="submit">
-                  📩 Submit Ticket
-                </button>
-
-                <a
-                  class="btn"
-                  href="mailto:eduhub071302@gmail.com?subject=DN%20Physics%20Support"
-                >
-                  ✉ Email Support
-                </a>
+                <button id="supportSubmitBtn" class="btn btn-primary" type="submit">📩 Submit Ticket</button>
+                <a class="btn" href="mailto:eduhub071302@gmail.com?subject=DN%20Physics%20Support">✉ Email Support</a>
               </div>
             </form>
 
@@ -363,23 +248,10 @@
           <h2 style="margin-top: 0;">Direct Contact</h2>
           <p><strong>Email:</strong> eduhub071302@gmail.com</p>
           <p><strong>Typical response time:</strong> 24–48 hours</p>
-          <p class="muted-text" style="margin-bottom: 0;">
-            For faster help, include your account email and a short issue summary.
-          </p>
         </div>
       </div>
     </div>
   </main>
-
-  <div class="floating-help-wrap">
-    <a
-      class="floating-help-btn"
-      href="mailto:eduhub071302@gmail.com?subject=DN%20Physics%20Support"
-      aria-label="Email support"
-    >
-      ✉ Email Support
-    </a>
-  </div>
 
   <script type="module" src="/js/firebase-client.js"></script>
   <script>
@@ -399,14 +271,6 @@
 
     function getCurrentUserId() {
       return getFirebaseUser()?.uid || getStoredUser()?.id || "";
-    }
-
-    function getCurrentUserEmail() {
-      return (
-        getFirebaseUser()?.email ||
-        getStoredUser()?.email ||
-        ""
-      ).toLowerCase();
     }
 
     function getSupportTickets() {
@@ -484,36 +348,25 @@
         const db = window.firebaseDb || null;
         const sdk = window.firebaseSdk || null;
         const uid = getCurrentUserId();
-        const email = getCurrentUserEmail();
 
         if (!db || !sdk?.ref || !sdk?.get || !uid) {
           renderTicketHistory();
           return;
         }
 
-        const snapshot = await sdk.get(sdk.ref(db, "support_messages"));
+        const snapshot = await sdk.get(sdk.ref(db, `user_support_messages/${uid}`));
         const all = snapshot.exists() ? (snapshot.val() || {}) : {};
 
         const mine = Object.entries(all)
           .map(([id, item]) => ({ id, ...(item || {}) }))
-          .filter((item) => {
-            const itemUid = String(item.uid || "").trim();
-            const itemEmail = String(item.email || "").trim().toLowerCase();
-            return itemUid === uid || (!!email && itemEmail === email);
-          })
           .sort((a, b) => {
             const aTime = new Date(a.createdAt || 0).getTime() || 0;
             const bTime = new Date(b.createdAt || 0).getTime() || 0;
             return bTime - aTime;
           });
 
-        if (mine.length) {
-          saveSupportTickets(mine);
-          renderTicketHistory(mine);
-          return;
-        }
-
-        renderTicketHistory();
+        saveSupportTickets(mine);
+        renderTicketHistory(mine);
       } catch (error) {
         console.warn("Could not pull support history from Firebase:", error);
         renderTicketHistory();
@@ -523,7 +376,6 @@
     function showSupportFeedback(message, type = "success") {
       const box = document.getElementById("supportFeedback");
       if (!box) return;
-
       box.className = `support-feedback show ${type}`;
       box.textContent = message;
     }
@@ -536,7 +388,6 @@
         "bug-report": "Bug Report",
         "feature-request": "Feature Request",
       };
-
       return map[value] || "Support";
     }
 
@@ -553,9 +404,11 @@
       const categoryInput = document.getElementById("supportCategory");
       const messageInput = document.getElementById("supportMessage");
 
+      const uid = getCurrentUserId();
+
       const payload = {
         id: generateTicketId(),
-        uid: getCurrentUserId(),
+        uid,
         name: String(nameInput?.value || "").trim(),
         email: String(emailInput?.value || "").trim(),
         category: String(categoryInput?.value || "").trim(),
@@ -566,7 +419,7 @@
         createdAt: new Date().toLocaleString(),
       };
 
-      if (!payload.uid) {
+      if (!uid) {
         showSupportFeedback("Please log in before sending a support request.", "error");
         return;
       }
@@ -586,10 +439,8 @@
         const sdk = window.firebaseSdk || null;
 
         if (db && sdk?.ref && sdk?.set) {
-          await sdk.set(
-            sdk.ref(db, `support_messages/${payload.id}`),
-            payload,
-          );
+          await sdk.set(sdk.ref(db, `support_messages/${payload.id}`), payload);
+          await sdk.set(sdk.ref(db, `user_support_messages/${uid}/${payload.id}`), payload);
         }
 
         const existing = getSupportTickets();
@@ -618,7 +469,6 @@
     });
 
     renderTicketHistory();
-
     window.addEventListener("load", () => {
       pullSupportHistoryFromFirebase();
     });
