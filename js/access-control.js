@@ -18,18 +18,6 @@ function dnGetFreeQuizTopics() {
     .map(dnNormalizeAccessSlug);
 }
 
-function dnIsOwnerModeSafe() {
-  try {
-    if (typeof window.isOwnerMode === "function") {
-      return window.isOwnerMode();
-    }
-  } catch (error) {
-    console.warn("dnIsOwnerModeSafe failed:", error);
-  }
-
-  return false;
-}
-
 function dnHasPaidAccessSafe() {
   try {
     if (typeof window.hasPaidAccess === "function") {
@@ -42,8 +30,8 @@ function dnHasPaidAccessSafe() {
   return false;
 }
 
-function dnHasPaidOrOwnerAccess() {
-  return dnIsOwnerModeSafe() || dnHasPaidAccessSafe();
+function dnHasPaidAccessOnly() {
+  return dnHasPaidAccessSafe();
 }
 
 function canAccessPdfFast(subject) {
@@ -56,7 +44,7 @@ function canAccessPdfFast(subject) {
   }
 
   // ✅ Paid / owner unlocks all others
-  if (dnHasPaidOrOwnerAccess()) {
+  if (dnHasPaidAccessOnly()) {
     return true;
   }
 
@@ -73,7 +61,7 @@ function canAccessQuizFast(topic) {
   }
 
   // ✅ Paid / owner unlocks all others
-  if (dnHasPaidOrOwnerAccess()) {
+  if (dnHasPaidAccessOnly()) {
     return true;
   }
 
@@ -85,7 +73,7 @@ function getPdfLockState(subject) {
     subject: subject || "",
     normalizedSubject: dnNormalizeAccessSlug(subject),
     freeSubjects: dnGetFreePdfSubjects(),
-    hasPaidOrOwnerAccess: dnHasPaidOrOwnerAccess(),
+    hasPaidAccess: dnHasPaidAccessOnly(),
     allowed: canAccessPdfFast(subject),
   };
 }
@@ -95,7 +83,7 @@ function getQuizLockState(topic) {
     topic: topic || "",
     normalizedTopic: dnNormalizeAccessSlug(topic),
     freeTopics: dnGetFreeQuizTopics(),
-    hasPaidOrOwnerAccess: dnHasPaidOrOwnerAccess(),
+    hasPaidAccess: dnHasPaidAccessOnly(),
     allowed: canAccessQuizFast(topic),
   };
 }
@@ -103,9 +91,7 @@ function getQuizLockState(topic) {
 window.dnNormalizeAccessSlug = dnNormalizeAccessSlug;
 window.dnGetFreePdfSubjects = dnGetFreePdfSubjects;
 window.dnGetFreeQuizTopics = dnGetFreeQuizTopics;
-window.dnIsOwnerModeSafe = dnIsOwnerModeSafe;
 window.dnHasPaidAccessSafe = dnHasPaidAccessSafe;
-window.dnHasPaidOrOwnerAccess = dnHasPaidOrOwnerAccess;
 window.canAccessPdfFast = canAccessPdfFast;
 window.canAccessQuizFast = canAccessQuizFast;
 window.getPdfLockState = getPdfLockState;
