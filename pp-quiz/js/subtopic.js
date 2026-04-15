@@ -46,38 +46,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       "equilibrium",
       "electro-chemistry",
       "industrial-chemistry-and-environmental-pollution"
-    ],
-    maths: [
-      "trignometry",
-      "remainder-theorm-and-factors",
-      "limit-and-differentiation",
-      "vectors",
-      "equilibrium-of-factors",
-      "inequalitis-and-modules-funtion",
-      "quadratic-equation",
-      "sysytem-of-forces",
-      "motion-of-straigt-line-and-velocity-time-curce",
-      "relatice-velocity",
-      "mathematical-induction",
-      "projectiles",
-      "relatice-acceleration",
-      "frction",
-      "frame-work",
-      "straight-line",
-      "circle",
-      "work-enegry-power",
-      "impulse-and-impact",
-      "circular-motion",
-      "probability",
-      "binomial-theorem",
-      "complex-numbers",
-      "simple-harmonic-motion",
-      "statistic",
-      "differenntitation-and-graphs",
-      "intergration",
-      "premutation-and-combination",
-      "series",
-      "center-of-gravity"
     ]
   };
 
@@ -160,7 +128,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function getSubjectLabel(subjectSlug) {
     if (subjectSlug === "chemistry") return "DinuuNOVA Chemistry";
-    if (subjectSlug === "maths") return "DinuuNOVA Maths";
     return "DinuuNOVA Physics";
   }
 
