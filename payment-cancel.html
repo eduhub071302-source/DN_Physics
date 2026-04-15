@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Payment Cancelled | DN Physics</title>
+  <title>Payment Cancelled | DinuuNOVA</title>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
   <main class="section">
     <div class="container">
       <div class="card" style="max-width:700px; margin:40px auto; text-align:center;">
-        <div style="font-size:48px; margin-bottom:12px;">❌</div>
+        <div style="font-size:32px; margin-bottom:12px; color:#ff8a8a; font-weight:700;">Cancelled</div>
 
         <h1>Payment Cancelled</h1>
-        <p>Your unlock purchase was cancelled or not completed.</p>
+        <p>Your payment was cancelled or not completed.</p>
 
         <p style="margin-top:10px; color:#a8b3cf; font-size:14px;">
           No charges were applied. You can try again anytime.
@@ -88,7 +88,7 @@
             await startFullUnlockCheckout();
           } catch (e) {
             console.log("Retry failed:", e);
-            alert("Unable to start payment. Please try again.");
+            alert("Unable to start payment right now. Please try again.");
           } finally {
             retryBtn.disabled = false;
             retryBtn.textContent = "🔁 Try Again";
