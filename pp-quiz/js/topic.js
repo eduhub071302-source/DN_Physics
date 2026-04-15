@@ -552,7 +552,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="topic-pill">Subtopic Practice</div>
           <h3 class="topic-title">${escapeHtml(subtopic.title)}</h3>
           <p class="topic-desc">
-            Build confidence with focused MCQ practice in ${escapeHtml(subtopic.title)}.
+            Practice ${escapeHtml(subtopic.title)} with focused MCQs.
           </p>
         </div>
         <div class="topic-icon" aria-hidden="true">${subtopic.icon || "📘"}</div>
@@ -619,7 +619,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   topicTitle.textContent = topicData.title || makeNiceTitle(topicSlug);
   topicHeroTitle.textContent = topicData.title || makeNiceTitle(topicSlug);
-  topicHeroText.textContent = `Choose a subtopic and continue your ${subject === "chemistry" ? "Chemistry" : "Physics"} past paper MCQ practice.`;
+  topicHeroText.textContent = "Choose a subtopic and continue your MCQ practice.";
 
   const subtopics = Array.isArray(topicData.subtopics) ? topicData.subtopics : [];
 
