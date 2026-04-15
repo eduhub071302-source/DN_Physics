@@ -17,7 +17,7 @@ function buildOnboardingSteps() {
     {
       target: "#onboardNotes",
       title: "Explore Notes",
-      text: "Open notes and start revising quickly.",
+      text: "Open notes and start revising.",
     },
     {
       target: "#onboardPractice",
@@ -33,8 +33,8 @@ function buildOnboardingSteps() {
       target: "#refreshBtn",
       title: "Refresh the App",
       text: mobile
-        ? "You can also swipe down from the top to refresh."
-        : "Click refresh here whenever you want the newest version.",
+        ? "Swipe down to refresh."
+        : "Use this to refresh the app.",
     },
   ];
 
@@ -42,7 +42,7 @@ function buildOnboardingSteps() {
     steps.push({
       target: "#installBtn",
       title: "Install App",
-      text: "Install it for faster access like a real app.",
+      text: "Install for faster access.",
     });
   }
 
