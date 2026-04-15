@@ -42,46 +42,6 @@ const SUBJECTS = {
       { slug: "electro-chemistry", title: "Electro Chemistry", icon: "🔋" },
       { slug: "industrial-chemistry-and-environmental-pollution", title: "Industrial Chemistry and Environmental Pollution", icon: "🏭" }
     ]
-  },
-
-  maths: {
-    pageTitle: "30 Main Topics",
-    heroPill: "DinuuNOVA Maths • Past Paper Practice",
-    heroTitle: "Train Like a Real Exam App",
-    heroDesc:
-      "Choose a topic and start practicing instantly. Focus on accuracy, speed, and consistency.",
-    topics: [
-      { slug: "trignometry", title: "Trignometry", icon: "📐" },
-      { slug: "remainder-theorm-and-factors", title: "Remainder Theorm and Factors", icon: "➗" },
-      { slug: "limit-and-differentiation", title: "Limit and Differentiation", icon: "📉" },
-      { slug: "vectors", title: "Vectors", icon: "↗️" },
-      { slug: "equilibrium-of-factors", title: "Equilibrium of Factors", icon: "⚖️" },
-      { slug: "inequalitis-and-modules-funtion", title: "Inequalitis and Modules Funtion", icon: "≠" },
-      { slug: "quadratic-equation", title: "Quadratic Equation", icon: "✖️" },
-      { slug: "sysytem-of-forces", title: "Sysytem of Forces", icon: "🧲" },
-      { slug: "motion-of-straigt-line-and-velocity-time-curce", title: "Motion of Straigt Line and Velocity Time Curce", icon: "🏃" },
-      { slug: "relatice-velocity", title: "Relatice Velocity", icon: "🚀" },
-      { slug: "mathematical-induction", title: "Mathematical Induction", icon: "🧠" },
-      { slug: "projectiles", title: "Projectiles", icon: "🎯" },
-      { slug: "relatice-acceleration", title: "Relatice Acceleration", icon: "⚡" },
-      { slug: "frction", title: "Frction", icon: "🪵" },
-      { slug: "frame-work", title: "Frame Work", icon: "🏗️" },
-      { slug: "straight-line", title: "Straight Line", icon: "📏" },
-      { slug: "circle", title: "Circle", icon: "⭕" },
-      { slug: "work-enegry-power", title: "Work, Enegry, Power", icon: "🔋" },
-      { slug: "impulse-and-impact", title: "Impulse and Impact", icon: "💥" },
-      { slug: "circular-motion", title: "Circular Motion", icon: "🌀" },
-      { slug: "probability", title: "Probability", icon: "🎲" },
-      { slug: "binomial-theorem", title: "Binomial Theorem", icon: "📘" },
-      { slug: "complex-numbers", title: "Complex Numbers", icon: "🔢" },
-      { slug: "simple-harmonic-motion", title: "Simple Harmonic Motion", icon: "🌊" },
-      { slug: "statistic", title: "Statistic", icon: "📊" },
-      { slug: "differenntitation-and-graphs", title: "Differenntitation and Graphs", icon: "📈" },
-      { slug: "intergration", title: "Intergration", icon: "∫" },
-      { slug: "premutation-and-combination", title: "Premutation and Combination", icon: "🔀" },
-      { slug: "series", title: "Series", icon: "🔁" },
-      { slug: "center-of-gravity", title: "Center of Gravity", icon: "⚪" }
-    ]
   }
 };
 
@@ -180,31 +140,36 @@ function renderTopics(container, topicList, subject) {
 
     card.setAttribute(
       "aria-label",
-      isAllowed ? `Open ${topic.title}` : `${topic.title} is locked`
+      isAllowed
+        ? `${topic.title} topic`
+        : `${topic.title} topic locked`
     );
-
-    card.style.animationDelay = `${index * 0.04}s`;
 
     card.innerHTML = `
       <div class="topic-card-top">
         <div class="topic-body">
-          <div class="topic-pill">${isAllowed ? "Free" : "Premium"}</div>
-          <h2 class="topic-title">${escapeHtml(topic.title)}</h2>
+          <div class="topic-pill">${subject === "chemistry" ? "Chemistry Topic" : "Physics Topic"}</div>
+          <h3 class="topic-title">${escapeHtml(topic.title)}</h3>
+          <p class="topic-desc">
+            Tap to open ${escapeHtml(topic.title)} practice questions.
+          </p>
         </div>
-        <div class="topic-icon" aria-hidden="true">${escapeHtml(topic.icon || "📘")}</div>
+        <div class="topic-icon" aria-hidden="true">${topic.icon || "📘"}</div>
       </div>
 
-      <span class="action-btn primary-btn enter-topic-btn">
-        ${isAllowed ? "Open Topic" : "🔒 Locked"}
-      </span>
+      <div class="topic-stats">
+        <span class="stat-pill">${isAllowed ? "Available" : "Premium"}</span>
+        <span class="stat-pill">Topic Practice</span>
+      </div>
+
+      <button class="action-btn enter-topic-btn" type="button" ${isAllowed ? "" : "disabled"}>
+        ${isAllowed ? "Open Topic" : "Locked"}
+      </button>
     `;
 
     if (!isAllowed) {
-      card.addEventListener("click", (e) => {
-        e.preventDefault();
-        if (typeof lockAlert === "function") {
-          lockAlert();
-        }
+      card.addEventListener("click", (event) => {
+        event.preventDefault();
       });
     }
 
@@ -213,14 +178,10 @@ function renderTopics(container, topicList, subject) {
 }
 
 function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, (char) => {
-    const map = {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    };
-    return map[char];
-  });
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
