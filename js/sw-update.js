@@ -265,6 +265,10 @@ async function performSafeUpdate() {
   const hasUpdate = await hasWaitingUpdate();
 
   if (!hasUpdate) {
+    hideUpdateModal();
+    hideLoadingOverlay();
+    refreshingNow = false;
+
     if (typeof window.showToast === "function") {
       window.showToast("✅ App is already up to date");
     }
@@ -334,7 +338,8 @@ async function registerServiceWorker(appPath = "") {
       newWorker.addEventListener("statechange", () => {
         if (
           newWorker.state === "installed" &&
-          navigator.serviceWorker.controller
+          navigator.serviceWorker.controller &&
+          registration.waiting
         ) {
           updateReady = true;
           showUpdateModal();
@@ -387,7 +392,15 @@ function setupRefreshActions() {
         showBusyUpdateMessage();
         return;
       }
+
       await performSafeUpdate();
+
+      setTimeout(() => {
+        if (!refreshingNow) {
+          hideUpdateModal();
+          hideLoadingOverlay();
+        }
+      }, 1500);
     });
   }
 }
