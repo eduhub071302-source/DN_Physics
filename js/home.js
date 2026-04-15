@@ -8,7 +8,7 @@ import {
 import { renderDashboard, checkCatalogVersion } from "/js/dashboard.js";
 import { setupOnboarding, startOnboarding } from "/js/onboarding.js";
 
-const APP_PATH = "";
+const APP_PATH = window.APP_BASE_PATH || "";
 
 let deferredPrompt = null;
 let touchStartY = 0;
@@ -536,7 +536,7 @@ function setupUnlockButton() {
       if (typeof window.openUnlockModal === "function") {
         window.openUnlockModal();
       } else {
-        console.error("openUnlockModal missing");
+        console.error("Unlock modal not available");
       }
     });
   }
