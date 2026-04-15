@@ -91,12 +91,12 @@ const DN_MUSIC_TRACKS = [
   function updateUI() {
     const track = getTrack(currentTrackIndex);
 
-    currentTrackLabel.textContent = track ? `Current: ${track.name}` : "Current: None";
+    currentTrackLabel.textContent = track ? track.name : "No track selected";
     playPauseBtn.textContent = isPlaying ? "⏸ Pause" : "▶ Play";
     trackSelect.value = String(currentTrackIndex);
 
     const panelOpen = musicPanel.classList.contains("show");
-    musicToggleBtn.setAttribute("aria-expanded", panelOpen ? "true" : "false");
+    musicToggleBtn.setAttribute("title", panelOpen ? "Close player" : "Open player");
     musicPanel.setAttribute("aria-hidden", panelOpen ? "false" : "true");
   }
 
@@ -211,7 +211,7 @@ const DN_MUSIC_TRACKS = [
       savedCurrentTime = 0;
     }
 
-    bgMusic.volume = savedVolume;
+    bgMusic.volume = Number.isFinite(savedVolume) ? savedVolume : 0.35;
     volumeSlider.value = String(savedVolume);
 
     renderTracks();
