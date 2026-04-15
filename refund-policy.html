@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Refund Policy | DN Physics</title>
+  <title>Refund Policy | DinuuNOVA</title>
   <meta name="theme-color" content="#4ea1ff" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="stylesheet" href="/css/style.css" />
@@ -172,7 +172,7 @@
 <body>
   <header class="site-header">
     <div class="container nav">
-      <div class="brand">DN <span>Physics</span></div>
+      <div class="brand">DinuuNOVA</div>
       <nav class="nav-links" aria-label="Refund navigation">
         <a href="/index.html">Home</a>
         <a href="/privacy.html">Privacy</a>
@@ -201,22 +201,23 @@
         </div>
 
         <div class="refund-panel">
-          <h2 style="margin-top: 0;">Refund Request Form</h2>
+          <h2 style="margin-top: 0;">Request a Refund</h2>
 
           <form id="refundForm" class="refund-form-grid">
-            <input id="refundName" type="text" placeholder="Your Name" required />
-            <input id="refundEmail" type="email" placeholder="Your Email" required />
+            <input id="refundName" type="text" placeholder="Name" required />
+            <input id="refundEmail" type="email" placeholder="Email" required />
             <input id="refundOrderId" type="text" placeholder="Order ID / Payment Reference" required />
 
             <select id="refundReason" required>
-              <option value="">Choose Refund Reason</option>
+              <select id="refundReason" required>
+              <option value="">Select Reason</option>
               <option value="duplicate-payment">Duplicate Payment</option>
               <option value="billing-issue">Billing Issue</option>
               <option value="technical-access-problem">Technical Access Problem</option>
               <option value="other">Other</option>
             </select>
 
-            <textarea id="refundMessage" placeholder="Explain the refund request clearly..." required></textarea>
+            <textarea id="refundMessage" placeholder="Explain your request..." required></textarea>
 
             <div class="refund-actions">
               <button id="refundSubmitBtn" class="btn btn-primary" type="submit">🧾 Submit Refund Request</button>
@@ -229,7 +230,7 @@
 
         <div class="history-dropdown" id="refundHistoryDropdown">
           <button id="refundHistoryToggle" class="history-toggle" type="button">
-            <span>Recent Refund Requests</span>
+            <span>Recent Requests</span>
             <span class="history-toggle-icon">⌄</span>
           </button>
 
@@ -240,7 +241,7 @@
                   <strong>No refund requests yet</strong>
                   <span class="refund-status open">Ready</span>
                 </div>
-                <div class="muted-text">Submitted refund requests will appear here.</div>
+                <div class="muted-text">Your requests will appear here.</div>
               </div>
             </div>
           </div>
@@ -425,7 +426,7 @@
       }
 
       if (!payload.name || !payload.email || !payload.order_id || !payload.reason || !payload.message) {
-        showRefundFeedback("Please fill all fields before submitting.", "error");
+        showRefundFeedback("Please fill all fields.", "error");
         return;
       }
 
