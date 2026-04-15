@@ -16,13 +16,11 @@
       box-shadow: 0 18px 44px rgba(0,0,0,0.24);
       margin-top: 18px;
     }
-
     .refund-form-grid {
       display: grid;
       gap: 12px;
       margin-top: 14px;
     }
-
     .refund-form-grid input,
     .refund-form-grid select,
     .refund-form-grid textarea {
@@ -38,40 +36,27 @@
       -webkit-appearance: none;
       -moz-appearance: none;
     }
-
     .refund-form-grid select {
       background: linear-gradient(180deg, rgba(17, 26, 43, 0.98), rgba(12, 18, 31, 0.98));
       color: #e8eefc;
     }
-
     .refund-form-grid select option {
       background: #101827;
       color: #e8eefc;
     }
-
     .refund-form-grid textarea {
       min-height: 140px;
       resize: vertical;
     }
-
-    .refund-form-grid input:focus,
-    .refund-form-grid select:focus,
-    .refund-form-grid textarea:focus {
-      border-color: rgba(78, 161, 255, 0.45);
-      box-shadow: 0 0 0 3px rgba(78, 161, 255, 0.12);
-    }
-
     .refund-actions {
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
       margin-top: 16px;
     }
-
     .refund-actions .btn {
       flex: 1 1 180px;
     }
-
     .refund-highlight {
       padding: 16px;
       border-radius: 18px;
@@ -81,7 +66,6 @@
       margin: 18px 0;
       line-height: 1.6;
     }
-
     .refund-feedback {
       margin-top: 12px;
       padding: 12px 14px;
@@ -90,23 +74,17 @@
       font-weight: 700;
       display: none;
     }
-
-    .refund-feedback.show {
-      display: block;
-    }
-
+    .refund-feedback.show { display: block; }
     .refund-feedback.success {
       background: rgba(76, 175, 80, 0.12);
       border: 1px solid rgba(76, 175, 80, 0.24);
       color: #a5efaa;
     }
-
     .refund-feedback.error {
       background: rgba(244, 67, 54, 0.12);
       border: 1px solid rgba(244, 67, 54, 0.24);
       color: #ffb3ad;
     }
-
     .history-dropdown {
       margin-top: 18px;
       border-radius: 18px;
@@ -114,7 +92,6 @@
       border: 1px solid rgba(255,255,255,0.06);
       background: rgba(255,255,255,0.03);
     }
-
     .history-toggle {
       width: 100%;
       min-height: 56px;
@@ -131,43 +108,28 @@
       font-weight: 800;
       text-align: left;
     }
-
-    .history-toggle:hover {
-      background: rgba(255,255,255,0.03);
-    }
-
     .history-toggle-icon {
       transition: transform 0.2s ease;
       font-size: 1rem;
       opacity: 0.9;
     }
-
-    .history-dropdown.open .history-toggle-icon {
-      transform: rotate(180deg);
-    }
-
+    .history-dropdown.open .history-toggle-icon { transform: rotate(180deg); }
     .history-content {
       display: none;
       padding: 0 16px 16px;
     }
-
-    .history-dropdown.open .history-content {
-      display: block;
-    }
-
+    .history-dropdown.open .history-content { display: block; }
     .refund-history-list {
       display: grid;
       gap: 12px;
       margin-top: 6px;
     }
-
     .refund-history-item {
       padding: 14px;
       border-radius: 16px;
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.06);
     }
-
     .refund-history-top {
       display: flex;
       justify-content: space-between;
@@ -175,7 +137,6 @@
       flex-wrap: wrap;
       margin-bottom: 8px;
     }
-
     .refund-status {
       display: inline-flex;
       align-items: center;
@@ -186,44 +147,25 @@
       font-size: 0.78rem;
       font-weight: 800;
     }
-
     .refund-status.open {
       background: rgba(255, 152, 0, 0.12);
       color: #ffcc80;
       border: 1px solid rgba(255, 152, 0, 0.24);
     }
-
     .refund-status.read {
       background: rgba(155, 89, 182, 0.12);
       color: #d7b7ff;
       border: 1px solid rgba(155, 89, 182, 0.24);
     }
-
     .refund-status.replied {
       background: rgba(78, 161, 255, 0.12);
       color: #9fd0ff;
       border: 1px solid rgba(78, 161, 255, 0.24);
     }
-
     .refund-status.closed {
       background: rgba(76, 175, 80, 0.12);
       color: #9be7a0;
       border: 1px solid rgba(76, 175, 80, 0.24);
-    }
-
-    @media (max-width: 768px) {
-      .topic-card,
-      .refund-panel {
-        padding: 20px !important;
-      }
-
-      .refund-actions {
-        flex-direction: column;
-      }
-
-      .refund-actions .btn {
-        width: 100%;
-      }
     }
   </style>
 </head>
@@ -258,43 +200,6 @@
           a refund will normally not be valid, unless required by law or approved at our discretion.
         </div>
 
-        <h2>1. Digital Product Nature</h2>
-        <p>
-          DN Physics provides digital educational content, premium access, and account-linked features.
-          Because access may begin immediately after purchase, refund eligibility can be limited.
-        </p>
-
-        <h2>2. Refund Request Window</h2>
-        <p>
-          Refund requests should be submitted as early as possible after purchase. Requests made after
-          meaningful account use, premium access consumption, or extended usage may not qualify.
-        </p>
-
-        <h2>3. 3-Day Usage Rule</h2>
-        <p>
-          If the purchased service has been used for more than 3 days after the purchase date,
-          refund eligibility is generally not available, except where legally required or in rare
-          exceptional cases approved by the platform owner.
-        </p>
-
-        <h2>4. Non-Refundable Situations</h2>
-        <p>
-          Refunds are typically not granted for completed digital access periods, consumed learning access,
-          accidental purchases caused by user error, or requests made after extended usage.
-        </p>
-
-        <h2>5. Exceptional Cases</h2>
-        <p>
-          We may review refund requests in exceptional situations such as duplicate payment,
-          verified technical billing error, or payment processing issue.
-        </p>
-
-        <h2>6. Contact for Refund Requests</h2>
-        <p>
-          Refund request reviews can be submitted through the form below or by contacting:
-          <strong>eduhub071302@gmail.com</strong>
-        </p>
-
         <div class="refund-panel">
           <h2 style="margin-top: 0;">Refund Request Form</h2>
 
@@ -311,23 +216,11 @@
               <option value="other">Other</option>
             </select>
 
-            <textarea
-              id="refundMessage"
-              placeholder="Explain the refund request clearly..."
-              required
-            ></textarea>
+            <textarea id="refundMessage" placeholder="Explain the refund request clearly..." required></textarea>
 
             <div class="refund-actions">
-              <button id="refundSubmitBtn" class="btn btn-primary" type="submit">
-                🧾 Submit Refund Request
-              </button>
-
-              <a
-                class="btn"
-                href="mailto:eduhub071302@gmail.com?subject=DN%20Physics%20Refund%20Request"
-              >
-                ✉ Email Refund Request
-              </a>
+              <button id="refundSubmitBtn" class="btn btn-primary" type="submit">🧾 Submit Refund Request</button>
+              <a class="btn" href="mailto:eduhub071302@gmail.com?subject=DN%20Physics%20Refund%20Request">✉ Email Refund Request</a>
             </div>
           </form>
 
@@ -353,9 +246,7 @@
           </div>
         </div>
 
-        <p style="margin-top: 24px; color: var(--muted); font-size: 0.92rem;">
-          Last updated: April 2026
-        </p>
+        <p style="margin-top: 24px; color: var(--muted); font-size: 0.92rem;">Last updated: April 2026</p>
       </div>
     </div>
   </main>
@@ -378,14 +269,6 @@
 
     function getCurrentUserId() {
       return getFirebaseUser()?.uid || getStoredUser()?.id || "";
-    }
-
-    function getCurrentUserEmail() {
-      return (
-        getFirebaseUser()?.email ||
-        getStoredUser()?.email ||
-        ""
-      ).toLowerCase();
     }
 
     function getRefundRequests() {
@@ -464,36 +347,25 @@
         const db = window.firebaseDb || null;
         const sdk = window.firebaseSdk || null;
         const uid = getCurrentUserId();
-        const email = getCurrentUserEmail();
 
         if (!db || !sdk?.ref || !sdk?.get || !uid) {
           renderRefundHistory();
           return;
         }
 
-        const snapshot = await sdk.get(sdk.ref(db, "refund_requests"));
+        const snapshot = await sdk.get(sdk.ref(db, `user_refund_requests/${uid}`));
         const all = snapshot.exists() ? (snapshot.val() || {}) : {};
 
         const mine = Object.entries(all)
           .map(([id, item]) => ({ id, ...(item || {}) }))
-          .filter((item) => {
-            const itemUid = String(item.uid || "").trim();
-            const itemEmail = String(item.email || "").trim().toLowerCase();
-            return itemUid === uid || (!!email && itemEmail === email);
-          })
           .sort((a, b) => {
             const aTime = new Date(a.createdAt || 0).getTime() || 0;
             const bTime = new Date(b.createdAt || 0).getTime() || 0;
             return bTime - aTime;
           });
 
-        if (mine.length) {
-          saveRefundRequests(mine);
-          renderRefundHistory(mine);
-          return;
-        }
-
-        renderRefundHistory();
+        saveRefundRequests(mine);
+        renderRefundHistory(mine);
       } catch (error) {
         console.warn("Could not pull refund history from Firebase:", error);
         renderRefundHistory();
@@ -503,7 +375,6 @@
     function showRefundFeedback(message, type = "success") {
       const box = document.getElementById("refundFeedback");
       if (!box) return;
-
       box.className = `refund-feedback show ${type}`;
       box.textContent = message;
     }
@@ -515,7 +386,6 @@
         "technical-access-problem": "Technical Access Problem",
         "other": "Other",
       };
-
       return map[value] || "Refund Request";
     }
 
@@ -533,9 +403,11 @@
       const reasonInput = document.getElementById("refundReason");
       const messageInput = document.getElementById("refundMessage");
 
+      const uid = getCurrentUserId();
+
       const payload = {
         id: generateRefundId(),
-        uid: getCurrentUserId(),
+        uid,
         name: String(nameInput?.value || "").trim(),
         email: String(emailInput?.value || "").trim(),
         order_id: String(orderIdInput?.value || "").trim(),
@@ -547,7 +419,7 @@
         createdAt: new Date().toLocaleString(),
       };
 
-      if (!payload.uid) {
+      if (!uid) {
         showRefundFeedback("Please log in before sending a refund request.", "error");
         return;
       }
@@ -567,10 +439,8 @@
         const sdk = window.firebaseSdk || null;
 
         if (db && sdk?.ref && sdk?.set) {
-          await sdk.set(
-            sdk.ref(db, `refund_requests/${payload.id}`),
-            payload,
-          );
+          await sdk.set(sdk.ref(db, `refund_requests/${payload.id}`), payload);
+          await sdk.set(sdk.ref(db, `user_refund_requests/${uid}/${payload.id}`), payload);
         }
 
         const existing = getRefundRequests();
@@ -599,7 +469,6 @@
     });
 
     renderRefundHistory();
-
     window.addEventListener("load", () => {
       pullRefundHistoryFromFirebase();
     });
