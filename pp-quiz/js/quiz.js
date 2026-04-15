@@ -120,14 +120,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   ];
 
   if (!topic || !subtopic) {
-    console.error("Missing topic or subtopic in URL.");
+    console.error("Missing topic or subtopic");
     if (quizTitle) quizTitle.textContent = "Quiz Not Found";
     if (quizSubtitle) quizSubtitle.textContent = "Missing topic or subtopic.";
     return;
   }
 
   if (requiredElements.some((el) => !el) || answerButtons.length === 0) {
-    console.error("Quiz page elements missing. Check quiz.html IDs and classes.");
+    console.error("Quiz page elements missing");
     return;
   }
 
