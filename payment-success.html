@@ -3,16 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Payment Success | DN Physics</title>
+  <title>Payment Status | DinuuNOVA</title>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
   <main class="section">
     <div class="container">
       <div class="card" style="max-width:700px; margin:40px auto; text-align:center;">
-        <div style="font-size:48px; margin-bottom:12px;">💳</div>
+        <div style="font-size:28px; margin-bottom:12px; color:#4ea1ff; font-weight:600;">
+          💳 Payment Status
+        </div>
         <h1 id="pageTitle">Verifying payment...</h1>
-        <p id="statusText">Please wait while we unlock your app.</p>
+        <p id="statusText">Please wait while we confirm your payment.</p>
 
         <div id="statusMeta" style="margin-top:10px; color:#a8b3cf; font-size:14px;"></div>
 
@@ -98,8 +100,8 @@
         if (!orderId) {
           setState(
             "No order found",
-            "We could not find a payment order ID for this transaction.",
-            "Please return home and try again if needed."
+            "We could not find your payment details.",
+            "Please return home and try again."
           );
           showActions();
           return;
@@ -111,7 +113,7 @@
         ) {
           setState(
             "Unlock system not ready",
-            "Payment verification tools are not available on this page.",
+            "Payment verification is not available right now.",
             "Please refresh the page or return home."
           );
           showActions();
@@ -124,7 +126,7 @@
 
         setState(
           "Verifying payment...",
-          "Please wait while we confirm your payment and unlock the app.",
+          "Please wait while we confirm your payment.",
           `Order ID: ${orderId}`
         );
 
@@ -140,7 +142,7 @@
 
               setState(
                 "Payment verified ✅",
-                "Your app has been unlocked successfully. Redirecting to home...",
+                "Your access has been activated. Redirecting...",
                 `Order ID: ${result.orderId || orderId}`
               );
 
@@ -154,7 +156,7 @@
             if (attempt < MAX_RETRIES) {
               setState(
                 "Still verifying...",
-                "Your payment may still be processing. We are checking again automatically.",
+                "Your payment is still processing. We will check again automatically.",
                 `Attempt ${attempt} of ${MAX_RETRIES} • Order ID: ${orderId}`
               );
 
@@ -164,7 +166,7 @@
 
             setState(
               "Verification delayed",
-              "Your payment is not confirmed yet. This can happen for a short time after payment.",
+              "Your payment is not confirmed yet. This can take a short time after payment.",
               `We checked ${MAX_RETRIES} times. Order ID: ${orderId}`
             );
             showActions();
@@ -175,7 +177,7 @@
             if (attempt < MAX_RETRIES) {
               setState(
                 "Connection issue...",
-                "We had a temporary issue while checking your payment. Retrying automatically...",
+                "There was a temporary issue checking your payment. Retrying...",
                 `Attempt ${attempt} of ${MAX_RETRIES} • Order ID: ${orderId}`
               );
 
@@ -185,7 +187,7 @@
 
             setState(
               "Verification failed",
-              "We could not confirm the payment right now due to a network or server issue.",
+              "We could not confirm your payment right now.",
               `Order ID: ${orderId}`
             );
             showActions();
