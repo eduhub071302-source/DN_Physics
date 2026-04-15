@@ -3,57 +3,11 @@ let fakeProgressTimer = null;
 let currentProgress = 0;
 let forceReloadTimer = null;
 let controllerChangeBound = false;
-let stageRotateTimer = null;
 let updateReady = false;
 let lastKnownRegistration = null;
 
-const UPDATE_TOTAL_BYTES = 2.8 * 1024 * 1024;
-
-const STAGE_GROUPS = {
-  early: [
-    "Scanning update package...",
-    "Checking core files...",
-    "Reading version manifest...",
-  ],
-  download: [
-    "Downloading core assets...",
-    "Updating interface files...",
-    "Refreshing app resources...",
-  ],
-  install: [
-    "Installing update package...",
-    "Applying new files...",
-    "Updating cached resources...",
-  ],
-  optimize: [
-    "Optimizing startup assets...",
-    "Refreshing offline cache...",
-    "Aligning app modules...",
-  ],
-  final: [
-    "Preparing restart...",
-    "Reconnecting services...",
-    "Finalizing update...",
-  ],
-};
-
 function getEl(id) {
   return document.getElementById(id);
-}
-
-function formatBytes(bytes) {
-  if (bytes < 1024) return `${Math.round(bytes)} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
-  if (bytes < 1024 * 1024 * 1024) {
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  }
-  return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
-}
-
-function pickStage(groupName) {
-  const list = STAGE_GROUPS[groupName] || ["Updating app..."];
-  const index = Math.floor(Math.random() * list.length);
-  return list[index];
 }
 
 function showLoadingOverlay() {
@@ -91,7 +45,11 @@ function hideUpdateModal() {
   document.body.style.overflow = "";
 }
 
-function setUpdateProgress(progress, stageText = "Updating app...") {
+function setUpdateProgress(
+  progress,
+  stageText = "Updating app",
+  detailText = "Please wait",
+) {
   const safeProgress = Math.max(0, Math.min(100, progress));
   currentProgress = safeProgress;
 
@@ -103,94 +61,73 @@ function setUpdateProgress(progress, stageText = "Updating app...") {
   if (fill) fill.style.width = `${safeProgress}%`;
   if (percent) percent.textContent = `${Math.round(safeProgress)}%`;
   if (stage) stage.textContent = stageText;
-
-  const doneBytes = (UPDATE_TOTAL_BYTES * safeProgress) / 100;
-  if (size) {
-    size.textContent = `${formatBytes(doneBytes)} / ${formatBytes(UPDATE_TOTAL_BYTES)}`;
-  }
+  if (size) size.textContent = detailText;
 
   setLoadingText(`${stageText} ${Math.round(safeProgress)}%`);
 }
 
-function stopStageRotation() {
-  if (stageRotateTimer) {
-    clearInterval(stageRotateTimer);
-    stageRotateTimer = null;
-  }
-}
-
-function startStageRotation() {
-  stopStageRotation();
-
-  stageRotateTimer = setInterval(() => {
-    if (currentProgress < 18) {
-      setUpdateProgress(currentProgress, pickStage("early"));
-      return;
-    }
-    if (currentProgress < 42) {
-      setUpdateProgress(currentProgress, pickStage("download"));
-      return;
-    }
-    if (currentProgress < 68) {
-      setUpdateProgress(currentProgress, pickStage("install"));
-      return;
-    }
-    if (currentProgress < 94) {
-      setUpdateProgress(currentProgress, pickStage("optimize"));
-      return;
-    }
-    if (currentProgress < 100) {
-      setUpdateProgress(currentProgress, pickStage("final"));
-    }
-  }, 900);
-}
-
-function startGameStyleProgress() {
+function startUpdateProgressFlow() {
   if (fakeProgressTimer) {
     clearInterval(fakeProgressTimer);
     fakeProgressTimer = null;
   }
 
-  currentProgress = 0;
-  setUpdateProgress(0, "Preparing update...");
-  startStageRotation();
+  currentProgress = 10;
+  setUpdateProgress(10, "Checking for update", "Preparing app update");
 
   fakeProgressTimer = setInterval(() => {
-    let stage = "Preparing update...";
-
-    if (currentProgress < 18) {
-      currentProgress += 3;
-      stage = pickStage("early");
-    } else if (currentProgress < 42) {
-      currentProgress += 2.8;
-      stage = pickStage("download");
-    } else if (currentProgress < 68) {
-      currentProgress += 2.1;
-      stage = pickStage("install");
-    } else if (currentProgress < 88) {
-      currentProgress += 1.2;
-      stage = pickStage("optimize");
-    } else if (currentProgress < 94) {
-      currentProgress += 0.5;
-      stage = pickStage("final");
+    if (currentProgress < 30) {
+      currentProgress += 10;
+      setUpdateProgress(
+        currentProgress,
+        "Checking for update",
+        "Preparing app update",
+      );
+      return;
     }
 
-    if (currentProgress > 94) currentProgress = 94;
-    setUpdateProgress(currentProgress, stage);
-  }, 180);
+    if (currentProgress < 55) {
+      currentProgress += 5;
+      setUpdateProgress(
+        currentProgress,
+        "Installing update",
+        "Updating app files",
+      );
+      return;
+    }
+
+    if (currentProgress < 80) {
+      currentProgress += 5;
+      setUpdateProgress(
+        currentProgress,
+        "Installing update",
+        "Finalizing update files",
+      );
+      return;
+    }
+
+    if (currentProgress < 90) {
+      currentProgress += 2;
+      setUpdateProgress(
+        currentProgress,
+        "Restarting app",
+        "Preparing refreshed version",
+      );
+      return;
+    }
+
+    clearInterval(fakeProgressTimer);
+    fakeProgressTimer = null;
+  }, 350);
 }
 
-function stopGameStyleProgress() {
+function finishUpdateProgressFlow() {
   if (fakeProgressTimer) {
     clearInterval(fakeProgressTimer);
     fakeProgressTimer = null;
   }
-  stopStageRotation();
-}
 
-function finishGameStyleProgress() {
-  stopGameStyleProgress();
-  setUpdateProgress(100, "Reconnect complete 🚀");
+  setUpdateProgress(100, "Updated", "Reloading app");
 }
 
 function isUserBusy() {
@@ -200,7 +137,7 @@ function isUserBusy() {
 function showBusyUpdateMessage() {
   setTimeout(() => {
     if (typeof window.showToast === "function") {
-      window.showToast("Finish quiz first ⚠️");
+      window.showToast("Finish quiz first");
     }
   }, 80);
 }
@@ -215,7 +152,7 @@ function clearForceReloadTimer() {
 function safeReloadNow() {
   clearForceReloadTimer();
   updateReady = false;
-  finishGameStyleProgress();
+  finishUpdateProgressFlow();
 
   setTimeout(() => {
     window.location.reload();
@@ -228,7 +165,7 @@ function bindControllerChangeReload() {
 
   navigator.serviceWorker.addEventListener("controllerchange", () => {
     if (!refreshingNow) return;
-    setUpdateProgress(99, "Reconnecting services...");
+    setUpdateProgress(99, "Restarting app", "Loading updated version");
     safeReloadNow();
   });
 }
@@ -262,6 +199,10 @@ async function hasWaitingUpdate() {
 async function performSafeUpdate() {
   if (refreshingNow) return;
 
+  showUpdateModal();
+  showLoadingOverlay();
+  setUpdateProgress(10, "Checking for update", "Preparing app update");
+
   const hasUpdate = await hasWaitingUpdate();
 
   if (!hasUpdate) {
@@ -270,17 +211,14 @@ async function performSafeUpdate() {
     refreshingNow = false;
 
     if (typeof window.showToast === "function") {
-      window.showToast("✅ App is already up to date");
+      window.showToast("App is already up to date");
     }
     return;
   }
 
   refreshingNow = true;
-
-  showUpdateModal();
-  showLoadingOverlay();
-  startGameStyleProgress();
   bindControllerChangeReload();
+  startUpdateProgressFlow();
 
   try {
     const registration =
@@ -290,12 +228,12 @@ async function performSafeUpdate() {
       lastKnownRegistration = registration;
 
       if (registration.waiting) {
-        setUpdateProgress(96, "Applying final patch...");
+        setUpdateProgress(92, "Restarting app", "Applying updated version");
         registration.waiting.postMessage({ type: "SKIP_WAITING" });
 
         clearForceReloadTimer();
         forceReloadTimer = setTimeout(() => {
-          setUpdateProgress(99, "Restoring connection...");
+          setUpdateProgress(96, "Restarting app", "Reloading updated version");
           safeReloadNow();
         }, 8000);
 
@@ -303,11 +241,11 @@ async function performSafeUpdate() {
       }
     }
 
-    setUpdateProgress(98, "Completing update...");
+    setUpdateProgress(96, "Restarting app", "Reloading updated version");
     safeReloadNow();
   } catch (error) {
-    console.log("Safe update error:", error);
-    setUpdateProgress(98, "Recovering update...");
+    console.warn("Update process error");
+    setUpdateProgress(96, "Restarting app", "Recovering update");
     safeReloadNow();
   }
 }
@@ -320,14 +258,14 @@ async function registerServiceWorker(appPath = "") {
       `${appPath}/service-worker.js`,
     );
     lastKnownRegistration = registration;
-    console.log("✅ Service Worker registered:", registration.scope);
+    console.log("Service worker registered");
 
     bindControllerChangeReload();
     await registration.update();
 
     setTimeout(() => {
-      registration.update().catch((error) => {
-        console.log("SW immediate recheck failed:", error);
+      registration.update().catch(() => {
+        console.warn("Service worker recheck failed");
       });
     }, 1200);
 
@@ -343,7 +281,7 @@ async function registerServiceWorker(appPath = "") {
         ) {
           updateReady = true;
           showUpdateModal();
-          setUpdateProgress(0, "Update ready to install");
+          setUpdateProgress(0, "Update ready", "A new version is ready to install");
         }
       });
     });
@@ -352,14 +290,14 @@ async function registerServiceWorker(appPath = "") {
       if (!event.data) return;
 
       if (event.data.type === "SW_UPDATED") {
-        console.log("✅ Service worker updated:", event.data.version);
-        setUpdateProgress(99, "Reconnecting services...");
+        console.log("Service worker updated");
+        setUpdateProgress(99, "Restarting app", "Loading updated version");
         safeReloadNow();
         return;
       }
 
       if (event.data.type === "SW_VERSION_READY") {
-        console.log("✅ Service worker ready:", event.data.version);
+        console.log("Service worker ready");
         return;
       }
 
@@ -368,7 +306,7 @@ async function registerServiceWorker(appPath = "") {
       }
     });
   } catch (error) {
-    console.log("❌ Service Worker failed:", error);
+    console.warn("Service worker failed");
   }
 }
 
@@ -417,6 +355,6 @@ export {
   showBusyUpdateMessage,
   showLoadingOverlay,
   showUpdateModal,
-  startGameStyleProgress,
-  finishGameStyleProgress,
+  startUpdateProgressFlow,
+  finishUpdateProgressFlow,
 };
