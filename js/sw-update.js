@@ -254,7 +254,7 @@ async function hasWaitingUpdate() {
     updateReady = false;
     return false;
   } catch (error) {
-    console.log("hasWaitingUpdate check failed:", error);
+    console.warn("Update check failed");
     return false;
   }
 }
