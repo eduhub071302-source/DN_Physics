@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Offline | DinuuNOVA Physics</title>
+  <title>Offline | DinuuNOVA</title>
   <link rel="stylesheet" href="/css/style.css" />
   <style>
     .offline-page {
@@ -120,7 +120,7 @@
     }
 
     .offline-tip {
-      margin: 18px 0 0;
+      margin: 14px 0 0;
       padding: 14px;
       border-radius: 16px;
       background: rgba(78, 161, 255, 0.08);
@@ -188,18 +188,18 @@
         <h1 id="offlineTitle" class="offline-title">No internet connection</h1>
 
         <p id="offlineText1" class="offline-text">
-          Your device is currently offline, so new content cannot be loaded right now.
+          You are currently offline. New content cannot be loaded.
         </p>
 
         <p id="offlineText2" class="offline-text">
-          Previously opened notes and PDFs may still work offline until your connection returns.
+          Previously opened notes may still be available.
         </p>
 
         <div class="offline-tip">
-          <strong>What you can do now:</strong><br>
-          • Try <strong>Refresh</strong> after reconnecting<br>
-          • Go to <strong>Home</strong><br>
-          • Open the <strong>Notes Library</strong> to check cached content
+          <strong>Try this:</strong><br>
+          • Refresh after reconnecting<br>
+          • Go to Home<br>
+          • Open Notes
         </div>
 
         <div class="offline-actions">
@@ -244,10 +244,10 @@
           offlineText1.textContent = "Your device is back online and the app can load new content again.";
         }
         if (offlineText2) {
-          offlineText2.textContent = "You can refresh now or go back to continue using DN Physics.";
+          offlineText2.textContent = "You can refresh or continue using the app.";
         }
       } else {
-        statusEl.textContent = "No internet connection. Reconnecting…";
+        statusEl.textContent = "Reconnecting…";
         statusEl.classList.remove("online");
 
         if (offlineIcon) offlineIcon.classList.remove("online-ready");
