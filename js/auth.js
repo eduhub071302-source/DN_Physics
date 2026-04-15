@@ -29,7 +29,7 @@
   const PROFILE_KEY = "dn_profile";
   const APP_MODE_KEY = "dn_app_mode";
   const GUEST_PROFILE_KEY = "dn_guest_profile";
-  const ACTIVE_OWNER_KEY = "dn_active_owner";
+  // removed owner mode (not used in production)
   const DEFAULT_AVATAR = "avatar-01";
 
   function getEls() {
@@ -198,14 +198,6 @@
     safeRemoveLocal(sessionKey);
   }
 
-  function getActiveOwner() {
-    return safeGetLocal(ACTIVE_OWNER_KEY) || "guest";
-  }
-
-  function setActiveOwner(ownerId) {
-    safeSetLocal(ACTIVE_OWNER_KEY, ownerId || "guest");
-  }
-
   function showAccountTransition(message = "Switching account...") {
     const overlay = document.getElementById("accountTransitionOverlay");
     const text = document.getElementById("accountTransitionText");
@@ -302,7 +294,6 @@
 
   function enterGuestMode() {
     setAppMode("guest");
-    setActiveOwner("guest");
     clearUser();
     clearSessionToken();
     clearProfileCache();
@@ -555,7 +546,6 @@
     };
 
     setAppMode("account");
-    setActiveOwner(user.uid);
     setUser(userObj);
     setSessionToken(accessToken || "");
 
