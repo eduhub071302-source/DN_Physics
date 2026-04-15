@@ -42,7 +42,7 @@ function dnParseProgressKey(key) {
   const parts = String(key || "").split("__");
 
   return {
-    subject_slug: parts[0] || "physics",
+    subject_slug: parts[0] || "",
     topic_slug: parts[1] || "",
     subtopic_slug: parts[2] || "",
     set_slug: parts[3] || "set-1",
@@ -50,7 +50,7 @@ function dnParseProgressKey(key) {
 }
 
 function dnBuildProgressKey(subject, topic, subtopic = "", setName = "set-1") {
-  return `${subject || "physics"}__${topic || ""}__${subtopic || ""}__${setName || "set-1"}`;
+  return `${subject || ""}__${topic || ""}__${subtopic || ""}__${setName || "set-1"}`;
 }
 
 async function dnGetAuthedUser() {
@@ -128,7 +128,7 @@ async function syncLocalProgressToCloud() {
 
       rows[key] = {
         user_id: user.uid,
-        subject_slug: parsed.subject_slug || "physics",
+        subject_slug: parsed.subject_slug || "",
         topic_slug: parsed.topic_slug || "",
         subtopic_slug: parsed.subtopic_slug || "",
         set_slug: parsed.set_slug || "set-1",
