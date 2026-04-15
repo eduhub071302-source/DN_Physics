@@ -3,15 +3,6 @@ const ADMIN_EMAILS = [
   "eduhub0713@gmail.com"
 ];
 
-function isAdminUser() {
-  try {
-    const email = String(window.firebaseAuth?.currentUser?.email || "").toLowerCase();
-    return Boolean(email && ADMIN_EMAILS.includes(email));
-  } catch {
-    return false;
-  }
-}
-
 const state = {
   allItems: [],
   filteredItems: [],
@@ -61,8 +52,8 @@ function getCurrentUser() {
 
 function isAdminUser() {
   try {
-    const uid = window.firebaseAuth?.currentUser?.uid || "";
-    return Boolean(uid && ADMIN_UIDS.includes(uid));
+    const email = String(window.firebaseAuth?.currentUser?.email || "").toLowerCase();
+    return Boolean(email && ADMIN_EMAILS.includes(email));
   } catch {
     return false;
   }
@@ -238,8 +229,9 @@ function renderDetail() {
     return;
   }
 
-  const item = state.filteredItems.find((x) => x.id === state.selectedId) ||
-               state.allItems.find((x) => x.id === state.selectedId);
+  const item =
+    state.filteredItems.find((x) => x.id === state.selectedId) ||
+    state.allItems.find((x) => x.id === state.selectedId);
 
   if (!item) {
     wrap.innerHTML = `<div class="admin-detail-empty">Request not found.</div>`;
