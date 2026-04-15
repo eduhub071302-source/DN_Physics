@@ -284,6 +284,10 @@ async function startFullUnlockCheckout() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          uid:
+            window.firebaseAuth?.currentUser?.uid ||
+            JSON.parse(localStorage.getItem("dn_user") || "null")?.id ||
+            "",
           first_name: user.name || "DN",
           last_name: "User",
           email: user.email || "student@example.com",
