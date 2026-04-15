@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const SUBJECT_TOPIC_DATA = {
     physics: {
-      "units": {
+      units: {
         title: "Units",
         icon: "📏",
         subtopics: [
@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ]
       },
 
-      "mechanics": {
+      mechanics: {
         title: "Mechanics",
         icon: "⚙️",
         subtopics: [
@@ -113,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ]
       },
 
-      "electronics": {
+      electronics: {
         title: "Electronics",
         icon: "💻",
         subtopics: [
@@ -199,7 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ]
       },
 
-      "energetic": {
+      energetic: {
         title: "Energetic",
         icon: "🔥",
         subtopics: [
@@ -298,7 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ]
       },
 
-      "equilibrium": {
+      equilibrium: {
         title: "Equilibrium",
         icon: "⚖️",
         subtopics: [
@@ -342,39 +342,6 @@ document.addEventListener("DOMContentLoaded", () => {
           { slug: "oxygen-concentration-in-water", title: "Oxygen Concentration in Water", icon: "🫧" }
         ]
       }
-    },
-
-    maths: {
-      "trignometry": { title: "Trignometry", icon: "📐" },
-      "remainder-theorm-and-factors": { title: "Remainder Theorm and Factors", icon: "➗" },
-      "limit-and-differentiation": { title: "Limit and Differentiation", icon: "📉" },
-      "vectors": { title: "Vectors", icon: "↗️" },
-      "equilibrium-of-factors": { title: "Equilibrium of Factors", icon: "⚖️" },
-      "inequalitis-and-modules-funtion": { title: "Inequalitis and Modules Funtion", icon: "≠" },
-      "quadratic-equation": { title: "Quadratic Equation", icon: "✖️" },
-      "sysytem-of-forces": { title: "Sysytem of Forces", icon: "🧲" },
-      "motion-of-straigt-line-and-velocity-time-curce": { title: "Motion of Straigt Line and Velocity Time Curce", icon: "🏃" },
-      "relatice-velocity": { title: "Relatice Velocity", icon: "🚀" },
-      "mathematical-induction": { title: "Mathematical Induction", icon: "🧠" },
-      "projectiles": { title: "Projectiles", icon: "🎯" },
-      "relatice-acceleration": { title: "Relatice Acceleration", icon: "⚡" },
-      "frction": { title: "Frction", icon: "🪵" },
-      "frame-work": { title: "Frame Work", icon: "🏗️" },
-      "straight-line": { title: "Straight Line", icon: "📏" },
-      "circle": { title: "Circle", icon: "⭕" },
-      "work-enegry-power": { title: "Work, Enegry, Power", icon: "🔋" },
-      "impulse-and-impact": { title: "Impulse and Impact", icon: "💥" },
-      "circular-motion": { title: "Circular Motion", icon: "🌀" },
-      "probability": { title: "Probability", icon: "🎲" },
-      "binomial-theorem": { title: "Binomial Theorem", icon: "📘" },
-      "complex-numbers": { title: "Complex Numbers", icon: "🔢" },
-      "simple-harmonic-motion": { title: "Simple Harmonic Motion", icon: "🌊" },
-      "statistic": { title: "Statistic", icon: "📊" },
-      "differenntitation-and-graphs": { title: "Differenntitation and Graphs", icon: "📈" },
-      "intergration": { title: "Intergration", icon: "∫" },
-      "premutation-and-combination": { title: "Premutation and Combination", icon: "🔀" },
-      "series": { title: "Series", icon: "🔁" },
-      "center-of-gravity": { title: "Center of Gravity", icon: "⚪" }
     }
   };
 
@@ -407,38 +374,6 @@ document.addEventListener("DOMContentLoaded", () => {
       "equilibrium",
       "electro-chemistry",
       "industrial-chemistry-and-environmental-pollution"
-    ],
-    maths: [
-      "trignometry",
-      "remainder-theorm-and-factors",
-      "limit-and-differentiation",
-      "vectors",
-      "equilibrium-of-factors",
-      "inequalitis-and-modules-funtion",
-      "quadratic-equation",
-      "sysytem-of-forces",
-      "motion-of-straigt-line-and-velocity-time-curce",
-      "relatice-velocity",
-      "mathematical-induction",
-      "projectiles",
-      "relatice-acceleration",
-      "frction",
-      "frame-work",
-      "straight-line",
-      "circle",
-      "work-enegry-power",
-      "impulse-and-impact",
-      "circular-motion",
-      "probability",
-      "binomial-theorem",
-      "complex-numbers",
-      "simple-harmonic-motion",
-      "statistic",
-      "differenntitation-and-graphs",
-      "intergration",
-      "premutation-and-combination",
-      "series",
-      "center-of-gravity"
     ]
   };
 
@@ -450,99 +385,30 @@ document.addEventListener("DOMContentLoaded", () => {
   const topicHeroTitle = document.getElementById("topicHeroTitle");
   const topicHeroText = document.getElementById("topicHeroText");
   const subtopicsGrid = document.getElementById("subtopicsGrid");
+  const backToTopicsLink = document.getElementById("backToTopicsLink");
   const refreshTopicBtn = document.getElementById("refreshTopicBtn");
-  const backToTopicsLink = document.getElementById("backToTopicsLink") || document.querySelector(".back-link");
 
-  const sectionTitleEl = document.querySelector('section.fade-slide-up h3');
-  const sectionDescEl = document.querySelector('section.fade-slide-up p');
-  const topicPillEl = document.querySelector(".topic-card .topic-pill");
-
-  if (!topicTitle || !subtopicsGrid) {
-    console.error("topic.html is missing required elements.");
+  if (!topicTitle || !topicHeroTitle || !topicHeroText || !subtopicsGrid || !backToTopicsLink) {
+    console.error("Topic page elements not found.");
     return;
   }
 
-  const currentSubjectData = SUBJECT_TOPIC_DATA[subject];
-  if (!currentSubjectData) {
-    topicTitle.textContent = "Subject Not Found";
-    if (topicHeroTitle) topicHeroTitle.textContent = "Subject Not Found";
-    if (topicHeroText) topicHeroText.textContent = "The subject you selected is invalid.";
-    renderEmptyState("Invalid subject selected", "Please go back and choose a valid subject.");
-    return;
-  }
+  function getCurrentUserId() {
+    try {
+      const firebaseUid = window.firebaseAuth?.currentUser?.uid;
+      if (firebaseUid) return firebaseUid;
 
-  const currentTopic = currentSubjectData[topicSlug];
-  if (!topicSlug || !currentTopic) {
-    topicTitle.textContent = "Topic Not Found";
-    if (topicHeroTitle) topicHeroTitle.textContent = "Topic Not Found";
-    if (topicHeroText) topicHeroText.textContent = "The topic you selected is invalid or missing.";
-    renderEmptyState("Invalid topic selected", "Please go back and choose a valid topic.");
-    updateBackLink(subject);
-    return;
-  }
-
-  if (!canAccessCurrentTopic(subject, topicSlug)) {
-    topicTitle.textContent = "🔒 Locked Topic";
-
-    if (topicHeroTitle) topicHeroTitle.textContent = "Premium Content";
-    if (topicHeroText) {
-      topicHeroText.textContent = "Only lesson 1 is free. Unlock to access all topics.";
+      const cachedUser = JSON.parse(localStorage.getItem("dn_user") || "null");
+      if (cachedUser?.id) return cachedUser.id;
+    } catch (error) {
+      console.warn("Could not resolve current user id:", error);
     }
 
-    if (sectionTitleEl) sectionTitleEl.textContent = "Locked Topic";
-    if (sectionDescEl) sectionDescEl.textContent = "Unlock premium access to continue.";
-
-    renderEmptyState("This topic is locked 🔒", "Only lesson 1 is free. Unlock all topics to continue.");
-    updateBackLink(subject);
-    setupRefresh();
-    return;
+    return "guest";
   }
 
-  topicTitle.textContent = currentTopic.title;
-  if (topicHeroTitle) topicHeroTitle.textContent = currentTopic.title;
-  if (topicPillEl) topicPillEl.textContent = `${getSubjectLabel(subject)} • Topic Practice`;
-  updateBackLink(subject);
-  setupRefresh();
-
-  if (subject === "maths") {
-    if (sectionTitleEl) sectionTitleEl.textContent = "Start Practice";
-    if (sectionDescEl) sectionDescEl.textContent = "Tap below to begin your maths practice.";
-    if (topicHeroText) {
-      topicHeroText.textContent = `Start focused practice for ${currentTopic.title} using the same quiz system.`;
-    }
-
-    subtopicsGrid.innerHTML = "";
-    subtopicsGrid.appendChild(createMathsPracticeCard(subject, topicSlug, currentTopic, 0));
-    return;
-  }
-
-  if (sectionTitleEl) sectionTitleEl.textContent = "Select a Subtopic";
-  if (sectionDescEl) sectionDescEl.textContent = "Tap a subtopic to continue your practice.";
-
-  if (topicHeroText) {
-    topicHeroText.textContent = `Choose a subtopic under ${currentTopic.title} and continue your focused past paper MCQ practice.`;
-  }
-
-  subtopicsGrid.innerHTML = "";
-
-  if (!Array.isArray(currentTopic.subtopics) || currentTopic.subtopics.length === 0) {
-    renderEmptyState("No subtopics found yet", "Add subtopics for this topic to start building quiz sets.");
-    return;
-  }
-
-  currentTopic.subtopics.forEach((subtopic, index) => {
-    subtopicsGrid.appendChild(createSubtopicCard(subject, topicSlug, subtopic, index));
-  });
-
-  function getSubjectLabel(subjectSlug) {
-    if (subjectSlug === "chemistry") return "DinuuNOVA Chemistry";
-    if (subjectSlug === "maths") return "DinuuNOVA Maths";
-    return "DinuuNOVA Physics";
-  }
-
-  function updateBackLink(subjectSlug) {
-    if (!backToTopicsLink) return;
-    backToTopicsLink.href = `/pp-quiz/index.html?subject=${encodeURIComponent(subjectSlug)}`;
+  function getQuizProgressStorageKey() {
+    return `${QUIZ_PROGRESS_KEY}_${getCurrentUserId()}`;
   }
 
   function setupRefresh() {
@@ -556,6 +422,102 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function updateBackLink() {
+    backToTopicsLink.href = `/pp-quiz/index.html?subject=${encodeURIComponent(subject)}`;
+  }
+
+  function makeNiceTitle(slug) {
+    return (slug || "")
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function getProgressStore() {
+    try {
+      return JSON.parse(localStorage.getItem(getQuizProgressStorageKey())) || {};
+    } catch {
+      return {};
+    }
+  }
+
+  function getQuizProgressId(subjectSlug, topicSlugValue, subtopicSlug, setName = "set-1") {
+    return `${subjectSlug}__${topicSlugValue}__${subtopicSlug || ""}__${setName}`;
+  }
+
+  function getLegacySavedStats(topicSlugValue, subtopicSlug, setName = "set-1") {
+    const key = `dn_physics_pp-quiz_${topicSlugValue}_${subtopicSlug}_${setName}`;
+    try {
+      return JSON.parse(localStorage.getItem(key)) || null;
+    } catch {
+      return null;
+    }
+  }
+
+  function normalizeStats(stats) {
+    if (!stats) {
+      return {
+        attempts: 0,
+        bestPercentage: "0.0",
+        bestFullBadgePercentage: null,
+        lastPlayedAt: "Never",
+        streak: 0,
+        completedFullQuiz: false
+      };
+    }
+
+    return {
+      attempts: Number(stats.attempts) || 0,
+      bestPercentage: stats.bestPercentage ?? "0.0",
+      bestFullBadgePercentage:
+        stats.bestFullBadgePercentage == null
+          ? (stats.bestPercentage == null ? null : Number(stats.bestPercentage) || 0)
+          : Number(stats.bestFullBadgePercentage) || 0,
+      lastPlayedAt: stats.lastPlayedAt || "Never",
+      streak: Number(stats.streak) || 0,
+      completedFullQuiz: Boolean(stats.completedFullQuiz)
+    };
+  }
+
+  function getSavedStats(subjectSlug, topicSlugValue, subtopicSlug, setName = "set-1") {
+    const store = getProgressStore();
+    const id = getQuizProgressId(subjectSlug, topicSlugValue, subtopicSlug, setName);
+
+    if (store[id]) return normalizeStats(store[id]);
+
+    if (subjectSlug === "physics") {
+      const legacy = getLegacySavedStats(topicSlugValue, subtopicSlug, setName);
+      if (legacy) return normalizeStats(legacy);
+    }
+
+    return normalizeStats(null);
+  }
+
+  function getBadgeData(p) {
+    const value = Number(p) || 0;
+    if (value >= 90) return { label: "🥇 Gold", className: "badge-gold" };
+    if (value >= 75) return { label: "🥈 Silver", className: "badge-silver" };
+    if (value >= 50) return { label: "🥉 Bronze", className: "badge-bronze" };
+    return null;
+  }
+
+  function getMasteryLevel(p) {
+    const value = Number(p) || 0;
+    if (value >= 90) return "Mastered";
+    if (value >= 75) return "Strong";
+    if (value >= 50) return "Improving";
+    return "Beginner";
+  }
+
   function canAccessCurrentTopic(subjectSlug, currentTopicSlug) {
     if (typeof hasPaidAccess === "function" && hasPaidAccess()) {
       return true;
@@ -565,391 +527,109 @@ document.addEventListener("DOMContentLoaded", () => {
     return orderedTopics[0] === currentTopicSlug;
   }
 
-  function getBadgeData(percentage) {
-    const value = Number(percentage) || 0;
-
-    if (value >= 90) return { label: "Gold 🥇", className: "badge-gold" };
-    if (value >= 75) return { label: "Silver 🥈", className: "badge-silver" };
-    if (value >= 50) return { label: "Bronze 🥉", className: "badge-bronze" };
-
-    return null;
-  }
-
-  function getMasteryLevel(bestFullQuizPercentage) {
-    const value = Number(bestFullQuizPercentage) || 0;
-
-    if (value >= 90) return "Mastered";
-    if (value >= 75) return "Strong";
-    if (value >= 50) return "Improving";
-
-    return "Beginner";
-  }
-
-  function getCurrentUserId() {
-    try {
-      const cachedUser = JSON.parse(localStorage.getItem("dn_user") || "null");
-      if (cachedUser?.id) return cachedUser.id;
- 
-      const rawSupabase = localStorage.getItem("supabase.auth.token");
-      if (rawSupabase) {
-        const parsed = JSON.parse(rawSupabase);
-        const sessionUser = parsed?.currentSession?.user || parsed?.user || null;
-        if (sessionUser?.id) return sessionUser.id;
-      }
-    } catch (error) {
-      console.warn("Could not resolve current user id:", error);
-    }
-
-    return "guest";
-  }
-
-  function getProgressKey() {
-    return `dnPhysicsQuizProgress_${getCurrentUserId()}`;
-  }
-
-  function getProgressStore() {
-    try {
-      return JSON.parse(localStorage.getItem(getProgressKey())) || {};
-    } catch {
-      return {};
-    }
-  }
-
-  function getLegacySavedStats(topic, subtopic, setName = "set-1") {
-    const currentUserId = getCurrentUserId();
-
-    const userScopedLegacyKey = `dn_${currentUserId}_pp-quiz_${topic}_${subtopic}_${setName}`;
-    try {
-      const scoped = JSON.parse(localStorage.getItem(userScopedLegacyKey) || "null");
-      if (scoped) return scoped;
-    } catch {}
-
-    const oldGlobalKey = `dn_physics_pp-quiz_${topic}_${subtopic}_${setName}`;
-    try {
-      return JSON.parse(localStorage.getItem(oldGlobalKey)) || null;
-    } catch {
-      return null;
-    }
-  }
-
-  function getQuizProgressId(subjectSlug, topic, subtopic = "", setName = "set-1") {
-    return `${subjectSlug}__${topic}__${subtopic}__${setName}`;
-  }
-
-  function normalizeStats(stats) {
-    if (!stats || typeof stats !== "object") return null;
-
-    return {
-      attempts: Number(stats.attempts) || 0,
-      bestFullBadgePercentage:
-        stats.bestFullBadgePercentage === null || stats.bestFullBadgePercentage === undefined
-          ? (stats.bestPercentage === null || stats.bestPercentage === undefined ? null : Number(stats.bestPercentage) || 0)
-          : Number(stats.bestFullBadgePercentage) || 0,
-      lastPlayedAt: stats.lastPlayedAt || "Never",
-      streak: Number(stats.streak) || 0,
-      completedFullQuiz: Boolean(stats.completedFullQuiz)
-    };
-  }
-
-  function getSavedStats(subjectSlug, topic, subtopic = "", setName = "set-1") {
-    const store = getProgressStore();
-    const id = getQuizProgressId(subjectSlug, topic, subtopic, setName);
-
-    if (store[id]) return normalizeStats(store[id]);
-
-    if (subjectSlug === "physics" && subtopic) {
-      const legacy = getLegacySavedStats(topic, subtopic, setName);
-      if (legacy) return normalizeStats(legacy);
-    }
-
-    return null;
-  }
-
-  function calculateSubtopicSummary(subjectSlug, topic, subtopic) {
-    const stats = getSavedStats(subjectSlug, topic, subtopic, "set-1");
-
-    if (!stats) {
-      return {
-        attempts: 0,
-        bestFull: null,
-        mastery: "Beginner",
-        lastPlayed: "Never",
-        streak: 0,
-        completed: false,
-        progress: 0
-      };
-    }
-
-    const attempts = stats.attempts;
-    const bestFull = stats.bestFullBadgePercentage;
-    const mastery = getMasteryLevel(bestFull);
-    const lastPlayed = stats.lastPlayedAt || "Never";
-    const streak = stats.streak;
-    const completed = stats.completedFullQuiz;
-
-    let progress = 0;
-    if (completed) {
-      progress = 100;
-    } else if (bestFull !== null) {
-      progress = Math.max(0, Math.min(100, Number(bestFull)));
-    }
-
-    return {
-      attempts,
-      bestFull,
-      mastery,
-      lastPlayed,
-      streak,
-      completed,
-      progress
-    };
-  }
-
-  function calculateMathsTopicSummary(subjectSlug, topic) {
-    const stats = getSavedStats(subjectSlug, topic, "", "set-1");
-
-    if (!stats) {
-      return {
-        attempts: 0,
-        bestFull: null,
-        mastery: "Beginner",
-        lastPlayed: "Never",
-        streak: 0,
-        completed: false,
-        progress: 0
-      };
-    }
-
-    const attempts = stats.attempts;
-    const bestFull = stats.bestFullBadgePercentage;
-    const mastery = getMasteryLevel(bestFull);
-    const lastPlayed = stats.lastPlayedAt || "Never";
-    const streak = stats.streak;
-    const completed = stats.completedFullQuiz;
-
-    let progress = 0;
-    if (completed) {
-      progress = 100;
-    } else if (bestFull !== null) {
-      progress = Math.max(0, Math.min(100, Number(bestFull)));
-    }
-
-    return {
-      attempts,
-      bestFull,
-      mastery,
-      lastPlayed,
-      streak,
-      completed,
-      progress
-    };
-  }
-
-  function escapeHtml(value) {
-    return String(value).replace(/[&<>"']/g, (char) => {
-      const map = {
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        "\"": "&quot;",
-        "'": "&#39;"
-      };
-      return map[char];
-    });
-  }
-
-  function getSubtopicDescription(title, mastery, attempts) {
-    if (attempts === 0) {
-      return `Start practicing ${title.toLowerCase()} with focused MCQ training.`;
-    }
-
-    if (mastery === "Mastered") {
-      return "Excellent work. Keep sharpening this area with revision attempts.";
-    }
-
-    if (mastery === "Strong") {
-      return "You already have strong progress here. Push toward full mastery.";
-    }
-
-    if (mastery === "Improving") {
-      return "Solid foundation built. More focused practice can lift accuracy fast.";
-    }
-
-    return "Build confidence step by step with repeated practice on this area.";
-  }
-
-  function attachSmoothCardTouch(card) {
-    let startX = 0;
-    let startY = 0;
-    let moved = false;
-    let touching = false;
-
-    const MOVE_LIMIT = 10;
-
-    card.addEventListener("touchstart", (event) => {
-      if (!event.touches || event.touches.length !== 1) return;
-
-      const touch = event.touches[0];
-      startX = touch.clientX;
-      startY = touch.clientY;
-      moved = false;
-      touching = true;
-
-      card.classList.add("card-touch-active");
-    }, { passive: true });
-
-    card.addEventListener("touchmove", (event) => {
-      if (!touching || !event.touches) return;
-
-      const touch = event.touches[0];
-      const dx = Math.abs(touch.clientX - startX);
-      const dy = Math.abs(touch.clientY - startY);
-
-      if (dx > MOVE_LIMIT || dy > MOVE_LIMIT) {
-        moved = true;
-        card.classList.remove("card-touch-active");
-      }
-    }, { passive: true });
-
-    card.addEventListener("touchend", () => {
-      touching = false;
-      setTimeout(() => {
-        card.classList.remove("card-touch-active");
-      }, 80);
-    }, { passive: true });
-
-    card.addEventListener("touchcancel", () => {
-      touching = false;
-      moved = true;
-      card.classList.remove("card-touch-active");
-    }, { passive: true });
-
-    card.addEventListener("click", (event) => {
-      if (moved) {
-        event.preventDefault();
-        moved = false;
-      }
-    });
-  }
-
-  function createSubtopicCard(subjectSlug, topicSlugValue, subtopic, index) {
-    const summary = calculateSubtopicSummary(subjectSlug, topicSlugValue, subtopic.slug);
-    const badge = summary.bestFull !== null ? getBadgeData(summary.bestFull) : null;
-
-    const card = document.createElement("a");
-    card.className = "topic-card fade-slide-up";
-    card.href = `/pp-quiz/subtopic.html?subject=${encodeURIComponent(subjectSlug)}&topic=${encodeURIComponent(topicSlugValue)}&subtopic=${encodeURIComponent(subtopic.slug)}`;
-    card.setAttribute("aria-label", `Open ${subtopic.title}`);
-    card.style.animationDelay = `${index * 0.04}s`;
-
-    const actionText = summary.completed
-      ? "Continue Mastering"
-      : summary.attempts > 0
-      ? "Continue Practice"
-      : "Start Practice";
-
-    const description = getSubtopicDescription(subtopic.title, summary.mastery, summary.attempts);
-
-    card.innerHTML = `
-      <div class="topic-card-top">
-        <div class="topic-body">
-          <div class="topic-pill">Subtopic</div>
-          <h2 class="topic-title">${escapeHtml(subtopic.title)}</h2>
-        </div>
-        <div class="topic-icon" aria-hidden="true">${escapeHtml(subtopic.icon || "📘")}</div>
-      </div>
-
-      <div class="topic-stats">
-        <span class="stat-pill">Attempts: ${summary.attempts}</span>
-        <span class="stat-pill">Mastery: ${escapeHtml(summary.mastery)}</span>
-        <span class="stat-pill">${summary.completed ? "Completed ✅" : "In Progress"}</span>
-        ${badge ? `<span class="stat-pill ${badge.className}">${badge.label}</span>` : ``}
-      </div>
-
-      <div class="subtopic-progress-block">
-        <div class="subtopic-progress-head">
-          <span>Progress</span>
-          <span>${summary.progress.toFixed(1)}%</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width:${summary.progress}%"></div>
-        </div>
-      </div>
-
-      <div class="topic-stats subtopic-meta-stats">
-        <span class="stat-pill">Last: ${escapeHtml(summary.lastPlayed)}</span>
-        <span class="stat-pill">Streak: ${summary.streak} day${summary.streak === 1 ? "" : "s"}</span>
-      </div>
-
-      <span class="action-btn primary-btn enter-topic-btn">${actionText}</span>
-    `;
-
-    attachSmoothCardTouch(card);
-    return card;
-  }
-
-  function createMathsPracticeCard(subjectSlug, topicSlugValue, topicMeta, index) {
-    const summary = calculateMathsTopicSummary(subjectSlug, topicSlugValue);
-    const badge = summary.bestFull !== null ? getBadgeData(summary.bestFull) : null;
-
-    const card = document.createElement("a");
-    card.className = "topic-card fade-slide-up";
-    card.href = `/pp-quiz/quiz.html?subject=${encodeURIComponent(subjectSlug)}&topic=${encodeURIComponent(topicSlugValue)}&set=${encodeURIComponent("set-1")}`;
-    card.setAttribute("aria-label", `Start practice for ${topicMeta.title}`);
-    card.style.animationDelay = `${index * 0.04}s`;
-
-    const actionText = summary.completed
-      ? "Continue Mastering"
-      : summary.attempts > 0
-      ? "Continue Practice"
-      : "Start Practice";
-
-    const description = getSubtopicDescription(topicMeta.title, summary.mastery, summary.attempts);
-
-    card.innerHTML = `
-      <div class="topic-card-top">
-        <div class="topic-body">
-          <div class="topic-pill">Topic Practice</div>
-          <h2 class="topic-title">${escapeHtml(topicMeta.title)}</h2>
-        </div>
-        <div class="topic-icon" aria-hidden="true">${escapeHtml(topicMeta.icon || "📘")}</div>
-      </div>
-
-      <div class="topic-stats">
-        <span class="stat-pill">Attempts: ${summary.attempts}</span>
-        <span class="stat-pill">Mastery: ${escapeHtml(summary.mastery)}</span>
-        <span class="stat-pill">${summary.completed ? "Completed ✅" : "In Progress"}</span>
-        ${badge ? `<span class="stat-pill ${badge.className}">${badge.label}</span>` : ``}
-      </div>
-
-      <div class="subtopic-progress-block">
-        <div class="subtopic-progress-head">
-          <span>Progress</span>
-          <span>${summary.progress.toFixed(1)}%</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width:${summary.progress}%"></div>
-        </div>
-      </div>
-
-      <div class="topic-stats subtopic-meta-stats">
-        <span class="stat-pill">Last: ${escapeHtml(summary.lastPlayed)}</span>
-        <span class="stat-pill">Streak: ${summary.streak} day${summary.streak === 1 ? "" : "s"}</span>
-      </div>
-
-      <span class="action-btn primary-btn enter-topic-btn">${actionText}</span>
-    `;
-
-    attachSmoothCardTouch(card);
-    return card;
-  }
-
-  function renderEmptyState(title, message) {
+  function renderEmpty(message) {
     subtopicsGrid.innerHTML = `
       <div class="empty-state fade-in">
-        <h3>${escapeHtml(title)}</h3>
+        <h3>No subtopics found</h3>
         <p>${escapeHtml(message)}</p>
       </div>
     `;
   }
+
+  function buildSubtopicCard(subtopic, index) {
+    const setName = "set-1";
+    const stats = getSavedStats(subject, topicSlug, subtopic.slug, setName);
+    const badge = getBadgeData(stats.bestFullBadgePercentage);
+    const mastery = getMasteryLevel(stats.bestFullBadgePercentage);
+
+    const card = document.createElement("a");
+    card.className = "topic-card fade-slide-up";
+    card.href = `/pp-quiz/subtopic.html?subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topicSlug)}&subtopic=${encodeURIComponent(subtopic.slug)}`;
+
+    card.innerHTML = `
+      <div class="topic-card-top">
+        <div class="topic-body">
+          <div class="topic-pill">Subtopic Practice</div>
+          <h3 class="topic-title">${escapeHtml(subtopic.title)}</h3>
+          <p class="topic-desc">
+            Build confidence with focused MCQ practice in ${escapeHtml(subtopic.title)}.
+          </p>
+        </div>
+        <div class="topic-icon" aria-hidden="true">${subtopic.icon || "📘"}</div>
+      </div>
+
+      <div class="topic-stats">
+        <span class="stat-pill">Attempts: ${stats.attempts}</span>
+        <span class="stat-pill">Mastery: ${mastery}</span>
+        <span class="stat-pill">
+          Badge: ${badge ? `<span class="${badge.className}">${badge.label}</span>` : "None"}
+        </span>
+      </div>
+
+      <button class="action-btn enter-topic-btn" type="button">
+        Open Subtopic
+      </button>
+    `;
+
+    card.style.animationDelay = `${Math.min(index * 35, 220)}ms`;
+    return card;
+  }
+
+  updateBackLink();
+  setupRefresh();
+
+  if (!SUBJECT_TOPIC_DATA[subject]) {
+    topicTitle.textContent = "Subject Not Found";
+    topicHeroTitle.textContent = "Subject Not Found";
+    topicHeroText.textContent = "The subject you selected is invalid.";
+    renderEmpty("Invalid subject selected.");
+    return;
+  }
+
+  if (!topicSlug) {
+    topicTitle.textContent = "Topic Not Found";
+    topicHeroTitle.textContent = "Topic Not Found";
+    topicHeroText.textContent = "No topic was selected.";
+    renderEmpty("Missing topic.");
+    return;
+  }
+
+  if (!canAccessCurrentTopic(subject, topicSlug)) {
+    topicTitle.textContent = "🔒 Locked";
+    topicHeroTitle.textContent = "Premium Content";
+    topicHeroText.textContent = "Only lesson 1 is free. Unlock to access all topics.";
+    subtopicsGrid.innerHTML = `
+      <div class="empty-state fade-in">
+        <h3>This topic is locked 🔒</h3>
+        <p>Only lesson 1 is free. Unlock all topics to continue.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const topicData = SUBJECT_TOPIC_DATA[subject][topicSlug];
+
+  if (!topicData) {
+    topicTitle.textContent = "Topic Not Found";
+    topicHeroTitle.textContent = "Topic Not Found";
+    topicHeroText.textContent = "The selected topic could not be found.";
+    renderEmpty("Invalid topic selected.");
+    return;
+  }
+
+  topicTitle.textContent = topicData.title || makeNiceTitle(topicSlug);
+  topicHeroTitle.textContent = topicData.title || makeNiceTitle(topicSlug);
+  topicHeroText.textContent = `Choose a subtopic and continue your ${subject === "chemistry" ? "Chemistry" : "Physics"} past paper MCQ practice.`;
+
+  const subtopics = Array.isArray(topicData.subtopics) ? topicData.subtopics : [];
+
+  if (!subtopics.length) {
+    renderEmpty("No subtopics configured for this topic yet.");
+    return;
+  }
+
+  subtopicsGrid.innerHTML = "";
+  subtopics.forEach((subtopic, index) => {
+    subtopicsGrid.appendChild(buildSubtopicCard(subtopic, index));
+  });
 });
