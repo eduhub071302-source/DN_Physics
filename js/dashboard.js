@@ -113,7 +113,7 @@ function getMostStudiedQuizSubject() {
 
   Object.entries(store).forEach(([rawKey, item]) => {
     const parsed = parseQuizKey(rawKey);
-    const subject = parsed.subject || "physics";
+    const subject = parsed.subject || "default";
     const attempts = Number(item?.attempts) || 0;
     if (attempts <= 0) return;
 
@@ -178,10 +178,6 @@ function buildQuizUrlFromKey(rawKey) {
     return `${APP_PATH}/pp-quiz/index.html`;
   }
 
-  if (parsed.subject === "maths") {
-    return `${APP_PATH}/pp-quiz/quiz.html?subject=${encodeURIComponent(parsed.subject)}&topic=${encodeURIComponent(parsed.topic)}&set=${encodeURIComponent(parsed.set)}`;
-  }
-
   if (!parsed.subtopic) {
     return `${APP_PATH}/pp-quiz/index.html?subject=${encodeURIComponent(parsed.subject)}`;
   }
@@ -193,10 +189,6 @@ function prettifyQuizLabel(parsed) {
   const subjectName = prettifySubject(parsed.subject || "physics");
   const topicName = prettifySubject(parsed.topic || "");
   const subtopicName = prettifySubject(parsed.subtopic || "");
-
-  if (parsed.subject === "maths") {
-    return `${subjectName} · ${topicName}`;
-  }
 
   if (topicName && subtopicName) {
     return `${subjectName} · ${topicName} · ${subtopicName}`;
@@ -316,7 +308,7 @@ function renderDashboard() {
   }
 
   const weakQuiz = getWeakQuiz();
-  if (weakQuiz && Number(weakQuiz.bestPercentage || 0) < 70) {
+  if (weakQuiz && Number(weakQuiz.bestPercentage || 0) < 50) {
     const parsed = parseQuizKey(weakQuiz.key);
     html += createDashCard(
       "⚠️ Weak Area",
