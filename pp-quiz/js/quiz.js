@@ -134,44 +134,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       href: window.location.href
     });
 
-    if (quizTitle) quizTitle.textContent = "Quiz Not Found";
-    if (quizSubtitle) {
-      quizSubtitle.textContent =
-        "Missing subject, topic, or subtopic in the quiz URL.";
-    }
-    if (backToSubtopic) {
-      backToSubtopic.href = "/pp-quiz/index.html";
-    }
+    const fallbackSubtopicUrl = document.referrer && document.referrer.includes("/pp-quiz/subtopic.html")
+      ? document.referrer
+      : "/pp-quiz/index.html";
 
-    questionImage.removeAttribute("src");
-    questionImage.alt = "Quiz question unavailable";
-
-    document.body.insertAdjacentHTML(
-      "beforeend",
-      `
-        <div style="
-          max-width:720px;
-          margin:24px auto;
-          padding:16px;
-          border:1px solid rgba(255,255,255,0.12);
-          border-radius:12px;
-          background:rgba(255,255,255,0.04);
-          color:#fff;
-        ">
-          <h3 style="margin-top:0;">Quiz link is incomplete</h3>
-          <p style="margin:8px 0;">
-            This page was opened without the required quiz details.
-          </p>
-          <p style="margin:8px 0;">
-            Open the quiz from the subtopic page instead of opening quiz.html directly.
-          </p>
-          <p style="margin:8px 0; word-break:break-all;">
-            <strong>Current URL:</strong> ${window.location.href}
-          </p>
-        </div>
-      `,
-    );
-
+    window.location.replace(fallbackSubtopicUrl);
     return;
   }
 
