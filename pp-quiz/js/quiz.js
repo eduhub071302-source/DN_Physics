@@ -1,9 +1,10 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
-  const subject = (params.get("subject") || "physics").toLowerCase().trim();
-  const topic = params.get("topic");
-  const subtopic = params.get("subtopic");
-  const setName = params.get("set") || "set-1";
+
+  const subject = (params.get("subject") || "").toLowerCase().trim();
+  const topic = (params.get("topic") || "").trim();
+  const subtopic = (params.get("subtopic") || "").trim();
+  const setName = (params.get("set") || "set-1").trim();
 
   const quizTitle = document.getElementById("quizTitle");
   const quizSubtitle = document.getElementById("quizSubtitle");
@@ -119,15 +120,58 @@ document.addEventListener("DOMContentLoaded", async () => {
     discardResumeBtn
   ];
 
-  if (!topic || !subtopic) {
-    console.error("Missing topic or subtopic");
-    if (quizTitle) quizTitle.textContent = "Quiz Not Found";
-    if (quizSubtitle) quizSubtitle.textContent = "Missing topic or subtopic.";
+  if (requiredElements.some((el) => !el) || answerButtons.length === 0) {
+    console.error("Quiz page elements missing");
     return;
   }
 
-  if (requiredElements.some((el) => !el) || answerButtons.length === 0) {
-    console.error("Quiz page elements missing");
+  if (!subject || !topic || !subtopic) {
+    console.error("Missing required quiz URL params", {
+      subject,
+      topic,
+      subtopic,
+      setName,
+      href: window.location.href
+    });
+
+    if (quizTitle) quizTitle.textContent = "Quiz Not Found";
+    if (quizSubtitle) {
+      quizSubtitle.textContent =
+        "Missing subject, topic, or subtopic in the quiz URL.";
+    }
+    if (backToSubtopic) {
+      backToSubtopic.href = "/pp-quiz/index.html";
+    }
+
+    questionImage.removeAttribute("src");
+    questionImage.alt = "Quiz question unavailable";
+
+    document.body.insertAdjacentHTML(
+      "beforeend",
+      `
+        <div style="
+          max-width:720px;
+          margin:24px auto;
+          padding:16px;
+          border:1px solid rgba(255,255,255,0.12);
+          border-radius:12px;
+          background:rgba(255,255,255,0.04);
+          color:#fff;
+        ">
+          <h3 style="margin-top:0;">Quiz link is incomplete</h3>
+          <p style="margin:8px 0;">
+            This page was opened without the required quiz details.
+          </p>
+          <p style="margin:8px 0;">
+            Open the quiz from the subtopic page instead of opening quiz.html directly.
+          </p>
+          <p style="margin:8px 0; word-break:break-all;">
+            <strong>Current URL:</strong> ${window.location.href}
+          </p>
+        </div>
+      `,
+    );
+
     return;
   }
 
@@ -633,7 +677,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const jsonPath = `/pp-quiz/data/${subject}/${topic}/${subtopic}/${setName}.json`;
 
     try {
-      const response = await fetch(jsonPath);
+      const response = await fetch(jsonPath, { cache: "no-store" });
       if (!response.ok) {
         throw new Error(`Failed to load quiz JSON: ${jsonPath}`);
       }
@@ -651,6 +695,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.error(error);
       quizTitle.textContent = "Quiz Not Found";
       quizSubtitle.textContent = "Could not load quiz data.";
+      questionImage.removeAttribute("src");
+      questionImage.alt = "Quiz question image unavailable";
       return false;
     }
 
@@ -1098,9 +1144,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     saveAttemptData(newData);
 
-    if (typeof syncLocalProgressToCloud === "function") {
+    if (typeof window.syncLocalProgressToCloud === "function") {
       try {
-        await syncLocalProgressToCloud();
+        await window.syncLocalProgressToCloud();
       } catch (error) {
         console.warn("Progress cloud sync warning:", error);
       }
