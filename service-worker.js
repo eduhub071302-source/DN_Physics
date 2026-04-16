@@ -25,8 +25,6 @@ self.addEventListener("install", (event) => {
           console.warn("[SW] Failed to cache during install:", file, error);
         }
       }
-
-      await self.skipWaiting();
     })(),
   );
 });
