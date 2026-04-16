@@ -167,7 +167,6 @@ function clearForceReloadTimer() {
 
 function safeReloadNow() {
   clearForceReloadTimer();
-  updateReady = false;
   finishUpdateProgressFlow();
 
   setTimeout(() => {
@@ -186,29 +185,35 @@ function bindControllerChangeReload() {
   });
 }
 
-async function hasWaitingUpdate() {
+async function getRegistration() {
+  if (!("serviceWorker" in navigator)) return null;
+
+  const registration =
+    lastKnownRegistration || (await navigator.serviceWorker.getRegistration());
+
+  if (!registration) return null;
+
+  lastKnownRegistration = registration;
+  return registration;
+}
+
+async function detectUpdateState() {
   try {
-    if (!("serviceWorker" in navigator)) return false;
-
-    const registration =
-      lastKnownRegistration || (await navigator.serviceWorker.getRegistration());
-
-    if (!registration) return false;
-
-    lastKnownRegistration = registration;
+    const registration = await getRegistration();
+    if (!registration) {
+      updateReady = false;
+      return { registration: null, hasWaiting: false, hasReadySignal: false };
+    }
 
     await registration.update();
 
-    if (registration.waiting) {
-      updateReady = true;
-      return true;
-    }
+    const hasWaiting = Boolean(registration.waiting);
+    const hasReadySignal = Boolean(updateReady);
 
-    updateReady = false;
-    return false;
+    return { registration, hasWaiting, hasReadySignal };
   } catch (error) {
-    console.warn("Update check failed");
-    return false;
+    console.warn("Update check failed:", error);
+    return { registration: null, hasWaiting: false, hasReadySignal: false };
   }
 }
 
@@ -219,9 +224,9 @@ async function performSafeUpdate() {
   showLoadingOverlay();
   setUpdateProgress(10, "Checking for update", "Preparing app update");
 
-  const hasUpdate = await hasWaitingUpdate();
+  const { registration, hasWaiting, hasReadySignal } = await detectUpdateState();
 
-  if (!hasUpdate) {
+  if (!hasWaiting && !hasReadySignal) {
     hideUpdateModal();
     hideLoadingOverlay();
     refreshingNow = false;
@@ -237,30 +242,30 @@ async function performSafeUpdate() {
   startUpdateProgressFlow();
 
   try {
-    const registration =
-      lastKnownRegistration || (await navigator.serviceWorker.getRegistration());
+    if (registration && registration.waiting) {
+      setUpdateProgress(92, "Restarting app", "Applying updated version");
+      registration.waiting.postMessage({ type: "SKIP_WAITING" });
 
-    if (registration) {
-      lastKnownRegistration = registration;
+      clearForceReloadTimer();
+      forceReloadTimer = setTimeout(() => {
+        setUpdateProgress(96, "Restarting app", "Reloading updated version");
+        safeReloadNow();
+      }, 8000);
 
-      if (registration.waiting) {
-        setUpdateProgress(92, "Restarting app", "Applying updated version");
-        registration.waiting.postMessage({ type: "SKIP_WAITING" });
+      return;
+    }
 
-        clearForceReloadTimer();
-        forceReloadTimer = setTimeout(() => {
-          setUpdateProgress(96, "Restarting app", "Reloading updated version");
-          safeReloadNow();
-        }, 8000);
-
-        return;
-      }
+    // SW already activated and told us update is ready
+    if (hasReadySignal) {
+      setUpdateProgress(96, "Restarting app", "Loading updated version");
+      safeReloadNow();
+      return;
     }
 
     setUpdateProgress(96, "Restarting app", "Reloading updated version");
     safeReloadNow();
   } catch (error) {
-    console.warn("Update process error");
+    console.warn("Update process error:", error);
     setUpdateProgress(96, "Restarting app", "Recovering update");
     safeReloadNow();
   }
@@ -273,6 +278,7 @@ async function registerServiceWorker(appPath = "") {
     const registration = await navigator.serviceWorker.register(
       `${appPath}/service-worker.js`,
     );
+
     lastKnownRegistration = registration;
     console.log("Service worker registered");
 
@@ -280,8 +286,8 @@ async function registerServiceWorker(appPath = "") {
     await registration.update();
 
     setTimeout(() => {
-      registration.update().catch(() => {
-        console.warn("Service worker recheck failed");
+      registration.update().catch((error) => {
+        console.warn("Service worker recheck failed:", error);
       });
     }, 1200);
 
@@ -307,6 +313,7 @@ async function registerServiceWorker(appPath = "") {
 
       if (event.data.type === "SW_UPDATED") {
         const version = event.data.version || "";
+
         if (getSeenUpdateVersion() === version) return;
 
         setSeenUpdateVersion(version);
@@ -317,16 +324,18 @@ async function registerServiceWorker(appPath = "") {
       }
 
       if (event.data.type === "SW_VERSION_READY") {
-        console.log("Service worker ready");
+        console.log("Service worker ready:", event.data.version || "");
         return;
       }
 
       if (event.data.type === "FORCE_RELOAD") {
-        safeReloadNow();
+        if (refreshingNow) {
+          safeReloadNow();
+        }
       }
     });
   } catch (error) {
-    console.warn("Service worker failed");
+    console.warn("Service worker failed:", error);
   }
 }
 
@@ -352,13 +361,6 @@ function setupRefreshActions() {
       }
 
       await performSafeUpdate();
-
-      setTimeout(() => {
-        if (!refreshingNow) {
-          hideUpdateModal();
-          hideLoadingOverlay();
-        }
-      }, 1500);
     });
   }
 }
