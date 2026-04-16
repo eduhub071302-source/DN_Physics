@@ -6,6 +6,22 @@ let controllerChangeBound = false;
 let updateReady = false;
 let lastKnownRegistration = null;
 
+const SEEN_UPDATE_KEY = "dn_seen_update_version";
+
+function getSeenUpdateVersion() {
+  try {
+    return localStorage.getItem(SEEN_UPDATE_KEY) || "";
+  } catch {
+    return "";
+  }
+}
+
+function setSeenUpdateVersion(version) {
+  try {
+    localStorage.setItem(SEEN_UPDATE_KEY, version || "");
+  } catch {}
+}
+
 function getEl(id) {
   return document.getElementById(id);
 }
@@ -290,7 +306,10 @@ async function registerServiceWorker(appPath = "") {
       if (!event.data) return;
 
       if (event.data.type === "SW_UPDATED") {
-        console.log("Service worker updated");
+        const version = event.data.version || "";
+        if (getSeenUpdateVersion() === version) return;
+
+        setSeenUpdateVersion(version);
         updateReady = true;
         showUpdateModal();
         setUpdateProgress(0, "Update ready", "A new version is ready to install");
