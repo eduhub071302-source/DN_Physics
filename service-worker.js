@@ -1,4 +1,4 @@
-const CACHE_NAME = "dn-physics-v330";
+const CACHE_NAME = "dn-physics-v331";
 const META_CACHE = "dinuunova-meta";
 
 const CORE_FILES = [
@@ -7,7 +7,6 @@ const CORE_FILES = [
   "/manifest.json",
   "/icon-192.png",
   "/icon-512.png",
-  "/css/style.css",
   "/topics/topic.html",
   "/topics/viewer.html",
   "/js/music-player.js",
