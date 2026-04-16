@@ -1,8 +1,6 @@
 const CACHE_NAME = "dn-physics-v342";
 const META_CACHE = "dinuunova-meta";
 
-console.log("[SW] Running version:", CACHE_NAME);
-
 const CORE_FILES = [
   "/",
   "/offline.html",
@@ -83,18 +81,7 @@ self.addEventListener("message", (event) => {
 
   if (event.data.type === "SKIP_WAITING") {
     self.skipWaiting();
-
-    self.clients.matchAll({
-      type: "window",
-      includeUncontrolled: true,
-    }).then((clients) => {
-      for (const client of clients) {
-        client.postMessage({
-          type: "FORCE_RELOAD",
-          version: CACHE_NAME,
-        });
-      }
-    });
+    return;
   }
 
   if (event.data.type === "GET_VERSION" && event.source) {
@@ -171,25 +158,21 @@ self.addEventListener("fetch", (event) => {
   const isImage = /\.(png|jpg|jpeg|webp|svg|gif|ico)$/.test(url.pathname);
   const isAudio = /\.(mp3|wav|ogg)$/.test(url.pathname);
 
-  // HTML pages -> always latest first
   if (isHTML) {
     event.respondWith(networkFirst(request, "/offline.html"));
     return;
   }
 
-  // CSS / JS / JSON / PDF -> latest first
   if (isCSS || isJS || isJSON || isPDF) {
     event.respondWith(networkFirst(request));
     return;
   }
 
-  // images -> quick cache, refresh in background
   if (isImage) {
     event.respondWith(staleWhileRevalidate(request));
     return;
   }
 
-  // audio -> bypass SW cache
   if (isAudio) return;
 
   event.respondWith(
