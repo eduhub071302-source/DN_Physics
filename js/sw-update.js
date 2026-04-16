@@ -1,4 +1,4 @@
-const SW_VERSION = "343";
+const SW_VERSION = "342";
 
 let refreshingNow = false;
 let fakeProgressTimer = null;
@@ -338,12 +338,6 @@ async function registerServiceWorker(appPath = "") {
       if (event.data.type === "SW_VERSION_READY") {
         console.log("Service worker ready:", event.data.version || "");
         return;
-      }
-
-      if (event.data.type === "FORCE_RELOAD") {
-        if (refreshingNow) {
-          safeReloadNow();
-        }
       }
     });
   } catch (error) {
