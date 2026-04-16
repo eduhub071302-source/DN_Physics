@@ -238,6 +238,7 @@ function startFirebaseSync() {
       subscriptionRef,
       (snapshot) => {
         const data = snapshot.val();
+
         if (!data) {
           clearPaidAccess();
           return;
@@ -343,7 +344,7 @@ async function startFullUnlockCheckout() {
     document.body.appendChild(form);
     form.submit();
   } catch (e) {
-    console.error("Checkout error");
+    console.error("Checkout error", e);
     showDnMessage("Checkout failed. Please try again.");
   } finally {
     if (unlockNowBtn) {
@@ -498,7 +499,7 @@ function openUnlockModal() {
     if (unlockAccountEmail) {
       unlockAccountEmail.textContent = email;
     }
-  } catch (error) {
+  } catch {
     if (unlockAccountEmail) {
       unlockAccountEmail.textContent = "Logged-in account";
     }
