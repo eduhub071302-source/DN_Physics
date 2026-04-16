@@ -1,4 +1,4 @@
-const CACHE_NAME = "dn-physics-v340";
+const CACHE_NAME = "dn-physics-v341";
 const META_CACHE = "dinuunova-meta";
 
 console.log("[SW] Running version:", CACHE_NAME);
