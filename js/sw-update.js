@@ -1,4 +1,4 @@
-const SW_VERSION = "342";
+const SW_VERSION = "345";
 
 let refreshingNow = false;
 let fakeProgressTimer = null;
@@ -63,11 +63,7 @@ function hideUpdateModal() {
   document.body.style.overflow = "";
 }
 
-function setUpdateProgress(
-  progress,
-  stageText = "Updating app",
-  detailText = "Please wait",
-) {
+function setUpdateProgress(progress, stageText = "Updating app", detailText = "Please wait") {
   const safeProgress = Math.max(0, Math.min(100, progress));
   currentProgress = safeProgress;
 
@@ -96,41 +92,25 @@ function startUpdateProgressFlow() {
   fakeProgressTimer = setInterval(() => {
     if (currentProgress < 30) {
       currentProgress += 10;
-      setUpdateProgress(
-        currentProgress,
-        "Checking for update",
-        "Preparing app update",
-      );
+      setUpdateProgress(currentProgress, "Checking for update", "Preparing app update");
       return;
     }
 
     if (currentProgress < 55) {
       currentProgress += 5;
-      setUpdateProgress(
-        currentProgress,
-        "Installing update",
-        "Updating app files",
-      );
+      setUpdateProgress(currentProgress, "Installing update", "Updating app files");
       return;
     }
 
     if (currentProgress < 80) {
       currentProgress += 5;
-      setUpdateProgress(
-        currentProgress,
-        "Installing update",
-        "Finalizing update files",
-      );
+      setUpdateProgress(currentProgress, "Installing update", "Finalizing update files");
       return;
     }
 
     if (currentProgress < 90) {
       currentProgress += 2;
-      setUpdateProgress(
-        currentProgress,
-        "Restarting app",
-        "Preparing refreshed version",
-      );
+      setUpdateProgress(currentProgress, "Restarting app", "Preparing refreshed version");
       return;
     }
 
@@ -325,7 +305,6 @@ async function registerServiceWorker(appPath = "") {
 
       if (event.data.type === "SW_UPDATED") {
         const version = event.data.version || "";
-
         if (getSeenUpdateVersion() === version) return;
 
         setSeenUpdateVersion(version);
@@ -337,7 +316,6 @@ async function registerServiceWorker(appPath = "") {
 
       if (event.data.type === "SW_VERSION_READY") {
         console.log("Service worker ready:", event.data.version || "");
-        return;
       }
     });
   } catch (error) {
@@ -365,7 +343,6 @@ function setupRefreshActions() {
         showBusyUpdateMessage();
         return;
       }
-
       await performSafeUpdate();
     });
   }
