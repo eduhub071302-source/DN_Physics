@@ -275,12 +275,23 @@ async function registerServiceWorker(appPath = "") {
   if (!("serviceWorker" in navigator)) return;
 
   try {
-    const registration = await navigator.serviceWorker.register(
-      `${appPath}/service-worker.js`,
-    );
+    const swUrl = `${appPath}/service-worker.js?v=340`;
+    const registration = await navigator.serviceWorker.register(swUrl, {
+      updateViaCache: "none",
+    });
 
     lastKnownRegistration = registration;
     console.log("Service worker registered");
+
+      if (registration.active) {
+        console.log("SW active script:", registration.active.scriptURL);
+      }
+      if (registration.installing) {
+        console.log("SW installing script:", registration.installing.scriptURL);
+      }
+      if (registration.waiting) {
+        console.log("SW waiting script:", registration.waiting.scriptURL);
+      }
 
     bindControllerChangeReload();
     await registration.update();
