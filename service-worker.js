@@ -1,6 +1,8 @@
 const CACHE_NAME = "dn-physics-v340";
 const META_CACHE = "dinuunova-meta";
 
+console.log("[SW] Running version:", CACHE_NAME);
+
 const CORE_FILES = [
   "/",
   "/offline.html",
