@@ -232,13 +232,16 @@ function startFirebaseSync() {
       return;
     }
 
-    const userRef = sdk.ref(db, "users/" + user.uid);
+    const subscriptionRef = sdk.ref(db, "subscriptions/" + user.uid);
 
     unlockValueUnsubscribe = sdk.onValue(
-      userRef,
+      subscriptionRef,
       (snapshot) => {
         const data = snapshot.val();
-        if (!data) return;
+        if (!data) {
+          clearPaidAccess();
+          return;
+        }
 
         const expiresAt = Number(data.expiresAt) || 0;
 
