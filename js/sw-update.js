@@ -291,8 +291,9 @@ async function registerServiceWorker(appPath = "") {
 
       if (event.data.type === "SW_UPDATED") {
         console.log("Service worker updated");
-        setUpdateProgress(99, "Restarting app", "Loading updated version");
-        safeReloadNow();
+        updateReady = true;
+        showUpdateModal();
+        setUpdateProgress(0, "Update ready", "A new version is ready to install");
         return;
       }
 
