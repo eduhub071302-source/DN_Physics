@@ -1,3 +1,5 @@
+const SW_VERSION = "342";
+
 let refreshingNow = false;
 let fakeProgressTimer = null;
 let currentProgress = 0;
@@ -255,7 +257,6 @@ async function performSafeUpdate() {
       return;
     }
 
-    // SW already activated and told us update is ready
     if (hasReadySignal) {
       setUpdateProgress(96, "Restarting app", "Loading updated version");
       safeReloadNow();
@@ -275,7 +276,7 @@ async function registerServiceWorker(appPath = "") {
   if (!("serviceWorker" in navigator)) return;
 
   try {
-    const swUrl = `${appPath}/service-worker.js?v=340`;
+    const swUrl = `${appPath}/service-worker.js?v=${SW_VERSION}`;
     const registration = await navigator.serviceWorker.register(swUrl, {
       updateViaCache: "none",
     });
@@ -283,15 +284,15 @@ async function registerServiceWorker(appPath = "") {
     lastKnownRegistration = registration;
     console.log("Service worker registered");
 
-      if (registration.active) {
-        console.log("SW active script:", registration.active.scriptURL);
-      }
-      if (registration.installing) {
-        console.log("SW installing script:", registration.installing.scriptURL);
-      }
-      if (registration.waiting) {
-        console.log("SW waiting script:", registration.waiting.scriptURL);
-      }
+    if (registration.active) {
+      console.log("SW active script:", registration.active.scriptURL);
+    }
+    if (registration.installing) {
+      console.log("SW installing script:", registration.installing.scriptURL);
+    }
+    if (registration.waiting) {
+      console.log("SW waiting script:", registration.waiting.scriptURL);
+    }
 
     bindControllerChangeReload();
     await registration.update();
