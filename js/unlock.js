@@ -196,18 +196,32 @@ function clearPendingOrderId() {
 // ----------------------------
 
 let unlockValueUnsubscribe = null;
+let unlockAuthUnsubscribe = null;
+let unlockSyncRetryTimer = null;
+let unlockSyncStarted = false;
 
 function startFirebaseSync() {
+  if (unlockSyncStarted) return;
+
   const auth = window.firebaseAuth || null;
   const db = window.firebaseDb || null;
   const sdk = window.firebaseSdk || null;
 
   if (!auth || !db || !sdk?.onAuthStateChanged || !sdk?.ref || !sdk?.onValue) {
-    console.warn("Unlock Firebase sync not ready.");
+    console.warn("Unlock Firebase sync not ready. Retrying...");
+    clearTimeout(unlockSyncRetryTimer);
+    unlockSyncRetryTimer = setTimeout(startFirebaseSync, 800);
     return;
   }
 
-  sdk.onAuthStateChanged(auth, (user) => {
+  unlockSyncStarted = true;
+
+  if (unlockAuthUnsubscribe) {
+    unlockAuthUnsubscribe();
+    unlockAuthUnsubscribe = null;
+  }
+
+  unlockAuthUnsubscribe = sdk.onAuthStateChanged(auth, (user) => {
     if (unlockValueUnsubscribe) {
       unlockValueUnsubscribe();
       unlockValueUnsubscribe = null;
@@ -220,22 +234,28 @@ function startFirebaseSync() {
 
     const userRef = sdk.ref(db, "users/" + user.uid);
 
-    unlockValueUnsubscribe = sdk.onValue(userRef, (snapshot) => {
-      const data = snapshot.val();
-      if (!data) return;
+    unlockValueUnsubscribe = sdk.onValue(
+      userRef,
+      (snapshot) => {
+        const data = snapshot.val();
+        if (!data) return;
 
-      const expiresAt = Number(data.expiresAt) || 0;
+        const expiresAt = Number(data.expiresAt) || 0;
 
-      if (expiresAt > Date.now()) {
-        activatePaidAccess({
-          source: "firebase",
-          orderId: data.orderId || "",
-          expiresAt,
-        });
-      } else {
-        clearPaidAccess();
+        if (expiresAt > Date.now()) {
+          activatePaidAccess({
+            source: "firebase",
+            orderId: data.orderId || "",
+            expiresAt,
+          });
+        } else {
+          clearPaidAccess();
+        }
+      },
+      (error) => {
+        console.warn("Unlock Firebase onValue failed:", error);
       }
-    });
+    );
   });
 }
 
