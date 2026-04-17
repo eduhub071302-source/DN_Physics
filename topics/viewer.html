@@ -237,7 +237,7 @@
         <section id="librarySection" class="hidden" aria-label="PDF library">
           <div class="pdf-shell">
             <div class="pdf-toolbar">
-              <div class="pdf-toolbar-text">Physics Library</div>
+              <div class="pdf-toolbar-text">Notes Library</div>
             </div>
 
             <div class="library-grid" id="libraryGrid"></div>
@@ -366,8 +366,12 @@
     const SITE_BASE = `${DEFAULT_SITE}`;
 
     const directPdf = params.get("pdf");
-    const oldSubject = params.get("subject");
-    const oldFile = params.get("file");
+
+    const stream = params.get("stream") || "";
+    const group = params.get("group") || "";
+    const subject = params.get("subject") || "";
+    const file = params.get("file") || "";
+
     const rawTitle = params.get("title");
     const rawBack = params.get("back");
     const rawSubjectName = params.get("subjectName");
@@ -465,13 +469,31 @@
         .join(" ");
     }
 
+    function buildBackUrl() {
+      if (!subjectSlug) return "/notes/index.html";
+
+      let url = `/subjects/index.html?stream=${encodeURIComponent(stream)}`;
+
+      if (group) {
+        url += `&group=${encodeURIComponent(group)}`;
+      }
+
+      url += `&subject=${encodeURIComponent(subjectSlug)}`;
+      return url;
+    }
+
     function buildViewerUrl(item) {
       const pdf = `/pdfs/${item.subject}/${item.file}`;
       const title = encodeURIComponent(item.title || item.file.replace(/\.pdf$/i, ""));
-      const back = encodeURIComponent(item.subjectPage || `/subjects/index.html?subject=${item.subject}`);
+      const streamParam = item.stream ? `&stream=${encodeURIComponent(item.stream)}` : "";
+      const groupParam = item.group ? `&group=${encodeURIComponent(item.group)}` : "";
+      const back = encodeURIComponent(
+        item.subjectPage ||
+        `/subjects/index.html?stream=${encodeURIComponent(item.stream || "")}${groupParam}&subject=${encodeURIComponent(item.subject)}`
+      );
       const subjectName = encodeURIComponent(prettifyFolderName(item.subject));
 
-      return `/topics/viewer.html?pdf=${encodeURIComponent(pdf)}&title=${title}&back=${back}&subjectName=${subjectName}`;
+      return `/topics/viewer.html?pdf=${encodeURIComponent(pdf)}&title=${title}${streamParam}${groupParam}&back=${back}&subjectName=${subjectName}`;
     }
 
     function updateZoomReadout() {
@@ -543,10 +565,11 @@
         console.log("Recent save failed", error);
       }
     }
+
     function isFavorite() {
       try {
         const entryId = getPdfId();
-    
+
         if (typeof window.dnPdfIsFavoriteEntry === "function") {
           return window.dnPdfIsFavoriteEntry(entryId);
         }
@@ -635,9 +658,9 @@
     async function showLibrary() {
       viewerTitleEl.textContent = "All PDFs";
       subjectLinkEl.textContent = "Library";
-      subjectLinkEl.href = "/index.html";
-      backLinkEl.href = "/index.html";
-      backBtnEl.href = "/index.html";
+      subjectLinkEl.href = "/notes/index.html";
+      backLinkEl.href = "/notes/index.html";
+      backBtnEl.href = "/notes/index.html";
 
       viewerSection.classList.add("hidden");
       viewerActions.classList.add("hidden");
@@ -659,7 +682,7 @@
             <div class="card-actions">
               <a class="btn btn-primary" href="${buildViewerUrl(item)}">View PDF</a>
               <a class="btn" href="/pdfs/${item.subject}/${item.file}" target="_blank" rel="noopener">Open</a>
-              ${item.topicPage ? `<a class="btn" href="${item.topicPage}">Topic</a>` : ""}
+              ${item.subjectPage ? `<a class="btn" href="${item.subjectPage}">Topic</a>` : ""}
             </div>
           </div>
         `).join("");
@@ -1063,7 +1086,7 @@
     async function initViewer() {
       setupViewerEvents();
 
-      if (!directPdf && !oldSubject && !oldFile) {
+      if (!directPdf && !subject && !file) {
         await showLibrary();
         return;
       }
@@ -1082,26 +1105,25 @@
 
         subjectDisplayName = safeDecode(rawSubjectName, prettifyFolderName(subjectSlug));
       } else {
-        subjectSlug = oldSubject || "current-electricity";
-        fileName = oldFile || "basics-formulas.pdf";
+        subjectSlug = subject || "unknown";
+        fileName = file || "document.pdf";
         pdfUrl = `/pdfs/${subjectSlug}/${fileName}`;
         absolutePdfUrl = makeAbsolute(pdfUrl);
         subjectDisplayName = safeDecode(rawSubjectName, prettifyFolderName(subjectSlug));
       }
 
       shareTitle = safeDecode(rawTitle, fileName.replace(/\.pdf$/i, ""));
+
       backUrl = rawBack
         ? normalizePath(safeDecode(rawBack))
-        : (subjectSlug ? `/subjects/index.html?subject=${encodeURIComponent(subjectSlug)}` : "/index.html");
+        : buildBackUrl();
 
       viewerQuizAllowed =
         typeof window.canAccessQuizFast === "function"
           ? window.canAccessQuizFast(subjectSlug || "")
           : false;
 
-      const subjectPageUrl = subjectSlug
-        ? `/subjects/index.html?subject=${encodeURIComponent(subjectSlug)}`
-        : "/index.html";
+      const subjectPageUrl = buildBackUrl();
 
       viewerTitleEl.textContent = shareTitle;
       fileLabelEl.textContent = "🔍 Zoom in for clearer text";
