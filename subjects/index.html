@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Notes | DinuuNOVA Physics</title>
+  <title>Notes | DinuuNOVA</title>
 
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#4ea1ff" />
@@ -46,10 +46,40 @@
     </div>
   </section>
 
+  <section class="section controls-section">
+    <div class="container">
+      <div class="controls-wrap">
+        <div class="search-box">
+          <input
+            type="search"
+            id="subjectSearch"
+            placeholder="Search topics, notes, algebra, vectors..."
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            inputmode="search"
+          />
+        </div>
+
+        <div class="filter-box">
+          <select id="categoryFilter" aria-label="Filter content">
+            <option value="all">All Categories</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="section">
     <div class="container">
+      <h2 id="listHeading" style="font-size: clamp(24px, 4.5vw, 34px);">All Categories</h2>
+
       <div class="grid" id="subjectGrid">
         <div class="empty-state">Loading...</div>
+      </div>
+
+      <div id="noResults" class="empty-state is-hidden" style="margin-top:16px;">
+        No matching results found.
       </div>
     </div>
   </section>
@@ -135,6 +165,12 @@
     const subjectDescEl = document.getElementById("subjectDesc");
     const subjectNavLink = document.getElementById("subjectNavLink");
     const backLink = document.getElementById("backLink");
+    const listHeading = document.getElementById("listHeading");
+    const searchInput = document.getElementById("subjectSearch");
+    const categoryFilter = document.getElementById("categoryFilter");
+    const noResults = document.getElementById("noResults");
+
+    let currentCards = [];
 
     function prettifyLabel(value) {
       return (value || "")
@@ -214,6 +250,89 @@
       return `<a class="btn locked-btn" href="#" onclick="event.preventDefault(); if (window.lockAlert) window.lockAlert();">🔒 Locked</a>`;
     }
 
+    function levenshtein(a, b) {
+      const matrix = Array.from({ length: b.length + 1 }, () =>
+        Array(a.length + 1).fill(0)
+      );
+
+      for (let i = 0; i <= b.length; i++) matrix[i][0] = i;
+      for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+      for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+          const cost = a[j - 1] === b[i - 1] ? 0 : 1;
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j - 1] + cost
+          );
+        }
+      }
+
+      return matrix[b.length][a.length];
+    }
+
+    function fuzzyIncludes(query, text) {
+      if (!query) return true;
+      if (text.includes(query)) return true;
+
+      const words = text.split(/\s+/);
+
+      for (const word of words) {
+        if (word.includes(query)) return true;
+
+        const distance = levenshtein(query, word);
+        if (query.length <= 4 && distance <= 1) return true;
+        if (query.length > 4 && distance <= 2) return true;
+      }
+
+      return false;
+    }
+
+    function applyFilters() {
+      const rawSearchValue = searchInput.value.trim().toLowerCase();
+      const selectedCategory = categoryFilter.value;
+      let visibleCount = 0;
+
+      currentCards.forEach((card) => {
+        const title = (card.dataset.title || "").toLowerCase();
+        const category = (card.dataset.category || "").toLowerCase();
+        const keywords = (card.dataset.keywords || "").toLowerCase();
+        const description = (card.dataset.description || "").toLowerCase();
+
+        const combinedText = `${title} ${keywords} ${description}`;
+
+        const matchesSearch =
+          rawSearchValue === "" || fuzzyIncludes(rawSearchValue, combinedText);
+
+        const matchesCategory =
+          selectedCategory === "all" || category === selectedCategory;
+
+        const shouldShow = matchesSearch && matchesCategory;
+        card.style.display = shouldShow ? "" : "none";
+
+        if (shouldShow) visibleCount++;
+      });
+
+      noResults.classList.toggle("is-hidden", visibleCount !== 0);
+    }
+
+    function setupFilters(filterItems) {
+      currentCards = Array.from(document.querySelectorAll(".subject-card"));
+
+      const categories = [...new Set(filterItems.map((item) => item.category).filter(Boolean))];
+      categoryFilter.innerHTML = `<option value="all">All Categories</option>`;
+
+      categories.forEach((category) => {
+        const option = document.createElement("option");
+        option.value = category;
+        option.textContent = prettifyLabel(category);
+        categoryFilter.appendChild(option);
+      });
+
+      applyFilters();
+    }
+
     function renderPhysicsSubjects(items, stream) {
       const uniqueSubjects = [...new Set(items.map((item) => item.subject).filter(Boolean))];
 
@@ -223,28 +342,45 @@
       subjectNavLink.textContent = "Physics";
       subjectNavLink.href = `/subjects/index.html?stream=${encodeURIComponent(stream)}`;
       backLink.href = "/notes/index.html";
+      listHeading.textContent = "All Categories";
 
       if (!uniqueSubjects.length) {
         grid.innerHTML = `<div class="empty-state">No Physics subjects found yet.</div>`;
         return;
       }
 
+      const filterItems = uniqueSubjects.map((subjectSlug) => ({
+        category: "physics-subject",
+        title: prettifyLabel(subjectSlug),
+        keywords: `${subjectSlug.replace(/-/g, " ")} physics formulas revision subject note`,
+        description: getSubjectDescription(subjectSlug)
+      }));
+
       grid.innerHTML = uniqueSubjects.map((subjectSlug, index) => {
         const subjectName = prettifyLabel(subjectSlug);
         const allowed = canAccessSubjectCard(subjectSlug);
         const link = `/subjects/index.html?stream=${encodeURIComponent(stream)}&subject=${encodeURIComponent(subjectSlug)}`;
+        const description = getSubjectDescription(subjectSlug);
 
         return `
-          <div class="card">
+          <div
+            class="card subject-card"
+            data-title="${escapeHtml(subjectName)}"
+            data-category="physics-subject"
+            data-keywords="${escapeHtml(subjectSlug.replace(/-/g, " "))} physics formulas revision subject note"
+            data-description="${escapeHtml(description)}"
+          >
             <div class="badge">Subject ${String(index + 1).padStart(2, "0")}</div>
             <h3>${escapeHtml(subjectName)}</h3>
-            <p>${escapeHtml(getSubjectDescription(subjectSlug))}</p>
+            <p>${escapeHtml(description)}</p>
             <div class="actions">
               ${createLockedLink(link, allowed, "Explore")}
             </div>
           </div>
         `;
       }).join("");
+
+      setupFilters(filterItems);
     }
 
     function renderMainMathsSubjects(items, stream) {
@@ -256,28 +392,45 @@
       subjectNavLink.textContent = "Main Maths";
       subjectNavLink.href = `/subjects/index.html?stream=${encodeURIComponent(stream)}`;
       backLink.href = "/notes/index.html";
+      listHeading.textContent = "All Categories";
 
       if (!uniqueSubjects.length) {
         grid.innerHTML = `<div class="empty-state">No Main Maths topics found yet.</div>`;
         return;
       }
 
+      const filterItems = uniqueSubjects.map((subjectSlug) => ({
+        category: "main-maths-topic",
+        title: prettifyLabel(subjectSlug),
+        keywords: `${subjectSlug.replace(/-/g, " ")} main maths mechanics statics topic note`,
+        description: getSubjectDescription(subjectSlug)
+      }));
+
       grid.innerHTML = uniqueSubjects.map((subjectSlug, index) => {
         const subjectName = prettifyLabel(subjectSlug);
         const allowed = canAccessSubjectCard(subjectSlug);
         const link = `/subjects/index.html?stream=${encodeURIComponent(stream)}&subject=${encodeURIComponent(subjectSlug)}`;
+        const description = getSubjectDescription(subjectSlug);
 
         return `
-          <div class="card">
+          <div
+            class="card subject-card"
+            data-title="${escapeHtml(subjectName)}"
+            data-category="main-maths-topic"
+            data-keywords="${escapeHtml(subjectSlug.replace(/-/g, " "))} main maths mechanics statics topic note"
+            data-description="${escapeHtml(description)}"
+          >
             <div class="badge">Topic ${String(index + 1).padStart(2, "0")}</div>
             <h3>${escapeHtml(subjectName)}</h3>
-            <p>${escapeHtml(getSubjectDescription(subjectSlug))}</p>
+            <p>${escapeHtml(description)}</p>
             <div class="actions">
               ${createLockedLink(link, allowed, "Explore")}
             </div>
           </div>
         `;
       }).join("");
+
+      setupFilters(filterItems);
     }
 
     function renderBasicMathsGroups(stream) {
@@ -287,6 +440,7 @@
       subjectNavLink.textContent = "Basic Maths";
       subjectNavLink.href = `/subjects/index.html?stream=${encodeURIComponent(stream)}`;
       backLink.href = "/notes/index.html";
+      listHeading.textContent = "All Categories";
 
       const groups = [
         {
@@ -301,8 +455,21 @@
         }
       ];
 
+      const filterItems = groups.map((group) => ({
+        category: "basic-maths-group",
+        title: group.title,
+        keywords: `${group.slug} basic maths revision notes category`,
+        description: group.description
+      }));
+
       grid.innerHTML = groups.map((group, index) => `
-        <div class="card">
+        <div
+          class="card subject-card"
+          data-title="${escapeHtml(group.title)}"
+          data-category="basic-maths-group"
+          data-keywords="${escapeHtml(group.slug)} basic maths revision notes category"
+          data-description="${escapeHtml(group.description)}"
+        >
           <div class="badge">Group ${String(index + 1).padStart(2, "0")}</div>
           <h3>${escapeHtml(group.title)}</h3>
           <p>${escapeHtml(group.description)}</p>
@@ -313,6 +480,8 @@
           </div>
         </div>
       `).join("");
+
+      setupFilters(filterItems);
     }
 
     function renderGroupSubjects(items, stream, group) {
@@ -331,11 +500,19 @@
       subjectNavLink.textContent = prettyGroup;
       subjectNavLink.href = `/subjects/index.html?stream=${encodeURIComponent(stream)}&group=${encodeURIComponent(group)}`;
       backLink.href = `/subjects/index.html?stream=${encodeURIComponent(stream)}`;
+      listHeading.textContent = "All Categories";
 
       if (!uniqueSubjects.length) {
         grid.innerHTML = `<div class="empty-state">No topics found in this group yet.</div>`;
         return;
       }
+
+      const filterItems = uniqueSubjects.map((subjectSlug) => ({
+        category: group,
+        title: prettifyLabel(subjectSlug),
+        keywords: `${subjectSlug.replace(/-/g, " ")} ${group} basic maths topic note`,
+        description: getSubjectDescription(subjectSlug)
+      }));
 
       grid.innerHTML = uniqueSubjects.map((subjectSlug, index) => {
         const subjectName = prettifyLabel(subjectSlug);
@@ -344,18 +521,27 @@
           `/subjects/index.html?stream=${encodeURIComponent(stream)}` +
           `&group=${encodeURIComponent(group)}` +
           `&subject=${encodeURIComponent(subjectSlug)}`;
+        const description = getSubjectDescription(subjectSlug);
 
         return `
-          <div class="card">
+          <div
+            class="card subject-card"
+            data-title="${escapeHtml(subjectName)}"
+            data-category="${escapeHtml(group)}"
+            data-keywords="${escapeHtml(subjectSlug.replace(/-/g, " "))} ${escapeHtml(group)} basic maths topic note"
+            data-description="${escapeHtml(description)}"
+          >
             <div class="badge">Topic ${String(index + 1).padStart(2, "0")}</div>
             <h3>${escapeHtml(subjectName)}</h3>
-            <p>${escapeHtml(getSubjectDescription(subjectSlug))}</p>
+            <p>${escapeHtml(description)}</p>
             <div class="actions">
               ${createLockedLink(link, allowed, "Explore")}
             </div>
           </div>
         `;
       }).join("");
+
+      setupFilters(filterItems);
     }
 
     function renderSubjectPdfs(items, stream, group, subject) {
@@ -377,6 +563,7 @@
       subjectDescEl.textContent = "Choose a note to view or open its PDF.";
       subjectNavLink.textContent = prettySubject;
       subjectNavLink.href = window.location.pathname + window.location.search;
+      listHeading.textContent = "All Categories";
 
       if (stream === "basic-maths" && group) {
         backLink.href =
@@ -390,6 +577,16 @@
         grid.innerHTML = `<div class="empty-state">No notes found for this topic yet.</div>`;
         return;
       }
+
+      const filterItems = subjectItems.map((item) => {
+        const topicTitle = item.title || prettifyLabel(item.file.replace(/\.pdf$/i, ""));
+        return {
+          category: "pdf-note",
+          title: topicTitle,
+          keywords: `${topicTitle.toLowerCase()} ${item.file.replace(/\.pdf$/i, "").replace(/-/g, " ")} pdf note formula sheet revision`,
+          description: `PDF note for ${prettySubject}`
+        };
+      });
 
       grid.innerHTML = subjectItems.map((item, index) => {
         const topicTitle = item.title || prettifyLabel(item.file.replace(/\.pdf$/i, ""));
@@ -416,7 +613,13 @@
           `&subjectName=${encodeURIComponent(prettySubject)}`;
 
         return `
-          <div class="card">
+          <div
+            class="card subject-card"
+            data-title="${escapeHtml(topicTitle)}"
+            data-category="pdf-note"
+            data-keywords="${escapeHtml(topicTitle.toLowerCase())} ${escapeHtml(item.file.replace(/\.pdf$/i, "").replace(/-/g, " "))} pdf note formula sheet revision"
+            data-description="${escapeHtml(`PDF note for ${prettySubject}`)}"
+          >
             <div class="badge">Note ${String(index + 1).padStart(2, "0")}</div>
             <h3>${escapeHtml(topicTitle)}</h3>
             <div class="actions">
@@ -430,6 +633,8 @@
           </div>
         `;
       }).join("");
+
+      setupFilters(filterItems);
     }
 
     async function loadPage() {
@@ -500,6 +705,9 @@
         window.location.reload();
       });
     }
+
+    searchInput.addEventListener("input", applyFilters);
+    categoryFilter.addEventListener("change", applyFilters);
 
     loadPage();
   </script>
