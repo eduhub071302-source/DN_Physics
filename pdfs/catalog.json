@@ -1,62 +1,221 @@
 [
   {
     "title": "Basics",
+    "stream": "physics",
     "subject": "current-electricity",
     "file": "basics-formulas.pdf",
-    "subjectPage": "/subjects/index.html?subject=current-electricity"
+    "subjectPage": "/subjects/index.html?stream=physics&subject=current-electricity"
   },
   {
     "title": "Resistor Systems",
+    "stream": "physics",
     "subject": "current-electricity",
     "file": "resistor-systems-formulas.pdf",
-    "subjectPage": "/subjects/index.html?subject=current-electricity"
+    "subjectPage": "/subjects/index.html?stream=physics&subject=current-electricity"
   },
+
   {
     "title": "Circular Motion",
+    "stream": "physics",
     "subject": "gravitational-field",
     "file": "circular-motion.pdf",
-    "subjectPage": "/subjects/index.html?subject=gravitational-field"
+    "subjectPage": "/subjects/index.html?stream=physics&subject=gravitational-field"
   },
   {
     "title": "Geostationary Satellite",
+    "stream": "physics",
     "subject": "gravitational-field",
     "file": "geostationary-satellite.pdf",
-    "subjectPage": "/subjects/index.html?subject=gravitational-field"
+    "subjectPage": "/subjects/index.html?stream=physics&subject=gravitational-field"
   },
   {
     "title": "Gravitational Field Intensity",
+    "stream": "physics",
     "subject": "gravitational-field",
     "file": "gravitational-field-intensity.pdf",
-    "subjectPage": "/subjects/index.html?subject=gravitational-field"
+    "subjectPage": "/subjects/index.html?stream=physics&subject=gravitational-field"
   },
   {
     "title": "Gravitational Potential Energy",
+    "stream": "physics",
     "subject": "gravitational-field",
     "file": "gravitational-potential-energy.pdf",
-    "subjectPage": "/subjects/index.html?subject=gravitational-field"
+    "subjectPage": "/subjects/index.html?stream=physics&subject=gravitational-field"
   },
   {
     "title": "Gravitational Potential",
+    "stream": "physics",
     "subject": "gravitational-field",
     "file": "gravitational-potential.pdf",
-    "subjectPage": "/subjects/index.html?subject=gravitational-field"
+    "subjectPage": "/subjects/index.html?stream=physics&subject=gravitational-field"
   },
   {
     "title": "Universal Gravitational Constant",
+    "stream": "physics",
     "subject": "gravitational-field",
     "file": "universal-gravitational-constant.pdf",
-    "subjectPage": "/subjects/index.html?subject=gravitational-field"
+    "subjectPage": "/subjects/index.html?stream=physics&subject=gravitational-field"
   },
+
   {
     "title": "Basics 2",
+    "stream": "physics",
     "subject": "units",
     "file": "basics-2-formulas.pdf",
-    "subjectPage": "/subjects/index.html?subject=units"
+    "subjectPage": "/subjects/index.html?stream=physics&subject=units"
   },
   {
     "title": "Basics",
+    "stream": "physics",
     "subject": "units",
     "file": "basics-formulas.pdf",
-    "subjectPage": "/subjects/index.html?subject=units"
+    "subjectPage": "/subjects/index.html?stream=physics&subject=units"
+  },
+
+  {
+    "title": "Vectors",
+    "stream": "main-maths",
+    "subject": "vectors",
+    "file": "vectors.pdf",
+    "subjectPage": "/subjects/index.html?stream=main-maths&subject=vectors"
+  },
+  {
+    "title": "System of Coplanar Forces Acting on a Particle",
+    "stream": "main-maths",
+    "subject": "system-of-coplanar-forces-acting-on-a-particle",
+    "file": "system-of-coplanar-forces-acting-on-a-particle.pdf",
+    "subjectPage": "/subjects/index.html?stream=main-maths&subject=system-of-coplanar-forces-acting-on-a-particle"
+  },
+  {
+    "title": "Parallel Forces, Moments, Couples",
+    "stream": "main-maths",
+    "subject": "parallel-forces-moments-couples",
+    "file": "parallel-forces-moments-couples.pdf",
+    "subjectPage": "/subjects/index.html?stream=main-maths&subject=parallel-forces-moments-couples"
+  },
+  {
+    "title": "Coplanar Forces Acting on a Rigid Body",
+    "stream": "main-maths",
+    "subject": "coplanar-forces-acting-on-a-rigid-body",
+    "file": "coplanar-forces-acting-on-a-rigid-body.pdf",
+    "subjectPage": "/subjects/index.html?stream=main-maths&subject=coplanar-forces-acting-on-a-rigid-body"
+  },
+  {
+    "title": "Jointed Rods",
+    "stream": "main-maths",
+    "subject": "jointed-rods",
+    "file": "jointed-rods.pdf",
+    "subjectPage": "/subjects/index.html?stream=main-maths&subject=jointed-rods"
+  },
+  {
+    "title": "Frameworks",
+    "stream": "main-maths",
+    "subject": "frameworks",
+    "file": "frameworks.pdf",
+    "subjectPage": "/subjects/index.html?stream=main-maths&subject=frameworks"
+  },
+  {
+    "title": "Centre of Gravity",
+    "stream": "main-maths",
+    "subject": "centre-of-gravity",
+    "file": "centre-of-gravity.pdf",
+    "subjectPage": "/subjects/index.html?stream=main-maths&subject=centre-of-gravity"
+  },
+  {
+    "title": "Friction",
+    "stream": "main-maths",
+    "subject": "friction",
+    "file": "friction.pdf",
+    "subjectPage": "/subjects/index.html?stream=main-maths&subject=friction"
+  },
+
+  {
+    "title": "Binomial Expansion",
+    "stream": "basic-maths",
+    "group": "algebra",
+    "subject": "binomial-expansion",
+    "file": "binomial-expansion.pdf",
+    "subjectPage": "/subjects/index.html?stream=basic-maths&group=algebra&subject=binomial-expansion"
+  },
+  {
+    "title": "Factorisation",
+    "stream": "basic-maths",
+    "group": "algebra",
+    "subject": "factorisation",
+    "file": "factorisation.pdf",
+    "subjectPage": "/subjects/index.html?stream=basic-maths&group=algebra&subject=factorisation"
+  },
+  {
+    "title": "Algebraic Fractions",
+    "stream": "basic-maths",
+    "group": "algebra",
+    "subject": "algebraic-fractions",
+    "file": "algebraic-fractions.pdf",
+    "subjectPage": "/subjects/index.html?stream=basic-maths&group=algebra&subject=algebraic-fractions"
+  },
+  {
+    "title": "Equations",
+    "stream": "basic-maths",
+    "group": "algebra",
+    "subject": "equations",
+    "file": "equations.pdf",
+    "subjectPage": "/subjects/index.html?stream=basic-maths&group=algebra&subject=equations"
+  },
+  {
+    "title": "Indices and Logarithms",
+    "stream": "basic-maths",
+    "group": "algebra",
+    "subject": "indices-and-logarithms",
+    "file": "indices-and-logarithms.pdf",
+    "subjectPage": "/subjects/index.html?stream=basic-maths&group=algebra&subject=indices-and-logarithms"
+  },
+  {
+    "title": "Ratio and Proportions",
+    "stream": "basic-maths",
+    "group": "algebra",
+    "subject": "ratio-and-proportions",
+    "file": "ratio-and-proportions.pdf",
+    "subjectPage": "/subjects/index.html?stream=basic-maths&group=algebra&subject=ratio-and-proportions"
+  },
+
+  {
+    "title": "Rectangles in Connection with Circles",
+    "stream": "basic-maths",
+    "group": "geometry",
+    "subject": "rectangles-in-connection-with-circles",
+    "file": "rectangles-in-connection-with-circles.pdf",
+    "subjectPage": "/subjects/index.html?stream=basic-maths&group=geometry&subject=rectangles-in-connection-with-circles"
+  },
+  {
+    "title": "Pythagoras Theorem and Its Extensions",
+    "stream": "basic-maths",
+    "group": "geometry",
+    "subject": "pythagoras-theorem-and-extensions",
+    "file": "pythagoras-theorem-and-extensions.pdf",
+    "subjectPage": "/subjects/index.html?stream=basic-maths&group=geometry&subject=pythagoras-theorem-and-extensions"
+  },
+  {
+    "title": "Bisector Theorem",
+    "stream": "basic-maths",
+    "group": "geometry",
+    "subject": "bisector-theorem",
+    "file": "bisector-theorem.pdf",
+    "subjectPage": "/subjects/index.html?stream=basic-maths&group=geometry&subject=bisector-theorem"
+  },
+  {
+    "title": "Area",
+    "stream": "basic-maths",
+    "group": "geometry",
+    "subject": "area",
+    "file": "area.pdf",
+    "subjectPage": "/subjects/index.html?stream=basic-maths&group=geometry&subject=area"
+  },
+  {
+    "title": "Concurrencies Connected with Triangles",
+    "stream": "basic-maths",
+    "group": "geometry",
+    "subject": "concurrencies-connected-with-triangles",
+    "file": "concurrencies-connected-with-triangles.pdf",
+    "subjectPage": "/subjects/index.html?stream=basic-maths&group=geometry&subject=concurrencies-connected-with-triangles"
   }
 ]
