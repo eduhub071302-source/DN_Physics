@@ -15,34 +15,44 @@ function buildOnboardingSteps() {
 
   const steps = [
     {
-      target: "#onboardNotes",
-      title: "Explore Notes",
-      text: "Open notes and start revising.",
+      target: "#onboardPractice",
+      badge: "Mission 01",
+      title: "Start Your First Battle",
+      text: "Tap here to launch MCQ practice. This is your main game mode for building speed, accuracy, and exam confidence.",
+      action: "Open Practice",
     },
     {
-      target: "#onboardPractice",
-      title: "Practice MCQs",
-      text: "Jump into past paper practice from here.",
+      target: "#onboardNotes",
+      badge: "Mission 02",
+      title: "Unlock Revision Power",
+      text: "Use Notes when you want a cleaner learning path before answering MCQs. Read fast, revise smart, and come back stronger.",
+      action: "Explore Notes",
     },
     {
       target: "#musicToggleBtn",
-      title: "Focus Mode",
-      text: "Play study music while learning.",
+      badge: "Mission 03",
+      title: "Activate Focus Mode",
+      text: "Open the music player for deep-focus study sessions. Use it like a game buff for concentration.",
+      action: "Enable Focus",
     },
     {
       target: "#refreshBtn",
-      title: "Refresh the App",
+      badge: "Mission 04",
+      title: "Sync the Latest Version",
       text: mobile
-        ? "Swipe down to refresh."
-        : "Use this to refresh the app.",
+        ? "Pull down or use this button to refresh the app and load the newest improvements."
+        : "Use this button to refresh the app and sync the newest improvements.",
+      action: "Refresh App",
     },
   ];
 
   if (installBtn && !installBtn.classList.contains("is-hidden")) {
     steps.push({
       target: "#installBtn",
-      title: "Install App",
-      text: "Install for faster access.",
+      badge: "Mission 05",
+      title: "Install for Faster Access",
+      text: "Install DinuuNOVA to open it faster like a real app and get a smoother experience on your device.",
+      action: "Install App",
     });
   }
 
@@ -57,13 +67,35 @@ function hasSeenOnboarding() {
   return localStorage.getItem("dnPhysicsOnboardingSeen") === "true";
 }
 
+function resetOnboarding() {
+  localStorage.removeItem("dnPhysicsOnboardingSeen");
+}
+
 function hideOnboarding() {
   const onboardingOverlay = getEl("onboardingOverlay");
   if (!onboardingOverlay) return;
 
   onboardingOverlay.classList.add("is-hidden");
   onboardingOverlay.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
   setOnboardingSeen();
+}
+
+function updateProgress() {
+  const progressText = getEl("onboardingProgressText");
+  const progressFill = getEl("onboardingProgressFill");
+
+  const total = onboardingSteps.length || 1;
+  const current = Math.min(onboardingIndex + 1, total);
+  const percent = (current / total) * 100;
+
+  if (progressText) {
+    progressText.textContent = `${current} / ${total}`;
+  }
+
+  if (progressFill) {
+    progressFill.style.width = `${percent}%`;
+  }
 }
 
 function positionOnboarding(targetEl) {
@@ -76,18 +108,20 @@ function positionOnboarding(targetEl) {
   }
 
   const rect = targetEl.getBoundingClientRect();
-  const padding = 10;
+  const padding = 12;
 
   onboardingSpotlight.style.top = `${rect.top - padding + window.scrollY}px`;
   onboardingSpotlight.style.left = `${rect.left - padding + window.scrollX}px`;
   onboardingSpotlight.style.width = `${rect.width + padding * 2}px`;
   onboardingSpotlight.style.height = `${rect.height + padding * 2}px`;
 
-  const cardWidth = Math.min(window.innerWidth - 24, 320);
-  const cardHeight = 150;
+  const cardWidth = Math.min(window.innerWidth - 24, 360);
+  const cardHeight = 220;
 
   let cardLeft = rect.left + window.scrollX;
-  let cardTop = rect.bottom + window.scrollY + 16;
+  let cardTop = rect.bottom + window.scrollY + 18;
+  let arrowLeft = rect.left + window.scrollX - 18;
+  let arrowTop = rect.top + window.scrollY + rect.height / 2 - 12;
 
   if (cardLeft + cardWidth > window.scrollX + window.innerWidth - 12) {
     cardLeft = window.scrollX + window.innerWidth - cardWidth - 12;
@@ -98,18 +132,25 @@ function positionOnboarding(targetEl) {
   }
 
   if (cardTop + cardHeight > window.scrollY + window.innerHeight - 12) {
-    cardTop = rect.top + window.scrollY - cardHeight - 20;
+    cardTop = rect.top + window.scrollY - cardHeight - 22;
   }
 
   if (cardTop < window.scrollY + 12) {
     cardTop = window.scrollY + 12;
   }
 
+  if (window.innerWidth <= 768) {
+    cardLeft = window.scrollX + 12;
+    cardTop = window.scrollY + window.innerHeight - Math.min(260, window.innerHeight * 0.38);
+    arrowLeft = rect.left + window.scrollX + rect.width / 2 - 10;
+    arrowTop = rect.bottom + window.scrollY + 8;
+  }
+
   onboardingCard.style.top = `${cardTop}px`;
   onboardingCard.style.left = `${cardLeft}px`;
 
-  onboardingArrow.style.top = `${rect.top + window.scrollY + rect.height / 2 - 10}px`;
-  onboardingArrow.style.left = `${Math.max(window.scrollX + 12, rect.left + window.scrollX - 28)}px`;
+  onboardingArrow.style.top = `${arrowTop}px`;
+  onboardingArrow.style.left = `${Math.max(window.scrollX + 12, arrowLeft)}px`;
 }
 
 function showOnboardingStep(index) {
@@ -123,6 +164,8 @@ function showOnboardingStep(index) {
   const onboardingTitle = getEl("onboardingTitle");
   const onboardingText = getEl("onboardingText");
   const onboardingNextBtn = getEl("onboardingNextBtn");
+  const onboardingBadge = getEl("onboardingMissionBadge");
+  const onboardingAction = getEl("onboardingActionHint");
   const targetEl = document.querySelector(step.target);
 
   if (!targetEl) {
@@ -136,16 +179,21 @@ function showOnboardingStep(index) {
     block: "center",
   });
 
+  if (onboardingBadge) onboardingBadge.textContent = step.badge || "Mission";
   if (onboardingTitle) onboardingTitle.textContent = step.title;
   if (onboardingText) onboardingText.textContent = step.text;
+  if (onboardingAction) onboardingAction.textContent = step.action || "Continue";
+
   if (onboardingNextBtn) {
     onboardingNextBtn.textContent =
-      index === onboardingSteps.length - 1 ? "Done" : "Next";
+      index === onboardingSteps.length - 1 ? "Finish Mission" : "Next Mission";
   }
+
+  updateProgress();
 
   setTimeout(() => {
     positionOnboarding(targetEl);
-  }, 260);
+  }, 280);
 }
 
 function startOnboarding() {
@@ -158,6 +206,7 @@ function startOnboarding() {
 
   onboardingOverlay.classList.remove("is-hidden");
   onboardingOverlay.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
 
   showOnboardingStep(onboardingIndex);
 }
@@ -185,4 +234,4 @@ function setupOnboarding() {
   });
 }
 
-export { setupOnboarding, startOnboarding, hideOnboarding };
+export { setupOnboarding, startOnboarding, hideOnboarding, resetOnboarding };
