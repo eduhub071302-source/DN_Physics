@@ -2480,6 +2480,16 @@ header,
   }
 }
 
+.onboarding-card {
+  max-width: min(92vw, 360px);
+}
+
+@media (max-width: 768px) {
+  .onboarding-card {
+    max-width: calc(100vw - 24px);
+  }
+}
+
 /* =========================
    AUTH MODAL
 ========================= */
