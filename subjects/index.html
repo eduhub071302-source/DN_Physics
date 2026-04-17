@@ -247,6 +247,39 @@
       }).join("");
     }
 
+    function renderMainMathsSubjects(items, stream) {
+      const uniqueSubjects = [...new Set(items.map((item) => item.subject).filter(Boolean))];
+
+      document.title = "Main Maths | DinuuNOVA Physics";
+      subjectTitleEl.textContent = "Main Maths";
+      subjectDescEl.textContent = "Choose a Main Maths topic to open notes.";
+      subjectNavLink.textContent = "Main Maths";
+      subjectNavLink.href = `/subjects/index.html?stream=${encodeURIComponent(stream)}`;
+      backLink.href = "/notes/index.html";
+
+      if (!uniqueSubjects.length) {
+        grid.innerHTML = `<div class="empty-state">No Main Maths topics found yet.</div>`;
+        return;
+      }
+
+      grid.innerHTML = uniqueSubjects.map((subjectSlug, index) => {
+        const subjectName = prettifyLabel(subjectSlug);
+        const allowed = canAccessSubjectCard(subjectSlug);
+        const link = `/subjects/index.html?stream=${encodeURIComponent(stream)}&subject=${encodeURIComponent(subjectSlug)}`;
+
+        return `
+          <div class="card">
+            <div class="badge">Topic ${String(index + 1).padStart(2, "0")}</div>
+            <h3>${escapeHtml(subjectName)}</h3>
+            <p>${escapeHtml(getSubjectDescription(subjectSlug))}</p>
+            <div class="actions">
+              ${createLockedLink(link, allowed, "Explore")}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
     function renderBasicMathsGroups(stream) {
       document.title = "Basic Maths | DinuuNOVA Physics";
       subjectTitleEl.textContent = "Basic Maths";
@@ -327,9 +360,14 @@
 
     function renderSubjectPdfs(items, stream, group, subject) {
       const subjectItems = items.filter((item) => {
-        const streamMatch = item.stream === stream;
-        const groupMatch = group ? item.group === group : true;
-        return streamMatch && groupMatch && item.subject === subject;
+        if (item.stream !== stream) return false;
+        if (item.subject !== subject) return false;
+
+        if (stream === "basic-maths") {
+          return item.group === group;
+        }
+
+        return true;
       });
 
       const prettySubject = prettifyLabel(subject);
@@ -340,7 +378,7 @@
       subjectNavLink.textContent = prettySubject;
       subjectNavLink.href = window.location.pathname + window.location.search;
 
-      if (group) {
+      if (stream === "basic-maths" && group) {
         backLink.href =
           `/subjects/index.html?stream=${encodeURIComponent(stream)}` +
           `&group=${encodeURIComponent(group)}`;
@@ -357,17 +395,23 @@
         const topicTitle = item.title || prettifyLabel(item.file.replace(/\.pdf$/i, ""));
 
         const topicPage =
-          `/topics/topic.html?subject=${encodeURIComponent(item.subject)}` +
+          `/topics/topic.html?stream=${encodeURIComponent(stream)}` +
+          `${group ? `&group=${encodeURIComponent(group)}` : ""}` +
+          `&subject=${encodeURIComponent(item.subject)}` +
           `&file=${encodeURIComponent(item.file)}` +
           `&title=${encodeURIComponent(topicTitle)}`;
 
-        const viewerBack = group
-          ? `/subjects/index.html?stream=${stream}&group=${group}&subject=${subject}`
-          : `/subjects/index.html?stream=${stream}&subject=${subject}`;
+        const viewerBack = (stream === "basic-maths" && group)
+          ? `/subjects/index.html?stream=${encodeURIComponent(stream)}&group=${encodeURIComponent(group)}&subject=${encodeURIComponent(subject)}`
+          : `/subjects/index.html?stream=${encodeURIComponent(stream)}&subject=${encodeURIComponent(subject)}`;
 
         const viewerPage =
           `/topics/viewer.html?pdf=${encodeURIComponent(getPdfPath(item))}` +
           `&title=${encodeURIComponent(topicTitle)}` +
+          `&stream=${encodeURIComponent(stream)}` +
+          `${group ? `&group=${encodeURIComponent(group)}` : ""}` +
+          `&subject=${encodeURIComponent(item.subject)}` +
+          `&file=${encodeURIComponent(item.file)}` +
           `&back=${encodeURIComponent(viewerBack)}` +
           `&subjectName=${encodeURIComponent(prettySubject)}`;
 
@@ -414,16 +458,7 @@
         }
 
         if (stream === "main-maths" && !subject) {
-          renderGroupSubjects(
-            streamItems.map((item) => ({ ...item, group: "main-maths-topics" })),
-            stream,
-            "main-maths-topics"
-          );
-          subjectTitleEl.textContent = "Main Maths";
-          subjectDescEl.textContent = "Choose a Main Maths topic to open notes.";
-          subjectNavLink.textContent = "Main Maths";
-          subjectNavLink.href = `/subjects/index.html?stream=${encodeURIComponent(stream)}`;
-          backLink.href = "/notes/index.html";
+          renderMainMathsSubjects(streamItems, stream);
           return;
         }
 
