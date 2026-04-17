@@ -2289,6 +2289,7 @@ header,
   position: fixed;
   inset: 0;
   z-index: 5000;
+  overflow: hidden;
 }
 
 .onboarding-overlay.is-hidden {
@@ -2304,21 +2305,24 @@ header,
 }
 
 .onboarding-spotlight {
-  position: absolute;
+  position: fixed;
   border-radius: 18px;
   border: 2px solid rgba(124, 196, 255, 0.78);
   box-shadow:
     0 0 0 2000px rgba(6, 12, 22, 0.72),
     0 0 0 8px rgba(78, 161, 255, 0.12),
     0 0 32px rgba(124, 196, 255, 0.42);
-  transition: all 0.28s ease;
+  transition: all 0.22s ease;
   pointer-events: none;
 }
 
 .onboarding-card {
-  position: absolute;
+  position: fixed;
   z-index: 5002;
   width: min(92vw, 360px);
+  max-width: min(92vw, 360px);
+  max-height: min(72vh, 430px);
+  overflow-y: auto;
   padding: 18px;
   border: 1px solid rgba(124, 196, 255, 0.18);
   border-radius: 22px;
@@ -2444,7 +2448,7 @@ header,
 }
 
 .onboarding-arrow {
-  position: absolute;
+  position: fixed;
   z-index: 5003;
   color: var(--accent-2);
   font-size: 24px;
@@ -2456,7 +2460,8 @@ header,
 @media (max-width: 768px) {
   .onboarding-card {
     width: calc(100vw - 24px);
-    max-width: none;
+    max-width: calc(100vw - 24px);
+    max-height: min(42vh, 320px);
     left: 12px !important;
     right: 12px;
     border-radius: 20px;
@@ -2476,35 +2481,11 @@ header,
   }
 
   .onboarding-arrow {
-    font-size: 22px;
+    display: none !important;
   }
-}
 
-.onboarding-card {
-  max-width: min(92vw, 360px);
-}
-
-@media (max-width: 768px) {
-  .onboarding-card {
-    max-width: calc(100vw - 24px);
-  }
-}
-
-.onboarding-overlay {
-  overflow: hidden;
-}
-
-.onboarding-card {
-  max-width: min(92vw, 360px);
-  max-height: min(72vh, 420px);
-  overflow-y: auto;
-}
-
-@media (max-width: 768px) {
-  .onboarding-card {
-    max-width: calc(100vw - 24px);
-    max-height: 38vh;
-    overflow-y: auto;
+  .onboarding-spotlight {
+    border-radius: 16px;
   }
 }
 
