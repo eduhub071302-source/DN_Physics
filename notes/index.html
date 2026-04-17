@@ -50,8 +50,17 @@
       </div>
     </section>
 
+    <section class="section pinned-section is-hidden" id="pinnedSection">
+      <div class="container">
+        <h2 style="font-size: clamp(22px, 4vw, 30px);">Pinned Categories</h2>
+        <div class="grid" id="pinnedGrid"></div>
+      </div>
+    </section>
+
     <section class="section">
       <div class="container">
+        <h2 style="font-size: clamp(24px, 4.5vw, 34px);">All Categories</h2>
+
         <div class="grid" id="subjectGrid">
           <div class="empty-state">Loading categories...</div>
         </div>
@@ -117,7 +126,12 @@
 
   <script>
     const refreshBtn = document.getElementById("refreshBtn");
+    const pinnedSection = document.getElementById("pinnedSection");
+    const pinnedGrid = document.getElementById("pinnedGrid");
     const subjectGrid = document.getElementById("subjectGrid");
+
+    let SUBJECTS = {};
+    let pinButtons = [];
 
     function prettifyLabel(name) {
       return (name || "")
@@ -149,6 +163,156 @@
       return `Category ${String(index + 1).padStart(2, "0")}`;
     }
 
+    function getCurrentUserId() {
+      try {
+        const firebaseUid = window.firebaseAuth?.currentUser?.uid;
+        if (firebaseUid) return firebaseUid;
+
+        const cachedUser = JSON.parse(localStorage.getItem("dn_user") || "null");
+        if (cachedUser?.id) return cachedUser.id;
+      } catch (error) {
+        console.warn("Could not resolve current user id:", error);
+      }
+
+      return "guest";
+    }
+
+    function getPinnedSubjectsKey() {
+      return `dnPhysicsPinnedSubjects_${getCurrentUserId()}`;
+    }
+
+    function getPinnedSubjects() {
+      if (typeof window.dnPdfGetPinnedSubjects === "function") {
+        return window.dnPdfGetPinnedSubjects();
+      }
+
+      try {
+        return JSON.parse(localStorage.getItem(getPinnedSubjectsKey())) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    async function savePinnedSubjects(items) {
+      if (typeof window.dnPdfSetPinnedSubjects === "function") {
+        await window.dnPdfSetPinnedSubjects(items);
+        return;
+      }
+
+      localStorage.setItem(getPinnedSubjectsKey(), JSON.stringify(items));
+    }
+
+    async function togglePin(subjectName) {
+      const pinned = getPinnedSubjects();
+      const exists = pinned.includes(subjectName);
+
+      const updated = exists
+        ? pinned.filter((name) => name !== subjectName)
+        : [...pinned, subjectName];
+
+      await savePinnedSubjects(updated);
+      updatePinButtons();
+      renderPinnedSubjects();
+    }
+
+    function updatePinButtons() {
+      const pinned = getPinnedSubjects();
+
+      pinButtons.forEach((button) => {
+        const subjectName = button.dataset.subject;
+        const isPinned = pinned.includes(subjectName);
+
+        button.textContent = isPinned ? "★" : "☆";
+        button.classList.toggle("pinned", isPinned);
+        button.setAttribute(
+          "aria-label",
+          isPinned ? `Unpin ${subjectName}` : `Pin ${subjectName}`
+        );
+        button.title = isPinned ? "Unpin category" : "Pin category";
+      });
+    }
+
+    function createPinnedCard(subject) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "card";
+
+      const top = document.createElement("div");
+      top.className = "card-top";
+
+      const badge = document.createElement("div");
+      badge.className = "badge";
+      badge.textContent = subject.badge;
+
+      const pinBtn = document.createElement("button");
+      pinBtn.className = "pin-btn pinned";
+      pinBtn.type = "button";
+      pinBtn.textContent = "★";
+      pinBtn.dataset.subject = subject.title;
+      pinBtn.setAttribute("aria-label", `Unpin ${subject.title}`);
+      pinBtn.title = "Unpin category";
+      pinBtn.addEventListener("click", async () => {
+        await togglePin(subject.title);
+      });
+
+      top.appendChild(badge);
+      top.appendChild(pinBtn);
+
+      const title = document.createElement("h3");
+      title.textContent = subject.title;
+
+      const desc = document.createElement("p");
+      desc.textContent = subject.description;
+
+      wrapper.appendChild(top);
+      wrapper.appendChild(title);
+      wrapper.appendChild(desc);
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+
+      const link = document.createElement("a");
+      link.className = "btn";
+      link.href = subject.link;
+      link.textContent = "Explore";
+
+      actions.appendChild(link);
+      wrapper.appendChild(actions);
+
+      return wrapper;
+    }
+
+    function renderPinnedSubjects() {
+      const pinned = getPinnedSubjects();
+      pinnedGrid.innerHTML = "";
+
+      if (pinned.length === 0) {
+        pinnedSection.classList.add("is-hidden");
+        return;
+      }
+
+      pinned.forEach((name) => {
+        const subject = SUBJECTS[name];
+        if (subject) {
+          pinnedGrid.appendChild(createPinnedCard(subject));
+        }
+      });
+
+      pinnedSection.classList.remove("is-hidden");
+    }
+
+    function rebuildPins() {
+      pinButtons = Array.from(document.querySelectorAll(".pin-btn"));
+
+      pinButtons.forEach((button) => {
+        button.addEventListener("click", async () => {
+          await togglePin(button.dataset.subject);
+        });
+      });
+
+      updatePinButtons();
+      renderPinnedSubjects();
+    }
+
     async function loadSubjectsFromCatalog() {
       try {
         const res = await fetch("/pdfs/catalog.json", { cache: "no-store" });
@@ -162,25 +326,42 @@
           return;
         }
 
+        SUBJECTS = {};
+
         subjectGrid.innerHTML = uniqueStreams.map((streamSlug, index) => {
           const streamName = prettifyLabel(streamSlug);
           const description = getStreamDescription(streamSlug);
           const badge = getBadgeText(index);
           const link = `/subjects/index.html?stream=${encodeURIComponent(streamSlug)}`;
 
+          SUBJECTS[streamName] = {
+            title: streamName,
+            badge,
+            description,
+            link,
+            allowed: true
+          };
+
           return `
             <div class="card subject-card">
               <div class="card-top">
                 <div class="badge">${badge}</div>
+                <button class="pin-btn" data-subject="${escapeHtml(streamName)}" type="button" aria-label="Pin ${escapeHtml(streamName)}">
+                  ☆
+                </button>
               </div>
               <h3>${escapeHtml(streamName)}</h3>
               <p>${escapeHtml(description)}</p>
               <div class="actions">
-                <a class="btn" href="${link}">Explore</a>
+                <a class="btn" href="${link}">
+                  Explore
+                </a>
               </div>
             </div>
           `;
         }).join("");
+
+        rebuildPins();
       } catch (error) {
         console.error(error);
         subjectGrid.innerHTML = `<div class="empty-state">Could not load categories.</div>`;
