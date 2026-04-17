@@ -1,5 +1,6 @@
 let onboardingSteps = [];
 let onboardingIndex = 0;
+let onboardingRepositionTimer = null;
 
 function getEl(id) {
   return document.getElementById(id);
@@ -67,10 +68,6 @@ function hasSeenOnboarding() {
   return localStorage.getItem("dnPhysicsOnboardingSeen") === "true";
 }
 
-function resetOnboarding() {
-  localStorage.removeItem("dnPhysicsOnboardingSeen");
-}
-
 function hideOnboarding() {
   const onboardingOverlay = getEl("onboardingOverlay");
   if (!onboardingOverlay) return;
@@ -98,6 +95,44 @@ function updateProgress() {
   }
 }
 
+function getHeaderOffset() {
+  const header =
+    document.querySelector(".site-header") ||
+    document.querySelector("header");
+
+  return header ? header.offsetHeight : 76;
+}
+
+async function scrollTargetIntoBestView(targetEl) {
+  if (!targetEl) return;
+
+  const headerOffset = getHeaderOffset();
+  const rect = targetEl.getBoundingClientRect();
+  const viewportHeight = window.innerHeight;
+  const mobile = isMobileDevice();
+
+  const targetCenterY = rect.top + window.scrollY + rect.height / 2;
+  const desiredViewportCenter = mobile
+    ? window.scrollY + viewportHeight * 0.32
+    : window.scrollY + viewportHeight * 0.42;
+
+  const nextScrollTop = Math.max(
+    0,
+    targetCenterY - desiredViewportCenter + headerOffset / 2,
+  );
+
+  window.scrollTo({
+    top: nextScrollTop,
+    behavior: "smooth",
+  });
+
+  await new Promise((resolve) => setTimeout(resolve, 380));
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
 function positionOnboarding(targetEl) {
   const onboardingSpotlight = getEl("onboardingSpotlight");
   const onboardingCard = getEl("onboardingCard");
@@ -107,53 +142,127 @@ function positionOnboarding(targetEl) {
     return;
   }
 
-  const rect = targetEl.getBoundingClientRect();
-  const padding = 12;
+  const mobile = isMobileDevice();
+  const padding = mobile ? 10 : 12;
+  const viewportPadding = 12;
+  const headerOffset = getHeaderOffset();
 
-  onboardingSpotlight.style.top = `${rect.top - padding + window.scrollY}px`;
-  onboardingSpotlight.style.left = `${rect.left - padding + window.scrollX}px`;
+  const rect = targetEl.getBoundingClientRect();
+  const pageTop = rect.top + window.scrollY;
+  const pageLeft = rect.left + window.scrollX;
+
+  onboardingSpotlight.style.top = `${pageTop - padding}px`;
+  onboardingSpotlight.style.left = `${pageLeft - padding}px`;
   onboardingSpotlight.style.width = `${rect.width + padding * 2}px`;
   onboardingSpotlight.style.height = `${rect.height + padding * 2}px`;
 
-  const cardWidth = Math.min(window.innerWidth - 24, 360);
-  const cardHeight = 220;
+  onboardingCard.style.visibility = "hidden";
+  onboardingCard.style.top = "0px";
+  onboardingCard.style.left = "0px";
+  onboardingCard.style.width = mobile ? `${window.innerWidth - 24}px` : `min(92vw, 360px)`;
 
-  let cardLeft = rect.left + window.scrollX;
-  let cardTop = rect.bottom + window.scrollY + 18;
-  let arrowLeft = rect.left + window.scrollX - 18;
-  let arrowTop = rect.top + window.scrollY + rect.height / 2 - 12;
+  const cardRect = onboardingCard.getBoundingClientRect();
+  const cardWidth = cardRect.width || Math.min(window.innerWidth - 24, mobile ? window.innerWidth - 24 : 360);
+  const cardHeight = cardRect.height || 220;
 
-  if (cardLeft + cardWidth > window.scrollX + window.innerWidth - 12) {
-    cardLeft = window.scrollX + window.innerWidth - cardWidth - 12;
+  const viewportLeft = window.scrollX + viewportPadding;
+  const viewportRight = window.scrollX + window.innerWidth - viewportPadding;
+  const viewportTop = window.scrollY + headerOffset + 8;
+  const viewportBottom = window.scrollY + window.innerHeight - viewportPadding;
+
+  let cardLeft;
+  let cardTop;
+  let arrowLeft;
+  let arrowTop;
+  let arrowRotation = "0deg";
+
+  if (mobile) {
+    cardLeft = viewportLeft;
+    cardTop = clamp(
+      window.scrollY + window.innerHeight - cardHeight - 12,
+      viewportTop,
+      viewportBottom - cardHeight,
+    );
+
+    arrowLeft = clamp(
+      pageLeft + rect.width / 2 - 10,
+      viewportLeft + 10,
+      viewportRight - 30,
+    );
+
+    const desiredArrowTop = pageTop + rect.height + 8;
+    arrowTop = clamp(
+      desiredArrowTop,
+      viewportTop + 6,
+      cardTop - 26,
+    );
+
+    arrowRotation = "90deg";
+  } else {
+    const spaceBelow = viewportBottom - (pageTop + rect.height);
+    const spaceAbove = pageTop - viewportTop;
+
+    const placeBelow = spaceBelow >= cardHeight + 18 || spaceBelow >= spaceAbove;
+
+    cardLeft = clamp(
+      pageLeft,
+      viewportLeft,
+      viewportRight - cardWidth,
+    );
+
+    if (placeBelow) {
+      cardTop = clamp(
+        pageTop + rect.height + 18,
+        viewportTop,
+        viewportBottom - cardHeight,
+      );
+
+      arrowLeft = clamp(
+        pageLeft + 6,
+        viewportLeft + 6,
+        cardLeft - 8,
+      );
+
+      arrowTop = clamp(
+        pageTop + rect.height / 2 - 10,
+        viewportTop + 6,
+        viewportBottom - 28,
+      );
+
+      arrowRotation = "0deg";
+    } else {
+      cardTop = clamp(
+        pageTop - cardHeight - 18,
+        viewportTop,
+        viewportBottom - cardHeight,
+      );
+
+      arrowLeft = clamp(
+        pageLeft + 6,
+        viewportLeft + 6,
+        cardLeft - 8,
+      );
+
+      arrowTop = clamp(
+        pageTop + rect.height / 2 - 10,
+        viewportTop + 6,
+        viewportBottom - 28,
+      );
+
+      arrowRotation = "180deg";
+    }
   }
 
-  if (cardLeft < window.scrollX + 12) {
-    cardLeft = window.scrollX + 12;
-  }
-
-  if (cardTop + cardHeight > window.scrollY + window.innerHeight - 12) {
-    cardTop = rect.top + window.scrollY - cardHeight - 22;
-  }
-
-  if (cardTop < window.scrollY + 12) {
-    cardTop = window.scrollY + 12;
-  }
-
-  if (window.innerWidth <= 768) {
-    cardLeft = window.scrollX + 12;
-    cardTop = window.scrollY + window.innerHeight - Math.min(260, window.innerHeight * 0.38);
-    arrowLeft = rect.left + window.scrollX + rect.width / 2 - 10;
-    arrowTop = rect.bottom + window.scrollY + 8;
-  }
-
-  onboardingCard.style.top = `${cardTop}px`;
   onboardingCard.style.left = `${cardLeft}px`;
+  onboardingCard.style.top = `${cardTop}px`;
+  onboardingCard.style.visibility = "visible";
 
+  onboardingArrow.style.left = `${arrowLeft}px`;
   onboardingArrow.style.top = `${arrowTop}px`;
-  onboardingArrow.style.left = `${Math.max(window.scrollX + 12, arrowLeft)}px`;
+  onboardingArrow.style.transform = `rotate(${arrowRotation})`;
 }
 
-function showOnboardingStep(index) {
+async function showOnboardingStep(index) {
   const step = onboardingSteps[index];
 
   if (!step) {
@@ -174,11 +283,6 @@ function showOnboardingStep(index) {
     return;
   }
 
-  targetEl.scrollIntoView({
-    behavior: "smooth",
-    block: "center",
-  });
-
   if (onboardingBadge) onboardingBadge.textContent = step.badge || "Mission";
   if (onboardingTitle) onboardingTitle.textContent = step.title;
   if (onboardingText) onboardingText.textContent = step.text;
@@ -191,24 +295,8 @@ function showOnboardingStep(index) {
 
   updateProgress();
 
-  setTimeout(() => {
-    positionOnboarding(targetEl);
-  }, 280);
-}
-
-function startOnboarding() {
-  const onboardingOverlay = getEl("onboardingOverlay");
-  if (!onboardingOverlay) return;
-  if (hasSeenOnboarding()) return;
-
-  onboardingSteps = buildOnboardingSteps();
-  onboardingIndex = 0;
-
-  onboardingOverlay.classList.remove("is-hidden");
-  onboardingOverlay.setAttribute("aria-hidden", "false");
-  document.body.style.overflow = "hidden";
-
-  showOnboardingStep(onboardingIndex);
+  await scrollTargetIntoBestView(targetEl);
+  positionOnboarding(targetEl);
 }
 
 function setupOnboarding() {
@@ -228,10 +316,39 @@ function setupOnboarding() {
   });
 
   window.addEventListener("resize", () => {
-    if (onboardingOverlay && !onboardingOverlay.classList.contains("is-hidden")) {
+    if (!onboardingOverlay || onboardingOverlay.classList.contains("is-hidden")) return;
+
+    clearTimeout(onboardingRepositionTimer);
+    onboardingRepositionTimer = setTimeout(() => {
       showOnboardingStep(onboardingIndex);
-    }
+    }, 120);
   });
+
+  window.addEventListener("scroll", () => {
+    if (!onboardingOverlay || onboardingOverlay.classList.contains("is-hidden")) return;
+
+    clearTimeout(onboardingRepositionTimer);
+    onboardingRepositionTimer = setTimeout(() => {
+      const step = onboardingSteps[onboardingIndex];
+      const targetEl = step ? document.querySelector(step.target) : null;
+      if (targetEl) positionOnboarding(targetEl);
+    }, 20);
+  }, { passive: true });
 }
 
-export { setupOnboarding, startOnboarding, hideOnboarding, resetOnboarding };
+function startOnboarding() {
+  const onboardingOverlay = getEl("onboardingOverlay");
+  if (!onboardingOverlay) return;
+  if (hasSeenOnboarding()) return;
+
+  onboardingSteps = buildOnboardingSteps();
+  onboardingIndex = 0;
+
+  onboardingOverlay.classList.remove("is-hidden");
+  onboardingOverlay.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+
+  showOnboardingStep(onboardingIndex);
+}
+
+export { setupOnboarding, startOnboarding, hideOnboarding };
