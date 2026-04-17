@@ -2490,6 +2490,24 @@ header,
   }
 }
 
+.onboarding-overlay {
+  overflow: hidden;
+}
+
+.onboarding-card {
+  max-width: min(92vw, 360px);
+  max-height: min(72vh, 420px);
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .onboarding-card {
+    max-width: calc(100vw - 24px);
+    max-height: 38vh;
+    overflow-y: auto;
+  }
+}
+
 /* =========================
    AUTH MODAL
 ========================= */
