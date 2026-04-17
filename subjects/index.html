@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Subject Notes | DinuuNOVA Physics</title>
+  <title>Notes | DinuuNOVA Physics</title>
 
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#4ea1ff" />
@@ -21,6 +21,7 @@
       <div class="topbar-right">
         <nav class="nav-links">
           <a href="/index.html">Home</a>
+          <a href="/notes/index.html">Notes</a>
           <a href="#" id="subjectNavLink" class="active">Subject</a>
         </nav>
 
@@ -39,16 +40,16 @@
 
   <section class="page-title">
     <div class="container">
-      <a class="back-link" href="/notes/index.html">← Back to Notes</a>
-      <h1 id="subjectTitle">Subject</h1>
-      <p id="subjectDesc">Choose a subtopic to view formula notes.</p>
+      <a class="back-link" id="backLink" href="/notes/index.html">← Back to Notes</a>
+      <h1 id="subjectTitle">Notes</h1>
+      <p id="subjectDesc">Open topics and formula notes.</p>
     </div>
   </section>
 
   <section class="section">
     <div class="container">
       <div class="grid" id="subjectGrid">
-        <div class="empty-state">Loading subtopics...</div>
+        <div class="empty-state">Loading...</div>
       </div>
     </div>
   </section>
@@ -133,32 +134,13 @@
     const subjectTitleEl = document.getElementById("subjectTitle");
     const subjectDescEl = document.getElementById("subjectDesc");
     const subjectNavLink = document.getElementById("subjectNavLink");
+    const backLink = document.getElementById("backLink");
 
-    function prettifyTopicName(fileName) {
-      return (fileName || "")
-        .replace(/\.pdf$/i, "")
-        .replace(/-formulas$/i, "")
+    function prettifyLabel(value) {
+      return (value || "")
         .replace(/-/g, " ")
         .replace(/\b\w/g, (c) => c.toUpperCase())
         .trim() || "Untitled";
-    }
-
-    function prettifySubjectName(subject) {
-      return (subject || "")
-        .replace(/-/g, " ")
-        .replace(/\b\w/g, (c) => c.toUpperCase())
-        .trim() || "Subject";
-    }
-
-    function getCurrentSubject() {
-      const params = new URLSearchParams(window.location.search);
-      return (params.get("subject") || "").trim();
-    }
-
-    function getPdfPath(item) {
-      if (item.pdf) return item.pdf;
-      if (item.url) return item.url;
-      return `/pdfs/${item.subject}/${item.file}`;
     }
 
     function escapeHtml(value) {
@@ -170,66 +152,300 @@
         .replace(/'/g, "&#39;");
     }
 
-    async function loadSubjectCards() {
-      try {
-        const currentSubject = getCurrentSubject();
-        const prettySubject = prettifySubjectName(currentSubject);
+    function getParams() {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        stream: (params.get("stream") || "").trim(),
+        group: (params.get("group") || "").trim(),
+        subject: (params.get("subject") || "").trim()
+      };
+    }
 
-        if (!currentSubject) {
-          grid.innerHTML = `<div class="empty-state">Could not detect subject.</div>`;
+    function getPdfPath(item) {
+      if (item.pdf) return item.pdf;
+      if (item.url) return item.url;
+      return `/pdfs/${item.subject}/${item.file}`;
+    }
+
+    function getStreamDescription(stream) {
+      const descriptions = {
+        "physics": "Choose a Physics subject to view formula notes.",
+        "main-maths": "Choose a Main Maths topic to open notes.",
+        "basic-maths": "Choose Algebra or Geometry first."
+      };
+
+      return descriptions[stream] || "Choose a category to continue.";
+    }
+
+    function getGroupDescription(group) {
+      const descriptions = {
+        "algebra": "Choose an Algebra topic to open notes.",
+        "geometry": "Choose a Geometry topic to open notes."
+      };
+
+      return descriptions[group] || "Choose a topic to continue.";
+    }
+
+    function getSubjectDescription(subject) {
+      const descriptions = {
+        "gravitational-field": "Open subtopics and formula sheets for Gravitational Field.",
+        "current-electricity": "Open subtopics and formula sheets for Current Electricity.",
+        "units": "Open formula sheets for Units.",
+        "vectors": "Open notes for Vectors.",
+        "binomial-expansion": "Open notes for Binomial Expansion.",
+        "rectangles-in-connection-with-circles": "Open notes for Rectangles in Connection with Circles."
+      };
+
+      return descriptions[subject] || "Open topic notes and PDF sheets.";
+    }
+
+    function canAccessSubjectCard(subjectSlug) {
+      if (typeof window.canAccessPdf === "function") {
+        return window.canAccessPdf(subjectSlug);
+      }
+      return false;
+    }
+
+    function createLockedLink(href, allowed, text) {
+      if (allowed) {
+        return `<a class="btn" href="${href}">${text}</a>`;
+      }
+
+      return `<a class="btn locked-btn" href="#" onclick="event.preventDefault(); if (window.lockAlert) window.lockAlert();">🔒 Locked</a>`;
+    }
+
+    function renderPhysicsSubjects(items, stream) {
+      const uniqueSubjects = [...new Set(items.map((item) => item.subject).filter(Boolean))];
+
+      document.title = "Physics | DinuuNOVA Physics";
+      subjectTitleEl.textContent = "Physics";
+      subjectDescEl.textContent = getStreamDescription(stream);
+      subjectNavLink.textContent = "Physics";
+      subjectNavLink.href = `/subjects/index.html?stream=${encodeURIComponent(stream)}`;
+      backLink.href = "/notes/index.html";
+
+      if (!uniqueSubjects.length) {
+        grid.innerHTML = `<div class="empty-state">No Physics subjects found yet.</div>`;
+        return;
+      }
+
+      grid.innerHTML = uniqueSubjects.map((subjectSlug, index) => {
+        const subjectName = prettifyLabel(subjectSlug);
+        const allowed = canAccessSubjectCard(subjectSlug);
+        const link = `/subjects/index.html?stream=${encodeURIComponent(stream)}&subject=${encodeURIComponent(subjectSlug)}`;
+
+        return `
+          <div class="card">
+            <div class="badge">Subject ${String(index + 1).padStart(2, "0")}</div>
+            <h3>${escapeHtml(subjectName)}</h3>
+            <p>${escapeHtml(getSubjectDescription(subjectSlug))}</p>
+            <div class="actions">
+              ${createLockedLink(link, allowed, "Explore")}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderBasicMathsGroups(stream) {
+      document.title = "Basic Maths | DinuuNOVA Physics";
+      subjectTitleEl.textContent = "Basic Maths";
+      subjectDescEl.textContent = getStreamDescription(stream);
+      subjectNavLink.textContent = "Basic Maths";
+      subjectNavLink.href = `/subjects/index.html?stream=${encodeURIComponent(stream)}`;
+      backLink.href = "/notes/index.html";
+
+      const groups = [
+        {
+          slug: "algebra",
+          title: "Algebra",
+          description: "Open Algebra topics and revision notes."
+        },
+        {
+          slug: "geometry",
+          title: "Geometry",
+          description: "Open Geometry topics and revision notes."
+        }
+      ];
+
+      grid.innerHTML = groups.map((group, index) => `
+        <div class="card">
+          <div class="badge">Group ${String(index + 1).padStart(2, "0")}</div>
+          <h3>${escapeHtml(group.title)}</h3>
+          <p>${escapeHtml(group.description)}</p>
+          <div class="actions">
+            <a class="btn" href="/subjects/index.html?stream=${encodeURIComponent(stream)}&group=${encodeURIComponent(group.slug)}">
+              Explore
+            </a>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderGroupSubjects(items, stream, group) {
+      const uniqueSubjects = [...new Set(
+        items
+          .filter((item) => item.group === group)
+          .map((item) => item.subject)
+          .filter(Boolean)
+      )];
+
+      const prettyGroup = prettifyLabel(group);
+
+      document.title = `${prettyGroup} | DinuuNOVA Physics`;
+      subjectTitleEl.textContent = prettyGroup;
+      subjectDescEl.textContent = getGroupDescription(group);
+      subjectNavLink.textContent = prettyGroup;
+      subjectNavLink.href = `/subjects/index.html?stream=${encodeURIComponent(stream)}&group=${encodeURIComponent(group)}`;
+      backLink.href = `/subjects/index.html?stream=${encodeURIComponent(stream)}`;
+
+      if (!uniqueSubjects.length) {
+        grid.innerHTML = `<div class="empty-state">No topics found in this group yet.</div>`;
+        return;
+      }
+
+      grid.innerHTML = uniqueSubjects.map((subjectSlug, index) => {
+        const subjectName = prettifyLabel(subjectSlug);
+        const allowed = canAccessSubjectCard(subjectSlug);
+        const link =
+          `/subjects/index.html?stream=${encodeURIComponent(stream)}` +
+          `&group=${encodeURIComponent(group)}` +
+          `&subject=${encodeURIComponent(subjectSlug)}`;
+
+        return `
+          <div class="card">
+            <div class="badge">Topic ${String(index + 1).padStart(2, "0")}</div>
+            <h3>${escapeHtml(subjectName)}</h3>
+            <p>${escapeHtml(getSubjectDescription(subjectSlug))}</p>
+            <div class="actions">
+              ${createLockedLink(link, allowed, "Explore")}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderSubjectPdfs(items, stream, group, subject) {
+      const subjectItems = items.filter((item) => {
+        const streamMatch = item.stream === stream;
+        const groupMatch = group ? item.group === group : true;
+        return streamMatch && groupMatch && item.subject === subject;
+      });
+
+      const prettySubject = prettifyLabel(subject);
+
+      document.title = `${prettySubject} | DinuuNOVA Physics`;
+      subjectTitleEl.textContent = prettySubject;
+      subjectDescEl.textContent = "Choose a note to view or open its PDF.";
+      subjectNavLink.textContent = prettySubject;
+      subjectNavLink.href = window.location.pathname + window.location.search;
+
+      if (group) {
+        backLink.href =
+          `/subjects/index.html?stream=${encodeURIComponent(stream)}` +
+          `&group=${encodeURIComponent(group)}`;
+      } else {
+        backLink.href = `/subjects/index.html?stream=${encodeURIComponent(stream)}`;
+      }
+
+      if (!subjectItems.length) {
+        grid.innerHTML = `<div class="empty-state">No notes found for this topic yet.</div>`;
+        return;
+      }
+
+      grid.innerHTML = subjectItems.map((item, index) => {
+        const topicTitle = item.title || prettifyLabel(item.file.replace(/\.pdf$/i, ""));
+
+        const topicPage =
+          `/topics/topic.html?subject=${encodeURIComponent(item.subject)}` +
+          `&file=${encodeURIComponent(item.file)}` +
+          `&title=${encodeURIComponent(topicTitle)}`;
+
+        const viewerBack = group
+          ? `/subjects/index.html?stream=${stream}&group=${group}&subject=${subject}`
+          : `/subjects/index.html?stream=${stream}&subject=${subject}`;
+
+        const viewerPage =
+          `/topics/viewer.html?pdf=${encodeURIComponent(getPdfPath(item))}` +
+          `&title=${encodeURIComponent(topicTitle)}` +
+          `&back=${encodeURIComponent(viewerBack)}` +
+          `&subjectName=${encodeURIComponent(prettySubject)}`;
+
+        return `
+          <div class="card">
+            <div class="badge">Note ${String(index + 1).padStart(2, "0")}</div>
+            <h3>${escapeHtml(topicTitle)}</h3>
+            <div class="actions">
+              <a class="btn" href="${topicPage}">
+                Open ${escapeHtml(topicTitle)}
+              </a>
+              <a class="btn btn-primary" href="${viewerPage}">
+                View PDF
+              </a>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function loadPage() {
+      try {
+        const { stream, group, subject } = getParams();
+
+        if (!stream) {
+          grid.innerHTML = `<div class="empty-state">Could not detect category.</div>`;
           return;
         }
-
-        document.title = `${prettySubject} | DinuuNOVA Physics`;
-        subjectTitleEl.textContent = prettySubject;
-        subjectDescEl.textContent = "Choose a subtopic to view formula notes.";
-        subjectNavLink.textContent = prettySubject;
-        subjectNavLink.href = window.location.pathname + window.location.search;
 
         const res = await fetch("/pdfs/catalog.json", { cache: "no-store" });
         if (!res.ok) throw new Error("Could not load catalog.json");
 
         const items = await res.json();
-        const subjectItems = items.filter((item) => item.subject === currentSubject);
+        const streamItems = items.filter((item) => item.stream === stream);
 
-        if (!subjectItems.length) {
-          grid.innerHTML = `<div class="empty-state">No subtopics found for this subject yet.</div>`;
+        if (!streamItems.length) {
+          grid.innerHTML = `<div class="empty-state">No notes found for this category yet.</div>`;
           return;
         }
 
-        grid.innerHTML = subjectItems.map((item, index) => {
-          const topicTitle = item.title || prettifyTopicName(item.file);
+        if (stream === "physics" && !subject) {
+          renderPhysicsSubjects(streamItems, stream);
+          return;
+        }
 
-          const topicPage =
-            `/topics/topic.html?subject=${encodeURIComponent(item.subject)}` +
-            `&file=${encodeURIComponent(item.file)}` +
-            `&title=${encodeURIComponent(topicTitle)}`;
+        if (stream === "main-maths" && !subject) {
+          renderGroupSubjects(
+            streamItems.map((item) => ({ ...item, group: "main-maths-topics" })),
+            stream,
+            "main-maths-topics"
+          );
+          subjectTitleEl.textContent = "Main Maths";
+          subjectDescEl.textContent = "Choose a Main Maths topic to open notes.";
+          subjectNavLink.textContent = "Main Maths";
+          subjectNavLink.href = `/subjects/index.html?stream=${encodeURIComponent(stream)}`;
+          backLink.href = "/notes/index.html";
+          return;
+        }
 
-          const viewerPage =
-            `/topics/viewer.html?pdf=${encodeURIComponent(getPdfPath(item))}` +
-            `&title=${encodeURIComponent(topicTitle)}` +
-            `&back=${encodeURIComponent(`/subjects/index.html?subject=${item.subject}`)}` +
-            `&subjectName=${encodeURIComponent(prettySubject)}`;
+        if (stream === "basic-maths" && !group && !subject) {
+          renderBasicMathsGroups(stream);
+          return;
+        }
 
-          return `
-            <div class="card">
-              <div class="badge">Subtopic ${String(index + 1).padStart(2, "0")}</div>
-              <h3>${escapeHtml(topicTitle)}</h3>
-              <div class="actions">
-                <a class="btn" href="${topicPage}">
-                  Open ${escapeHtml(topicTitle)}
-                </a>
+        if (stream === "basic-maths" && group && !subject) {
+          renderGroupSubjects(streamItems, stream, group);
+          return;
+        }
 
-                <a class="btn btn-primary" href="${viewerPage}">
-                  View PDF
-                </a>
-              </div>
-            </div>
-          `;
-        }).join("");
+        if (subject) {
+          renderSubjectPdfs(streamItems, stream, group, subject);
+          return;
+        }
+
+        grid.innerHTML = `<div class="empty-state">This view is not ready yet.</div>`;
       } catch (error) {
         console.error(error);
-        grid.innerHTML = `<div class="empty-state">Could not load subtopics.</div>`;
+        grid.innerHTML = `<div class="empty-state">Could not load notes.</div>`;
       }
     }
 
@@ -250,7 +466,7 @@
       });
     }
 
-    loadSubjectCards();
+    loadPage();
   </script>
 
   <script src="/js/music-player.js"></script>
