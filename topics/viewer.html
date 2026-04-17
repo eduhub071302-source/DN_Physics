@@ -366,12 +366,10 @@
     const SITE_BASE = `${DEFAULT_SITE}`;
 
     const directPdf = params.get("pdf");
-
     const stream = params.get("stream") || "";
     const group = params.get("group") || "";
     const subject = params.get("subject") || "";
     const file = params.get("file") || "";
-
     const rawTitle = params.get("title");
     const rawBack = params.get("back");
     const rawSubjectName = params.get("subjectName");
@@ -438,6 +436,7 @@
     let allPagesRendered = false;
     let loadObserver = null;
     let viewerQuizAllowed = false;
+    let shouldShowQuizButton = false;
 
     const INITIAL_PAGE_BATCH = window.innerWidth >= 1024 ? 3 : 2;
     const NEXT_PAGE_BATCH = window.innerWidth >= 1024 ? 3 : 2;
@@ -493,7 +492,7 @@
       );
       const subjectName = encodeURIComponent(prettifyFolderName(item.subject));
 
-      return `/topics/viewer.html?pdf=${encodeURIComponent(pdf)}&title=${title}${streamParam}${groupParam}&back=${back}&subjectName=${subjectName}`;
+      return `/topics/viewer.html?pdf=${encodeURIComponent(pdf)}&title=${title}${streamParam}${groupParam}&subject=${encodeURIComponent(item.subject)}&file=${encodeURIComponent(item.file)}&back=${back}&subjectName=${subjectName}`;
     }
 
     function updateZoomReadout() {
@@ -547,6 +546,8 @@
           subject: subjectSlug,
           file: fileName,
           url: pdfUrl,
+          stream: stream || "",
+          group: group || "",
           lastOpened: new Date().toLocaleDateString()
         };
 
@@ -594,7 +595,9 @@
           title: shareTitle,
           subject: subjectSlug,
           file: fileName,
-          url: pdfUrl
+          url: pdfUrl,
+          stream: stream || "",
+          group: group || ""
         };
 
         if (typeof window.dnPdfToggleFavoriteEntry === "function") {
@@ -630,7 +633,7 @@
         viewerActions.appendChild(favoriteBtn);
       }
 
-      if (!document.getElementById("relatedQuizBtn")) {
+      if (shouldShowQuizButton && !document.getElementById("relatedQuizBtn")) {
         const quizBtn = document.createElement("a");
         quizBtn.className = "btn btn-primary";
         quizBtn.id = "relatedQuizBtn";
@@ -1113,12 +1116,11 @@
       }
 
       shareTitle = safeDecode(rawTitle, fileName.replace(/\.pdf$/i, ""));
+      backUrl = rawBack ? normalizePath(safeDecode(rawBack)) : buildBackUrl();
 
-      backUrl = rawBack
-        ? normalizePath(safeDecode(rawBack))
-        : buildBackUrl();
-
+      shouldShowQuizButton = stream === "physics";
       viewerQuizAllowed =
+        shouldShowQuizButton &&
         typeof window.canAccessQuizFast === "function"
           ? window.canAccessQuizFast(subjectSlug || "")
           : false;
