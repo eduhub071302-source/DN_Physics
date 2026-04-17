@@ -278,6 +278,8 @@
   <script>
     const params = new URLSearchParams(window.location.search);
 
+    const stream = params.get("stream") || "";
+    const group = params.get("group") || "";
     const subject = params.get("subject") || "";
     const file = params.get("file") || "";
     const rawTitle = params.get("title") || "Topic";
@@ -299,6 +301,19 @@
       return (value || "Subject")
         .replace(/-/g, " ")
         .replace(/\b\w/g, (char) => char.toUpperCase());
+    }
+
+    function buildSubjectPageUrl() {
+      if (!subject) return "/notes/index.html";
+
+      let url = `/subjects/index.html?stream=${encodeURIComponent(stream)}`;
+
+      if (group) {
+        url += `&group=${encodeURIComponent(group)}`;
+      }
+
+      url += `&subject=${encodeURIComponent(subject)}`;
+      return url;
     }
 
     async function copyFallback(text) {
@@ -354,9 +369,7 @@
       sheetTitle.textContent = `${title} Formula Sheet`;
       topicSubjectPill.textContent = prettySubject;
 
-      const subjectPage = subject
-        ? `/subjects/index.html?subject=${encodeURIComponent(subject)}`
-        : "/index.html";
+      const subjectPage = buildSubjectPageUrl();
 
       backLink.href = subjectPage;
       subjectNavLink.href = subjectPage;
