@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Physics Notes | DinuuNOVA</title>
+  <title>Notes | DinuuNOVA</title>
 
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#4ea1ff" />
@@ -44,9 +44,9 @@
           ← Back to Home
         </a>
 
-        <div class="badge">Physics Notes Library</div>
+        <div class="badge">Notes Library</div>
         <h1 style="font-size: clamp(28px, 5vw, 42px);">📚 Explore Notes</h1>
-        <p>Open your Physics topics, revision notes, and formula sheets from one dedicated page.</p>
+        <p>Choose a category to open Physics, Main Maths, or Basic Maths notes.</p>
       </div>
     </section>
 
@@ -57,7 +57,7 @@
             <input
               type="search"
               id="subjectSearch"
-              placeholder="Search topics (e.g. mechanics, waves)..."
+              placeholder="Search categories (e.g. physics, maths)..."
               autocorrect="off"
               autocapitalize="off"
               spellcheck="false"
@@ -66,8 +66,8 @@
           </div>
 
           <div class="filter-box">
-            <select id="categoryFilter" aria-label="Filter by category">
-              <option value="all">All Subjects</option>
+            <select id="categoryFilter" aria-label="Filter categories">
+              <option value="all">All Categories</option>
             </select>
           </div>
         </div>
@@ -76,21 +76,21 @@
 
     <section class="section pinned-section is-hidden" id="pinnedSection">
       <div class="container">
-        <h2 style="font-size: clamp(22px, 4vw, 30px);">Pinned Topics</h2>
+        <h2 style="font-size: clamp(22px, 4vw, 30px);">Pinned Categories</h2>
         <div class="grid" id="pinnedGrid"></div>
       </div>
     </section>
 
     <section class="section">
       <div class="container">
-        <h2 style="font-size: clamp(24px, 4.5vw, 34px);">All Physics Topics</h2>
+        <h2 style="font-size: clamp(24px, 4.5vw, 34px);">All Categories</h2>
 
         <div class="grid" id="subjectGrid">
-          <div class="empty-state">Loading subjects...</div>
+          <div class="empty-state">Loading categories...</div>
         </div>
 
         <div id="noResults" class="empty-state is-hidden" style="margin-top:16px;">
-          No matching topics found.
+          No matching categories found.
         </div>
       </div>
     </section>
@@ -164,7 +164,7 @@
     let subjectCards = [];
     let pinButtons = [];
 
-    function prettifySubject(name) {
+    function prettifyLabel(name) {
       return (name || "")
         .replace(/-/g, " ")
         .replace(/\b\w/g, (c) => c.toUpperCase())
@@ -180,31 +180,18 @@
         .replace(/'/g, "&#39;");
     }
 
-    function normalizeAccessSlug(value) {
-      return String(value || "")
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, "-");
-    }
-
-    function getSubjectDescription(subjectSlug) {
+    function getStreamDescription(streamSlug) {
       const descriptions = {
-        "units": "Measurement units, conversions, and basic formula revision notes.",
-        "current-electricity": "Basics, current flow, charge, equations, and circuit-based revision notes.",
-        "mechanics": "Vectors, kinematics, Newton’s laws, work-energy-power, and more.",
-        "thermal-physics": "Formula sheets and quick revision pages for thermal concepts.",
-        "gravitational-field": "Free access subject with full subtopics and PDF notes."
+        "physics": "Open Physics note topics and formula sheets.",
+        "main-maths": "Open Main Maths note topics and revision sheets.",
+        "basic-maths": "Open Basic Maths notes, including Algebra and Geometry."
       };
 
-      return descriptions[subjectSlug] || "Explore formula notes and quick revision sheets.";
-    }
-
-    function getSubjectCategory(subjectSlug) {
-      return subjectSlug || "general";
+      return descriptions[streamSlug] || "Explore topics inside this category.";
     }
 
     function getBadgeText(index) {
-      return `Topic ${String(index + 1).padStart(2, "0")}`;
+      return `Category ${String(index + 1).padStart(2, "0")}`;
     }
 
     function getCurrentUserId() {
@@ -245,7 +232,7 @@
 
       localStorage.setItem(getPinnedSubjectsKey(), JSON.stringify(items));
     }
-    
+
     async function togglePin(subjectName) {
       const pinned = getPinnedSubjects();
       const exists = pinned.includes(subjectName);
@@ -272,7 +259,7 @@
           "aria-label",
           isPinned ? `Unpin ${subjectName}` : `Pin ${subjectName}`
         );
-        button.title = isPinned ? "Unpin topic" : "Pin topic";
+        button.title = isPinned ? "Unpin category" : "Pin category";
       });
     }
 
@@ -293,7 +280,7 @@
       pinBtn.textContent = "★";
       pinBtn.dataset.subject = subject.title;
       pinBtn.setAttribute("aria-label", `Unpin ${subject.title}`);
-      pinBtn.title = "Unpin topic";
+      pinBtn.title = "Unpin category";
       pinBtn.addEventListener("click", async () => {
         await togglePin(subject.title);
       });
@@ -315,18 +302,9 @@
       actions.className = "actions";
 
       const link = document.createElement("a");
-      link.className = `btn ${subject.allowed ? "" : "locked-btn"}`;
-      link.href = subject.allowed ? subject.link : "#";
-      link.textContent = subject.allowed ? "Explore" : "🔒 Locked";
-
-      if (!subject.allowed) {
-        link.addEventListener("click", (e) => {
-          e.preventDefault();
-          if (typeof window.lockAlert === "function") {
-            window.lockAlert();
-          }
-        });
-      }
+      link.className = "btn";
+      link.href = subject.link;
+      link.textContent = "Explore";
 
       actions.appendChild(link);
       wrapper.appendChild(actions);
@@ -440,85 +418,64 @@
       filterSubjects();
     }
 
-    function canAccessSubjectCard(subjectSlug) {
-      if (typeof window.canAccessPdf === "function") {
-        return window.canAccessPdf(subjectSlug);
-      }
-
-      return normalizeAccessSlug(subjectSlug) === "gravitational-field";
-    }
-
     async function loadSubjectsFromCatalog() {
       try {
         const res = await fetch("/pdfs/catalog.json", { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to load catalog");
 
         const items = await res.json();
-        const uniqueSubjects = [...new Set(items.map((item) => item.subject).filter(Boolean))];
+        const uniqueStreams = [...new Set(items.map((item) => item.stream).filter(Boolean))];
 
-        if (!uniqueSubjects.length) {
-          subjectGrid.innerHTML = `<div class="empty-state">No subjects found.</div>`;
+        if (!uniqueStreams.length) {
+          subjectGrid.innerHTML = `<div class="empty-state">No categories found.</div>`;
           return;
         }
 
         SUBJECTS = {};
-        categoryFilter.innerHTML = `<option value="all">All Subjects</option>`;
+        categoryFilter.innerHTML = `<option value="all">All Categories</option>`;
 
-        subjectGrid.innerHTML = uniqueSubjects.map((subjectSlug, index) => {
-          const subjectName = prettifySubject(subjectSlug);
-          const category = getSubjectCategory(subjectSlug);
-          const description = getSubjectDescription(subjectSlug);
+        subjectGrid.innerHTML = uniqueStreams.map((streamSlug, index) => {
+          const streamName = prettifyLabel(streamSlug);
+          const description = getStreamDescription(streamSlug);
           const badge = getBadgeText(index);
-          const link = `/subjects/index.html?subject=${encodeURIComponent(subjectSlug)}`;
-          const allowed = canAccessSubjectCard(subjectSlug);
+          const link = `/subjects/index.html?stream=${encodeURIComponent(streamSlug)}`;
 
-          SUBJECTS[subjectName] = {
-            title: subjectName,
+          SUBJECTS[streamName] = {
+            title: streamName,
             badge,
             description,
             link,
-            allowed
+            allowed: true
           };
 
           return `
             <div
               class="card subject-card"
-              data-title="${escapeHtml(subjectName)}"
-              data-category="${escapeHtml(category)}"
-              data-keywords="${escapeHtml(subjectName.toLowerCase())} ${escapeHtml(subjectSlug.replace(/-/g, " "))} physics formulas revision notes"
+              data-title="${escapeHtml(streamName)}"
+              data-category="notes-category"
+              data-keywords="${escapeHtml(streamName.toLowerCase())} ${escapeHtml(streamSlug.replace(/-/g, " "))} notes revision formulas"
             >
               <div class="card-top">
                 <div class="badge">${badge}</div>
-                <button class="pin-btn" data-subject="${escapeHtml(subjectName)}" type="button" aria-label="Pin ${escapeHtml(subjectName)}">
+                <button class="pin-btn" data-subject="${escapeHtml(streamName)}" type="button" aria-label="Pin ${escapeHtml(streamName)}">
                   ☆
                 </button>
               </div>
-              <h3>${escapeHtml(subjectName)}</h3>
+              <h3>${escapeHtml(streamName)}</h3>
               <p>${escapeHtml(description)}</p>
               <div class="actions">
-                <a
-                  class="btn ${allowed ? "" : "locked-btn"}"
-                  href="${allowed ? link : "#"}"
-                  ${allowed ? "" : `onclick="event.preventDefault(); if (window.lockAlert) window.lockAlert();"`}>
-                  ${allowed ? "Explore" : "🔒 Locked"}
+                <a class="btn" href="${link}">
+                  Explore
                 </a>
               </div>
             </div>
           `;
         }).join("");
 
-        const usedCategories = [...new Set(uniqueSubjects.map(getSubjectCategory))];
-        usedCategories.forEach((category) => {
-          const option = document.createElement("option");
-          option.value = category;
-          option.textContent = prettifySubject(category);
-          categoryFilter.appendChild(option);
-        });
-
         rebuildPinsAndFilters();
       } catch (error) {
         console.error(error);
-        subjectGrid.innerHTML = `<div class="empty-state">Could not load subjects.</div>`;
+        subjectGrid.innerHTML = `<div class="empty-state">Could not load categories.</div>`;
       }
     }
 
