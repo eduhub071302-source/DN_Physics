@@ -74,7 +74,6 @@ function hideOnboarding() {
 
   onboardingOverlay.classList.add("is-hidden");
   onboardingOverlay.setAttribute("aria-hidden", "true");
-  document.body.style.overflow = "";
   setOnboardingSeen();
 }
 
@@ -102,49 +101,28 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
-async function scrollTargetIntoBestView(targetEl) {
+async function scrollTargetIntoView(targetEl) {
   if (!targetEl) return;
 
+  const mobile = isMobileDevice();
   const headerOffset = getHeaderOffset();
   const rect = targetEl.getBoundingClientRect();
-  const viewportHeight = window.innerHeight;
-  const mobile = isMobileDevice();
 
-  const currentScroll = window.scrollY;
-  const targetTopOnPage = rect.top + currentScroll;
+  const safeTop = headerOffset + 16;
+  const safeBottomReserved = mobile ? 290 : 220;
 
-  const safeTop = mobile
-    ? headerOffset + 18
-    : headerOffset + 30;
+  let targetScrollY = window.scrollY;
 
-  const safeBottomReserved = mobile ? 280 : 230;
-
-  const desiredTop = clamp(
-    targetTopOnPage - safeTop,
-    0,
-    Math.max(0, document.documentElement.scrollHeight - viewportHeight),
-  );
-
-  const targetBottomInViewportAfterScroll =
-    rect.bottom - (desiredTop - currentScroll);
-
-  const targetWillBeHiddenByBottomSheet =
-    targetBottomInViewportAfterScroll > viewportHeight - safeBottomReserved;
-
-  let finalScroll = desiredTop;
-
-  if (targetWillBeHiddenByBottomSheet) {
-    const extra =
-      targetBottomInViewportAfterScroll - (viewportHeight - safeBottomReserved);
-    finalScroll = clamp(
-      desiredTop + extra + 18,
-      0,
-      Math.max(0, document.documentElement.scrollHeight - viewportHeight),
-    );
+  if (rect.top < safeTop) {
+    targetScrollY += rect.top - safeTop;
+  } else if (rect.bottom > window.innerHeight - safeBottomReserved) {
+    targetScrollY += rect.bottom - (window.innerHeight - safeBottomReserved);
   }
 
+  targetScrollY = Math.max(0, targetScrollY);
+
   window.scrollTo({
-    top: finalScroll,
+    top: targetScrollY,
     behavior: "smooth",
   });
 
@@ -161,88 +139,56 @@ function positionOnboarding(targetEl) {
   }
 
   const mobile = isMobileDevice();
-  const padding = mobile ? 10 : 12;
-  const viewportPadding = 12;
   const headerOffset = getHeaderOffset();
+  const viewportPadding = 12;
+  const spotlightPadding = mobile ? 8 : 10;
 
   const rect = targetEl.getBoundingClientRect();
-  const pageTop = rect.top + window.scrollY;
-  const pageLeft = rect.left + window.scrollX;
 
-  onboardingSpotlight.style.top = `${pageTop - padding}px`;
-  onboardingSpotlight.style.left = `${pageLeft - padding}px`;
-  onboardingSpotlight.style.width = `${rect.width + padding * 2}px`;
-  onboardingSpotlight.style.height = `${rect.height + padding * 2}px`;
+  onboardingSpotlight.style.top = `${rect.top - spotlightPadding}px`;
+  onboardingSpotlight.style.left = `${rect.left - spotlightPadding}px`;
+  onboardingSpotlight.style.width = `${rect.width + spotlightPadding * 2}px`;
+  onboardingSpotlight.style.height = `${rect.height + spotlightPadding * 2}px`;
 
   onboardingCard.style.visibility = "hidden";
   onboardingCard.style.left = "12px";
   onboardingCard.style.top = "12px";
 
-  const measured = onboardingCard.getBoundingClientRect();
-  const cardWidth = measured.width || Math.min(window.innerWidth - 24, 360);
-  const cardHeight = measured.height || 220;
+  const cardRect = onboardingCard.getBoundingClientRect();
+  const cardWidth = cardRect.width || Math.min(window.innerWidth - 24, 360);
+  const cardHeight = cardRect.height || 220;
 
-  const viewportLeft = window.scrollX + viewportPadding;
-  const viewportRight = window.scrollX + window.innerWidth - viewportPadding;
-  const viewportTop = window.scrollY + headerOffset + 8;
-  const viewportBottom = window.scrollY + window.innerHeight - viewportPadding;
+  const safeLeft = viewportPadding;
+  const safeRight = window.innerWidth - viewportPadding;
+  const safeTop = headerOffset + 8;
+  const safeBottom = window.innerHeight - viewportPadding;
 
-  let cardLeft;
-  let cardTop;
+  let cardLeft = safeLeft;
+  let cardTop = safeTop;
 
   if (mobile) {
-    cardLeft = viewportLeft;
-    cardTop = viewportBottom - cardHeight;
+    cardLeft = safeLeft;
+    cardTop = Math.max(safeTop, window.innerHeight - cardHeight - 12);
 
     onboardingArrow.style.display = "none";
   } else {
     onboardingArrow.style.display = "block";
 
-    const spaceBelow = viewportBottom - (pageTop + rect.height);
-    const spaceAbove = pageTop - viewportTop;
-    const placeBelow = spaceBelow >= cardHeight + 20 || spaceBelow >= spaceAbove;
+    const spaceBelow = safeBottom - rect.bottom;
+    const spaceAbove = rect.top - safeTop;
+    const shouldPlaceBelow = spaceBelow >= cardHeight + 18 || spaceBelow >= spaceAbove;
 
-    cardLeft = clamp(
-      pageLeft,
-      viewportLeft,
-      viewportRight - cardWidth,
-    );
+    cardLeft = clamp(rect.left, safeLeft, safeRight - cardWidth);
 
-    if (placeBelow) {
-      cardTop = clamp(
-        pageTop + rect.height + 18,
-        viewportTop,
-        viewportBottom - cardHeight,
-      );
-
-      onboardingArrow.style.left = `${clamp(
-        pageLeft + 4,
-        viewportLeft + 4,
-        viewportRight - 30,
-      )}px`;
-      onboardingArrow.style.top = `${clamp(
-        pageTop + rect.height / 2 - 10,
-        viewportTop + 8,
-        viewportBottom - 28,
-      )}px`;
+    if (shouldPlaceBelow) {
+      cardTop = clamp(rect.bottom + 18, safeTop, safeBottom - cardHeight);
+      onboardingArrow.style.left = `${clamp(rect.left + 6, safeLeft + 6, safeRight - 28)}px`;
+      onboardingArrow.style.top = `${clamp(rect.top + rect.height / 2 - 12, safeTop + 6, safeBottom - 28)}px`;
       onboardingArrow.style.transform = "rotate(0deg)";
     } else {
-      cardTop = clamp(
-        pageTop - cardHeight - 18,
-        viewportTop,
-        viewportBottom - cardHeight,
-      );
-
-      onboardingArrow.style.left = `${clamp(
-        pageLeft + 4,
-        viewportLeft + 4,
-        viewportRight - 30,
-      )}px`;
-      onboardingArrow.style.top = `${clamp(
-        pageTop + rect.height / 2 - 10,
-        viewportTop + 8,
-        viewportBottom - 28,
-      )}px`;
+      cardTop = clamp(rect.top - cardHeight - 18, safeTop, safeBottom - cardHeight);
+      onboardingArrow.style.left = `${clamp(rect.left + 6, safeLeft + 6, safeRight - 28)}px`;
+      onboardingArrow.style.top = `${clamp(rect.top + rect.height / 2 - 12, safeTop + 6, safeBottom - 28)}px`;
       onboardingArrow.style.transform = "rotate(180deg)";
     }
   }
@@ -285,7 +231,7 @@ async function showOnboardingStep(index) {
 
   updateProgress();
 
-  await scrollTargetIntoBestView(targetEl);
+  await scrollTargetIntoView(targetEl);
   positionOnboarding(targetEl);
 }
 
@@ -305,15 +251,6 @@ function setupOnboarding() {
     hideOnboarding();
   });
 
-  window.addEventListener("resize", () => {
-    if (!onboardingOverlay || onboardingOverlay.classList.contains("is-hidden")) return;
-
-    clearTimeout(onboardingRepositionTimer);
-    onboardingRepositionTimer = setTimeout(() => {
-      showOnboardingStep(onboardingIndex);
-    }, 120);
-  });
-
   window.addEventListener(
     "scroll",
     () => {
@@ -323,11 +260,26 @@ function setupOnboarding() {
       onboardingRepositionTimer = setTimeout(() => {
         const step = onboardingSteps[onboardingIndex];
         const targetEl = step ? document.querySelector(step.target) : null;
-        if (targetEl) positionOnboarding(targetEl);
-      }, 20);
+        if (targetEl) {
+          positionOnboarding(targetEl);
+        }
+      }, 16);
     },
     { passive: true },
   );
+
+  window.addEventListener("resize", () => {
+    if (!onboardingOverlay || onboardingOverlay.classList.contains("is-hidden")) return;
+
+    clearTimeout(onboardingRepositionTimer);
+    onboardingRepositionTimer = setTimeout(() => {
+      const step = onboardingSteps[onboardingIndex];
+      const targetEl = step ? document.querySelector(step.target) : null;
+      if (targetEl) {
+        positionOnboarding(targetEl);
+      }
+    }, 80);
+  });
 }
 
 function startOnboarding() {
