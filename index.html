@@ -428,14 +428,32 @@
         aria-modal="true"
         aria-labelledby="onboardingTitle"
       >
-        <div class="onboarding-step">Quick Guide</div>
+        <div class="onboarding-card-top">
+          <div id="onboardingMissionBadge" class="onboarding-mission-badge">
+            Mission 01
+          </div>
+          <div class="onboarding-progress-inline">
+            <span class="onboarding-progress-label">Progress</span>
+            <span id="onboardingProgressText" class="onboarding-progress-text">1 / 4</span>
+          </div>
+        </div>
+
+        <div class="onboarding-progress-bar">
+          <div id="onboardingProgressFill" class="onboarding-progress-fill"></div>
+        </div>
+
         <h3 id="onboardingTitle">Welcome to DinuuNOVA</h3>
         <p id="onboardingText">Let’s take a quick look around.</p>
 
+        <div class="onboarding-action-hint-wrap">
+          <span class="onboarding-action-label">Your action</span>
+          <span id="onboardingActionHint" class="onboarding-action-hint">Continue</span>
+        </div>
+
         <div class="onboarding-actions">
-          <button id="onboardingSkipBtn" class="btn" type="button">Skip</button>
+          <button id="onboardingSkipBtn" class="btn" type="button">Skip Tutorial</button>
           <button id="onboardingNextBtn" class="btn btn-primary" type="button">
-            Next
+            Next Mission
           </button>
         </div>
       </div>
