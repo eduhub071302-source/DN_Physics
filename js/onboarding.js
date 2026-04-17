@@ -86,13 +86,8 @@ function updateProgress() {
   const current = Math.min(onboardingIndex + 1, total);
   const percent = (current / total) * 100;
 
-  if (progressText) {
-    progressText.textContent = `${current} / ${total}`;
-  }
-
-  if (progressFill) {
-    progressFill.style.width = `${percent}%`;
-  }
+  if (progressText) progressText.textContent = `${current} / ${total}`;
+  if (progressFill) progressFill.style.width = `${percent}%`;
 }
 
 function getHeaderOffset() {
@@ -103,6 +98,10 @@ function getHeaderOffset() {
   return header ? header.offsetHeight : 76;
 }
 
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
 async function scrollTargetIntoBestView(targetEl) {
   if (!targetEl) return;
 
@@ -111,26 +110,45 @@ async function scrollTargetIntoBestView(targetEl) {
   const viewportHeight = window.innerHeight;
   const mobile = isMobileDevice();
 
-  const targetCenterY = rect.top + window.scrollY + rect.height / 2;
-  const desiredViewportCenter = mobile
-    ? window.scrollY + viewportHeight * 0.32
-    : window.scrollY + viewportHeight * 0.42;
+  const currentScroll = window.scrollY;
+  const targetTopOnPage = rect.top + currentScroll;
 
-  const nextScrollTop = Math.max(
+  const safeTop = mobile
+    ? headerOffset + 18
+    : headerOffset + 30;
+
+  const safeBottomReserved = mobile ? 280 : 230;
+
+  const desiredTop = clamp(
+    targetTopOnPage - safeTop,
     0,
-    targetCenterY - desiredViewportCenter + headerOffset / 2,
+    Math.max(0, document.documentElement.scrollHeight - viewportHeight),
   );
 
+  const targetBottomInViewportAfterScroll =
+    rect.bottom - (desiredTop - currentScroll);
+
+  const targetWillBeHiddenByBottomSheet =
+    targetBottomInViewportAfterScroll > viewportHeight - safeBottomReserved;
+
+  let finalScroll = desiredTop;
+
+  if (targetWillBeHiddenByBottomSheet) {
+    const extra =
+      targetBottomInViewportAfterScroll - (viewportHeight - safeBottomReserved);
+    finalScroll = clamp(
+      desiredTop + extra + 18,
+      0,
+      Math.max(0, document.documentElement.scrollHeight - viewportHeight),
+    );
+  }
+
   window.scrollTo({
-    top: nextScrollTop,
+    top: finalScroll,
     behavior: "smooth",
   });
 
-  await new Promise((resolve) => setTimeout(resolve, 380));
-}
-
-function clamp(value, min, max) {
-  return Math.min(Math.max(value, min), max);
+  await new Promise((resolve) => setTimeout(resolve, 420));
 }
 
 function positionOnboarding(targetEl) {
@@ -157,13 +175,12 @@ function positionOnboarding(targetEl) {
   onboardingSpotlight.style.height = `${rect.height + padding * 2}px`;
 
   onboardingCard.style.visibility = "hidden";
-  onboardingCard.style.top = "0px";
-  onboardingCard.style.left = "0px";
-  onboardingCard.style.width = mobile ? `${window.innerWidth - 24}px` : `min(92vw, 360px)`;
+  onboardingCard.style.left = "12px";
+  onboardingCard.style.top = "12px";
 
-  const cardRect = onboardingCard.getBoundingClientRect();
-  const cardWidth = cardRect.width || Math.min(window.innerWidth - 24, mobile ? window.innerWidth - 24 : 360);
-  const cardHeight = cardRect.height || 220;
+  const measured = onboardingCard.getBoundingClientRect();
+  const cardWidth = measured.width || Math.min(window.innerWidth - 24, 360);
+  const cardHeight = measured.height || 220;
 
   const viewportLeft = window.scrollX + viewportPadding;
   const viewportRight = window.scrollX + window.innerWidth - viewportPadding;
@@ -172,37 +189,18 @@ function positionOnboarding(targetEl) {
 
   let cardLeft;
   let cardTop;
-  let arrowLeft;
-  let arrowTop;
-  let arrowRotation = "0deg";
 
   if (mobile) {
     cardLeft = viewportLeft;
-    cardTop = clamp(
-      window.scrollY + window.innerHeight - cardHeight - 12,
-      viewportTop,
-      viewportBottom - cardHeight,
-    );
+    cardTop = viewportBottom - cardHeight;
 
-    arrowLeft = clamp(
-      pageLeft + rect.width / 2 - 10,
-      viewportLeft + 10,
-      viewportRight - 30,
-    );
-
-    const desiredArrowTop = pageTop + rect.height + 8;
-    arrowTop = clamp(
-      desiredArrowTop,
-      viewportTop + 6,
-      cardTop - 26,
-    );
-
-    arrowRotation = "90deg";
+    onboardingArrow.style.display = "none";
   } else {
+    onboardingArrow.style.display = "block";
+
     const spaceBelow = viewportBottom - (pageTop + rect.height);
     const spaceAbove = pageTop - viewportTop;
-
-    const placeBelow = spaceBelow >= cardHeight + 18 || spaceBelow >= spaceAbove;
+    const placeBelow = spaceBelow >= cardHeight + 20 || spaceBelow >= spaceAbove;
 
     cardLeft = clamp(
       pageLeft,
@@ -217,19 +215,17 @@ function positionOnboarding(targetEl) {
         viewportBottom - cardHeight,
       );
 
-      arrowLeft = clamp(
-        pageLeft + 6,
-        viewportLeft + 6,
-        cardLeft - 8,
-      );
-
-      arrowTop = clamp(
+      onboardingArrow.style.left = `${clamp(
+        pageLeft + 4,
+        viewportLeft + 4,
+        viewportRight - 30,
+      )}px`;
+      onboardingArrow.style.top = `${clamp(
         pageTop + rect.height / 2 - 10,
-        viewportTop + 6,
+        viewportTop + 8,
         viewportBottom - 28,
-      );
-
-      arrowRotation = "0deg";
+      )}px`;
+      onboardingArrow.style.transform = "rotate(0deg)";
     } else {
       cardTop = clamp(
         pageTop - cardHeight - 18,
@@ -237,29 +233,23 @@ function positionOnboarding(targetEl) {
         viewportBottom - cardHeight,
       );
 
-      arrowLeft = clamp(
-        pageLeft + 6,
-        viewportLeft + 6,
-        cardLeft - 8,
-      );
-
-      arrowTop = clamp(
+      onboardingArrow.style.left = `${clamp(
+        pageLeft + 4,
+        viewportLeft + 4,
+        viewportRight - 30,
+      )}px`;
+      onboardingArrow.style.top = `${clamp(
         pageTop + rect.height / 2 - 10,
-        viewportTop + 6,
+        viewportTop + 8,
         viewportBottom - 28,
-      );
-
-      arrowRotation = "180deg";
+      )}px`;
+      onboardingArrow.style.transform = "rotate(180deg)";
     }
   }
 
   onboardingCard.style.left = `${cardLeft}px`;
   onboardingCard.style.top = `${cardTop}px`;
   onboardingCard.style.visibility = "visible";
-
-  onboardingArrow.style.left = `${arrowLeft}px`;
-  onboardingArrow.style.top = `${arrowTop}px`;
-  onboardingArrow.style.transform = `rotate(${arrowRotation})`;
 }
 
 async function showOnboardingStep(index) {
@@ -324,16 +314,20 @@ function setupOnboarding() {
     }, 120);
   });
 
-  window.addEventListener("scroll", () => {
-    if (!onboardingOverlay || onboardingOverlay.classList.contains("is-hidden")) return;
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (!onboardingOverlay || onboardingOverlay.classList.contains("is-hidden")) return;
 
-    clearTimeout(onboardingRepositionTimer);
-    onboardingRepositionTimer = setTimeout(() => {
-      const step = onboardingSteps[onboardingIndex];
-      const targetEl = step ? document.querySelector(step.target) : null;
-      if (targetEl) positionOnboarding(targetEl);
-    }, 20);
-  }, { passive: true });
+      clearTimeout(onboardingRepositionTimer);
+      onboardingRepositionTimer = setTimeout(() => {
+        const step = onboardingSteps[onboardingIndex];
+        const targetEl = step ? document.querySelector(step.target) : null;
+        if (targetEl) positionOnboarding(targetEl);
+      }, 20);
+    },
+    { passive: true },
+  );
 }
 
 function startOnboarding() {
@@ -346,7 +340,6 @@ function startOnboarding() {
 
   onboardingOverlay.classList.remove("is-hidden");
   onboardingOverlay.setAttribute("aria-hidden", "false");
-  document.body.style.overflow = "hidden";
 
   showOnboardingStep(onboardingIndex);
 }
