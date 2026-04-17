@@ -7,7 +7,12 @@ const DN_CONFIG = {
   },
 
   ACCESS: {
-    FREE_PDF_SUBJECTS: ["gravitational-field"],
+    FREE_PDF_SUBJECTS: [
+      "gravitational-field",
+      "vectors",
+      "binomial-expansion",
+      "rectangles-in-connection-with-circles"
+    ],
     FREE_QUIZ_TOPICS: ["units"],
   },
 
