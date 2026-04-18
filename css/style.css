@@ -574,6 +574,35 @@ header,
   gap: 16px;
 }
 
+.home-links-grid {
+  align-items: stretch;
+}
+
+.home-links-grid .card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 190px;
+}
+
+.home-links-grid .card h3 {
+  margin-bottom: 10px;
+}
+
+.home-links-grid .card p {
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .home-links-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-links-grid .card {
+    min-height: auto;
+  }
+}
+
 .card,
 .topic-card,
 .note-box,
