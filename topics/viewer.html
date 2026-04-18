@@ -214,7 +214,7 @@
     You are offline. Some PDFs may not load unless they were opened before.
   </div>
 
-  <div class="viewer-watermark">DinuuNOVA</div>
+  <div class="viewer-watermark">DN Physics</div>
 
   <header class="site-header">
     <div class="container nav">
@@ -369,6 +369,9 @@
 
   <script src="/js/app-config.js"></script>
   <script src="/js/theme-manager.js"></script>
+  <script>
+    window.dnThemeApplyToCurrentPage?.();
+  </script
   <script type="module" src="/js/firebase-client.js"></script>
   <script type="module" src="/js/pdf-sync.js"></script>
   <script type="module" src="/js/unlock.js"></script>
@@ -995,7 +998,7 @@
       const shareUrl = `${location.origin}${buildAppViewerShareUrl()}`;
       const shareData = {
         title: shareTitle,
-        text: "Open this note in DinuuNOVA:",
+        text: "Open this note in DN Physics:",
         url: shareUrl
       };
 
