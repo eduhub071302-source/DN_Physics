@@ -129,6 +129,8 @@
   <script type="module" src="/js/unlock.js"></script>
 
   <script>
+    if (window.dnThemeApplyToCurrentPage) window.dnThemeApplyToCurrentPage();
+    
     const refreshBtn = document.getElementById("refreshBtn");
     const pinnedSection = document.getElementById("pinnedSection");
     const pinnedGrid = document.getElementById("pinnedGrid");
