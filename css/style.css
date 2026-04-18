@@ -4107,6 +4107,15 @@ html.perf-low .brand-reveal {
   text-align: center;
 }
 
+.customize-help-text {
+  margin-top: -4px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--muted);
+  text-align: center;
+}
+
 .customize-section {
   margin-bottom: 18px;
 }
