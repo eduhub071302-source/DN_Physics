@@ -164,7 +164,7 @@
             <div class="badge">PDF Note</div>
 
             <h2 id="sheetTitle">Formula Sheet</h2>
-            <p>Open this note, download it, or share it quickly.</p>
+            <p>Open this note inside the app, or share it quickly.</p>
 
             <div class="topic-meta-row">
               <div class="meta-pill" id="topicSubjectPill">Subject</div>
@@ -173,7 +173,6 @@
 
             <div class="actions topic-main-actions">
               <a class="btn btn-primary" id="viewBtn" href="/index.html">📖 View PDF</a>
-              <a class="btn" id="downloadBtn" href="/index.html" download>⬇ Download PDF</a>
               <button class="btn" id="shareBtn" type="button">📤 Share PDF</button>
             </div>
 
@@ -185,8 +184,7 @@
 
             <div class="topic-helper-box">
               <p>
-                For the smoothest reading experience, use <strong>View PDF</strong>.
-                If your phone is slow, use <strong>Download PDF</strong>.
+                Open this note through the app for the smoothest reading experience and easier navigation.
               </p>
               <div class="topic-quick-tip">⚡ Best for quick A/L revision</div>
             </div>
@@ -291,7 +289,6 @@
     const sheetTitle = document.getElementById("sheetTitle");
     const topicSubjectPill = document.getElementById("topicSubjectPill");
     const viewBtn = document.getElementById("viewBtn");
-    const downloadBtn = document.getElementById("downloadBtn");
     const shareBtn = document.getElementById("shareBtn");
     const waShare = document.getElementById("waShare");
     const tgShare = document.getElementById("tgShare");
@@ -314,6 +311,22 @@
 
       url += `&subject=${encodeURIComponent(subject)}`;
       return url;
+    }
+
+    function buildViewerPageUrl(title) {
+      const pdfPath = `/pdfs/${subject}/${file}`;
+      const subjectPage = buildSubjectPageUrl();
+
+      return (
+        `/topics/viewer.html?pdf=${encodeURIComponent(pdfPath)}` +
+        `&title=${encodeURIComponent(title)}` +
+        `&stream=${encodeURIComponent(stream)}` +
+        `${group ? `&group=${encodeURIComponent(group)}` : ""}` +
+        `&subject=${encodeURIComponent(subject)}` +
+        `&file=${encodeURIComponent(file)}` +
+        `&back=${encodeURIComponent(subjectPage)}` +
+        `&subjectName=${encodeURIComponent(prettifySubject(subject))}`
+      );
     }
 
     async function copyFallback(text) {
@@ -375,32 +388,24 @@
       subjectNavLink.href = subjectPage;
       subjectNavLink.textContent = prettySubject;
 
-      const pdfPath = hasValidParams
-        ? `/pdfs/${subject}/${file}`
+      const appViewerPath = hasValidParams
+        ? buildViewerPageUrl(title + " Formula Sheet")
         : "/index.html";
 
-      const fullPdfUrl = hasValidParams
-        ? `${location.origin}${pdfPath}`
-        : `${location.origin}/index.html`;
+      const fullAppViewerUrl = `${location.origin}${appViewerPath}`;
 
-      viewBtn.href =
-        `/topics/viewer.html?pdf=${encodeURIComponent(pdfPath)}` +
-        `&title=${encodeURIComponent(title + " Formula Sheet")}` +
-        `&back=${encodeURIComponent(subjectPage)}` +
-        `&subjectName=${encodeURIComponent(prettySubject)}`;
+      viewBtn.href = appViewerPath;
 
-      downloadBtn.href = pdfPath;
-
-      waShare.href = "https://wa.me/?text=" + encodeURIComponent(fullPdfUrl);
-      tgShare.href = "https://t.me/share/url?url=" + encodeURIComponent(fullPdfUrl);
+      waShare.href = "https://wa.me/?text=" + encodeURIComponent(fullAppViewerUrl);
+      tgShare.href = "https://t.me/share/url?url=" + encodeURIComponent(fullAppViewerUrl);
       mailShare.href =
         "mailto:?subject=" + encodeURIComponent(title) +
-        "&body=" + encodeURIComponent(fullPdfUrl);
+        "&body=" + encodeURIComponent(fullAppViewerUrl);
 
       if (shareBtn) {
         shareBtn.addEventListener("click", async () => {
           if (!hasValidParams) {
-            showToast("Invalid PDF link ⚠️");
+            showToast("Invalid note link ⚠️");
             return;
           }
 
@@ -408,17 +413,17 @@
             try {
               await navigator.share({
                 title: title,
-                url: fullPdfUrl
+                url: fullAppViewerUrl
               });
               return;
             } catch (error) {}
           }
 
           try {
-            await navigator.clipboard.writeText(fullPdfUrl);
+            await navigator.clipboard.writeText(fullAppViewerUrl);
             showToast("Link copied ✅");
           } catch (error) {
-            await copyFallback(fullPdfUrl);
+            await copyFallback(fullAppViewerUrl);
             showToast("Link copied ✅");
           }
         });
