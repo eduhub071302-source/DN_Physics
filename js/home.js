@@ -347,6 +347,45 @@ function setupSplash() {
   }
 }
 
+function setupSettingsModal() {
+  const settingsBtn = document.getElementById("settingsBtn");
+  const modal = document.getElementById("settingsModal");
+  const closeBtn = document.getElementById("closeSettingsBtn");
+
+  if (!settingsBtn || !modal) return;
+
+  settingsBtn.addEventListener("click", () => {
+    modal.classList.remove("hidden");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  });
+
+  function closeModal() {
+    modal.classList.add("hidden");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
+  if (closeBtn) closeBtn.addEventListener("click", closeModal);
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  // connect existing actions
+  document.getElementById("refreshFromSettingsBtn")?.addEventListener("click", () => {
+    document.getElementById("refreshBtn")?.click();
+  });
+
+  document.getElementById("openProfileBtn")?.addEventListener("click", () => {
+    document.getElementById("loginBtn")?.click();
+  });
+
+  document.getElementById("switchAccountSettingsBtn")?.addEventListener("click", () => {
+    document.getElementById("switchAccountBtn")?.click();
+  });
+}
+
 function openSubjectModal() {
   const subjectModal = getEl("subjectSelectModal");
   if (!subjectModal) return;
