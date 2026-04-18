@@ -581,6 +581,114 @@ function setupUnlockButton() {
   }
 }
 
+function setupCustomizeApp() {
+  const openBtn = document.getElementById("openCustomizeBtn");
+  const modal = document.getElementById("customizeModal");
+  const closeBtn = document.getElementById("closeCustomizeBtn");
+
+  if (!openBtn || !modal) return;
+
+  // OPEN
+  openBtn.addEventListener("click", () => {
+    modal.classList.remove("hidden");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  });
+
+  // CLOSE
+  function closeModal() {
+    modal.classList.add("hidden");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
+  closeBtn?.addEventListener("click", closeModal);
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  // ---------- SIMPLE THEME SYSTEM ----------
+
+  const wallpaperGrid = document.getElementById("wallpaperGrid");
+  const saveBtn = document.getElementById("saveCustomizeBtn");
+
+  let selectedWallpaper = localStorage.getItem("dn_wallpaper") || "";
+  let selectedAccent = localStorage.getItem("dn_accent") || "blue";
+
+  const wallpapers = [
+    "w1","w2","w3","w4","w5","w6","w7","w8","w9"
+  ];
+
+  // render wallpapers
+  if (wallpaperGrid) {
+    wallpaperGrid.innerHTML = "";
+
+    wallpapers.forEach((w) => {
+      const div = document.createElement("div");
+      div.className = "wallpaper-tile";
+      div.dataset.wallpaper = w;
+
+      if (selectedWallpaper === w) {
+        div.classList.add("active");
+      }
+
+      div.addEventListener("click", () => {
+        selectedWallpaper = w;
+        document.querySelectorAll(".wallpaper-tile").forEach(el => el.classList.remove("active"));
+        div.classList.add("active");
+      });
+
+      wallpaperGrid.appendChild(div);
+    });
+  }
+
+  // accent color
+  document.querySelectorAll(".accent-swatch").forEach(btn => {
+    if (btn.dataset.accent === selectedAccent) {
+      btn.classList.add("active");
+    }
+
+    btn.addEventListener("click", () => {
+      selectedAccent = btn.dataset.accent;
+
+      document.querySelectorAll(".accent-swatch").forEach(el => el.classList.remove("active"));
+      btn.classList.add("active");
+    });
+  });
+
+  // SAVE
+  saveBtn?.addEventListener("click", () => {
+    localStorage.setItem("dn_wallpaper", selectedWallpaper);
+    localStorage.setItem("dn_accent", selectedAccent);
+
+    applyTheme();
+
+    if (window.showToast) {
+      window.showToast("🎨 Theme updated");
+    }
+
+    closeModal();
+  });
+
+  // APPLY ON LOAD
+  function applyTheme() {
+    document.body.classList.remove(
+      "wallpaper-w1","wallpaper-w2","wallpaper-w3",
+      "wallpaper-w4","wallpaper-w5","wallpaper-w6",
+      "wallpaper-w7","wallpaper-w8","wallpaper-w9"
+    );
+
+    if (selectedWallpaper) {
+      document.body.classList.add(`wallpaper-${selectedWallpaper}`);
+    }
+
+    document.body.setAttribute("data-accent", selectedAccent);
+  }
+
+  applyTheme();
+}
+
 async function initPage() {
   applyPerformanceMode();
 
@@ -599,6 +707,8 @@ async function initPage() {
   await checkCatalogVersion();
 
   setupSettingsModal();
+
+  setupCustomizeApp();
 }
 
 registerServiceWorker(APP_PATH);
