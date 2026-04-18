@@ -78,6 +78,8 @@
     #pdfViewer {
       scroll-behavior: smooth;
       position: relative;
+      -webkit-user-select: none;
+      user-select: none;
     }
 
     .pdf-page {
@@ -86,6 +88,9 @@
       opacity: 0;
       transform: translateY(10px);
       transition: opacity 0.28s ease, transform 0.28s ease;
+      -webkit-user-drag: none;
+      user-select: none;
+      pointer-events: none;
     }
 
     .pdf-page.is-visible {
@@ -124,6 +129,19 @@
     .load-sentinel {
       width: 100%;
       height: 8px;
+    }
+
+    .viewer-watermark {
+      position: fixed;
+      inset: auto 18px 18px auto;
+      z-index: 1400;
+      pointer-events: none;
+      opacity: 0.16;
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      color: #ffffff;
+      text-transform: uppercase;
     }
 
     @media (max-width: 768px) {
@@ -196,6 +214,8 @@
     You are offline. Some PDFs may not load unless they were opened before.
   </div>
 
+  <div class="viewer-watermark">DinuuNOVA</div>
+
   <header class="site-header">
     <div class="container nav">
       <div class="brand">DinuuNOVA <span>Physics</span></div>
@@ -229,7 +249,6 @@
           <div class="actions" id="viewerActions">
             <a class="btn" id="backBtn" href="/index.html">← Back</a>
             <a class="btn btn-primary" id="openBtn" href="#" target="_blank" rel="noopener">Open PDF</a>
-            <a class="btn" id="downloadBtn" href="#" download>⬇ Download PDF</a>
             <button class="btn" id="shareBtn" type="button">📤 Share PDF</button>
           </div>
         </div>
@@ -266,7 +285,7 @@
           </div>
 
           <p class="helper" id="viewerHelper">
-            If preview fails, use Open, Download, or Refresh 🔄
+            If preview fails, use Open or Refresh 🔄
           </p>
         </section>
       </div>
@@ -400,7 +419,6 @@
     const backLinkEl = document.getElementById("backLink");
     const backBtnEl = document.getElementById("backBtn");
     const openBtnEl = document.getElementById("openBtn");
-    const downloadBtnEl = document.getElementById("downloadBtn");
     const shareBtnEl = document.getElementById("shareBtn");
     const container = document.getElementById("pdfViewer");
     const librarySection = document.getElementById("librarySection");
@@ -481,6 +499,19 @@
       return url;
     }
 
+    function buildAppViewerShareUrl() {
+      return (
+        `/topics/viewer.html?pdf=${encodeURIComponent(pdfUrl)}` +
+        `&title=${encodeURIComponent(shareTitle)}` +
+        `&stream=${encodeURIComponent(stream)}` +
+        `${group ? `&group=${encodeURIComponent(group)}` : ""}` +
+        `&subject=${encodeURIComponent(subjectSlug)}` +
+        `&file=${encodeURIComponent(fileName)}` +
+        `&back=${encodeURIComponent(backUrl)}` +
+        `&subjectName=${encodeURIComponent(subjectDisplayName)}`
+      );
+    }
+
     function buildViewerUrl(item) {
       const pdf = `/pdfs/${item.subject}/${item.file}`;
       const title = encodeURIComponent(item.title || item.file.replace(/\.pdf$/i, ""));
@@ -514,7 +545,7 @@
       } else {
         if (viewerHelper) {
           viewerHelper.innerHTML =
-            'If preview fails, use <strong>Open PDF</strong>, <strong>Download PDF</strong>, or <strong>Refresh</strong> 🔄';
+            'If preview fails, use <strong>Open PDF</strong>, <strong>Share PDF</strong>, or <strong>Refresh</strong> 🔄';
         }
       }
     }
@@ -684,7 +715,6 @@
             <p>${prettifyFolderName(item.subject)}</p>
             <div class="card-actions">
               <a class="btn btn-primary" href="${buildViewerUrl(item)}">View PDF</a>
-              <a class="btn" href="/pdfs/${item.subject}/${item.file}" target="_blank" rel="noopener">Open</a>
               ${item.subjectPage ? `<a class="btn" href="${item.subjectPage}">Topic</a>` : ""}
             </div>
           </div>
@@ -810,6 +840,7 @@
       canvas.width = viewport.width;
       canvas.height = viewport.height;
       canvas.className = "pdf-page";
+      canvas.setAttribute("draggable", "false");
 
       await page.render({
         canvasContext: context,
@@ -928,7 +959,7 @@
             <br><br>
             You can also try:
             <br>• <strong>Open PDF</strong>
-            <br>• <strong>Download PDF</strong>
+            <br>• <strong>Share PDF</strong>
             <br>• <strong>Refresh</strong> 🔄
           </div>
         `;
@@ -960,10 +991,10 @@
     }
 
     async function shareCurrentPdf() {
-      const shareUrl = absolutePdfUrl || window.location.href;
+      const shareUrl = `${location.origin}${buildAppViewerShareUrl()}`;
       const shareData = {
         title: shareTitle,
-        text: "View or download this PDF:",
+        text: "Open this note in DinuuNOVA:",
         url: shareUrl
       };
 
@@ -1084,6 +1115,24 @@
       });
 
       window.addEventListener("keydown", handleKeyboardShortcuts);
+
+      document.addEventListener("contextmenu", (e) => {
+        if (e.target.closest("#pdfViewer")) {
+          e.preventDefault();
+        }
+      });
+
+      document.addEventListener("dragstart", (e) => {
+        if (e.target.closest("#pdfViewer")) {
+          e.preventDefault();
+        }
+      });
+
+      document.addEventListener("copy", (e) => {
+        if (document.activeElement && document.activeElement.closest && document.activeElement.closest("#pdfViewer")) {
+          e.preventDefault();
+        }
+      });
     }
 
     async function initViewer() {
@@ -1133,8 +1182,7 @@
       subjectLinkEl.href = subjectPageUrl;
       backLinkEl.href = backUrl;
       backBtnEl.href = backUrl;
-      openBtnEl.href = pdfUrl;
-      downloadBtnEl.href = pdfUrl;
+      openBtnEl.href = buildAppViewerShareUrl();
 
       await renderPdf();
     }
