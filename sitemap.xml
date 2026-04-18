@@ -3,70 +3,105 @@
 
   <url>
     <loc>https://dnphysics.com.lk/</loc>
-    <lastmod>2026-04-17</lastmod>
+    <lastmod>2026-04-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
+    <loc>https://dnphysics.com.lk/physics-notes.html</loc>
+    <lastmod>2026-04-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+
+  <url>
+    <loc>https://dnphysics.com.lk/main-maths-notes.html</loc>
+    <lastmod>2026-04-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+
+  <url>
+    <loc>https://dnphysics.com.lk/basic-maths-notes.html</loc>
+    <lastmod>2026-04-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+
+  <url>
+    <loc>https://dnphysics.com.lk/physics-mcq.html</loc>
+    <lastmod>2026-04-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+
+  <url>
+    <loc>https://dnphysics.com.lk/chemistry-mcq.html</loc>
+    <lastmod>2026-04-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+
+  <url>
     <loc>https://dnphysics.com.lk/notes/index.html</loc>
-    <lastmod>2026-04-17</lastmod>
+    <lastmod>2026-04-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://dnphysics.com.lk/subjects/index.html?stream=physics</loc>
-    <lastmod>2026-04-17</lastmod>
+    <lastmod>2026-04-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://dnphysics.com.lk/subjects/index.html?stream=main-maths</loc>
-    <lastmod>2026-04-17</lastmod>
+    <lastmod>2026-04-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
 
   <url>
     <loc>https://dnphysics.com.lk/subjects/index.html?stream=basic-maths</loc>
-    <lastmod>2026-04-17</lastmod>
+    <lastmod>2026-04-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
 
   <url>
     <loc>https://dnphysics.com.lk/pp-quiz/index.html</loc>
-    <lastmod>2026-04-17</lastmod>
+    <lastmod>2026-04-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://dnphysics.com.lk/contact.html</loc>
-    <lastmod>2026-04-17</lastmod>
+    <lastmod>2026-04-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://dnphysics.com.lk/privacy.html</loc>
-    <lastmod>2026-04-17</lastmod>
+    <lastmod>2026-04-18</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
 
   <url>
     <loc>https://dnphysics.com.lk/terms.html</loc>
-    <lastmod>2026-04-17</lastmod>
+    <lastmod>2026-04-18</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
 
   <url>
     <loc>https://dnphysics.com.lk/refund-policy.html</loc>
-    <lastmod>2026-04-17</lastmod>
+    <lastmod>2026-04-18</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
