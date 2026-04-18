@@ -48,6 +48,10 @@ const SUBJECTS = {
 const refreshQuizHomeBtn = document.getElementById("refreshQuizHomeBtn");
 
 document.addEventListener("DOMContentLoaded", () => {
+  if (typeof window.dnThemeApplyToCurrentPage === "function") {
+    window.dnThemeApplyToCurrentPage();
+  }
+
   const topicsGrid = document.getElementById("topicsGrid");
 
   if (!topicsGrid) {
