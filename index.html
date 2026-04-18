@@ -233,6 +233,42 @@
       </div>
     </div>
 
+    <!-- SETTINGS MODAL -->
+    <div id="settingsModal" class="auth-modal hidden" aria-hidden="true">
+      <div class="auth-box" style="max-width: 420px">
+
+        <h2>Settings</h2>
+ 
+        <div class="settings-section">
+          <p class="settings-title">Account</p>
+          <button id="openProfileBtn" class="btn">👤 Profile</button>
+          <button id="switchAccountSettingsBtn" class="btn">🔄 Switch Account</button>
+        </div>
+
+        <div class="settings-section">
+          <p class="settings-title">Support</p>
+          <button onclick="location.href='/contact.html'" class="btn">💬 Contact Support</button>
+          <button onclick="location.href='/refund-policy.html'" class="btn">💸 Refund Request</button>
+        </div>
+
+        <div class="settings-section">
+          <p class="settings-title">Appearance</p>
+          <button id="openCustomizeBtn" class="btn">🎨 Customize App</button>
+        </div>
+
+        <div class="settings-section">
+          <p class="settings-title">Danger Zone</p>
+          <button id="deleteAccountBtn" class="btn">🗑 Delete Account</button>
+        </div>
+
+        <div class="settings-section">
+          <button id="refreshFromSettingsBtn" class="btn">♻ Refresh App</button>
+          <button id="closeSettingsBtn" class="btn">Close</button>
+        </div>
+
+      </div>
+    </div>
+
     <!-- HEADER -->
     <header class="site-header">
       <div class="container nav">
@@ -262,6 +298,10 @@
           </div>
 
           <button id="loginBtn" class="btn" type="button">👤 Profile</button>
+
+          <button id="settingsBtn" class="btn" type="button">
+            ⚙️
+          </button>
 
           <button
             id="refreshBtn"
