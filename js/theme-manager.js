@@ -160,7 +160,8 @@ function dnThemeApplyToCurrentPage() {
     if (wallpaperMeta?.type === "image" && wallpaperMeta.src) {
       body.classList.add(`wallpaper-${theme.wallpaper}`);
       body.style.backgroundImage = `
-        linear-gradient(rgba(5,10,18,0.72), rgba(5,10,18,0.78)),
+        radial-gradient(circle at top, rgba(78,161,255,0.10), transparent 28%),
+        linear-gradient(rgba(5,10,18,0.68), rgba(5,10,18,0.80)),
         url("${wallpaperMeta.src}")
       `;
       body.style.backgroundSize = "cover";
