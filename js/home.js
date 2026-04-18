@@ -593,156 +593,35 @@ function setupCustomizeApp() {
   const scopeButtons = Array.from(document.querySelectorAll(".customize-tab-btn"));
   const accentButtons = Array.from(document.querySelectorAll(".accent-swatch"));
 
-  if (!openBtn || !modal || !wallpaperGrid) return;
+  if (
+    !openBtn ||
+    !modal ||
+    !wallpaperGrid ||
+    typeof window.dnThemeLoadSettings !== "function" ||
+    typeof window.dnThemeSaveSettings !== "function" ||
+    typeof window.dnThemeApplyToCurrentPage !== "function" ||
+    !Array.isArray(window.DN_THEME_WALLPAPERS)
+  ) {
+    return;
+  }
 
-  const STORAGE_KEY = "dn_theme_settings";
-
-  const WALLPAPERS = [
-    "gradient-1",
-    "gradient-2",
-    "gradient-3",
-    "gradient-4",
-    "gradient-5",
-    "gradient-6",
-    "dark-1",
-    "dark-2",
-    "dark-3",
-    "space-1",
-    "space-2",
-    "nature-1",
-    "nature-2",
-  ];
-
-  const DEFAULT_THEME = {
+  const DEFAULT_SCOPE_THEME = {
     wallpaper: "",
     accent: "blue",
   };
 
-  const DEFAULT_SETTINGS = {
-    global: { ...DEFAULT_THEME },
-    home: { ...DEFAULT_THEME },
-    notes: { ...DEFAULT_THEME },
-    quiz: { ...DEFAULT_THEME },
-    viewer: { ...DEFAULT_THEME },
-  };
-
+  let settings = window.dnThemeLoadSettings();
   let currentScope = "global";
-  let settings = loadSettings();
 
-  function loadSettings() {
-    try {
-      const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-      return {
-        global: { ...DEFAULT_THEME, ...(raw?.global || {}) },
-        home: { ...DEFAULT_THEME, ...(raw?.home || {}) },
-        notes: { ...DEFAULT_THEME, ...(raw?.notes || {}) },
-        quiz: { ...DEFAULT_THEME, ...(raw?.quiz || {}) },
-        viewer: { ...DEFAULT_THEME, ...(raw?.viewer || {}) },
-      };
-    } catch (error) {
-      console.warn("Theme settings load failed:", error);
-      return JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+  function cloneThemeState(value) {
+    return JSON.parse(JSON.stringify(value));
+  }
+
+  function getScopeTheme(scope) {
+    if (!settings[scope]) {
+      settings[scope] = { ...DEFAULT_SCOPE_THEME };
     }
-  }
-
-  function saveSettings() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-    } catch (error) {
-      console.warn("Theme settings save failed:", error);
-    }
-  }
-
-  function getPageScope() {
-    const path = window.location.pathname.toLowerCase();
-
-    if (path.includes("/notes/") || path.includes("/subjects/")) return "notes";
-    if (path.includes("/pp-quiz/")) return "quiz";
-    if (path.includes("/topics/viewer")) return "viewer";
-    if (path.includes("/index.html") || path === "/" || path.endsWith("/")) return "home";
-
-    return "global";
-  }
-
-  function getEffectiveTheme(scope) {
-    const scoped = settings[scope] || DEFAULT_THEME;
-    const global = settings.global || DEFAULT_THEME;
-
-    return {
-      wallpaper: scoped.wallpaper || global.wallpaper || "",
-      accent: scoped.accent || global.accent || "blue",
-    };
-  }
-
-  function applyThemeToPage() {
-    const pageScope = getPageScope();
-    const theme = getEffectiveTheme(pageScope);
-
-    document.body.classList.remove(
-      "wallpaper-gradient-1",
-      "wallpaper-gradient-2",
-      "wallpaper-gradient-3",
-      "wallpaper-gradient-4",
-      "wallpaper-gradient-5",
-      "wallpaper-gradient-6",
-      "wallpaper-dark-1",
-      "wallpaper-dark-2",
-      "wallpaper-dark-3",
-      "wallpaper-space-1",
-      "wallpaper-space-2",
-      "wallpaper-nature-1",
-      "wallpaper-nature-2",
-      "accent-purple",
-      "accent-pink",
-      "accent-gold",
-      "accent-green",
-      "accent-orange"
-    );
-
-    if (theme.wallpaper) {
-      document.body.classList.add(`wallpaper-${theme.wallpaper}`);
-    }
-
-    if (theme.accent && theme.accent !== "blue") {
-      document.body.classList.add(`accent-${theme.accent}`);
-    }
-  }
-
-  function renderWallpapers() {
-    wallpaperGrid.innerHTML = "";
-
-    const activeWallpaper = settings[currentScope]?.wallpaper || "";
-
-    WALLPAPERS.forEach((wallpaper) => {
-      const tile = document.createElement("button");
-      tile.type = "button";
-      tile.className = "wallpaper-tile";
-      tile.dataset.wallpaper = wallpaper;
-      tile.setAttribute("aria-label", wallpaper);
-
-      if (activeWallpaper === wallpaper) {
-        tile.classList.add("active");
-      }
-
-      const preview = document.createElement("div");
-      preview.className = `wallpaper-preview wallpaper-${wallpaper}`;
-      tile.appendChild(preview);
-
-      tile.addEventListener("click", () => {
-        settings[currentScope].wallpaper = wallpaper;
-        renderWallpapers();
-      });
-
-      wallpaperGrid.appendChild(tile);
-    });
-  }
-
-  function renderAccents() {
-    const activeAccent = settings[currentScope]?.accent || "blue";
-
-    accentButtons.forEach((btn) => {
-      btn.classList.toggle("active", btn.dataset.accent === activeAccent);
-    });
+    return settings[scope];
   }
 
   function renderScopeButtons() {
@@ -751,10 +630,53 @@ function setupCustomizeApp() {
     });
   }
 
+  function renderAccentButtons() {
+    const activeAccent = getScopeTheme(currentScope).accent || "blue";
+
+    accentButtons.forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.accent === activeAccent);
+    });
+  }
+
+  function renderWallpaperGrid() {
+    const activeWallpaper = getScopeTheme(currentScope).wallpaper || "";
+    wallpaperGrid.innerHTML = "";
+
+    window.DN_THEME_WALLPAPERS.forEach((wallpaper) => {
+      const tile = document.createElement("button");
+      tile.type = "button";
+      tile.className = "wallpaper-tile";
+      tile.dataset.wallpaper = wallpaper.id;
+      tile.setAttribute("aria-label", wallpaper.id);
+
+      if (wallpaper.id === activeWallpaper) {
+        tile.classList.add("active");
+      }
+
+      if (typeof window.dnThemeBuildWallpaperPreview === "function") {
+        tile.appendChild(window.dnThemeBuildWallpaperPreview(wallpaper));
+      }
+
+      tile.addEventListener("click", () => {
+        getScopeTheme(currentScope).wallpaper = wallpaper.id;
+        renderWallpaperGrid();
+      });
+
+      wallpaperGrid.appendChild(tile);
+    });
+  }
+
   function renderCustomizeUi() {
     renderScopeButtons();
-    renderWallpapers();
-    renderAccents();
+    renderAccentButtons();
+    renderWallpaperGrid();
+  }
+
+  function openModal() {
+    renderCustomizeUi();
+    modal.classList.remove("hidden");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
   }
 
   function closeModal() {
@@ -764,15 +686,14 @@ function setupCustomizeApp() {
   }
 
   openBtn.addEventListener("click", () => {
+    settings = window.dnThemeLoadSettings();
+
     if (settingsModal) {
       settingsModal.classList.add("hidden");
       settingsModal.setAttribute("aria-hidden", "true");
     }
 
-    renderCustomizeUi();
-    modal.classList.remove("hidden");
-    modal.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
+    openModal();
   });
 
   closeBtn?.addEventListener("click", closeModal);
@@ -790,14 +711,39 @@ function setupCustomizeApp() {
 
   accentButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
-      settings[currentScope].accent = btn.dataset.accent || "blue";
-      renderAccents();
+      getScopeTheme(currentScope).accent = btn.dataset.accent || "blue";
+      renderAccentButtons();
     });
   });
 
+  resetScopeBtn?.addEventListener("click", () => {
+    settings[currentScope] = { ...DEFAULT_SCOPE_THEME };
+    renderCustomizeUi();
+  });
+
+  resetAllBtn?.addEventListener("click", () => {
+    settings = window.dnThemeResetAll
+      ? window.dnThemeResetAll()
+      : {
+          global: { ...DEFAULT_SCOPE_THEME },
+          home: { ...DEFAULT_SCOPE_THEME },
+          notes: { ...DEFAULT_SCOPE_THEME },
+          quiz: { ...DEFAULT_SCOPE_THEME },
+          viewer: { ...DEFAULT_SCOPE_THEME },
+        };
+
+    window.dnThemeApplyToCurrentPage();
+
+    if (window.showToast) {
+      window.showToast("↺ All themes reset");
+    }
+
+    renderCustomizeUi();
+  });
+
   saveBtn?.addEventListener("click", () => {
-    saveSettings();
-    applyThemeToPage();
+    window.dnThemeSaveSettings(cloneThemeState(settings));
+    window.dnThemeApplyToCurrentPage();
 
     if (window.showToast) {
       window.showToast("🎨 Theme updated");
@@ -806,23 +752,7 @@ function setupCustomizeApp() {
     closeModal();
   });
 
-  resetScopeBtn?.addEventListener("click", () => {
-    settings[currentScope] = { ...DEFAULT_THEME };
-    renderCustomizeUi();
-  });
-
-  resetAllBtn?.addEventListener("click", () => {
-    settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
-    renderCustomizeUi();
-    saveSettings();
-    applyThemeToPage();
-
-    if (window.showToast) {
-      window.showToast("↺ All themes reset");
-    }
-  });
-
-  applyThemeToPage();
+  window.dnThemeApplyToCurrentPage();
 }
 
 async function initPage() {
@@ -843,7 +773,6 @@ async function initPage() {
   await checkCatalogVersion();
 
   setupSettingsModal();
-
   setupCustomizeApp();
 }
 
