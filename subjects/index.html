@@ -164,6 +164,8 @@
 
   <script>
     const grid = document.getElementById("subjectGrid");
+    if (window.dnThemeApplyToCurrentPage) window.dnThemeApplyToCurrentPage();
+    
     const refreshBtn = document.getElementById("refreshBtn");
     const subjectTitleEl = document.getElementById("subjectTitle");
     const subjectDescEl = document.getElementById("subjectDesc");
