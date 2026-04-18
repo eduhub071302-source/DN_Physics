@@ -269,6 +269,53 @@
       </div>
     </div>
 
+    <!-- CUSTOMIZE APP MODAL -->
+    <div id="customizeModal" class="auth-modal hidden" aria-hidden="true">
+      <div class="auth-box customize-modal-box">
+        <div class="customize-modal-top">
+          <h2>Customize App</h2>
+          <p>Personalize wallpapers and colors for different app pages.</p>
+        </div>
+
+        <div class="customize-section">
+          <p class="settings-title">Apply To</p>
+          <div class="customize-tabs">
+            <button class="customize-tab-btn active" type="button" data-scope="global">Entire App</button>
+            <button class="customize-tab-btn" type="button" data-scope="home">Home</button>
+            <button class="customize-tab-btn" type="button" data-scope="notes">Notes</button>
+            <button class="customize-tab-btn" type="button" data-scope="quiz">Quiz</button>
+            <button class="customize-tab-btn" type="button" data-scope="viewer">Viewer</button>
+          </div>
+        </div>
+
+        <div class="customize-section">
+          <div class="customize-section-head">
+            <p class="settings-title">Choose Wallpaper</p>
+            <button id="resetScopeThemeBtn" class="btn" type="button">Reset This Page</button>
+          </div>
+          <div id="wallpaperGrid" class="wallpaper-grid"></div>
+        </div>
+
+        <div class="customize-section">
+          <p class="settings-title">Accent Color</p>
+          <div class="accent-grid">
+            <button class="accent-swatch active" type="button" data-accent="blue" style="--swatch:#4ea1ff" aria-label="Blue"></button>
+            <button class="accent-swatch" type="button" data-accent="purple" style="--swatch:#9b5cff" aria-label="Purple"></button>
+            <button class="accent-swatch" type="button" data-accent="pink" style="--swatch:#ff5ca8" aria-label="Pink"></button>
+            <button class="accent-swatch" type="button" data-accent="gold" style="--swatch:#ffd54a" aria-label="Gold"></button>
+            <button class="accent-swatch" type="button" data-accent="green" style="--swatch:#42c883" aria-label="Green"></button>
+            <button class="accent-swatch" type="button" data-accent="orange" style="--swatch:#ff9b42" aria-label="Orange"></button>
+          </div>
+        </div>
+
+        <div class="customize-actions">
+          <button id="resetAllThemesBtn" class="btn" type="button">Reset All</button>
+          <button id="saveCustomizeBtn" class="btn btn-primary" type="button">Save Changes</button>
+          <button id="closeCustomizeBtn" class="btn" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+
     <!-- HEADER -->
     <header class="site-header">
       <div class="container nav">
