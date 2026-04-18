@@ -278,6 +278,8 @@
   <script src="/js/access-control.js"></script>
 
   <script>
+    if (window.dnThemeApplyToCurrentPage) window.dnThemeApplyToCurrentPage();
+    
     const params = new URLSearchParams(window.location.search);
 
     const stream = params.get("stream") || "";
