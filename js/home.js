@@ -583,24 +583,197 @@ function setupUnlockButton() {
 
 function setupCustomizeApp() {
   const openBtn = document.getElementById("openCustomizeBtn");
+  const settingsModal = document.getElementById("settingsModal");
   const modal = document.getElementById("customizeModal");
   const closeBtn = document.getElementById("closeCustomizeBtn");
+  const wallpaperGrid = document.getElementById("wallpaperGrid");
+  const saveBtn = document.getElementById("saveCustomizeBtn");
+  const resetAllBtn = document.getElementById("resetAllThemesBtn");
+  const resetScopeBtn = document.getElementById("resetScopeThemeBtn");
+  const scopeButtons = Array.from(document.querySelectorAll(".customize-tab-btn"));
+  const accentButtons = Array.from(document.querySelectorAll(".accent-swatch"));
 
-  if (!openBtn || !modal) return;
+  if (!openBtn || !modal || !wallpaperGrid) return;
 
-  // OPEN
-  openBtn.addEventListener("click", () => {
-    modal.classList.remove("hidden");
-    modal.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
-  });
+  const STORAGE_KEY = "dn_theme_settings";
 
-  // CLOSE
+  const WALLPAPERS = [
+    "gradient-1",
+    "gradient-2",
+    "gradient-3",
+    "gradient-4",
+    "gradient-5",
+    "gradient-6",
+    "dark-1",
+    "dark-2",
+    "dark-3",
+    "space-1",
+    "space-2",
+    "nature-1",
+    "nature-2",
+  ];
+
+  const DEFAULT_THEME = {
+    wallpaper: "",
+    accent: "blue",
+  };
+
+  const DEFAULT_SETTINGS = {
+    global: { ...DEFAULT_THEME },
+    home: { ...DEFAULT_THEME },
+    notes: { ...DEFAULT_THEME },
+    quiz: { ...DEFAULT_THEME },
+    viewer: { ...DEFAULT_THEME },
+  };
+
+  let currentScope = "global";
+  let settings = loadSettings();
+
+  function loadSettings() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+      return {
+        global: { ...DEFAULT_THEME, ...(raw?.global || {}) },
+        home: { ...DEFAULT_THEME, ...(raw?.home || {}) },
+        notes: { ...DEFAULT_THEME, ...(raw?.notes || {}) },
+        quiz: { ...DEFAULT_THEME, ...(raw?.quiz || {}) },
+        viewer: { ...DEFAULT_THEME, ...(raw?.viewer || {}) },
+      };
+    } catch (error) {
+      console.warn("Theme settings load failed:", error);
+      return JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+    }
+  }
+
+  function saveSettings() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    } catch (error) {
+      console.warn("Theme settings save failed:", error);
+    }
+  }
+
+  function getPageScope() {
+    const path = window.location.pathname.toLowerCase();
+
+    if (path.includes("/notes/") || path.includes("/subjects/")) return "notes";
+    if (path.includes("/pp-quiz/")) return "quiz";
+    if (path.includes("/topics/viewer")) return "viewer";
+    if (path.includes("/index.html") || path === "/" || path.endsWith("/")) return "home";
+
+    return "global";
+  }
+
+  function getEffectiveTheme(scope) {
+    const scoped = settings[scope] || DEFAULT_THEME;
+    const global = settings.global || DEFAULT_THEME;
+
+    return {
+      wallpaper: scoped.wallpaper || global.wallpaper || "",
+      accent: scoped.accent || global.accent || "blue",
+    };
+  }
+
+  function applyThemeToPage() {
+    const pageScope = getPageScope();
+    const theme = getEffectiveTheme(pageScope);
+
+    document.body.classList.remove(
+      "wallpaper-gradient-1",
+      "wallpaper-gradient-2",
+      "wallpaper-gradient-3",
+      "wallpaper-gradient-4",
+      "wallpaper-gradient-5",
+      "wallpaper-gradient-6",
+      "wallpaper-dark-1",
+      "wallpaper-dark-2",
+      "wallpaper-dark-3",
+      "wallpaper-space-1",
+      "wallpaper-space-2",
+      "wallpaper-nature-1",
+      "wallpaper-nature-2",
+      "accent-purple",
+      "accent-pink",
+      "accent-gold",
+      "accent-green",
+      "accent-orange"
+    );
+
+    if (theme.wallpaper) {
+      document.body.classList.add(`wallpaper-${theme.wallpaper}`);
+    }
+
+    if (theme.accent && theme.accent !== "blue") {
+      document.body.classList.add(`accent-${theme.accent}`);
+    }
+  }
+
+  function renderWallpapers() {
+    wallpaperGrid.innerHTML = "";
+
+    const activeWallpaper = settings[currentScope]?.wallpaper || "";
+
+    WALLPAPERS.forEach((wallpaper) => {
+      const tile = document.createElement("button");
+      tile.type = "button";
+      tile.className = "wallpaper-tile";
+      tile.dataset.wallpaper = wallpaper;
+      tile.setAttribute("aria-label", wallpaper);
+
+      if (activeWallpaper === wallpaper) {
+        tile.classList.add("active");
+      }
+
+      const preview = document.createElement("div");
+      preview.className = `wallpaper-preview wallpaper-${wallpaper}`;
+      tile.appendChild(preview);
+
+      tile.addEventListener("click", () => {
+        settings[currentScope].wallpaper = wallpaper;
+        renderWallpapers();
+      });
+
+      wallpaperGrid.appendChild(tile);
+    });
+  }
+
+  function renderAccents() {
+    const activeAccent = settings[currentScope]?.accent || "blue";
+
+    accentButtons.forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.accent === activeAccent);
+    });
+  }
+
+  function renderScopeButtons() {
+    scopeButtons.forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.scope === currentScope);
+    });
+  }
+
+  function renderCustomizeUi() {
+    renderScopeButtons();
+    renderWallpapers();
+    renderAccents();
+  }
+
   function closeModal() {
     modal.classList.add("hidden");
     modal.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
   }
+
+  openBtn.addEventListener("click", () => {
+    if (settingsModal) {
+      settingsModal.classList.add("hidden");
+      settingsModal.setAttribute("aria-hidden", "true");
+    }
+
+    renderCustomizeUi();
+    modal.classList.remove("hidden");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  });
 
   closeBtn?.addEventListener("click", closeModal);
 
@@ -608,61 +781,23 @@ function setupCustomizeApp() {
     if (e.target === modal) closeModal();
   });
 
-  // ---------- SIMPLE THEME SYSTEM ----------
-
-  const wallpaperGrid = document.getElementById("wallpaperGrid");
-  const saveBtn = document.getElementById("saveCustomizeBtn");
-
-  let selectedWallpaper = localStorage.getItem("dn_wallpaper") || "";
-  let selectedAccent = localStorage.getItem("dn_accent") || "blue";
-
-  const wallpapers = [
-    "w1","w2","w3","w4","w5","w6","w7","w8","w9"
-  ];
-
-  // render wallpapers
-  if (wallpaperGrid) {
-    wallpaperGrid.innerHTML = "";
-
-    wallpapers.forEach((w) => {
-      const div = document.createElement("div");
-      div.className = "wallpaper-tile";
-      div.dataset.wallpaper = w;
-
-      if (selectedWallpaper === w) {
-        div.classList.add("active");
-      }
-
-      div.addEventListener("click", () => {
-        selectedWallpaper = w;
-        document.querySelectorAll(".wallpaper-tile").forEach(el => el.classList.remove("active"));
-        div.classList.add("active");
-      });
-
-      wallpaperGrid.appendChild(div);
-    });
-  }
-
-  // accent color
-  document.querySelectorAll(".accent-swatch").forEach(btn => {
-    if (btn.dataset.accent === selectedAccent) {
-      btn.classList.add("active");
-    }
-
+  scopeButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
-      selectedAccent = btn.dataset.accent;
-
-      document.querySelectorAll(".accent-swatch").forEach(el => el.classList.remove("active"));
-      btn.classList.add("active");
+      currentScope = btn.dataset.scope || "global";
+      renderCustomizeUi();
     });
   });
 
-  // SAVE
-  saveBtn?.addEventListener("click", () => {
-    localStorage.setItem("dn_wallpaper", selectedWallpaper);
-    localStorage.setItem("dn_accent", selectedAccent);
+  accentButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      settings[currentScope].accent = btn.dataset.accent || "blue";
+      renderAccents();
+    });
+  });
 
-    applyTheme();
+  saveBtn?.addEventListener("click", () => {
+    saveSettings();
+    applyThemeToPage();
 
     if (window.showToast) {
       window.showToast("🎨 Theme updated");
@@ -671,22 +806,23 @@ function setupCustomizeApp() {
     closeModal();
   });
 
-  // APPLY ON LOAD
-  function applyTheme() {
-    document.body.classList.remove(
-      "wallpaper-w1","wallpaper-w2","wallpaper-w3",
-      "wallpaper-w4","wallpaper-w5","wallpaper-w6",
-      "wallpaper-w7","wallpaper-w8","wallpaper-w9"
-    );
+  resetScopeBtn?.addEventListener("click", () => {
+    settings[currentScope] = { ...DEFAULT_THEME };
+    renderCustomizeUi();
+  });
 
-    if (selectedWallpaper) {
-      document.body.classList.add(`wallpaper-${selectedWallpaper}`);
+  resetAllBtn?.addEventListener("click", () => {
+    settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+    renderCustomizeUi();
+    saveSettings();
+    applyThemeToPage();
+
+    if (window.showToast) {
+      window.showToast("↺ All themes reset");
     }
+  });
 
-    document.body.setAttribute("data-accent", selectedAccent);
-  }
-
-  applyTheme();
+  applyThemeToPage();
 }
 
 async function initPage() {
