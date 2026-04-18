@@ -360,12 +360,17 @@ function setupSettingsModal() {
     document.body.style.overflow = "hidden";
   });
 
-  function closeModal() {
+  function closeModal(restorePreview = true) {
+    if (restorePreview) {
+      window.dnThemeSaveSettings(cloneThemeState(originalSettings));
+      window.dnThemeApplyToCurrentPage();
+    }
+
     modal.classList.add("hidden");
     modal.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
   }
-
+  
   if (closeBtn) closeBtn.addEventListener("click", closeModal);
 
   modal.addEventListener("click", (e) => {
@@ -660,10 +665,18 @@ function setupCustomizeApp() {
       tile.addEventListener("click", () => {
         getScopeTheme(currentScope).wallpaper = wallpaper.id;
         renderWallpaperGrid();
+        previewCurrentSelectionOnHome();
       });
 
       wallpaperGrid.appendChild(tile);
     });
+  }
+
+  function previewCurrentSelectionOnHome() {
+    if (currentScope === "global" || currentScope === "home") {
+      window.dnThemeSaveSettings(cloneThemeState(settings));
+      window.dnThemeApplyToCurrentPage();
+    }
   }
 
   function renderCustomizeUi() {
@@ -685,8 +698,11 @@ function setupCustomizeApp() {
     document.body.style.overflow = "";
   }
 
+  let originalSettings = cloneThemeState(settings);
+
   openBtn.addEventListener("click", () => {
     settings = window.dnThemeLoadSettings();
+    originalSettings = cloneThemeState(settings);
 
     if (settingsModal) {
       settingsModal.classList.add("hidden");
@@ -713,12 +729,14 @@ function setupCustomizeApp() {
     btn.addEventListener("click", () => {
       getScopeTheme(currentScope).accent = btn.dataset.accent || "blue";
       renderAccentButtons();
+      previewCurrentSelectionOnHome();
     });
   });
 
   resetScopeBtn?.addEventListener("click", () => {
     settings[currentScope] = { ...DEFAULT_SCOPE_THEME };
     renderCustomizeUi();
+    previewCurrentSelectionOnHome();
   });
 
   resetAllBtn?.addEventListener("click", () => {
@@ -743,13 +761,14 @@ function setupCustomizeApp() {
 
   saveBtn?.addEventListener("click", () => {
     window.dnThemeSaveSettings(cloneThemeState(settings));
+    originalSettings = cloneThemeState(settings);
     window.dnThemeApplyToCurrentPage();
 
     if (window.showToast) {
       window.showToast("🎨 Theme updated");
     }
 
-    closeModal();
+    closeModal(false);
   });
 
   window.dnThemeApplyToCurrentPage();
