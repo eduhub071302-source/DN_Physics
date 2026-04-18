@@ -4413,6 +4413,172 @@ body.accent-orange {
   --accent-ring: rgba(255, 155, 66, 0.14);
 }
 
+.wallpaper-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.wallpaper-grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.wallpaper-grid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+}
+
+.wallpaper-grid::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 999px;
+}
+
+.wallpaper-tile {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  padding: 0;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.wallpaper-tile:hover {
+  transform: translateY(-2px);
+  border-color: rgba(124, 196, 255, 0.34);
+}
+
+.wallpaper-tile.active {
+  border-color: var(--accent-2);
+  box-shadow:
+    0 0 0 2px rgba(124, 196, 255, 0.16),
+    0 14px 30px rgba(0, 0, 0, 0.28);
+}
+
+.wallpaper-tile::after {
+  content: "✕";
+  position: absolute;
+  top: 7px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(10, 18, 30, 0.82);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  z-index: 2;
+}
+
+.wallpaper-tile.active::after {
+  display: inline-flex;
+}
+
+.wallpaper-preview {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.customize-modal-box {
+  width: min(760px, 96vw);
+  max-width: 760px;
+  max-height: 88vh;
+  overflow-y: auto;
+}
+
+.customize-modal-box::-webkit-scrollbar {
+  width: 8px;
+}
+
+.customize-modal-box::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+}
+
+.accent-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.accent-swatch {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  background: var(--swatch);
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.accent-swatch:hover {
+  transform: translateY(-1px) scale(1.04);
+}
+
+.accent-swatch.active {
+  border-color: #ffffff;
+  box-shadow:
+    0 0 0 3px rgba(255,255,255,0.08),
+    var(--shadow-soft);
+}
+
+/* image wallpaper class fallback */
+body[class*="wallpaper-pattern-"] {
+  background-color: #09101c;
+}
+
+/* page surfaces stay readable over wallpaper */
+body[class*="wallpaper-pattern-"] .site-header,
+body[class*="wallpaper-pattern-"] header,
+body[class*="wallpaper-pattern-"] .footer,
+body[class*="wallpaper-pattern-"] .card,
+body[class*="wallpaper-pattern-"] .topic-card,
+body[class*="wallpaper-pattern-"] .note-box,
+body[class*="wallpaper-pattern-"] .pdf-shell,
+body[class*="wallpaper-pattern-"] .pdf-card,
+body[class*="wallpaper-pattern-"] .auth-box,
+body[class*="wallpaper-pattern-"] .music-panel,
+body[class*="wallpaper-pattern-"] .update-modal-box,
+body[class*="wallpaper-pattern-"] .loading-box {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+@media (max-width: 768px) {
+  .wallpaper-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    max-height: 360px;
+  }
+
+  .customize-modal-box {
+    width: 96vw;
+    max-width: 96vw;
+  }
+}
+
 @media (max-width: 768px) {
   .wallpaper-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4423,3 +4589,4 @@ body.accent-orange {
     max-width: 96vw;
   }
 }
+
