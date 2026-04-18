@@ -77,6 +77,126 @@ button {
   margin: 0 auto;
 }
 
+body.wallpaper-gradient-1 {
+  background:
+    linear-gradient(135deg, rgba(185,124,255,0.18), rgba(73,215,255,0.12)),
+    linear-gradient(180deg, #09101c 0%, #0d1524 100%);
+}
+
+body.wallpaper-gradient-2 {
+  background:
+    linear-gradient(135deg, rgba(255,224,130,0.18), rgba(255,183,77,0.12)),
+    linear-gradient(180deg, #09101c 0%, #0d1524 100%);
+}
+
+body.wallpaper-gradient-3 {
+  background:
+    linear-gradient(135deg, rgba(201,214,255,0.16), rgba(212,252,121,0.10)),
+    linear-gradient(180deg, #09101c 0%, #0d1524 100%);
+}
+
+body.wallpaper-gradient-4 {
+  background:
+    linear-gradient(135deg, rgba(168,255,120,0.14), rgba(120,255,214,0.12)),
+    linear-gradient(180deg, #09101c 0%, #0d1524 100%);
+}
+
+body.wallpaper-gradient-5 {
+  background:
+    linear-gradient(135deg, rgba(127,127,213,0.16), rgba(252,165,241,0.12)),
+    linear-gradient(180deg, #09101c 0%, #0d1524 100%);
+}
+
+body.wallpaper-gradient-6 {
+  background:
+    linear-gradient(135deg, rgba(255,154,158,0.18), rgba(251,194,235,0.12)),
+    linear-gradient(180deg, #09101c 0%, #0d1524 100%);
+}
+
+body.wallpaper-dark-1 {
+  background: linear-gradient(180deg, #040608 0%, #0a0d12 100%);
+}
+
+body.wallpaper-dark-2 {
+  background: linear-gradient(135deg, #12002f 0%, #060612 45%, #001f3f 100%);
+}
+
+body.wallpaper-dark-3 {
+  background:
+    radial-gradient(circle at 70% 30%, rgba(46, 125, 255, 0.16), transparent 18%),
+    radial-gradient(circle at 30% 70%, rgba(171, 71, 188, 0.16), transparent 18%),
+    linear-gradient(180deg, #09101c 0%, #0d1524 100%);
+}
+
+body.wallpaper-space-1 {
+  background:
+    radial-gradient(circle at 70% 30%, rgba(101, 196, 255, 0.20), transparent 18%),
+    radial-gradient(circle at 35% 60%, rgba(173, 82, 255, 0.16), transparent 16%),
+    linear-gradient(180deg, #050912 0%, #081220 55%, #0a1630 100%);
+}
+
+body.wallpaper-space-2 {
+  background: linear-gradient(180deg, #03060c 0%, #0b1220 100%);
+}
+
+body.wallpaper-nature-1 {
+  background: linear-gradient(180deg, #0f2027 0%, #203a43 55%, #2c5364 100%);
+}
+
+body.wallpaper-nature-2 {
+  background: linear-gradient(180deg, #3e2723 0%, #5d4037 55%, #8d6e63 100%);
+}
+
+body.accent-purple {
+  --accent: #9b5cff;
+  --accent-2: #c79bff;
+  --accent-3: #e1cbff;
+}
+
+body.accent-pink {
+  --accent: #ff5ca8;
+  --accent-2: #ff9bc8;
+  --accent-3: #ffd0e5;
+}
+
+body.accent-gold {
+  --accent: #ffd54a;
+  --accent-2: #ffe588;
+  --accent-3: #fff1b5;
+}
+
+body.accent-green {
+  --accent: #42c883;
+  --accent-2: #8de0b2;
+  --accent-3: #c7f3db;
+}
+
+body.accent-orange {
+  --accent: #ff9b42;
+  --accent-2: #ffc285;
+  --accent-3: #ffe0bc;
+}
+
+/* image wallpapers stay readable */
+body[class*="wallpaper-pattern-"] .quiz-header,
+body[class*="wallpaper-pattern-"] .topic-card,
+body[class*="wallpaper-pattern-"] .info-card,
+body[class*="wallpaper-pattern-"] .resume-card,
+body[class*="wallpaper-pattern-"] .quiz-progress-section,
+body[class*="wallpaper-pattern-"] .question-card,
+body[class*="wallpaper-pattern-"] .question-tools,
+body[class*="wallpaper-pattern-"] .result-card,
+body[class*="wallpaper-pattern-"] .history-card,
+body[class*="wallpaper-pattern-"] .post-result-actions,
+body[class*="wallpaper-pattern-"] .quiz-status-card,
+body[class*="wallpaper-pattern-"] .quiz-main-card,
+body[class*="wallpaper-pattern-"] .quiz-controls-card,
+body[class*="wallpaper-pattern-"] .quiz-nav-card,
+body[class*="wallpaper-pattern-"] .music-panel {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
 /* HEADER */
 .quiz-header {
   padding: 24px 0 16px;
