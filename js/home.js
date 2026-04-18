@@ -597,6 +597,8 @@ async function initPage() {
   await initProfileState();
   renderDashboard();
   await checkCatalogVersion();
+
+  setupSettingsModal();
 }
 
 registerServiceWorker(APP_PATH);
