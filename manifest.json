@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "DinuuNOVA",
+  "name": "DN Physics",
   "short_name": "DN",
-  "description": "Clean Physics and Chemistry notes and past paper MCQ practice by DinuuNOVA.",
+  "description": "Clean Physics & Maths notes and Physics & Chemistry past paper MCQ practice by DN Physics.",
   "lang": "en",
   "dir": "ltr",
   "start_url": "/index.html",
