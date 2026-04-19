@@ -1,4 +1,4 @@
-const DN_THEME_STORAGE_KEY = "dn_theme_settings_v2";
+const DN_THEME_BASE_KEY = "dn_theme_settings_v3";
 
 const DN_THEME_DEFAULT = {
   wallpaper: "",
@@ -64,33 +64,127 @@ function dnThemeClone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
-function dnThemeLoadSettings() {
+function dnThemeNormalizeSettings(raw) {
+  return {
+    global: { ...DN_THEME_DEFAULT, ...(raw?.global || {}) },
+    home: { ...DN_THEME_DEFAULT, ...(raw?.home || {}) },
+    notes: { ...DN_THEME_DEFAULT, ...(raw?.notes || {}) },
+    quiz: { ...DN_THEME_DEFAULT, ...(raw?.quiz || {}) },
+    viewer: { ...DN_THEME_DEFAULT, ...(raw?.viewer || {}) },
+  };
+}
+
+function dnThemeGetCurrentUserId() {
   try {
-    const raw = JSON.parse(localStorage.getItem(DN_THEME_STORAGE_KEY) || "null");
-    return {
-      global: { ...DN_THEME_DEFAULT, ...(raw?.global || {}) },
-      home: { ...DN_THEME_DEFAULT, ...(raw?.home || {}) },
-      notes: { ...DN_THEME_DEFAULT, ...(raw?.notes || {}) },
-      quiz: { ...DN_THEME_DEFAULT, ...(raw?.quiz || {}) },
-      viewer: { ...DN_THEME_DEFAULT, ...(raw?.viewer || {}) },
-    };
+    const firebaseUid = window.firebaseAuth?.currentUser?.uid;
+    if (firebaseUid) return firebaseUid;
+
+    const cachedUser = JSON.parse(localStorage.getItem("dn_user") || "null");
+    if (cachedUser?.uid) return cachedUser.uid;
+    if (cachedUser?.id) return cachedUser.id;
   } catch (error) {
-    console.warn("Theme load failed:", error);
+    console.warn("Theme user detect failed:", error);
+  }
+
+  return "guest";
+}
+
+function dnThemeGetStorageKey() {
+  return `${DN_THEME_BASE_KEY}__${dnThemeGetCurrentUserId()}`;
+}
+
+function dnThemeLoadLocalSettings() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(dnThemeGetStorageKey()) || "null");
+    return dnThemeNormalizeSettings(raw);
+  } catch (error) {
+    console.warn("Theme local load failed:", error);
     return dnThemeClone(DN_THEME_DEFAULT_SETTINGS);
   }
 }
 
-function dnThemeSaveSettings(settings) {
+function dnThemeSaveLocalSettings(settings) {
   try {
-    localStorage.setItem(DN_THEME_STORAGE_KEY, JSON.stringify(settings));
+    localStorage.setItem(
+      dnThemeGetStorageKey(),
+      JSON.stringify(dnThemeNormalizeSettings(settings))
+    );
   } catch (error) {
-    console.warn("Theme save failed:", error);
+    console.warn("Theme local save failed:", error);
   }
+}
+
+async function dnThemePullCloudForCurrentUser() {
+  const uid = dnThemeGetCurrentUserId();
+
+  if (!uid || uid === "guest") {
+    return dnThemeLoadLocalSettings();
+  }
+
+  try {
+    const sdk = window.firebaseSdk;
+    const db = window.firebaseDb;
+
+    if (!sdk || !db || typeof sdk.ref !== "function" || typeof sdk.get !== "function") {
+      return dnThemeLoadLocalSettings();
+    }
+
+    const snapshot = await sdk.get(sdk.ref(db, `/profiles/${uid}/theme`));
+
+    if (snapshot.exists()) {
+      const cloudSettings = dnThemeNormalizeSettings(snapshot.val());
+      dnThemeSaveLocalSettings(cloudSettings);
+      return cloudSettings;
+    }
+
+    return dnThemeLoadLocalSettings();
+  } catch (error) {
+    console.warn("Theme cloud pull failed:", error);
+    return dnThemeLoadLocalSettings();
+  }
+}
+
+async function dnThemePushCloudForCurrentUser(settings) {
+  const uid = dnThemeGetCurrentUserId();
+
+  if (!uid || uid === "guest") return;
+
+  try {
+    const sdk = window.firebaseSdk;
+    const db = window.firebaseDb;
+
+    if (!sdk || !db || typeof sdk.ref !== "function" || typeof sdk.set !== "function") {
+      return;
+    }
+
+    await sdk.set(
+      sdk.ref(db, `/profiles/${uid}/theme`),
+      dnThemeNormalizeSettings(settings)
+    );
+  } catch (error) {
+    console.warn("Theme cloud push failed:", error);
+  }
+}
+
+function dnThemeLoadSettings() {
+  return dnThemeLoadLocalSettings();
+}
+
+function dnThemeSaveSettings(settings) {
+  const normalized = dnThemeNormalizeSettings(settings);
+  dnThemeSaveLocalSettings(normalized);
+  dnThemePushCloudForCurrentUser(normalized);
 }
 
 function dnThemeResetAll() {
   const settings = dnThemeClone(DN_THEME_DEFAULT_SETTINGS);
   dnThemeSaveSettings(settings);
+  return settings;
+}
+
+async function dnThemeLoadForCurrentUser() {
+  const settings = await dnThemePullCloudForCurrentUser();
+  dnThemeSaveLocalSettings(settings);
   return settings;
 }
 
@@ -102,7 +196,7 @@ function dnThemeGetPageScope() {
   if (path.includes("/topics/topic")) return "notes";
   if (path.includes("/subjects/")) return "notes";
   if (path.includes("/notes/")) return "notes";
-  if (path === "/" || path.endsWith("/index.html") || path === "/index.html") return "home";
+  if (path === "/" || path === "/index.html" || path.endsWith("/index.html")) return "home";
 
   return "global";
 }
@@ -153,6 +247,7 @@ function dnThemeApplyToCurrentPage() {
   body.style.backgroundPosition = "";
   body.style.backgroundRepeat = "";
   body.style.backgroundAttachment = "";
+  body.style.backgroundColor = "";
 
   if (theme.wallpaper) {
     const wallpaperMeta = DN_THEME_WALLPAPERS.find((item) => item.id === theme.wallpaper);
@@ -168,6 +263,7 @@ function dnThemeApplyToCurrentPage() {
       body.style.backgroundPosition = "center";
       body.style.backgroundRepeat = "no-repeat";
       body.style.backgroundAttachment = "fixed";
+      body.style.backgroundColor = "#09101c";
     } else {
       body.classList.add(`wallpaper-${theme.wallpaper}`);
     }
@@ -195,11 +291,43 @@ function dnThemeBuildWallpaperPreview(item) {
   return preview;
 }
 
+function dnThemeInitAuthWatcher() {
+  if (window.__dnThemeAuthWatcherBound) return true;
+
+  const sdk = window.firebaseSdk;
+  const auth = window.firebaseAuth;
+
+  if (!sdk || !auth || typeof sdk.onAuthStateChanged !== "function") {
+    return false;
+  }
+
+  window.__dnThemeAuthWatcherBound = true;
+
+  sdk.onAuthStateChanged(auth, async () => {
+    await dnThemeLoadForCurrentUser();
+    dnThemeApplyToCurrentPage();
+  });
+
+  return true;
+}
+
+function dnThemeBootWatcher(retries = 20) {
+  if (dnThemeInitAuthWatcher()) return;
+  if (retries <= 0) return;
+
+  setTimeout(() => {
+    dnThemeBootWatcher(retries - 1);
+  }, 300);
+}
+
 window.DN_THEME_WALLPAPERS = DN_THEME_WALLPAPERS;
 window.dnThemeLoadSettings = dnThemeLoadSettings;
 window.dnThemeSaveSettings = dnThemeSaveSettings;
 window.dnThemeResetAll = dnThemeResetAll;
+window.dnThemeLoadForCurrentUser = dnThemeLoadForCurrentUser;
 window.dnThemeGetPageScope = dnThemeGetPageScope;
 window.dnThemeGetEffectiveTheme = dnThemeGetEffectiveTheme;
 window.dnThemeApplyToCurrentPage = dnThemeApplyToCurrentPage;
 window.dnThemeBuildWallpaperPreview = dnThemeBuildWallpaperPreview;
+
+dnThemeBootWatcher();
