@@ -1,4 +1,8 @@
 document.addEventListener("DOMContentLoaded", async () => {
+  if (typeof window.dnThemeApplyToCurrentPage === "function") {
+    window.dnThemeApplyToCurrentPage();
+  }
+  
   const params = new URLSearchParams(window.location.search);
 
   const subject = (params.get("subject") || "").toLowerCase().trim();
