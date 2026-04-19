@@ -703,6 +703,7 @@ function setupCustomizeApp() {
   openBtn.addEventListener("click", () => {
     settings = window.dnThemeLoadSettings();
     originalSettings = cloneThemeState(settings);
+    currentScope = "home";
 
     if (settingsModal) {
       settingsModal.classList.add("hidden");
