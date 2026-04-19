@@ -1,4 +1,8 @@
 document.addEventListener("DOMContentLoaded", async () => {
+  if (typeof window.dnThemeApplyToCurrentPage === "function") {
+    window.dnThemeApplyToCurrentPage();
+  }
+  
   function getCurrentUserId() {
     try {
       const firebaseUid = window.firebaseAuth?.currentUser?.uid;
