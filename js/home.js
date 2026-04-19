@@ -351,42 +351,64 @@ function setupSettingsModal() {
   const settingsBtn = document.getElementById("settingsBtn");
   const modal = document.getElementById("settingsModal");
   const closeBtn = document.getElementById("closeSettingsBtn");
+  const refreshFromSettingsBtn = document.getElementById("refreshFromSettingsBtn");
+  const openProfileBtn = document.getElementById("openProfileBtn");
+  const switchAccountSettingsBtn = document.getElementById("switchAccountSettingsBtn");
 
   if (!settingsBtn || !modal) return;
 
-  settingsBtn.addEventListener("click", () => {
+  function openModal() {
     modal.classList.remove("hidden");
     modal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
-  });
+  }
 
-  function closeModal(restorePreview = true) {
-    if (restorePreview) {
-      window.dnThemeSaveSettings(cloneThemeState(originalSettings));
-      window.dnThemeApplyToCurrentPage();
-    }
-
+  function closeModal() {
     modal.classList.add("hidden");
     modal.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
   }
-  
-  if (closeBtn) closeBtn.addEventListener("click", closeModal);
 
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) closeModal();
+  settingsBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openModal();
   });
 
-  // connect existing actions
-  document.getElementById("refreshFromSettingsBtn")?.addEventListener("click", () => {
+  if (closeBtn) {
+    closeBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeModal();
+    });
+  }
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !modal.classList.contains("hidden")) {
+      closeModal();
+    }
+  });
+
+  refreshFromSettingsBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
     document.getElementById("refreshBtn")?.click();
   });
 
-  document.getElementById("openProfileBtn")?.addEventListener("click", () => {
+  openProfileBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    closeModal();
     document.getElementById("loginBtn")?.click();
   });
 
-  document.getElementById("switchAccountSettingsBtn")?.addEventListener("click", () => {
+  switchAccountSettingsBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    closeModal();
     document.getElementById("switchAccountBtn")?.click();
   });
 }
