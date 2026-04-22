@@ -524,6 +524,48 @@
     }
   }
 
+  async function upsertAdminUserIndex(user, profile = null) {
+    const db = getFirebaseDbSafe();
+    const sdk = getFirebaseSdk();
+
+    if (!db || !sdk || !user?.uid || !user?.email) return;
+
+    const path = `/admin_user_index/${user.uid}`;
+
+    let existing = {};
+    try {
+      const snapshot = await sdk.get(sdk.ref(db, path));
+      existing = snapshot.exists() ? (snapshot.val() || {}) : {};
+    } catch (error) {
+      console.warn("Could not read admin_user_index:", error);
+    }
+
+    const now = Date.now();
+
+    const payload = {
+      uid: user.uid,
+      email: user.email || "",
+      displayName:
+        profile?.name ||
+        existing.displayName ||
+        user.email.split("@")[0] ||
+        "",
+      premiumActive: Boolean(existing.premiumActive),
+      premiumExpiresAt: Number(existing.premiumExpiresAt) || 0,
+      lastLoginAt: now,
+      lastSeenAt: now,
+      createdAt: Number(existing.createdAt) || now,
+      latestSupportTicketId: existing.latestSupportTicketId || "",
+      latestRefundRequestId: existing.latestRefundRequestId || "",
+    };
+
+    try {
+      await sdk.set(sdk.ref(db, path), payload);
+    } catch (error) {
+      console.warn("Could not write admin_user_index:", error);
+    }
+  }
+
   async function syncProgressIfAvailable() {
     if (typeof window.syncCloudProgressToLocal === "function") {
       try {
@@ -551,6 +593,12 @@
 
     const profile = await ensureProfile(user);
     await loadUserProfile(user.uid);
+
+    try {
+      await upsertAdminUserIndex(user, profile);
+    } catch (error) {
+      console.warn("Admin index upsert failed:", error);
+    }
 
     await syncProgressIfAvailable();
 
