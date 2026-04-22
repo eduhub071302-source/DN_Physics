@@ -395,6 +395,27 @@
       return `TICKET-${Date.now()}-${Math.floor(Math.random() * 900 + 100)}`;
     }
 
+    async function updateAdminLatestSupportTicket(uid, ticketId) {
+      try {
+        const db = window.firebaseDb || null;
+        const sdk = window.firebaseSdk || null;
+        if (!db || !sdk?.ref || !sdk?.get || !sdk?.set || !uid || !ticketId) return;
+
+        const path = `admin_user_index/${uid}`;
+        const snapshot = await sdk.get(sdk.ref(db, path));
+        const existing = snapshot.exists() ? (snapshot.val() || {}) : null;
+        if (!existing) return;
+
+        await sdk.set(sdk.ref(db, path), {
+          ...existing,
+          latestSupportTicketId: ticketId,
+          lastSeenAt: Date.now(),
+        });
+      } catch (error) {
+        console.warn("Could not update latestSupportTicketId:", error);
+      }
+    }
+
     async function submitSupportTicket(event) {
       event.preventDefault();
 
@@ -441,6 +462,7 @@
         if (db && sdk?.ref && sdk?.set) {
           await sdk.set(sdk.ref(db, `support_messages/${payload.id}`), payload);
           await sdk.set(sdk.ref(db, `user_support_messages/${uid}/${payload.id}`), payload);
+          await updateAdminLatestSupportTicket(uid, payload.id);
         }
 
         const existing = getSupportTickets();
