@@ -173,6 +173,10 @@ function activatePaidAccess(meta = {}) {
   if (meta.orderId) {
     dnStorageSet(getUnlockOrderIdKey(), meta.orderId);
   }
+
+  updateAdminPremiumState({
+    expiresAt,
+  });
 }
 
 // ----------------------------
@@ -189,6 +193,34 @@ function getPendingOrderId() {
 
 function clearPendingOrderId() {
   dnStorageRemove(getPendingOrderIdKey());
+}
+
+async function updateAdminPremiumState(meta = {}) {
+  const auth = window.firebaseAuth || null;
+  const db = window.firebaseDb || null;
+  const sdk = window.firebaseSdk || null;
+  const user = auth?.currentUser || null;
+
+  if (!db || !sdk?.ref || !sdk?.get || !sdk?.set || !user?.uid) return;
+
+  const path = `admin_user_index/${user.uid}`;
+
+  try {
+    const snapshot = await sdk.get(sdk.ref(db, path));
+    const existing = snapshot.exists() ? (snapshot.val() || {}) : null;
+    if (!existing) return;
+
+    const expiresAt = Number(meta.expiresAt) || 0;
+
+    await sdk.set(sdk.ref(db, path), {
+      ...existing,
+      premiumActive: expiresAt > Date.now(),
+      premiumExpiresAt: expiresAt,
+      lastSeenAt: Date.now(),
+    });
+  } catch (error) {
+    console.warn("Could not update admin premium state:", error);
+  }
 }
 
 // ----------------------------
