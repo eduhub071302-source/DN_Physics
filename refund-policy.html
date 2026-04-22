@@ -435,6 +435,27 @@
       return `REFUND-${Date.now()}-${Math.floor(Math.random() * 900 + 100)}`;
     }
 
+    async function updateAdminLatestRefundRequest(uid, requestId) {
+      try {
+        const db = window.firebaseDb || null;
+        const sdk = window.firebaseSdk || null;
+        if (!db || !sdk?.ref || !sdk?.get || !sdk?.set || !uid || !requestId) return;
+
+        const path = `admin_user_index/${uid}`;
+        const snapshot = await sdk.get(sdk.ref(db, path));
+        const existing = snapshot.exists() ? (snapshot.val() || {}) : null;
+        if (!existing) return;
+
+        await sdk.set(sdk.ref(db, path), {
+          ...existing,
+          latestRefundRequestId: requestId,
+          lastSeenAt: Date.now(),
+        });
+      } catch (error) {
+        console.warn("Could not update latestRefundRequestId:", error);
+      }
+    }
+
     async function submitRefundRequest(event) {
       event.preventDefault();
 
@@ -483,6 +504,7 @@
         if (db && sdk?.ref && sdk?.set) {
           await sdk.set(sdk.ref(db, `refund_requests/${payload.id}`), payload);
           await sdk.set(sdk.ref(db, `user_refund_requests/${uid}/${payload.id}`), payload);
+          await updateAdminLatestRefundRequest(uid, payload.id);
         }
 
         const existing = getRefundRequests();
