@@ -26,7 +26,7 @@ const DN_CONFIG = {
   },
 
   FRONTEND: {
-    SITE_URL: "",
+    SITE_URL: "https://dnphysics.com.lk",
     APP_BASE_PATH: "",
     SUCCESS_PATH: "/payment-success.html",
     CANCEL_PATH: "/payment-cancel.html",
@@ -41,7 +41,7 @@ const DN_CONFIG = {
   },
 
   BACKEND: {
-    API_BASE_URL: "",
+    API_BASE_URL: "https://polished-fire-9f44.eduhub071302.workers.dev",
 
     CREATE_ORDER_URL: "/api/payments/create-order",
     NOTIFY_URL: "/api/payments/notify",
