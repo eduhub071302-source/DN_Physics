@@ -360,6 +360,8 @@ async function startFullUnlockCheckout() {
 
     setPendingOrderId(data.fields?.order_id || "");
 
+    showCheckoutLoading();
+
     const form = document.createElement("form");
     form.method = "POST";
     form.action = data.checkout_url;
@@ -450,6 +452,78 @@ async function syncUnlockWithServer() {
   }
 
   return false;
+}
+
+// ----------------------------
+// Checkout Loading Overlay
+// ----------------------------
+
+function showCheckoutLoading() {
+  let overlay = document.getElementById("dn-checkout-overlay");
+
+  if (!overlay) {
+    overlay = document.createElement("div");
+    overlay.id = "dn-checkout-overlay";
+
+    overlay.innerHTML = `
+      <div class="dn-loader-box">
+        <div class="dn-spinner"></div>
+        <div class="dn-text">🔐 Securing your payment...</div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const style = document.createElement("style");
+    style.innerHTML = `
+      #dn-checkout-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(10, 15, 30, 0.95);
+        backdrop-filter: blur(6px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999999;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+      }
+
+      #dn-checkout-overlay.show {
+        opacity: 1;
+      }
+
+      .dn-loader-box {
+        text-align: center;
+        color: #fff;
+        font-family: system-ui;
+      }
+
+      .dn-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(255,255,255,0.2);
+        border-top: 4px solid #4da3ff;
+        border-radius: 50%;
+        animation: dn-spin 1s linear infinite;
+        margin: 0 auto 16px;
+      }
+
+      @keyframes dn-spin {
+        to { transform: rotate(360deg); }
+      }
+
+      .dn-text {
+        font-size: 14px;
+        color: #cfe3ff;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  requestAnimationFrame(() => {
+    overlay.classList.add("show");
+  });
 }
 
 // ----------------------------
