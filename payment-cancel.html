@@ -5,39 +5,111 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Payment Cancelled | DN Physics</title>
   <link rel="stylesheet" href="/css/style.css" />
+
+  <style>
+    .cancel-page {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 28px 14px;
+      background:
+        radial-gradient(circle at top, rgba(255,138,138,0.14), transparent 34%),
+        linear-gradient(180deg, #07101d, #0b1220);
+    }
+
+    .cancel-card {
+      width: min(720px, 94vw);
+      padding: 30px 24px;
+      border-radius: 28px;
+      text-align: center;
+      border: 1px solid rgba(255,138,138,0.18);
+      background:
+        radial-gradient(circle at top right, rgba(255,138,138,0.14), transparent 36%),
+        linear-gradient(180deg, rgba(17,26,43,0.98), rgba(10,16,28,0.99));
+      box-shadow: 0 30px 80px rgba(0,0,0,0.42);
+    }
+
+    .cancel-orb {
+      width: 86px;
+      height: 86px;
+      margin: 0 auto 18px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 38px;
+      background: linear-gradient(135deg, #ff8a8a, #ffd0d0);
+      color: #240707;
+      box-shadow: 0 18px 44px rgba(255,138,138,0.22);
+    }
+
+    .cancel-badge {
+      display: inline-flex;
+      padding: 7px 13px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+      background: rgba(255,138,138,0.10);
+      border: 1px solid rgba(255,138,138,0.22);
+      color: #ffb8b8;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .cancel-card h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 5vw, 44px);
+      line-height: 1.1;
+    }
+
+    .cancel-card p {
+      margin: 0;
+      color: #a8b3cf;
+      line-height: 1.7;
+    }
+
+    .cancel-meta {
+      margin: 18px auto 0;
+      padding: 14px;
+      max-width: 520px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      color: #dceaff;
+      font-size: 14px;
+      word-break: break-word;
+    }
+
+    .cancel-actions {
+      margin-top: 22px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+  </style>
 </head>
+
 <body>
-  <main class="section">
-    <div class="container">
-      <div class="card" style="max-width:700px; margin:40px auto; text-align:center;">
-        <div style="font-size:32px; margin-bottom:12px; color:#ff8a8a; font-weight:700;">Cancelled</div>
+  <main class="cancel-page">
+    <section class="cancel-card">
+      <div class="cancel-orb">×</div>
+      <div class="cancel-badge">DN Physics Checkout</div>
 
-        <h1>Payment Cancelled</h1>
-        <p>Your payment was cancelled or not completed.</p>
+      <h1>Payment cancelled</h1>
+      <p>Your payment was cancelled or not completed.</p>
+      <p style="margin-top:8px;">No charge was made. You can try again anytime.</p>
 
-        <p style="margin-top:10px; color:#a8b3cf; font-size:14px;">
-          No charges were applied. You can try again anytime.
-        </p>
+      <div id="orderInfo" class="cancel-meta"></div>
 
-        <div
-          id="orderInfo"
-          style="margin-top:10px; font-size:13px; color:#7cc4ff;"
-        ></div>
+      <div class="cancel-actions">
+        <button id="retryBtn" class="btn btn-primary" type="button">
+          🔁 Try Again
+        </button>
 
-        <div
-          class="actions"
-          style="margin-top:20px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;"
-        >
-          <button id="retryBtn" class="btn btn-primary" type="button">
-            🔁 Try Again
-          </button>
-
-          <a class="btn" href="/index.html">
-            🏠 Back to Home
-          </a>
-        </div>
+        <a class="btn" href="/index.html">
+          🏠 Back to Home
+        </a>
       </div>
-    </div>
+    </section>
   </main>
 
   <script src="/js/app-config.js"></script>
@@ -70,8 +142,10 @@
         console.warn("Could not clear pending order id:", error);
       }
 
-      if (orderId && orderInfo) {
-        orderInfo.textContent = "Order ID: " + orderId;
+      if (orderInfo) {
+        orderInfo.textContent = orderId
+          ? "Order ID: " + orderId
+          : "No pending order found.";
       }
 
       if (retryBtn) {
@@ -98,4 +172,4 @@
     });
   </script>
 </body>
-</html>     
+</html>
