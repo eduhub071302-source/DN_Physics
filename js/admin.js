@@ -394,6 +394,9 @@ function renderAccessState() {
   const meta = getEl("adminUserMeta");
   const user = getCurrentUser();
 
+  const loginBox = getEl("adminLoginBox");
+  const shell = getEl("adminShell");
+
   if (!user) {
     meta.textContent = "You must log in first.";
     return false;
@@ -589,6 +592,44 @@ function bindSubscriptionControls() {
   });
 }
 
+async function adminPageLogin() {
+  const emailInput = getEl("adminLoginEmail");
+  const passwordInput = getEl("adminLoginPassword");
+  const msg = getEl("adminLoginMessage");
+
+  const email = String(emailInput?.value || "").trim().toLowerCase();
+  const password = String(passwordInput?.value || "");
+
+  if (!email || !password) {
+    if (msg) msg.textContent = "Enter admin email and password.";
+    return;
+  }
+
+  if (!ADMIN_EMAILS.includes(email)) {
+    if (msg) msg.textContent = "This email is not allowed for admin access.";
+    return;
+  }
+
+  try {
+    if (msg) msg.textContent = "Logging in...";
+
+    await window.firebaseSdk.signInWithEmailAndPassword(
+      window.firebaseAuth,
+      email,
+      password
+    );
+
+    if (msg) msg.textContent = "Admin login successful.";
+  } catch (error) {
+    console.error("Admin login failed:", error);
+    if (msg) msg.textContent = "Login failed. Check email/password.";
+  }
+}
+
+function bindAdminLogin() {
+  getEl("adminLoginBtn")?.addEventListener("click", adminPageLogin);
+}
+
 function waitForAuthThenInit() {
   const sdk = getSdk();
   const auth = window.firebaseAuth || null;
@@ -614,4 +655,5 @@ function waitForAuthThenInit() {
 bindFilters();
 bindMaintenanceControls();
 bindSubscriptionControls();
+bindAdminLogin();
 waitForAuthThenInit();
