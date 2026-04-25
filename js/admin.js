@@ -398,24 +398,24 @@ function renderAccessState() {
   const shell = getEl("adminShell");
 
   if (!user) {
-    meta.textContent = "You must log in first.";
+    if (loginBox) loginBox.style.display = "grid";
+    if (shell) shell.style.display = "none";
+    if (meta) meta.textContent = "You must log in first.";
     return false;
   }
 
   if (!isAdminUser()) {
-    meta.textContent = `Logged in as ${user.email || "user"} · admin access required`;
+    if (loginBox) loginBox.style.display = "grid";
+    if (shell) shell.style.display = "none";
+    if (meta) meta.textContent = `Logged in as ${user.email || "user"} · admin access required`;
     return false;
   }
 
-  meta.textContent = `Admin access granted · ${user.email || user.uid}`;
-  return true;
-}
+  if (loginBox) loginBox.style.display = "none";
+  if (shell) shell.style.display = "grid";
+  if (meta) meta.textContent = `Admin access granted · ${user.email || user.uid}`;
 
-function showLockedAdminScreen(message) {
-  const list = getEl("adminList");
-  const detail = getEl("adminDetail");
-  if (list) list.innerHTML = `<div class="admin-detail-empty">${escapeHtml(message)}</div>`;
-  if (detail) detail.innerHTML = `<div class="admin-detail-empty">Admin panel locked.</div>`;
+  return true;
 }
 
 // ==============================
