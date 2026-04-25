@@ -277,8 +277,9 @@ function startFirebaseSync() {
         }
 
         const expiresAt = Number(data.expiresAt) || 0;
+        const active = Boolean(data.active);
 
-        if (expiresAt > Date.now()) {
+        if (active && expiresAt > Date.now()) {
           activatePaidAccess({
             source: "firebase",
             orderId: data.orderId || "",
@@ -286,6 +287,14 @@ function startFirebaseSync() {
           });
         } else {
           clearPaidAccess();
+
+          if (typeof window.refreshPremiumUi === "function") {
+            window.refreshPremiumUi();
+          }
+
+          window.dispatchEvent(new CustomEvent("dnPremiumAccessChanged", {
+            detail: { active: false }
+          }));
         }
       },
       (error) => {
