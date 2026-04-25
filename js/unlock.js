@@ -715,6 +715,50 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  const paypalBtn = document.getElementById("paypalBtn");
+
+  if (paypalBtn) {
+    paypalBtn.addEventListener("click", async () => {
+      try {
+        const user = JSON.parse(
+          localStorage.getItem(DN_CONFIG.STORAGE_KEYS.USER_PROFILE) || "{}"
+        );
+
+        const res = await fetch(
+          DN_CONFIG.BACKEND.API_BASE_URL + "/api/paypal/create-order",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              uid:
+                window.firebaseAuth?.currentUser?.uid ||
+                JSON.parse(localStorage.getItem("dn_user") || "null")?.id ||
+                "",
+              email: user.email || "",
+            }),
+          }
+        );
+
+        const data = await res.json();
+
+        if (!res.ok || !data.ok) {
+          showDnMessage("PayPal failed to start.");
+          return;
+        }
+
+        setPendingOrderId(data.orderId);
+
+        // redirect to PayPal approval
+        window.location.href =
+          `https://www.sandbox.paypal.com/checkoutnow?token=${data.paypalOrderId}`;
+
+      } catch (e) {
+        console.error(e);
+        showDnMessage("PayPal error.");
+      }
+    });
+  }
+
   setInterval(() => {
     try {
       syncUnlockWithServer();
