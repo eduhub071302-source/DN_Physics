@@ -475,6 +475,105 @@ function bindMaintenanceControls() {
   });
 }
 
+// ==============================
+// ⛔ SUBSCRIPTION CONTROL
+// ==============================
+
+function formatAdminDate(ms) {
+  const n = Number(ms || 0);
+  if (!n) return "—";
+  return new Date(n).toLocaleString();
+}
+
+async function checkSubscriptionByUid() {
+  const uidInput = getEl("subscriptionUidInput");
+  const textEl = getEl("subscriptionControlText");
+
+  const uid = String(uidInput?.value || "").trim();
+
+  if (!uid) {
+    if (textEl) textEl.textContent = "Enter a user UID first.";
+    return null;
+  }
+
+  try {
+    const sub = await readNode(`subscriptions/${uid}`);
+
+    if (!sub || !sub.uid) {
+      if (textEl) textEl.textContent = "No subscription found for this UID.";
+      return null;
+    }
+
+    const active = Boolean(sub.active && Number(sub.expiresAt || 0) > Date.now());
+
+    if (textEl) {
+      textEl.textContent = active
+        ? `ACTIVE · Order: ${sub.orderId || "—"} · Expires: ${formatAdminDate(sub.expiresAt)}`
+        : `INACTIVE · Order: ${sub.orderId || "—"} · Expires: ${formatAdminDate(sub.expiresAt)}`;
+    }
+
+    return sub;
+  } catch (error) {
+    console.error("Subscription check failed:", error);
+    if (textEl) textEl.textContent = "Could not read subscription.";
+    return null;
+  }
+}
+
+async function cancelSubscriptionByUid() {
+  const uidInput = getEl("subscriptionUidInput");
+  const textEl = getEl("subscriptionControlText");
+
+  const uid = String(uidInput?.value || "").trim();
+
+  if (!uid) {
+    if (textEl) textEl.textContent = "Enter a user UID first.";
+    return;
+  }
+
+  const sub = await checkSubscriptionByUid();
+
+  if (!sub || !sub.uid) {
+    showAdminFeedback("No subscription found to cancel.", "error");
+    return;
+  }
+
+  const ok = confirm(
+    `Cancel subscription for UID:\n${uid}\n\nOrder: ${sub.orderId || "—"}`
+  );
+
+  if (!ok) return;
+
+  try {
+    await updateNode(`subscriptions/${uid}`, {
+      ...sub,
+      active: false,
+      cancelledAt: Date.now(),
+      cancelledBy: getCurrentUser()?.email || "",
+      updatedAt: Date.now(),
+    });
+
+    if (textEl) {
+      textEl.textContent = `Cancelled · Order: ${sub.orderId || "—"}`;
+    }
+
+    showAdminFeedback("Subscription cancelled successfully.", "success");
+  } catch (error) {
+    console.error("Subscription cancel failed:", error);
+    showAdminFeedback("Could not cancel subscription.", "error");
+  }
+}
+
+function bindSubscriptionControls() {
+  getEl("checkSubscriptionBtn")?.addEventListener("click", async () => {
+    await checkSubscriptionByUid();
+  });
+
+  getEl("cancelSubscriptionBtn")?.addEventListener("click", async () => {
+    await cancelSubscriptionByUid();
+  });
+}
+
 function waitForAuthThenInit() {
   const sdk = getSdk();
   const auth = window.firebaseAuth || null;
@@ -499,4 +598,5 @@ function waitForAuthThenInit() {
 
 bindFilters();
 bindMaintenanceControls();
+bindSubscriptionControls();
 waitForAuthThenInit();
