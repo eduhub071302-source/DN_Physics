@@ -371,6 +371,30 @@
             </div>
           </div>
 
+          <div class="admin-topbar-row">
+            <div>
+              <strong>Subscription Control</strong>
+              <div id="subscriptionControlText" class="admin-meta">
+                Enter user UID to check or cancel subscription.
+              </div>
+            </div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <input
+                id="subscriptionUidInput"
+                type="text"
+                placeholder="User UID"
+                style="min-width:260px;"
+              />
+              <button id="checkSubscriptionBtn" class="btn" type="button">
+                🔍 Check
+              </button>
+              <button id="cancelSubscriptionBtn" class="btn btn-primary" type="button">
+                ⛔ Cancel
+              </button>
+            </div>
+          </div>
+
           <div class="admin-controls">
             <input id="adminSearchInput" type="text" placeholder="Search by email, ticket ID, message..." />
             <select id="adminTypeFilter">
