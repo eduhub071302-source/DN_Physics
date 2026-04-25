@@ -355,6 +355,22 @@
             <button id="adminRefreshBtn" class="btn" type="button">🔄 Refresh</button>
           </div>
 
+          <div class="admin-topbar-row">
+            <div>
+              <strong>App Maintenance</strong>
+              <div id="maintenanceStatusText" class="admin-meta">Status: Checking...</div>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+              <button id="maintenanceOnBtn" class="btn btn-primary" type="button">
+                🚧 Turn ON
+              </button>
+              <button id="maintenanceOffBtn" class="btn" type="button">
+                ✅ Turn OFF
+              </button>
+            </div>
+          </div>
+
           <div class="admin-controls">
             <input id="adminSearchInput" type="text" placeholder="Search by email, ticket ID, message..." />
             <select id="adminTypeFilter">
