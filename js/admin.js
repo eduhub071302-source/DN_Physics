@@ -545,19 +545,34 @@ async function cancelSubscriptionByUid() {
   if (!ok) return;
 
   try {
-    await updateNode(`subscriptions/${uid}`, {
-      ...sub,
-      active: false,
-      cancelledAt: Date.now(),
-      cancelledBy: getCurrentUser()?.email || "",
-      updatedAt: Date.now(),
-    });
+    const res = await fetch(
+      "https://polished-fire-9f44.eduhub071302.workers.dev/api/admin/cancel-subscription",
+      {
+        method: "POST",
+        headers: {
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({
+          uid,
+          email: sub.email || "",
+          cancelledBy: getCurrentUser()?.email || ""
+        })
+      }
+    );
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok || !data.ok) {
+      throw new Error(data.message || "Cancel failed");
+    }
 
     if (textEl) {
       textEl.textContent = `Cancelled · Order: ${sub.orderId || "—"}`;
     }
 
-    showAdminFeedback("Subscription cancelled successfully.", "success");
+    showAdminFeedback("Subscription cancelled and Google Sheet updated.", "success");
+
+    await checkSubscriptionByUid();
   } catch (error) {
     console.error("Subscription cancel failed:", error);
     showAdminFeedback("Could not cancel subscription.", "error");
