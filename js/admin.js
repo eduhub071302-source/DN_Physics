@@ -491,6 +491,8 @@ function waitForAuthThenInit() {
       return;
     }
 
+    await loadMaintenanceStatus();
+
     await loadAllRequests();
   });
 }
