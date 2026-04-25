@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Invoices | DN Physics</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <div class="brand">DN Physics</div>
+      <nav class="nav-links">
+        <a href="/index.html">Home</a>
+        <a href="/notes/index.html">Notes</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="container">
+      <a href="/index.html" class="back-link">← Back to Home</a>
+      <div class="badge">Billing</div>
+      <h1>My Invoices</h1>
+      <p class="section-sub">View your DN Physics premium subscription invoices.</p>
+
+      <div id="invoiceList" class="grid">
+        <div class="empty-state">Loading invoices...</div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">© 2026 DN Physics</div>
+  </footer>
+
+  <script src="/js/app-config.js"></script>
+  <script type="module" src="/js/firebase-client.js"></script>
+  <script src="/js/maintenance-guard.js"></script>
+
+  <script>
+    const ADMIN_EMAILS = [
+      "eduhub071302@gmail.com",
+      "eduhub0713@gmail.com"
+    ];
+
+    function formatDate(value) {
+      const n = Number(value || 0);
+      if (!n) return "—";
+      return new Date(n).toLocaleString();
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function renderInvoices(invoices) {
+      const list = document.getElementById("invoiceList");
+
+      if (!invoices.length) {
+        list.innerHTML = `<div class="empty-state">No invoices found yet.</div>`;
+        return;
+      }
+
+      list.innerHTML = invoices.map((invoice) => `
+        <article class="card">
+          <div class="badge">${escapeHtml(invoice.status || "paid")}</div>
+          <h3>${escapeHtml(invoice.invoiceId || invoice.orderId || "Invoice")}</h3>
+
+          <p><strong>Plan:</strong> ${escapeHtml(invoice.plan || "DinuuNOVA Monthly Access")}</p>
+          <p><strong>Amount:</strong> ${escapeHtml(invoice.currency || "LKR")} ${escapeHtml(invoice.amount || "70.00")}</p>
+          <p><strong>Order ID:</strong> ${escapeHtml(invoice.orderId || "—")}</p>
+          <p><strong>Email:</strong> ${escapeHtml(invoice.email || "—")}</p>
+          <p><strong>Issued:</strong> ${escapeHtml(formatDate(invoice.issuedAt))}</p>
+          <p><strong>Expires:</strong> ${escapeHtml(formatDate(invoice.expiresAt))}</p>
+
+          <div class="actions">
+            <button class="btn btn-primary" type="button" onclick="window.print()">
+              🧾 Print / Save PDF
+            </button>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function waitForInvoices() {
+      const sdk = window.firebaseSdk;
+      const auth = window.firebaseAuth;
+      const db = window.firebaseDb;
+      const list = document.getElementById("invoiceList");
+
+      if (!sdk?.onAuthStateChanged || !sdk?.ref || !sdk?.onValue || !auth || !db) {
+        list.innerHTML = `<div class="empty-state">Firebase not ready. Refresh page.</div>`;
+        return;
+      }
+
+      sdk.onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          list.innerHTML = `
+            <div class="empty-state">
+              Please log in first to view your invoices.
+              <br><br>
+              <a class="btn btn-primary" href="/index.html">Go to Login</a>
+            </div>
+          `;
+          return;
+        }
+
+        const invoiceRef = sdk.ref(db, `invoices/${user.uid}`);
+
+        sdk.onValue(invoiceRef, (snapshot) => {
+          const data = snapshot.val() || {};
+          const invoices = Object.values(data).sort((a, b) => {
+            return Number(b.issuedAt || 0) - Number(a.issuedAt || 0);
+          });
+
+          renderInvoices(invoices);
+        }, (error) => {
+          console.error("Invoice load failed:", error);
+          list.innerHTML = `<div class="empty-state">Could not load invoices.</div>`;
+        });
+      });
+    }
+
+    setTimeout(waitForInvoices, 500);
+  </script>
+</body>
+</html>
