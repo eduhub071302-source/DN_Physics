@@ -230,6 +230,64 @@
         if (isVerifying) return;
 
         const orderId = getResolvedOrderId();
+        const provider = params.get("provider") || "";
+        const paypalToken = params.get("token") || "";
+
+        if (provider === "paypal" && paypalToken) {
+          try {
+            setState(
+              "",
+              "🌍",
+              "Completing PayPal payment...",
+              "Please wait while we capture your PayPal payment.",
+              `PayPal token: ${paypalToken}`
+            );
+
+            const res = await fetch(
+              DN_CONFIG.BACKEND.API_BASE_URL + "/api/paypal/capture-order",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ paypalOrderId: paypalToken }),
+              }
+            );
+
+            const data = await res.json();
+
+            if (res.ok && data.ok && data.paid) {
+              applyServerUnlock(data.orderId || "", Number(data.expiresAt) || 0);
+
+              setState(
+                "pay-success",
+                "✓",
+                "PayPal payment verified",
+                "Your DN Physics Pro access is now active. Redirecting you home...",
+                `Order ID: ${data.orderId || ""}`
+              );
+
+              setTimeout(() => {
+                window.location.href = "/index.html";
+              }, 1500);
+
+              return;
+            }
+  
+            throw new Error(data.message || "PayPal capture failed.");
+          } catch (error) {
+            console.error("PayPal capture error:", error);
+
+            setState(
+              "pay-error",
+              "!",
+              "PayPal payment failed",
+              "We could not complete your PayPal payment.",
+              error.message || "Please return home and try again."
+            );
+
+            showActions();
+            return;
+          }
+        }
 
         if (!orderId) {
           setState(
