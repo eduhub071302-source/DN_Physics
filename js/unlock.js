@@ -720,41 +720,62 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (paypalBtn) {
     paypalBtn.addEventListener("click", async () => {
       try {
-        const user = JSON.parse(
-          localStorage.getItem(DN_CONFIG.STORAGE_KEYS.USER_PROFILE) || "{}"
-        );
+        paypalBtn.disabled = true;
+        paypalBtn.textContent = "Opening PayPal...";
+
+        // ✅ ensure logged in
+        if (isGuestMode()) {
+          showDnMessage("Please log in before using PayPal.");
+          return;
+        }
+
+        const firebaseUser = window.firebaseAuth?.currentUser;
+
+        const uid =
+          firebaseUser?.uid ||
+          JSON.parse(localStorage.getItem("dn_user") || "null")?.id ||
+          "";
+
+        const email =
+          firebaseUser?.email ||
+          JSON.parse(localStorage.getItem(DN_CONFIG.STORAGE_KEYS.USER_PROFILE) || "{}")?.email ||
+          "";
+
+        if (!uid || !email) {
+          showDnMessage("User info missing. Please log in again.");
+          return;
+        }
 
         const res = await fetch(
           DN_CONFIG.BACKEND.API_BASE_URL + "/api/paypal/create-order",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              uid:
-                window.firebaseAuth?.currentUser?.uid ||
-                JSON.parse(localStorage.getItem("dn_user") || "null")?.id ||
-                "",
-              email: user.email || "",
-            }),
+            body: JSON.stringify({ uid, email }),
           }
         );
 
         const data = await res.json();
 
-        if (!res.ok || !data.ok) {
-          showDnMessage("PayPal failed to start.");
+        if (!res.ok || !data.ok || !data.paypalOrderId) {
+          console.error("PayPal create failed:", data);
+          showDnMessage(data.message || "PayPal could not start.");
           return;
         }
 
         setPendingOrderId(data.orderId);
 
-        // redirect to PayPal approval
+        // ✅ redirect to PayPal
         window.location.href =
-          `https://www.sandbox.paypal.com/checkoutnow?token=${data.paypalOrderId}`;
+          "https://www.sandbox.paypal.com/checkoutnow?token=" +
+          encodeURIComponent(data.paypalOrderId);
 
       } catch (e) {
-        console.error(e);
+        console.error("PayPal error:", e);
         showDnMessage("PayPal error.");
+      } finally {
+        paypalBtn.disabled = false;
+        paypalBtn.textContent = "🌍 Pay with PayPal";
       }
     });
   }
