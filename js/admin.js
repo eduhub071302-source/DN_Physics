@@ -415,6 +415,66 @@ function showLockedAdminScreen(message) {
   if (detail) detail.innerHTML = `<div class="admin-detail-empty">Admin panel locked.</div>`;
 }
 
+// ==============================
+// 🚧 MAINTENANCE CONTROL
+// ==============================
+
+const MAINTENANCE_PATH = "app_settings/maintenance";
+
+async function loadMaintenanceStatus() {
+  const textEl = getEl("maintenanceStatusText");
+  const onBtn = getEl("maintenanceOnBtn");
+  const offBtn = getEl("maintenanceOffBtn");
+
+  if (!textEl) return;
+
+  try {
+    const data = await readNode(MAINTENANCE_PATH);
+    const enabled = Boolean(data?.enabled);
+
+    textEl.textContent = enabled
+      ? "Status: ON — normal users are blocked"
+      : "Status: OFF — app is live";
+
+    if (onBtn) onBtn.disabled = enabled;
+    if (offBtn) offBtn.disabled = !enabled;
+  } catch (error) {
+    console.error("Maintenance status load failed:", error);
+    textEl.textContent = "Status: Could not load";
+  }
+}
+
+async function setMaintenanceStatus(enabled) {
+  try {
+    await updateNode(MAINTENANCE_PATH, {
+      enabled,
+      message: "App is under maintenance. Please try again later.",
+      updatedAt: new Date().toISOString(),
+      updatedBy: getCurrentUser()?.email || "",
+    });
+
+    showAdminFeedback(
+      enabled ? "Maintenance mode turned ON." : "Maintenance mode turned OFF.",
+      "success"
+    );
+
+    await loadMaintenanceStatus();
+  } catch (error) {
+    console.error("Maintenance update failed:", error);
+    showAdminFeedback("Could not update maintenance mode.", "error");
+  }
+}
+
+function bindMaintenanceControls() {
+  getEl("maintenanceOnBtn")?.addEventListener("click", async () => {
+    await setMaintenanceStatus(true);
+  });
+
+  getEl("maintenanceOffBtn")?.addEventListener("click", async () => {
+    await setMaintenanceStatus(false);
+  });
+}
+
 function waitForAuthThenInit() {
   const sdk = getSdk();
   const auth = window.firebaseAuth || null;
@@ -436,4 +496,5 @@ function waitForAuthThenInit() {
 }
 
 bindFilters();
+bindMaintenanceControls();
 waitForAuthThenInit();
