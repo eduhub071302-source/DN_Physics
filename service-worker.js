@@ -1,4 +1,4 @@
-const CACHE_NAME = "dn-physics-v372";
+const CACHE_NAME = "dn-physics-v373";
 const META_CACHE = "dinuunova-meta";
 
 const CORE_FILES = [
