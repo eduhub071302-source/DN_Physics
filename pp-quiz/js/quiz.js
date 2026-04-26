@@ -75,7 +75,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const refreshQuizBtn = document.getElementById("refreshQuizBtn");
 
+  const quizStartCard = document.getElementById("quizStartCard");
+  const startQuizBtn = document.getElementById("startQuizBtn");
+
+  const quizStatusCard = document.querySelector(".quiz-status-card");
+  const quizMainCard = document.querySelector(".quiz-main-card");
+  const quizControlsCard = document.querySelector(".quiz-controls-card");
+  const quizNavCard = document.querySelector(".quiz-nav-card");
+  const quizTopCards = document.querySelector(".quiz-top-cards");
+
   const requiredElements = [
+    quizStartCard,
+    startQuizBtn,
+    quizStatusCard,
+    quizMainCard,
+    quizControlsCard,
+    quizNavCard,
     refreshQuizBtn,
     quizTitle,
     quizSubtitle,
@@ -285,6 +300,80 @@ document.addEventListener("DOMContentLoaded", async () => {
     "Every correct answer builds your confidence.",
     "You vs yesterday. That is the real battle."
   ];
+
+  let quizStarted = false;
+
+  function isMobileDeviceForQuiz() {
+    return window.matchMedia("(max-width: 900px)").matches;
+  }
+
+  function setQuizPlayingUI(isPlaying) {
+    document.body.classList.toggle("quiz-playing", isPlaying);
+    document.body.classList.toggle("quiz-landscape-mode", isPlaying && isMobileDeviceForQuiz());
+
+    if (quizStartCard) quizStartCard.style.display = isPlaying ? "none" : "block";
+
+    const quizSections = [
+      quizStatusCard,
+      quizMainCard,
+      quizControlsCard,
+      quizNavCard
+    ];
+
+    quizSections.forEach((section) => {
+      if (section) section.style.display = isPlaying ? "" : "none";
+    });
+
+    if (quizTopCards) quizTopCards.style.display = isPlaying ? "" : "none";
+  }
+
+  async function requestQuizLandscapeMode() {
+    if (!isMobileDeviceForQuiz()) return;
+
+    try {
+      if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      }
+    } catch (error) {
+      console.warn("Fullscreen request skipped:", error);
+    }
+
+    try {
+      if (screen.orientation && screen.orientation.lock) {
+        await screen.orientation.lock("landscape");
+      }
+    } catch (error) {
+      console.warn("Landscape lock not supported on this browser:", error);
+    }
+  }
+
+  async function exitQuizLandscapeMode() {
+    document.body.classList.remove("quiz-playing", "quiz-landscape-mode");
+
+    try {
+      if (screen.orientation && screen.orientation.unlock) {
+        screen.orientation.unlock();
+      }
+    } catch (error) {
+      console.warn("Orientation unlock skipped:", error);
+    }
+  
+    try {
+      if (document.fullscreenElement && document.exitFullscreen) {
+        await document.exitFullscreen();
+      }
+    } catch (error) {
+      console.warn("Fullscreen exit skipped:", error);
+    }
+  }
+
+  function startQuizPlayMode() {
+    quizStarted = true;
+    setQuizPlayingUI(true);
+    requestQuizLandscapeMode();
+    startTimers();
+    scrollQuestionIntoView("auto");
+  }
 
   function showToast(message = "Done") {
     let toast = document.getElementById("globalToast");
@@ -1023,7 +1112,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     clearSavedSession();
     scheduleRender(updateQuestionView);
     updateTimerDisplays();
-    startTimers();
+    setQuizPlayingUI(false);
+    stopTimers();
     window.scrollTo(0, 0);
   }
 
@@ -1188,6 +1278,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     `;
 
     reviewMode = true;
+    quizStarted = false;
+    exitQuizLandscapeMode();
+    setQuizPlayingUI(false);
+
     wrongQuestionsGlobal = [...wrongQuestions];
     wrongQuestionPointer = 0;
 
@@ -1614,10 +1708,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateQuestionView();
   checkResumeCard();
 
-  if (resumeCard.style.display === "none") {
-    startTimers();
-  }
+  setQuizPlayingUI(false);
 
+  startQuizBtn.addEventListener("click", startQuizPlayMode);
+
+  resumeQuizBtn.addEventListener("click", () => {
+    quizStarted = true;
+    setQuizPlayingUI(true);
+    requestQuizLandscapeMode();
+  });
   document.querySelectorAll(".collapse-header").forEach((btn) => {
     btn.addEventListener("click", () => {
       const targetId = btn.dataset.target;
