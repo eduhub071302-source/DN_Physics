@@ -593,8 +593,6 @@ function openUnlockModal() {
     if (authModal) {
       authModal.classList.remove("hidden");
       authModal.style.display = "flex";
-    } else {
-      showDnMessage("Please log in first.");
     }
     return;
   }
@@ -767,7 +765,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // ✅ redirect to PayPal
         window.location.href =
-          https://www.paypal.com/checkoutnow?token=
+          "https://www.paypal.com/checkoutnow?token=" +
           encodeURIComponent(data.paypalOrderId);
 
       } catch (e) {
