@@ -83,6 +83,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const quizControlsCard = document.querySelector(".quiz-controls-card");
   const quizNavCard = document.querySelector(".quiz-nav-card");
   const quizTopCards = document.querySelector(".quiz-top-cards");
+  const quizStatusGrid = document.querySelector(".quiz-status-grid");
 
   const requiredElements = [
     quizStartCard,
@@ -310,18 +311,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   function setQuizPlayingUI(isPlaying) {
     document.body.classList.toggle("quiz-playing", isPlaying);
     document.body.classList.toggle("quiz-game-mode", isPlaying);
+    document.body.classList.remove("quiz-reviewing");
     document.body.classList.toggle("quiz-landscape-mode", isPlaying && isMobileDeviceForQuiz());
 
     if (quizStartCard) quizStartCard.style.display = isPlaying ? "none" : "block";
 
-    const quizSections = [
-      quizStatusCard,
-      quizMainCard,
-      quizControlsCard,
-      quizNavCard
-    ];
+    if (isPlaying && quizStatusGrid && quizControlsCard) {
+      quizControlsCard.appendChild(quizStatusGrid);
+    }
 
-    quizSections.forEach((section) => {
+    [quizStatusCard, quizMainCard, quizControlsCard, quizNavCard].forEach((section) => {
       if (section) section.style.display = isPlaying ? "" : "none";
     });
 
@@ -330,20 +329,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function setQuizReviewUI() {
     document.body.classList.remove("quiz-playing", "quiz-game-mode", "quiz-landscape-mode");
+    document.body.classList.add("quiz-reviewing");
+
+    if (quizStatusGrid && quizStatusCard) {
+      quizStatusCard.appendChild(quizStatusGrid);
+    }
 
     if (quizStartCard) quizStartCard.style.display = "none";
     if (quizTopCards) quizTopCards.style.display = "";
 
-    [
-      quizStatusCard,
-      quizMainCard,
-      quizControlsCard,
-      quizNavCard
-    ].forEach((section) => {
+    [quizStatusCard, quizMainCard, quizControlsCard, quizNavCard].forEach((section) => {
       if (section) section.style.display = "";
     });
   }
-
+  
   async function requestQuizLandscapeMode() {
     if (!isMobileDeviceForQuiz()) return;
 
@@ -366,6 +365,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   async function exitQuizLandscapeMode() {
     document.body.classList.remove("quiz-playing", "quiz-game-mode", "quiz-landscape-mode");
+    if (quizStatusGrid && quizStatusCard) {
+      quizStatusCard.appendChild(quizStatusGrid);
+    }
 
     try {
       if (screen.orientation && screen.orientation.unlock) {
