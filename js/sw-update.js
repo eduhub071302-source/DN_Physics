@@ -1,4 +1,4 @@
-const SW_VERSION = "390";
+const SW_VERSION = "391";
 
 let refreshingNow = false;
 let fakeProgressTimer = null;
