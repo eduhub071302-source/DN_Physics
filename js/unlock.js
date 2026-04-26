@@ -756,7 +756,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const data = await res.json();
 
         if (!res.ok || !data.ok || !data.paypalOrderId) {
-          console.error("PayPal create failed:", data);
+          console.error("PayPal exact detail:", data.paypal?.details?.[0]);
           showDnMessage(data.message || "PayPal could not start.");
           return;
         }
