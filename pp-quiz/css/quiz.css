@@ -2536,7 +2536,6 @@ button {
 .quiz-start-content h2 {
   margin: 0;
   font-size: 32px;
-  line-height: 1.1;
 }
 
 .quiz-start-content p {
@@ -2576,11 +2575,10 @@ body:not(.quiz-playing):not(.quiz-reviewing) .quiz-nav-card {
   }
 }
 
-/* PC + mobile landscape quiz play layout */
 @media (orientation: landscape) {
   body.quiz-game-mode {
-    overflow: hidden !important;
     height: 100dvh !important;
+    overflow: hidden !important;
   }
 
   body.quiz-game-mode .quiz-header,
@@ -2596,9 +2594,9 @@ body:not(.quiz-playing):not(.quiz-reviewing) .quiz-nav-card {
   }
 
   body.quiz-game-mode .quiz-main {
+    height: 100dvh !important;
     padding: 0 !important;
     margin: 0 !important;
-    height: 100dvh !important;
     overflow: hidden !important;
   }
 
@@ -2611,7 +2609,6 @@ body:not(.quiz-playing):not(.quiz-reviewing) .quiz-nav-card {
 
   body.quiz-game-mode .quiz-shell {
     height: 100dvh !important;
-    max-height: 100dvh !important;
     display: grid !important;
     grid-template-rows: 44px minmax(0, 1fr) 66px !important;
     gap: 6px !important;
@@ -2622,6 +2619,7 @@ body:not(.quiz-playing):not(.quiz-reviewing) .quiz-nav-card {
   body.quiz-game-mode .quiz-status-card {
     grid-row: 1 !important;
     position: static !important;
+    display: block !important;
     padding: 4px !important;
     margin: 0 !important;
     border-radius: 14px !important;
@@ -2646,13 +2644,11 @@ body:not(.quiz-playing):not(.quiz-reviewing) .quiz-nav-card {
 
   body.quiz-game-mode .quiz-main-card {
     grid-row: 2 !important;
-    position: static !important;
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) 66px !important;
     gap: 6px !important;
-    min-height: 0 !important;
     height: 100% !important;
-    max-height: 100% !important;
+    min-height: 0 !important;
     padding: 6px !important;
     margin: 0 !important;
     border-radius: 14px !important;
@@ -2726,7 +2722,9 @@ body:not(.quiz-playing):not(.quiz-reviewing) .quiz-nav-card {
   body.quiz-game-mode .quiz-controls-card {
     grid-row: 3 !important;
     position: relative !important;
-    bottom: auto !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 210px !important;
+    gap: 6px !important;
     padding: 5px !important;
     margin: 0 !important;
     border-radius: 14px !important;
@@ -2740,7 +2738,7 @@ body:not(.quiz-playing):not(.quiz-reviewing) .quiz-nav-card {
 
   body.quiz-game-mode .quiz-primary-actions {
     height: 100% !important;
-    width: calc(100% - 210px) !important;
+    width: 100% !important;
     display: grid !important;
     grid-template-columns: 1fr 1fr 1fr !important;
     gap: 6px !important;
@@ -2760,15 +2758,12 @@ body:not(.quiz-playing):not(.quiz-reviewing) .quiz-nav-card {
   }
 
   body.quiz-game-mode .quiz-status-grid {
-    position: absolute !important;
-    right: 5px !important;
-    bottom: 5px !important;
-    width: 200px !important;
-    height: 50px !important;
+    position: static !important;
+    width: 100% !important;
+    height: 100% !important;
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
     gap: 6px !important;
-    z-index: 5 !important;
     pointer-events: none !important;
   }
 
@@ -2777,7 +2772,7 @@ body:not(.quiz-playing):not(.quiz-reviewing) .quiz-nav-card {
   }
 
   body.quiz-game-mode .quiz-mini-timer {
-    height: 50px !important;
+    height: 100% !important;
     min-height: 50px !important;
     padding: 4px !important;
     border-radius: 12px !important;
@@ -2804,29 +2799,33 @@ body:not(.quiz-playing):not(.quiz-reviewing) .quiz-nav-card {
   body.quiz-game-mode .quiz-status-pill {
     height: 34px !important;
     min-height: 34px !important;
-    font-size: 13px !important;
+    font-size: 12px !important;
   }
 
   body.quiz-game-mode .quiz-main-card {
-    grid-template-columns: minmax(0, 1fr) 60px !important;
+    grid-template-columns: minmax(0, 1fr) 58px !important;
   }
 
   body.quiz-game-mode .answer-btn {
-    width: 48px !important;
-    height: 48px !important;
+    width: 46px !important;
+    height: 46px !important;
+    font-size: 17px !important;
   }
 
-  body.quiz-game-mode .quiz-primary-actions {
-    width: calc(100% - 198px) !important;
+  body.quiz-game-mode .quiz-controls-card {
+    grid-template-columns: minmax(0, 1fr) 188px !important;
   }
 
-  body.quiz-game-mode .quiz-status-grid {
-    width: 188px !important;
-    height: 48px !important;
+  body.quiz-game-mode .quiz-primary-actions .action-btn {
+    min-height: 48px !important;
+    font-size: 12px !important;
   }
 
   body.quiz-game-mode .quiz-mini-timer {
-    height: 48px !important;
     min-height: 48px !important;
+  }
+
+  body.quiz-game-mode .quiz-mini-timer strong {
+    font-size: 13px !important;
   }
 }
