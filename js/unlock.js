@@ -767,7 +767,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // ✅ redirect to PayPal
         window.location.href =
-          "https://www.sandbox.paypal.com/checkoutnow?token=" +
+          https://www.paypal.com/checkoutnow?token=
           encodeURIComponent(data.paypalOrderId);
 
       } catch (e) {
