@@ -309,6 +309,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function setQuizPlayingUI(isPlaying) {
     document.body.classList.toggle("quiz-playing", isPlaying);
+    document.body.classList.toggle("quiz-game-mode", isPlaying);
     document.body.classList.toggle("quiz-landscape-mode", isPlaying && isMobileDeviceForQuiz());
 
     if (quizStartCard) quizStartCard.style.display = isPlaying ? "none" : "block";
@@ -324,7 +325,23 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (section) section.style.display = isPlaying ? "" : "none";
     });
 
-    if (quizTopCards) quizTopCards.style.display = isPlaying ? "" : "none";
+    if (quizTopCards) quizTopCards.style.display = "";
+  }
+
+  function setQuizReviewUI() {
+    document.body.classList.remove("quiz-playing", "quiz-game-mode", "quiz-landscape-mode");
+
+    if (quizStartCard) quizStartCard.style.display = "none";
+    if (quizTopCards) quizTopCards.style.display = "";
+
+    [
+      quizStatusCard,
+      quizMainCard,
+      quizControlsCard,
+      quizNavCard
+    ].forEach((section) => {
+      if (section) section.style.display = "";
+    });
   }
 
   async function requestQuizLandscapeMode() {
@@ -348,7 +365,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   async function exitQuizLandscapeMode() {
-    document.body.classList.remove("quiz-playing", "quiz-landscape-mode");
+    document.body.classList.remove("quiz-playing", "quiz-game-mode", "quiz-landscape-mode");
 
     try {
       if (screen.orientation && screen.orientation.unlock) {
@@ -1280,7 +1297,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     reviewMode = true;
     quizStarted = false;
     exitQuizLandscapeMode();
-    setQuizPlayingUI(false);
+    setQuizReviewUI();
 
     wrongQuestionsGlobal = [...wrongQuestions];
     wrongQuestionPointer = 0;
