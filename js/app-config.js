@@ -25,6 +25,50 @@ const DN_CONFIG = {
     DURATION_DAYS: 30,
   },
 
+  STORE: {
+    TOKEN_PRODUCT_TYPE: "dn_tokens",
+    PREMIUM_WALLPAPER_COST: 25,
+    PREMIUM_WALLPAPER_DAYS: 30,
+
+    TOKEN_PACKAGES: [
+      {
+        id: "dn-tokens-100",
+        name: "100 DN Tokens",
+        tokens: 100,
+        price: "70.00",
+        currency: "LKR",
+      },
+      {
+        id: "dn-tokens-200",
+        name: "200 DN Tokens",
+        tokens: 200,
+        price: "130.00",
+        currency: "LKR",
+      },
+      {
+        id: "dn-tokens-300",
+        name: "300 DN Tokens",
+        tokens: 300,
+        price: "190.00",
+        currency: "LKR",
+      },
+      {
+        id: "dn-tokens-400",
+        name: "400 DN Tokens",
+        tokens: 400,
+        price: "250.00",
+        currency: "LKR",
+      },
+      {
+        id: "dn-tokens-500",
+        name: "500 DN Tokens",
+        tokens: 500,
+        price: "300.00",
+        currency: "LKR",
+      },
+    ],
+  },  
+
   FRONTEND: {
     SITE_URL: "https://dnphysics.com.lk",
     APP_BASE_PATH: "",
@@ -56,6 +100,8 @@ const DN_CONFIG = {
     AUTH_RESET_PASSWORD_URL: "/api/auth/reset-password",
     PROFILE_ME_URL: "/api/profile/me",
     PROFILE_UPDATE_URL: "/api/profile/me",
+
+    BUY_WALLPAPER_URL: "/api/store/buy-wallpaper",
   },
 
   STORAGE_KEYS: {
