@@ -149,3 +149,5 @@ function dnGetBackendUrl(path = "") {
 function dnGetStorageKey(name, fallback = "") {
   return DN_CONFIG?.STORAGE_KEYS?.[name] || fallback;
 }
+
+window.DN_CONFIG = DN_CONFIG;
