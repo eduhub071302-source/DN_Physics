@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Advanced ultra smooth animated mathematics background">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#050816"/>
+      <stop offset="45%" stop-color="#081a38"/>
+      <stop offset="100%" stop-color="#13091f"/>
+      <animate attributeName="x1" values="0;.18;0" dur="18s" repeatCount="indefinite"/>
+      <animate attributeName="y2" values="1;.72;1" dur="22s" repeatCount="indefinite"/>
+    </linearGradient>
+
+    <radialGradient id="glowA" cx="30%" cy="30%" r="55%">
+      <stop offset="0%" stop-color="#00e5ff" stop-opacity=".52"/>
+      <stop offset="55%" stop-color="#7b61ff" stop-opacity=".17"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+      <animate attributeName="cx" values="25%;72%;35%;25%" dur="28s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="25%;42%;76%;25%" dur="31s" repeatCount="indefinite"/>
+    </radialGradient>
+
+    <radialGradient id="glowB" cx="74%" cy="66%" r="48%">
+      <stop offset="0%" stop-color="#ff2bd6" stop-opacity=".42"/>
+      <stop offset="60%" stop-color="#00ffa8" stop-opacity=".12"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+      <animate attributeName="cx" values="76%;18%;66%;76%" dur="34s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="70%;55%;18%;70%" dur="29s" repeatCount="indefinite"/>
+    </radialGradient>
+
+    <pattern id="microGrid" width="64" height="64" patternUnits="userSpaceOnUse">
+      <path d="M64 0H0V64" fill="none" stroke="#7df9ff" stroke-opacity=".10" stroke-width="1"/>
+      <path d="M16 0V64M32 0V64M48 0V64M0 16H64M0 32H64M0 48H64" fill="none" stroke="#ffffff" stroke-opacity=".035" stroke-width="1"/>
+    </pattern>
+
+    <filter id="softGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.1 0 0 0 0 0.95 0 0 0 0 1 0 0 0 .8 0" result="color"/>
+      <feMerge><feMergeNode in="color"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <filter id="textGlow" x="-40%" y="-80%" width="180%" height="260%">
+      <feGaussianBlur stdDeviation="2.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <style>
+      .formula{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; fill:#dffcff; font-weight:600; filter:url(#textGlow); letter-spacing:.3px; opacity:.88}
+      .thin{fill:#9fefff; opacity:.56; font-weight:400}
+      .curve{fill:none; stroke-linecap:round; stroke-linejoin:round; filter:url(#softGlow)}
+      .dash{stroke-dasharray:14 22; animation: dash 18s linear infinite}
+      .dashFast{stroke-dasharray:8 16; animation: dash 11s linear infinite reverse}
+      .float1{animation: float1 13s ease-in-out infinite}
+      .float2{animation: float2 16s ease-in-out infinite}
+      .float3{animation: float3 19s ease-in-out infinite}
+      .pulse{animation: pulse 5.5s ease-in-out infinite}
+      .spinSlow{transform-box:fill-box;transform-origin:center;animation: spin 38s linear infinite}
+      .spinRev{transform-box:fill-box;transform-origin:center;animation: spin 45s linear infinite reverse}
+      .particle{fill:#ffffff; filter:url(#softGlow); opacity:.72}
+      @keyframes dash{to{stroke-dashoffset:-720}}
+      @keyframes spin{to{transform:rotate(360deg)}}
+      @keyframes pulse{0%,100%{opacity:.38}50%{opacity:1}}
+      @keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(32px,-24px)}}
+      @keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(-28px,30px)}}
+      @keyframes float3{0%,100%{transform:translate(0,0)}50%{transform:translate(22px,26px)}}
+      @media (max-width:700px){.formula{font-size:34px}.thin{font-size:25px}.hideMobile{display:none}.mobileSoft{opacity:.42}}
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect width="1600" height="900" fill="url(#glowA)"/>
+  <rect width="1600" height="900" fill="url(#glowB)"/>
+  <rect width="1600" height="900" fill="url(#microGrid)" opacity=".9">
+    <animateTransform attributeName="transform" type="translate" values="0 0;64 64;0 0" dur="42s" repeatCount="indefinite"/>
+  </rect>
+
+  <g opacity=".22">
+    <path d="M-120 690 C220 500 450 750 760 540 S1270 280 1730 470" class="curve dash" stroke="#00e5ff" stroke-width="3"/>
+    <path d="M-80 240 C210 390 360 50 650 180 S1120 590 1680 250" class="curve dashFast" stroke="#ff4fe3" stroke-width="2.5"/>
+    <path d="M-50 805 C270 620 540 870 850 660 S1240 585 1660 725" class="curve dash" stroke="#00ffa8" stroke-width="2"/>
+  </g>
+
+  <g class="spinSlow" opacity=".82">
+    <ellipse cx="800" cy="450" rx="380" ry="112" fill="none" stroke="#7df9ff" stroke-opacity=".35" stroke-width="2"/>
+    <ellipse cx="800" cy="450" rx="380" ry="112" fill="none" stroke="#ff5bef" stroke-opacity=".24" stroke-width="2" transform="rotate(60 800 450)"/>
+    <ellipse cx="800" cy="450" rx="380" ry="112" fill="none" stroke="#00ffa8" stroke-opacity=".20" stroke-width="2" transform="rotate(120 800 450)"/>
+  </g>
+
+  <g class="spinRev" opacity=".7">
+    <circle cx="800" cy="450" r="210" fill="none" stroke="#ffffff" stroke-opacity=".10" stroke-width="1"/>
+    <path d="M590 450H1010M800 240V660" stroke="#ffffff" stroke-opacity=".14"/>
+    <path d="M651 301L949 599M949 301L651 599" stroke="#ffffff" stroke-opacity=".10"/>
+  </g>
+
+  <g filter="url(#softGlow)">
+    <circle r="7" fill="#00e5ff"><animateMotion dur="12s" repeatCount="indefinite" path="M420 448 C610 312 810 334 1180 448 C945 584 652 590 420 448Z"/></circle>
+    <circle r="5" fill="#ff5bef"><animateMotion dur="16s" repeatCount="indefinite" path="M1180 448 C990 310 790 330 420 448 C655 590 948 586 1180 448Z"/></circle>
+    <circle r="6" fill="#00ffa8"><animateMotion dur="20s" repeatCount="indefinite" path="M800 238 C1050 320 1038 585 800 662 C560 584 552 320 800 238Z"/></circle>
+  </g>
+
+  <g class="float1">
+    <text x="112" y="142" class="formula" font-size="42">e^{iπ}+1=0</text>
+    <text x="122" y="196" class="thin formula" font-size="27">∇·E = ρ / ε₀</text>
+  </g>
+  <g class="float2">
+    <text x="1040" y="145" class="formula" font-size="39">∫₀^∞ e^{-x²}dx=√π/2</text>
+    <text x="1120" y="202" class="thin formula" font-size="27">F(s)=ℒ&#123;f(t)&#125;</text>
+  </g>
+  <g class="float3">
+    <text x="190" y="760" class="formula" font-size="37">a²+b²=c²</text>
+    <text x="150" y="812" class="thin formula" font-size="26">det(A−λI)=0</text>
+  </g>
+  <g class="float1 hideMobile">
+    <text x="990" y="750" class="formula" font-size="36">ζ(s)=Σ n^{-s}</text>
+    <text x="1010" y="804" class="thin formula" font-size="27">x = A cos(ωt+φ)</text>
+  </g>
+  <g class="float2 mobileSoft">
+    <text x="610" y="95" class="thin formula" font-size="28">limₙ→∞ (1+1/n)ⁿ=e</text>
+    <text x="610" y="842" class="thin formula" font-size="28">P(A|B)=P(B|A)P(A)/P(B)</text>
+  </g>
+
+  <g class="pulse" opacity=".7">
+    <path d="M760 450 L800 382 L840 450 L800 518 Z" fill="none" stroke="#00ffa8" stroke-width="3"/>
+    <circle cx="800" cy="450" r="74" fill="none" stroke="#7df9ff" stroke-width="2" stroke-opacity=".7"/>
+    <text x="752" y="462" class="formula" font-size="28">π</text>
+  </g>
+
+  <g>
+    <circle class="particle" cx="145" cy="338" r="2.7"><animate attributeName="cy" values="338;295;338" dur="9s" repeatCount="indefinite"/><animate attributeName="opacity" values=".25;.9;.25" dur="9s" repeatCount="indefinite"/></circle>
+    <circle class="particle" cx="326" cy="478" r="2"><animate attributeName="cy" values="478;535;478" dur="13s" repeatCount="indefinite"/><animate attributeName="opacity" values=".2;.85;.2" dur="13s" repeatCount="indefinite"/></circle>
+    <circle class="particle" cx="514" cy="248" r="3"><animate attributeName="cx" values="514;570;514" dur="14s" repeatCount="indefinite"/><animate attributeName="opacity" values=".2;1;.2" dur="14s" repeatCount="indefinite"/></circle>
+    <circle class="particle" cx="1258" cy="380" r="2.5"><animate attributeName="cy" values="380;320;380" dur="10s" repeatCount="indefinite"/><animate attributeName="opacity" values=".25;.95;.25" dur="10s" repeatCount="indefinite"/></circle>
+    <circle class="particle" cx="1375" cy="610" r="3.2"><animate attributeName="cx" values="1375;1315;1375" dur="12s" repeatCount="indefinite"/><animate attributeName="opacity" values=".2;1;.2" dur="12s" repeatCount="indefinite"/></circle>
+    <circle class="particle" cx="730" cy="705" r="2.6"><animate attributeName="cy" values="705;650;705" dur="11s" repeatCount="indefinite"/><animate attributeName="opacity" values=".2;.9;.2" dur="11s" repeatCount="indefinite"/></circle>
+  </g>
+
+  <g opacity=".72" class="hideMobile">
+    <path d="M1260 455 l80 -46 l80 46 v92 l-80 46 l-80 -46z" fill="none" stroke="#ff5bef" stroke-width="2" stroke-opacity=".5">
+      <animateTransform attributeName="transform" type="rotate" values="0 1340 501;360 1340 501" dur="34s" repeatCount="indefinite"/>
+    </path>
+    <path d="M215 432 C245 348 345 348 375 432 C345 516 245 516 215 432Z" fill="none" stroke="#00ffa8" stroke-width="2" stroke-opacity=".48">
+      <animateTransform attributeName="transform" type="rotate" values="0 295 432;-360 295 432" dur="39s" repeatCount="indefinite"/>
+    </path>
+  </g>
+</svg>

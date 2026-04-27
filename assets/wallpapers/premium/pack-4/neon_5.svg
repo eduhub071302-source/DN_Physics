@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Animated holographic neon mesh background">
+  <defs>
+    <linearGradient id="meshBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#020014"><animate attributeName="stop-color" values="#020014;#00192b;#18002f;#020014" dur="20s" repeatCount="indefinite"/></stop>
+      <stop offset="50%" stop-color="#050022"><animate attributeName="stop-color" values="#050022;#21003e;#001f36;#050022" dur="18s" repeatCount="indefinite"/></stop>
+      <stop offset="100%" stop-color="#000000"/>
+    </linearGradient>
+    <linearGradient id="meshLine" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1920" y2="1080">
+      <stop offset="0%" stop-color="#00f5ff"><animate attributeName="stop-color" values="#00f5ff;#ff00d4;#b4ff00;#00f5ff" dur="9s" repeatCount="indefinite"/></stop>
+      <stop offset="50%" stop-color="#ff00d4"><animate attributeName="stop-color" values="#ff00d4;#6c00ff;#00ff87;#ff00d4" dur="9s" repeatCount="indefinite"/></stop>
+      <stop offset="100%" stop-color="#fff200"><animate attributeName="stop-color" values="#fff200;#00f5ff;#ff00d4;#fff200" dur="9s" repeatCount="indefinite"/></stop>
+      <animateTransform attributeName="gradientTransform" type="rotate" values="0 960 540;360 960 540" dur="26s" repeatCount="indefinite"/>
+    </linearGradient>
+    <filter id="meshGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <pattern id="grid" width="96" height="96" patternUnits="userSpaceOnUse">
+      <path d="M96 0H0V96" fill="none" stroke="url(#meshLine)" stroke-width="1" opacity=".35"/>
+    </pattern>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#meshBg)"/>
+  <rect width="1920" height="1080" fill="url(#grid)" opacity=".42">
+    <animateTransform attributeName="transform" type="translate" values="0 0;-96 96;0 0" dur="28s" repeatCount="indefinite"/>
+  </rect>
+  <g filter="url(#meshGlow)" fill="none" stroke="url(#meshLine)" stroke-width="2.2" opacity=".82">
+    <path d="M-60 740 C240 430 420 980 690 625 S1090 245 1340 540 S1700 960 2010 380">
+      <animate attributeName="d" values="M-60 740 C240 430 420 980 690 625 S1090 245 1340 540 S1700 960 2010 380;M-60 470 C270 930 450 250 730 550 S1080 910 1370 420 S1680 170 2010 710;M-60 740 C240 430 420 980 690 625 S1090 245 1340 540 S1700 960 2010 380" dur="18s" repeatCount="indefinite"/>
+    </path>
+    <path d="M-70 305 C260 620 460 105 760 390 S1110 775 1415 315 S1690 100 2020 540" opacity=".72">
+      <animate attributeName="d" values="M-70 305 C260 620 460 105 760 390 S1110 775 1415 315 S1690 100 2020 540;M-70 630 C260 190 480 820 790 460 S1125 130 1435 620 S1710 990 2020 410;M-70 305 C260 620 460 105 760 390 S1110 775 1415 315 S1690 100 2020 540" dur="21s" repeatCount="indefinite"/>
+    </path>
+    <path d="M120 1120 C360 730 640 900 910 560 S1240 225 1535 520 S1820 920 1980 700" opacity=".58">
+      <animate attributeName="d" values="M120 1120 C360 730 640 900 910 560 S1240 225 1535 520 S1820 920 1980 700;M80 1030 C390 330 650 650 930 370 S1260 910 1560 510 S1810 160 1990 390;M120 1120 C360 730 640 900 910 560 S1240 225 1535 520 S1820 920 1980 700" dur="24s" repeatCount="indefinite"/>
+    </path>
+  </g>
+</svg>

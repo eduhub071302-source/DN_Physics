@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Advanced neon quantum physics animated background">
+<!-- Responsive animated SVG background: scales for mobile and desktop. -->
+<defs>
+  <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#060018">
+      <animate attributeName="stop-color" values="#060018;#001b33;#160023;#060018" dur="20s" repeatCount="indefinite"/>
+    </stop>
+    <stop offset="55%" stop-color="#001b33">
+      <animate attributeName="stop-color" values="#001b33;#25003a;#002f38;#001b33" dur="20s" repeatCount="indefinite"/>
+    </stop>
+    <stop offset="100%" stop-color="#000006"/>
+  </linearGradient>
+
+  <radialGradient id="orb" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#ffffff"/>
+    <stop offset="20%" stop-color="#00fff0"/>
+    <stop offset="60%" stop-color="#9d00ff"/>
+    <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    <animate attributeName="r" values="45%;58%;45%" dur="10s" repeatCount="indefinite"/>
+  </radialGradient>
+
+  <linearGradient id="lineGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#00fff0"/>
+    <stop offset="50%" stop-color="#ff00f5"/>
+    <stop offset="100%" stop-color="#7cff00"/>
+    <animateTransform attributeName="gradientTransform" type="rotate" from="0 .5 .5" to="360 .5 .5" dur="18s" repeatCount="indefinite"/>
+  </linearGradient>
+
+  <filter id="softGlow" x="-60%" y="-60%" width="220%" height="220%">
+    <feGaussianBlur stdDeviation="6" result="blur"/>
+    <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0.8  0 0 1 0 1  0 0 0 1 0" result="glow"/>
+    <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+
+  <path id="flowPath" d="M-220,180 C120,20 340,360 610,185 S1030,80 1420,280"/>
+</defs>
+
+<rect width="1200" height="800" fill="url(#bg)"/>
+
+<g opacity=".42" filter="url(#softGlow)">
+  <circle cx="600" cy="405" r="330" fill="url(#orb)">
+    <animate attributeName="cx" values="560;640;590;560" dur="18s" repeatCount="indefinite"/>
+    <animate attributeName="cy" values="400;360;450;400" dur="21s" repeatCount="indefinite"/>
+  </circle>
+</g>
+
+<g fill="none" stroke="url(#lineGlow)" filter="url(#softGlow)" opacity=".9">
+  <ellipse cx="600" cy="400" rx="390" ry="105" stroke-width="2.2">
+    <animateTransform attributeName="transform" type="rotate" from="0 600 400" to="360 600 400" dur="18s" repeatCount="indefinite"/>
+  </ellipse>
+  <ellipse cx="600" cy="400" rx="390" ry="105" stroke-width="2.2">
+    <animateTransform attributeName="transform" type="rotate" from="60 600 400" to="420 600 400" dur="22s" repeatCount="indefinite"/>
+  </ellipse>
+  <ellipse cx="600" cy="400" rx="390" ry="105" stroke-width="2.2">
+    <animateTransform attributeName="transform" type="rotate" from="120 600 400" to="480 600 400" dur="26s" repeatCount="indefinite"/>
+  </ellipse>
+</g>
+
+<g filter="url(#softGlow)">
+  <circle r="6" fill="#ffffff">
+    <animateMotion dur="7s" repeatCount="indefinite" path="M210,400 C380,180 820,180 990,400 C820,620 380,620 210,400"/>
+    <animate attributeName="fill" values="#ffffff;#00fff0;#ff00f5;#ffffff" dur="7s" repeatCount="indefinite"/>
+  </circle>
+  <circle r="4" fill="#00fff0">
+    <animateMotion dur="9s" repeatCount="indefinite" path="M990,400 C820,210 380,210 210,400 C380,590 820,590 990,400"/>
+  </circle>
+  <circle r="5" fill="#ff00f5">
+    <animateMotion dur="11s" repeatCount="indefinite" path="M600,70 C760,240 760,560 600,730 C440,560 440,240 600,70"/>
+  </circle>
+</g>
+
+<g font-family="Consolas, Monaco, monospace" fill="#ffffff" filter="url(#softGlow)" opacity=".9">
+  <text font-size="42" text-anchor="middle" x="600" y="390">iℏ ∂ψ/∂t = Ĥψ</text>
+  <text font-size="24" opacity=".75">
+    <textPath href="#flowPath" startOffset="0%">
+      ψ(x,t) • ΔxΔp ≥ ℏ/2 • |ψ|² • e^(i(kx−ωt)) • quantum field •
+      <animate attributeName="startOffset" values="-90%;110%" dur="18s" repeatCount="indefinite"/>
+    </textPath>
+  </text>
+</g>
+
+<g fill="#ffffff" opacity=".55">
+  <circle cx="150" cy="130" r="1.7"><animate attributeName="opacity" values=".2;1;.2" dur="3s" repeatCount="indefinite"/></circle>
+  <circle cx="1020" cy="160" r="1.4"><animate attributeName="opacity" values="1;.2;1" dur="4s" repeatCount="indefinite"/></circle>
+  <circle cx="260" cy="680" r="1.8"><animate attributeName="opacity" values=".3;1;.3" dur="5s" repeatCount="indefinite"/></circle>
+  <circle cx="960" cy="650" r="1.3"><animate attributeName="opacity" values="1;.3;1" dur="3.6s" repeatCount="indefinite"/></circle>
+</g>
+</svg>

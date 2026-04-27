@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="title desc">
+  <title id="title">Advanced ultra smooth animated chemistry background</title>
+  <desc id="desc">Responsive animated chemistry themed background with molecules, formulas, orbitals, lab glassware, reaction paths, particles, and smooth native SVG animations.</desc>
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="48%" r="72%">
+      <stop offset="0%" stop-color="#123b55"/>
+      <stop offset="42%" stop-color="#071827"/>
+      <stop offset="100%" stop-color="#020611"/>
+      <animate attributeName="cx" values="46%;55%;48%;46%" dur="28s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1"/>
+      <animate attributeName="cy" values="42%;52%;45%;42%" dur="34s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1"/>
+    </radialGradient>
+
+    <linearGradient id="aurora" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#00f5d4" stop-opacity=".08"/>
+      <stop offset=".5" stop-color="#7b2cff" stop-opacity=".13"/>
+      <stop offset="1" stop-color="#ff4fd8" stop-opacity=".07"/>
+      <animateTransform attributeName="gradientTransform" type="rotate" from="0 .5 .5" to="360 .5 .5" dur="46s" repeatCount="indefinite"/>
+    </linearGradient>
+
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e6ffff" stop-opacity=".18"/>
+      <stop offset=".55" stop-color="#5fffee" stop-opacity=".06"/>
+      <stop offset="1" stop-color="#00a3ff" stop-opacity=".12"/>
+    </linearGradient>
+
+    <filter id="softGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <filter id="strongGlow" x="-120%" y="-120%" width="340%" height="340%">
+      <feGaussianBlur stdDeviation="9" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.0  0 0 0 0 0.95  0 0 0 0 0.9  0 0 0 .85 0" result="glow"/>
+      <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <pattern id="hexGrid" width="104" height="90" patternUnits="userSpaceOnUse">
+      <path d="M26 0 78 0 104 45 78 90 26 90 0 45Z" fill="none" stroke="#6fffe9" stroke-opacity=".075" stroke-width="1"/>
+    </pattern>
+
+    <symbol id="benzene" viewBox="-80 -80 160 160">
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M0-62 54-31 54 31 0 62-54 31-54-31Z" stroke="#8efcff" stroke-width="3"/>
+        <path d="M0-45 39-22.5M39 22.5 0 45M-39 22.5-39-22.5" stroke="#ff5df4" stroke-width="2" stroke-opacity=".75"/>
+      </g>
+      <g fill="#dffcff" font-family="Inter,Arial,sans-serif" font-size="18" text-anchor="middle">
+        <text x="0" y="-78">C₆H₆</text>
+      </g>
+    </symbol>
+
+    <symbol id="atom" viewBox="-70 -70 140 140">
+      <circle r="9" fill="#ffffff" filter="url(#strongGlow)"/>
+      <g fill="none" stroke="#70fff2" stroke-width="2" opacity=".86">
+        <ellipse rx="58" ry="18"/>
+        <ellipse rx="58" ry="18" transform="rotate(60)"/>
+        <ellipse rx="58" ry="18" transform="rotate(120)"/>
+      </g>
+      <circle cx="58" cy="0" r="4" fill="#ffec6e">
+        <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="5s" repeatCount="indefinite"/>
+      </circle>
+    </symbol>
+
+    <symbol id="flask" viewBox="-90 -120 180 240">
+      <path d="M-24-105h48v74l59 112c10 19-3 39-25 39H-58c-22 0-35-20-25-39l59-112Z" fill="url(#glass)" stroke="#baffff" stroke-opacity=".58" stroke-width="3"/>
+      <path d="M-58 45c34 11 78-11 116 0l27 52c6 12-2 23-16 23H-69c-14 0-22-11-16-23Z" fill="#00f5d4" opacity=".18"/>
+      <path d="M-55 52c35 13 78-12 112 0" fill="none" stroke="#6fffe9" stroke-width="3" opacity=".55">
+        <animate attributeName="d" values="M-55 52c35 13 78-12 112 0;M-55 52c39-12 77 13 112 0;M-55 52c35 13 78-12 112 0" dur="6.5s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/>
+      </path>
+      <g fill="#9efff7" opacity=".78">
+        <circle cx="-25" cy="75" r="4"><animate attributeName="cy" values="75;35;75" dur="5s" repeatCount="indefinite"/></circle>
+        <circle cx="18" cy="88" r="3"><animate attributeName="cy" values="88;42;88" dur="6s" repeatCount="indefinite"/></circle>
+        <circle cx="42" cy="66" r="2.5"><animate attributeName="cy" values="66;22;66" dur="4.8s" repeatCount="indefinite"/></circle>
+      </g>
+    </symbol>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bgGlow)"/>
+  <rect width="1600" height="900" fill="url(#aurora)">
+    <animate attributeName="opacity" values=".65;.95;.7;.65" dur="18s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1"/>
+  </rect>
+
+  <g opacity=".9">
+    <rect x="-80" y="-80" width="1760" height="1060" fill="url(#hexGrid)">
+      <animateTransform attributeName="transform" type="translate" values="0 0;52 45;0 90;0 0" dur="42s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1"/>
+    </rect>
+  </g>
+
+  <g filter="url(#softGlow)" opacity=".55">
+    <path d="M-70 555 C180 430 300 710 520 565 S860 365 1080 545 1395 695 1685 500" fill="none" stroke="#00f5d4" stroke-width="3" stroke-dasharray="12 22">
+      <animate attributeName="stroke-dashoffset" values="0;-340" dur="18s" repeatCount="indefinite"/>
+      <animate attributeName="d" values="M-70 555 C180 430 300 710 520 565 S860 365 1080 545 1395 695 1685 500;M-70 510 C160 700 350 410 540 610 S860 720 1080 500 1395 330 1685 560;M-70 555 C180 430 300 710 520 565 S860 365 1080 545 1395 695 1685 500" dur="24s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/>
+    </path>
+    <path d="M-90 280 C240 210 380 340 590 285 S890 185 1115 290 1360 400 1690 240" fill="none" stroke="#ff5df4" stroke-width="2" stroke-dasharray="8 18">
+      <animate attributeName="stroke-dashoffset" values="0;260" dur="16s" repeatCount="indefinite"/>
+      <animate attributeName="d" values="M-90 280 C240 210 380 340 590 285 S890 185 1115 290 1360 400 1690 240;M-90 250 C230 370 390 205 590 315 S900 420 1120 260 1370 130 1690 300;M-90 280 C240 210 380 340 590 285 S890 185 1115 290 1360 400 1690 240" dur="29s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/>
+    </path>
+  </g>
+
+  <g font-family="Georgia, 'Times New Roman', serif" fill="#eaffff" opacity=".72" filter="url(#softGlow)">
+    <g font-size="33">
+      <text x="88" y="135">PV = nRT</text>
+      <text x="1095" y="124">ΔG = ΔH − TΔS</text>
+      <text x="118" y="796">pH = −log[H₃O⁺]</text>
+      <text x="1040" y="815">E = E° − (RT/nF) ln Q</text>
+      <animateTransform attributeName="transform" type="translate" values="0 0;0 -18;0 0" dur="11s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/>
+    </g>
+    <g font-size="25" opacity=".62">
+      <text x="640" y="108">2H₂ + O₂ → 2H₂O</text>
+      <text x="590" y="820">CH₄ + 2O₂ → CO₂ + 2H₂O</text>
+      <text x="40" y="405">Kₐ = [H⁺][A⁻]/[HA]</text>
+      <text x="1210" y="430">A = εlc</text>
+      <animateTransform attributeName="transform" type="translate" values="0 0;22 0;0 0" dur="15s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/>
+    </g>
+  </g>
+
+  <g id="moleculeWeb" stroke-linecap="round" stroke-linejoin="round" filter="url(#strongGlow)">
+    <g transform="translate(800 450)">
+      <animateTransform attributeName="transform" type="translate" values="800 450;820 430;790 470;800 450" dur="18s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1" additive="replace"/>
+      <g>
+        <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="55s" repeatCount="indefinite"/>
+        <path d="M0 0 L140 -70 L260 -5 L380 -78 L505 0" stroke="#7efcf5" stroke-width="5" opacity=".55"/>
+        <path d="M0 0 L-132 76 L-260 10 L-380 92 L-510 20" stroke="#7efcf5" stroke-width="5" opacity=".55"/>
+        <path d="M0 0 L-70 -130 L20 -245 L-55 -365" stroke="#ff5df4" stroke-width="4" opacity=".5"/>
+        <path d="M0 0 L75 132 L20 255 L110 358" stroke="#ffdd66" stroke-width="4" opacity=".48"/>
+        <g fill="#efffff">
+          <circle r="18"/><circle cx="140" cy="-70" r="13"/><circle cx="260" cy="-5" r="16"/><circle cx="380" cy="-78" r="12"/><circle cx="505" cy="0" r="20"/>
+          <circle cx="-132" cy="76" r="13"/><circle cx="-260" cy="10" r="17"/><circle cx="-380" cy="92" r="12"/><circle cx="-510" cy="20" r="18"/>
+          <circle cx="-70" cy="-130" r="14"/><circle cx="20" cy="-245" r="17"/><circle cx="-55" cy="-365" r="12"/>
+          <circle cx="75" cy="132" r="14"/><circle cx="20" cy="255" r="16"/><circle cx="110" cy="358" r="12"/>
+        </g>
+        <g fill="#081525" font-family="Inter,Arial,sans-serif" font-weight="700" font-size="17" text-anchor="middle" dominant-baseline="middle">
+          <text>O</text><text x="140" y="-70">H</text><text x="260" y="-5">C</text><text x="380" y="-78">N</text><text x="505" y="0">Cl</text>
+          <text x="-132" y="76">H</text><text x="-260" y="10">C</text><text x="-380" y="92">O</text><text x="-510" y="20">Na</text>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <g opacity=".75" filter="url(#softGlow)">
+    <use href="#benzene" x="190" y="225" width="170" height="170">
+      <animateTransform attributeName="transform" type="rotate" values="0 275 310;360 275 310" dur="38s" repeatCount="indefinite"/>
+    </use>
+    <use href="#benzene" x="1245" y="575" width="210" height="210" opacity=".78">
+      <animateTransform attributeName="transform" type="rotate" values="360 1350 680;0 1350 680" dur="46s" repeatCount="indefinite"/>
+    </use>
+    <use href="#atom" x="1265" y="180" width="180" height="180">
+      <animateTransform attributeName="transform" type="translate" values="0 0;-30 25;0 0" dur="14s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/>
+    </use>
+    <use href="#atom" x="255" y="580" width="150" height="150" opacity=".82">
+      <animateTransform attributeName="transform" type="translate" values="0 0;35 -20;0 0" dur="16s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/>
+    </use>
+    <use href="#flask" x="680" y="290" width="260" height="340" opacity=".82">
+      <animateTransform attributeName="transform" type="translate" values="0 0;0 -16;0 0" dur="9s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/>
+    </use>
+  </g>
+
+  <g fill="#baffff" opacity=".72" filter="url(#softGlow)">
+    <circle cx="105" cy="160" r="2"><animate attributeName="cy" values="160;120;160" dur="7s" repeatCount="indefinite"/></circle>
+    <circle cx="260" cy="520" r="3"><animate attributeName="cy" values="520;470;520" dur="8s" repeatCount="indefinite"/></circle>
+    <circle cx="415" cy="110" r="2.5"><animate attributeName="cx" values="415;455;415" dur="9s" repeatCount="indefinite"/></circle>
+    <circle cx="565" cy="755" r="3"><animate attributeName="cy" values="755;705;755" dur="7.5s" repeatCount="indefinite"/></circle>
+    <circle cx="760" cy="180" r="2"><animate attributeName="cy" values="180;230;180" dur="10s" repeatCount="indefinite"/></circle>
+    <circle cx="985" cy="705" r="2.5"><animate attributeName="cx" values="985;940;985" dur="8.5s" repeatCount="indefinite"/></circle>
+    <circle cx="1165" cy="260" r="3"><animate attributeName="cy" values="260;205;260" dur="9.5s" repeatCount="indefinite"/></circle>
+    <circle cx="1485" cy="720" r="2"><animate attributeName="cy" values="720;665;720" dur="8s" repeatCount="indefinite"/></circle>
+  </g>
+
+  <g opacity=".5" font-family="Inter,Arial,sans-serif" font-size="18" fill="#ffffff">
+    <text x="80" y="870">σ bonds • π orbitals • equilibrium • kinetics • thermodynamics • spectroscopy</text>
+    <animate attributeName="opacity" values=".35;.62;.35" dur="10s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/>
+  </g>
+</svg>

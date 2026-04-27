@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Animated mathematical blueprint background">
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#041019"/><stop offset=".48" stop-color="#08283e"/><stop offset="1" stop-color="#02131f"/>
+      <animate attributeName="x2" values="1;.72;1" dur="24s" repeatCount="indefinite"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#89e6ff" stroke-opacity=".13"/>
+    </pattern>
+    <pattern id="biggrid" width="200" height="200" patternUnits="userSpaceOnUse">
+      <path d="M200 0H0V200" fill="none" stroke="#89e6ff" stroke-opacity=".19" stroke-width="1.5"/>
+    </pattern>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <style>
+      .line{fill:none;stroke:#9ff4ff;stroke-linecap:round;stroke-linejoin:round;filter:url(#glow)}
+      .draw{stroke-dasharray:950;stroke-dashoffset:950;animation: draw 12s ease-in-out infinite}
+      .draw2{stroke-dasharray:1300;stroke-dashoffset:1300;animation: draw 16s ease-in-out infinite reverse}
+      .formula{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;fill:#dffcff;filter:url(#glow);font-weight:600;opacity:.82}
+      .small{fill:#a9f4ff;opacity:.58;font-weight:400}
+      .pan{animation:pan 50s linear infinite}
+      .floatA{animation:floatA 15s ease-in-out infinite}
+      .floatB{animation:floatB 18s ease-in-out infinite}
+      .fade{animation:fade 7s ease-in-out infinite}
+      @keyframes draw{0%{stroke-dashoffset:1300;opacity:.2}45%,60%{stroke-dashoffset:0;opacity:.95}100%{stroke-dashoffset:-1300;opacity:.2}}
+      @keyframes pan{to{transform:translate(200px,200px)}}
+      @keyframes floatA{0%,100%{transform:translate(0,0)}50%{transform:translate(18px,-28px)}}
+      @keyframes floatB{0%,100%{transform:translate(0,0)}50%{transform:translate(-22px,25px)}}
+      @keyframes fade{0%,100%{opacity:.3}50%{opacity:1}}
+      @media(max-width:700px){.formula{font-size:30px}.small{font-size:21px}.desk{display:none}}
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="url(#paper)"/>
+  <g class="pan"><rect x="-200" y="-200" width="2000" height="1300" fill="url(#grid)"/><rect x="-200" y="-200" width="2000" height="1300" fill="url(#biggrid)"/></g>
+  <path d="M0 710 C280 550 400 790 640 610 S1010 365 1600 490" class="line draw" stroke-width="3" stroke="#71f6ff" opacity=".55"/>
+  <path d="M0 260 C210 145 415 195 560 330 C720 480 850 120 1010 245 C1180 382 1330 448 1600 305" class="line draw2" stroke-width="2.5" stroke="#ffd166" opacity=".48"/>
+  <g transform="translate(800 450)" class="fade">
+    <circle r="210" class="line" stroke-width="2" opacity=".45"/>
+    <circle r="112" class="line" stroke-width="2" opacity=".35"/>
+    <path d="M-260 0H260M0 -260V260M-184 -184L184 184M184 -184L-184 184" class="line" stroke-width="1.5" opacity=".28"/>
+    <animateTransform attributeName="transform" type="rotate" values="0 800 450;360 800 450" dur="60s" repeatCount="indefinite" additive="sum"/>
+  </g>
+  <g>
+    <path d="M485 540 Q800 160 1115 540" class="line draw" stroke-width="4" stroke="#00e5ff"/>
+    <path d="M520 350 Q800 720 1080 350" class="line draw2" stroke-width="3" stroke="#ff6bd6"/>
+  </g>
+  <g class="floatA"><text x="110" y="135" class="formula" font-size="38">sin²θ + cos²θ = 1</text><text x="118" y="184" class="formula small" font-size="24">unit circle identity</text></g>
+  <g class="floatB"><text x="1030" y="135" class="formula" font-size="36">∂u/∂t = α∇²u</text><text x="1040" y="184" class="formula small" font-size="24">heat equation</text></g>
+  <g class="floatB"><text x="118" y="774" class="formula" font-size="34">A = πr²</text><text x="118" y="820" class="formula small" font-size="24">C = 2πr</text></g>
+  <g class="floatA desk"><text x="1080" y="755" class="formula" font-size="35">∮ F·dr = ∬ curl(F)·n dS</text><text x="1088" y="806" class="formula small" font-size="23">Stokes’ theorem</text></g>
+  <g filter="url(#glow)">
+    <circle r="6" fill="#00e5ff"><animateMotion dur="14s" repeatCount="indefinite" path="M485 540 Q800 160 1115 540 Q800 820 485 540Z"/></circle>
+    <circle r="5" fill="#ffd166"><animateMotion dur="18s" repeatCount="indefinite" path="M520 350 Q800 720 1080 350 Q800 -20 520 350Z"/></circle>
+    <circle r="4" fill="#ff6bd6"><animateMotion dur="10s" repeatCount="indefinite" path="M150 710 C450 550 650 780 930 530 S1300 440 1500 500"/></circle>
+  </g>
+  <g opacity=".7" class="desk">
+    <path d="M270 360h160v120H270z" class="line" stroke-width="2"><animateTransform attributeName="transform" type="rotate" values="0 350 420;360 350 420" dur="44s" repeatCount="indefinite"/></path>
+    <path d="M1200 360l85 -50 85 50v100l-85 50-85-50z" class="line" stroke-width="2"><animateTransform attributeName="transform" type="rotate" values="0 1285 410;-360 1285 410" dur="52s" repeatCount="indefinite"/></path>
+  </g>
+</svg>

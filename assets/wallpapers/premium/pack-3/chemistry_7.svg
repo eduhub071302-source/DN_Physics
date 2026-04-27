@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Ultra smooth animated chemistry spectroscopy laboratory background">
+  <defs>
+    <radialGradient id="space" cx="50%" cy="50%" r="80%"><stop offset="0" stop-color="#24184e"/><stop offset=".55" stop-color="#090b28"/><stop offset="1" stop-color="#02030b"/><animate attributeName="r" values="72%;86%;72%" dur="22s" repeatCount="indefinite"/></radialGradient>
+    <linearGradient id="spectrum" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#38e8ff"/><stop offset=".25" stop-color="#56ff9a"/><stop offset=".5" stop-color="#fff36b"/><stop offset=".75" stop-color="#ff7a5f"/><stop offset="1" stop-color="#bb6bff"/></linearGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <style>
+      .line{stroke:url(#spectrum);stroke-width:4;stroke-linecap:round;filter:url(#glow);stroke-dasharray:30 28;animation:dash 15s linear infinite}.thin{stroke:#b9eaff;stroke-width:1.5;opacity:.22}.glass{fill:#b9eaff;fill-opacity:.06;stroke:#b9eaff;stroke-opacity:.35;stroke-width:3;filter:url(#glow)}
+      .formula{font-family:'Times New Roman',serif;font-size:31px;fill:#f1f8ff;opacity:.78;filter:url(#glow);animation:fade 8s ease-in-out infinite}.mono{font-family:ui-monospace,Menlo,monospace;font-size:17px;fill:#aeefff;opacity:.56}.orb{transform-box:fill-box;transform-origin:center;animation:spin 30s linear infinite}.orb2{transform-box:fill-box;transform-origin:center;animation:spin 42s linear infinite reverse}.float{animation:float 20s ease-in-out infinite}.float2{animation:float2 25s ease-in-out infinite}.pulse{animation:pulse 5s ease-in-out infinite}
+      @keyframes dash{to{stroke-dashoffset:-700}}@keyframes spin{to{transform:rotate(360deg)}}@keyframes fade{0%,100%{opacity:.55}50%{opacity:.95}}@keyframes pulse{0%,100%{opacity:.45;transform:scale(.95)}50%{opacity:1;transform:scale(1.05)}}@keyframes float{0%,100%{transform:translate(0,0)}50%{transform:translate(28px,-22px)}}@keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(-24px,30px)}}@media(max-width:700px){.formula{font-size:23px}.mono{font-size:13px}.line{stroke-width:3}}
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="url(#space)"/>
+  <g class="thin"><path d="M0 720 C350 580 510 800 820 650 S1250 470 1600 610"><animate attributeName="d" dur="24s" repeatCount="indefinite" values="M0 720 C350 580 510 800 820 650 S1250 470 1600 610;M0 675 C330 520 540 760 820 620 S1260 520 1600 560;M0 720 C350 580 510 800 820 650 S1250 470 1600 610"/></path><path d="M0 210 C320 90 600 300 800 185 S1210 80 1600 230"><animate attributeName="d" dur="28s" repeatCount="indefinite" values="M0 210 C320 90 600 300 800 185 S1210 80 1600 230;M0 250 C340 130 590 260 825 220 S1230 112 1600 270;M0 210 C320 90 600 300 800 185 S1210 80 1600 230"/></path></g>
+  <g class="float">
+    <path class="glass" d="M182 210 h180 l-50 470 c-8 78 -168 78 -176 0 z"/>
+    <path fill="url(#spectrum)" opacity=".35" d="M154 580 C210 545 288 630 340 575 l-19 112 c-11 62 -154 62 -165 0z"><animate attributeName="d" dur="8s" repeatCount="indefinite" values="M154 580 C210 545 288 630 340 575 l-19 112 c-11 62 -154 62 -165 0z;M154 595 C220 642 282 540 340 592 l-19 95 c-11 62 -154 62 -165 0z;M154 580 C210 545 288 630 340 575 l-19 112 c-11 62 -154 62 -165 0z"/></path>
+    <circle class="pulse" cx="225" cy="525" r="8" fill="#56ff9a" filter="url(#glow)"/><circle class="pulse" cx="292" cy="615" r="6" fill="#fff36b" filter="url(#glow)"/>
+  </g>
+  <g class="float2">
+    <path class="glass" d="M1240 220 q80 20 160 0 v420 q0 82 -80 82 t-80 -82 z"/>
+    <path fill="#38e8ff" opacity=".18" d="M1242 540 q78 -45 156 0 v102 q0 78 -78 78 t-78 -78z"><animate attributeName="d" dur="9s" repeatCount="indefinite" values="M1242 540 q78 -45 156 0 v102 q0 78 -78 78 t-78 -78z;M1242 555 q78 44 156 0 v87 q0 78 -78 78 t-78 -78z;M1242 540 q78 -45 156 0 v102 q0 78 -78 78 t-78 -78z"/></path>
+  </g>
+  <g transform="translate(800 440)" filter="url(#glow)">
+    <g class="orb"><ellipse rx="260" ry="78" fill="none" stroke="#38e8ff" stroke-opacity=".45" stroke-width="3"/><circle cx="260" cy="0" r="7" fill="#38e8ff"/></g>
+    <g class="orb2"><ellipse rx="230" ry="66" fill="none" stroke="#ff7a5f" stroke-opacity=".35" stroke-width="3" transform="rotate(58)"/><circle cx="230" cy="0" r="7" fill="#ff7a5f"/></g>
+    <g class="orb"><ellipse rx="190" ry="52" fill="none" stroke="#56ff9a" stroke-opacity=".35" stroke-width="3" transform="rotate(118)"/><circle cx="190" cy="0" r="6" fill="#56ff9a"/></g>
+    <circle r="18" fill="#fff36b"/>
+  </g>
+  <g>
+    <path class="line" d="M420 742 C520 620 580 820 690 700 S865 590 980 710 1160 720 1240 620" fill="none"/>
+    <path class="line" d="M440 162 C560 270 640 80 760 210 S950 290 1080 150 1180 208 1250 120" fill="none" style="animation-duration:19s"/>
+  </g>
+  <g>
+    <text class="formula" x="72" y="106">λν = c</text><text class="formula" x="310" y="106">E = hν</text><text class="formula" x="1125" y="106">A = εlc</text><text class="formula" x="620" y="824">ΔE = −Rᴴ(1/n₂² − 1/n₁²)</text>
+    <text class="mono" x="575" y="230">UV-Vis • IR • NMR • emission spectrum</text><text class="mono" x="603" y="676">orbital probability density</text>
+  </g>
+  <g opacity=".8" filter="url(#glow)">
+    <rect x="500" y="330" width="8" height="210" fill="#38e8ff"><animate attributeName="height" values="210;250;210" dur="6s" repeatCount="indefinite"/><animate attributeName="y" values="330;290;330" dur="6s" repeatCount="indefinite"/></rect>
+    <rect x="540" y="360" width="8" height="160" fill="#56ff9a"><animate attributeName="height" values="160;205;160" dur="7s" repeatCount="indefinite"/><animate attributeName="y" values="360;315;360" dur="7s" repeatCount="indefinite"/></rect>
+    <rect x="1075" y="310" width="8" height="250" fill="#ff7a5f"><animate attributeName="height" values="250;190;250" dur="8s" repeatCount="indefinite"/></rect>
+    <rect x="1118" y="345" width="8" height="185" fill="#bb6bff"><animate attributeName="height" values="185;240;185" dur="9s" repeatCount="indefinite"/><animate attributeName="y" values="345;290;345" dur="9s" repeatCount="indefinite"/></rect>
+  </g>
+</svg>

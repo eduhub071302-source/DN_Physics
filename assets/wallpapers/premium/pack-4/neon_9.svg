@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Animated smooth neon cosmic ribbons background">
+  <defs>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="18" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1.35 0" result="glow"/>
+      <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#050010">
+        <animate attributeName="stop-color" values="#050010;#001a33;#250035;#00120d;#050010" dur="24s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="55%" stop-color="#09104a">
+        <animate attributeName="stop-color" values="#09104a;#3d005c;#003d5c;#3a0a00;#09104a" dur="28s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="#000000">
+        <animate attributeName="stop-color" values="#000000;#070015;#001b22;#140014;#000000" dur="26s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+    <linearGradient id="ribbonA" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#00f5ff"><animate attributeName="stop-color" values="#00f5ff;#ff00f7;#8cff00;#00f5ff" dur="16s" repeatCount="indefinite"/></stop>
+      <stop offset="45%" stop-color="#a855ff"><animate attributeName="stop-color" values="#a855ff;#00ffb7;#ff5cff;#a855ff" dur="19s" repeatCount="indefinite"/></stop>
+      <stop offset="100%" stop-color="#ffea00"><animate attributeName="stop-color" values="#ffea00;#00f5ff;#ff3d00;#ffea00" dur="22s" repeatCount="indefinite"/></stop>
+    </linearGradient>
+    <linearGradient id="ribbonB" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff007f"><animate attributeName="stop-color" values="#ff007f;#00ffe1;#b8ff00;#ff007f" dur="18s" repeatCount="indefinite"/></stop>
+      <stop offset="100%" stop-color="#3bfffb"><animate attributeName="stop-color" values="#3bfffb;#fff700;#ff00dd;#3bfffb" dur="21s" repeatCount="indefinite"/></stop>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <g opacity=".7" filter="url(#glow)">
+    <path d="M-120 590 C 180 210, 410 790, 700 410 S 1180 150, 1710 430" fill="none" stroke="url(#ribbonA)" stroke-width="86" stroke-linecap="round">
+      <animate attributeName="d" values="M-120 590 C 180 210, 410 790, 700 410 S 1180 150, 1710 430;M-120 420 C 220 780, 460 170, 760 560 S 1220 780, 1710 250;M-120 590 C 180 210, 410 790, 700 410 S 1180 150, 1710 430" dur="30s" repeatCount="indefinite"/>
+    </path>
+    <path d="M-80 280 C 250 600, 520 80, 830 360 S 1280 780, 1680 260" fill="none" stroke="url(#ribbonB)" stroke-width="54" stroke-linecap="round" opacity=".82">
+      <animate attributeName="d" values="M-80 280 C 250 600, 520 80, 830 360 S 1280 780, 1680 260;M-80 660 C 280 130, 540 760, 850 310 S 1300 120, 1680 610;M-80 280 C 250 600, 520 80, 830 360 S 1280 780, 1680 260" dur="34s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  <g opacity=".48">
+    <circle cx="220" cy="170" r="4" fill="#fff"><animate attributeName="opacity" values=".1;1;.1" dur="5s" repeatCount="indefinite"/></circle>
+    <circle cx="1260" cy="230" r="3" fill="#fff"><animate attributeName="opacity" values="1;.15;1" dur="6s" repeatCount="indefinite"/></circle>
+    <circle cx="1040" cy="720" r="5" fill="#fff"><animate attributeName="opacity" values=".2;.9;.2" dur="7s" repeatCount="indefinite"/></circle>
+  </g>
+</svg>

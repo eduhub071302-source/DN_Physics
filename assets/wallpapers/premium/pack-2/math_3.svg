@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Animated advanced mathematics background with topology and formulas">
+<defs>
+      <radialGradient id="bg" cx="50%" cy="45%" r="75%">
+        <stop offset="0%" stop-color="#173a69"/>
+        <stop offset="48%" stop-color="#09152d"/>
+        <stop offset="100%" stop-color="#02040a"/>
+        <animate attributeName="cx" values="42%;58%;44%;52%;42%" dur="34s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="38%;54%;44%;62%;38%" dur="39s" repeatCount="indefinite"/>
+      </radialGradient>
+      <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#54f2ff"/><stop offset=".5" stop-color="#b56cff"/><stop offset="1" stop-color="#fff06a"/>
+        <animateTransform attributeName="gradientTransform" type="rotate" from="0 .5 .5" to="360 .5 .5" dur="22s" repeatCount="indefinite"/>
+      </linearGradient>
+      <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+        <feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <pattern id="grid" width="56" height="56" patternUnits="userSpaceOnUse">
+        <path d="M56 0H0V56" fill="none" stroke="rgba(120,220,255,.11)" stroke-width="1"/>
+        <animate attributeName="width" values="52;64;52" dur="18s" repeatCount="indefinite"/>
+        <animate attributeName="height" values="52;64;52" dur="18s" repeatCount="indefinite"/>
+      </pattern>
+      
+    </defs>
+<style><![CDATA[
+  svg { width:100%; height:100%; display:block; background:#05070f; }
+  .soft { filter:url(#glow); }
+  .formula { font-family: 'Times New Roman', Georgia, serif; fill: rgba(235,245,255,.86); font-size: 30px; letter-spacing:.5px; }
+  .tiny { font-size: 18px; opacity:.68; }
+  .mid { font-size: 24px; opacity:.78; }
+  .stroke { fill:none; stroke-linecap:round; stroke-linejoin:round; }
+  @keyframes driftA { from{transform:translate3d(-80px,20px,0)} to{transform:translate3d(80px,-20px,0)} }
+  @keyframes driftB { from{transform:translate3d(50px,-40px,0)} to{transform:translate3d(-60px,40px,0)} }
+  @keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-32px)} }
+  @keyframes pulse { 0%,100%{opacity:.38} 50%{opacity:.95} }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  @keyframes spinR { to{transform:rotate(-360deg)} }
+  @keyframes dash { to{stroke-dashoffset:-1200} }
+  @keyframes wave { 0%,100%{transform:translateX(-40px)} 50%{transform:translateX(40px)} }
+  @keyframes shimmer { 0%,100%{opacity:.18} 50%{opacity:.58} }
+  .driftA { animation: driftA 18s ease-in-out infinite alternate; }
+  .driftB { animation: driftB 24s ease-in-out infinite alternate; }
+  .float1 { animation: floatY 9s ease-in-out infinite; }
+  .float2 { animation: floatY 13s ease-in-out infinite reverse; }
+  .pulse { animation: pulse 7s ease-in-out infinite; }
+  .spin { transform-box:fill-box; transform-origin:center; animation: spin 42s linear infinite; }
+  .spinR { transform-box:fill-box; transform-origin:center; animation: spinR 58s linear infinite; }
+  .dash { stroke-dasharray:22 22; animation: dash 28s linear infinite; }
+  .wave { animation: wave 16s ease-in-out infinite; }
+  .shimmer { animation: shimmer 11s ease-in-out infinite; }
+  @media (max-width: 700px) { .formula{font-size:22px}.mid{font-size:19px}.tiny{font-size:15px} }
+]]></style>
+<rect width="1600" height="900" fill="url(#bg)"/>
+<rect width="1600" height="900" fill="url(#grid)" opacity=".8" class="shimmer"/>
+<g class="driftA"><path class="stroke dash soft" d="M-100 620 C180 420 330 740 560 520 S920 280 1150 490 1450 760 1710 420" stroke="url(#cyan)" stroke-width="5" opacity=".65"/></g>
+<g class="driftB"><path class="stroke dash" d="M-80 260 C220 110 350 470 620 310 S1030 60 1260 250 1460 500 1700 190" stroke="#83ffee" stroke-width="3" opacity=".45"/></g>
+<g transform="translate(800 450)" class="spin soft">
+  <ellipse rx="390" ry="115" class="stroke" stroke="url(#cyan)" stroke-width="2" opacity=".72"/>
+  <ellipse rx="390" ry="115" class="stroke" stroke="#9df7ff" stroke-width="2" opacity=".42" transform="rotate(60)"/>
+  <ellipse rx="390" ry="115" class="stroke" stroke="#f9e36d" stroke-width="2" opacity=".32" transform="rotate(120)"/>
+</g>
+<g transform="translate(800 450)" class="spinR"><polygon points="0,-170 147,-85 147,85 0,170 -147,85 -147,-85" fill="none" stroke="rgba(255,255,255,.32)" stroke-width="2"/></g>
+<g class="float1 formula soft"><text x="90" y="130">∮<tspan baseline-shift="sub">∂Ω</tspan> F·dr = ∬<tspan baseline-shift="sub">Ω</tspan> curl F · n dA</text><text x="1050" y="170" class="mid">ζ(s)=Σ n<tspan baseline-shift="super">−s</tspan></text><text x="1160" y="750">e<tspan baseline-shift="super">iπ</tspan> + 1 = 0</text></g>
+<g class="float2 formula"><text x="150" y="760" class="mid">∇²φ = ρ/ε₀</text><text x="650" y="115" class="tiny">det(A−λI)=0</text><text x="1010" y="520" class="tiny">lim Δx→0 Σ f(xᵢ)Δx</text></g>
+<g class="pulse soft">
+  <circle cx="430" cy="420" r="7" fill="#7dfcff"><animate attributeName="cx" values="430;505;450;430" dur="12s" repeatCount="indefinite"/></circle>
+  <circle cx="1200" cy="390" r="8" fill="#ffe76e"><animate attributeName="cy" values="390;315;430;390" dur="15s" repeatCount="indefinite"/></circle>
+  <circle cx="780" cy="450" r="13" fill="#ffffff" opacity=".8"><animate attributeName="r" values="8;18;8" dur="6s" repeatCount="indefinite"/></circle>
+</g>
+</svg>

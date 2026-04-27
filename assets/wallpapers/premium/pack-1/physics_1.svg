@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Advanced ultra smooth animated physics background">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="45%" r="75%">
+      <stop offset="0%" stop-color="#233a7a"/>
+      <stop offset="38%" stop-color="#101a42"/>
+      <stop offset="72%" stop-color="#070b1c"/>
+      <stop offset="100%" stop-color="#02030a"/>
+      <animate attributeName="cx" dur="22s" values="45%;58%;48%;45%" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1"/>
+      <animate attributeName="cy" dur="26s" values="42%;52%;38%;42%" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1"/>
+    </radialGradient>
+
+    <linearGradient id="lineGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#67e8f9" stop-opacity=".15"/>
+      <stop offset=".5" stop-color="#a78bfa" stop-opacity=".65"/>
+      <stop offset="1" stop-color="#38bdf8" stop-opacity=".12"/>
+      <animateTransform attributeName="gradientTransform" type="rotate" from="0 .5 .5" to="360 .5 .5" dur="36s" repeatCount="indefinite"/>
+    </linearGradient>
+
+    <filter id="softGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <filter id="strongGlow" x="-120%" y="-120%" width="340%" height="340%">
+      <feGaussianBlur stdDeviation="9" result="b"/>
+      <feColorMatrix in="b" type="matrix" values="0 0 0 0 0.2  0 0 0 0 0.85  0 0 0 0 1  0 0 0 .9 0" result="c"/>
+      <feMerge><feMergeNode in="c"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <pattern id="microGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#7dd3fc" stroke-opacity=".11" stroke-width="1"/>
+      <path d="M20 0V40M0 20H40" fill="none" stroke="#818cf8" stroke-opacity=".045" stroke-width="1"/>
+    </pattern>
+
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M1 1 L11 6 L1 11 Z" fill="#67e8f9" opacity=".75"/>
+    </marker>
+
+    <style>
+      @media (prefers-reduced-motion: reduce){
+        *{animation-duration:0.001s!important; animation-iteration-count:1!important}
+      }
+      .formula{font-family:'Times New Roman', Georgia, serif; font-size:34px; fill:#dbeafe; opacity:.72; filter:url(#softGlow); letter-spacing:.3px}
+      .smallFormula{font-family:'Times New Roman', Georgia, serif; font-size:22px; fill:#bae6fd; opacity:.52}
+      .label{font-family:Inter, Arial, sans-serif; font-size:15px; fill:#c4b5fd; opacity:.62; letter-spacing:2px}
+      .thin{fill:none; stroke:url(#lineGlow); stroke-width:1.8; stroke-linecap:round; opacity:.48}
+      .curve{fill:none; stroke:#67e8f9; stroke-width:2.5; stroke-linecap:round; opacity:.58; filter:url(#softGlow)}
+      .particle{filter:url(#strongGlow); transform-box:fill-box; transform-origin:center; animation: pulse 5s ease-in-out infinite}
+      .driftA{animation: driftA 18s ease-in-out infinite}
+      .driftB{animation: driftB 21s ease-in-out infinite}
+      .floatFormula{animation: floatFormula 16s ease-in-out infinite; transform-box:fill-box; transform-origin:center}
+      .dashFlow{stroke-dasharray:12 18; animation: dash 12s linear infinite}
+      .waveMove{stroke-dasharray:2 14; animation: dash 8s linear infinite}
+      .rotateSlow{transform-box:fill-box; transform-origin:center; animation: rotate 34s linear infinite}
+      .rotateReverse{transform-box:fill-box; transform-origin:center; animation: rotateReverse 42s linear infinite}
+      .gridWarp{transform-origin:800px 450px; animation: gridWarp 20s ease-in-out infinite}
+      .fadeLoop{animation: fadeLoop 9s ease-in-out infinite}
+      @keyframes dash{to{stroke-dashoffset:-420}}
+      @keyframes rotate{to{transform:rotate(360deg)}}
+      @keyframes rotateReverse{to{transform:rotate(-360deg)}}
+      @keyframes pulse{0%,100%{opacity:.45; r:3}50%{opacity:1; r:6}}
+      @keyframes driftA{0%,100%{transform:translate(0,0)}50%{transform:translate(28px,-22px)}}
+      @keyframes driftB{0%,100%{transform:translate(0,0)}50%{transform:translate(-24px,18px)}}
+      @keyframes floatFormula{0%,100%{transform:translateY(0) scale(1); opacity:.58}50%{transform:translateY(-18px) scale(1.035); opacity:.86}}
+      @keyframes gridWarp{0%,100%{transform:skewX(0deg) scale(1)}50%{transform:skewX(-3deg) scale(1.035)}}
+      @keyframes fadeLoop{0%,100%{opacity:.18}50%{opacity:.58}}
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bgGlow)"/>
+  <rect width="1600" height="900" fill="url(#microGrid)" class="gridWarp" opacity=".8"/>
+
+  <!-- curved spacetime mesh -->
+  <g opacity=".42" class="gridWarp">
+    <path class="thin" d="M-80 220 C280 120 510 350 810 245 S1330 75 1690 190"/>
+    <path class="thin" d="M-80 300 C300 205 535 440 835 330 S1320 175 1690 285"/>
+    <path class="thin" d="M-80 385 C300 305 570 525 860 430 S1310 285 1690 385"/>
+    <path class="thin" d="M-80 475 C300 410 590 610 890 535 S1310 410 1690 500"/>
+    <path class="thin" d="M-80 575 C310 535 625 700 920 650 S1315 555 1690 625"/>
+    <path class="thin" d="M190 -80 C120 150 245 330 205 540 S175 765 235 980"/>
+    <path class="thin" d="M410 -80 C365 150 470 330 435 540 S418 765 465 980"/>
+    <path class="thin" d="M630 -80 C600 155 690 330 660 540 S650 770 690 980"/>
+    <path class="thin" d="M850 -80 C845 160 900 340 880 545 S888 775 910 980"/>
+    <path class="thin" d="M1070 -80 C1095 160 1120 345 1110 550 S1130 780 1130 980"/>
+    <path class="thin" d="M1290 -80 C1340 160 1335 350 1340 555 S1370 785 1350 980"/>
+  </g>
+
+  <!-- central quantum/relativity engine -->
+  <g transform="translate(800 450)">
+    <circle r="108" fill="none" stroke="#67e8f9" stroke-opacity=".55" stroke-width="2" class="dashFlow" filter="url(#softGlow)"/>
+    <circle r="168" fill="none" stroke="#a78bfa" stroke-opacity=".32" stroke-width="2" class="dashFlow" style="animation-duration:18s"/>
+    <circle r="236" fill="none" stroke="#38bdf8" stroke-opacity=".18" stroke-width="1.5" class="dashFlow" style="animation-duration:26s"/>
+    <g class="rotateSlow">
+      <ellipse rx="280" ry="78" fill="none" stroke="#67e8f9" stroke-opacity=".38" stroke-width="2"/>
+      <ellipse rx="280" ry="78" fill="none" stroke="#a78bfa" stroke-opacity=".32" stroke-width="2" transform="rotate(60)"/>
+      <ellipse rx="280" ry="78" fill="none" stroke="#22d3ee" stroke-opacity=".30" stroke-width="2" transform="rotate(120)"/>
+      <circle cx="280" cy="0" r="7" fill="#e0f2fe" class="particle"/>
+      <circle cx="-140" cy="242" r="5" fill="#c4b5fd" class="particle" style="animation-delay:-1.4s"/>
+      <circle cx="-140" cy="-242" r="5" fill="#67e8f9" class="particle" style="animation-delay:-2.7s"/>
+    </g>
+    <g class="rotateReverse">
+      <path d="M-190 0 C-110 -105 110 -105 190 0 C110 105 -110 105 -190 0Z" fill="none" stroke="#e879f9" stroke-opacity=".28" stroke-width="2"/>
+      <path d="M0 -190 C105 -110 105 110 0 190 C-105 110 -105 -110 0 -190Z" fill="none" stroke="#7dd3fc" stroke-opacity=".26" stroke-width="2"/>
+    </g>
+    <circle r="42" fill="#67e8f9" opacity=".12" filter="url(#strongGlow)">
+      <animate attributeName="r" dur="7s" values="35;52;35" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/>
+      <animate attributeName="opacity" dur="7s" values=".1;.25;.1" repeatCount="indefinite"/>
+    </circle>
+    <text y="12" text-anchor="middle" class="formula" style="font-size:28px">E = mc²</text>
+  </g>
+
+  <!-- waves -->
+  <g opacity=".76">
+    <path class="curve waveMove" d="M-20 735 C80 645 180 825 280 735 S480 645 580 735 S780 825 880 735 S1080 645 1180 735 S1380 825 1620 710"/>
+    <path class="curve waveMove" style="animation-duration:13s;opacity:.34;stroke:#c084fc" d="M-20 775 C95 690 190 845 305 760 S515 690 630 760 S840 845 955 760 S1165 690 1280 760 S1490 845 1620 735"/>
+    <text x="64" y="690" class="smallFormula">ψ(x,t)=Ae^{i(kx−ωt)}</text>
+  </g>
+
+  <!-- vector field arrows -->
+  <g opacity=".65" class="fadeLoop">
+    <path d="M170 160 q55 -25 110 0" fill="none" stroke="#67e8f9" stroke-width="2" marker-end="url(#arrow)"/>
+    <path d="M310 190 q60 30 120 -5" fill="none" stroke="#67e8f9" stroke-width="2" marker-end="url(#arrow)"/>
+    <path d="M1190 150 q65 35 130 -10" fill="none" stroke="#a78bfa" stroke-width="2" marker-end="url(#arrow)"/>
+    <path d="M1290 250 q70 -35 140 0" fill="none" stroke="#a78bfa" stroke-width="2" marker-end="url(#arrow)"/>
+    <path d="M220 555 q55 35 110 -10" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+    <path d="M1230 610 q70 -25 140 12" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- formulas and physics notes -->
+  <g class="floatFormula" style="animation-delay:-2s"><text x="118" y="108" class="formula">F = G m₁m₂/r²</text></g>
+  <g class="floatFormula" style="animation-delay:-5s"><text x="1110" y="92" class="formula">∇·E = ρ/ε₀</text></g>
+  <g class="floatFormula" style="animation-delay:-8s"><text x="1060" y="810" class="formula">ΔxΔp ≥ ℏ/2</text></g>
+  <g class="floatFormula" style="animation-delay:-11s"><text x="138" y="842" class="formula">L = T − V</text></g>
+  <text x="104" y="412" class="smallFormula driftA">p = γmv</text>
+  <text x="1310" y="430" class="smallFormula driftB">B = ∇ × A</text>
+  <text x="610" y="102" class="smallFormula driftA">S = k ln Ω</text>
+  <text x="705" y="852" class="smallFormula driftB">c = λν</text>
+
+  <!-- particles with native animateMotion -->
+  <g filter="url(#strongGlow)">
+    <circle r="4" fill="#67e8f9"><animateMotion dur="19s" repeatCount="indefinite" path="M80,260 C350,40 600,320 850,190 S1280,75 1530,245 S1200,545 890,500 S310,590 80,260" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1;.45 0 .55 1"/></circle>
+    <circle r="3.5" fill="#c084fc"><animateMotion dur="23s" repeatCount="indefinite" path="M1500,650 C1230,820 1020,570 760,705 S305,795 115,610 S310,260 620,365 S1110,205 1500,650" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1;.45 0 .55 1"/></circle>
+    <circle r="5" fill="#e0f2fe"><animateMotion dur="27s" repeatCount="indefinite" path="M330,90 C510,250 420,520 640,630 S1020,680 1135,455 S1040,110 1288,130" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1"/></circle>
+  </g>
+
+  <!-- detector rings -->
+  <g transform="translate(260 330)" class="rotateReverse" opacity=".55">
+    <circle r="72" fill="none" stroke="#7dd3fc" stroke-width="1.6" stroke-dasharray="7 13"/>
+    <circle r="42" fill="none" stroke="#c084fc" stroke-width="1.3" stroke-dasharray="4 10"/>
+    <line x1="-95" x2="95" y1="0" y2="0" stroke="#7dd3fc" opacity=".35"/>
+    <line x1="0" x2="0" y1="-95" y2="95" stroke="#7dd3fc" opacity=".35"/>
+  </g>
+  <g transform="translate(1335 545)" class="rotateSlow" opacity=".5">
+    <circle r="86" fill="none" stroke="#a78bfa" stroke-width="1.6" stroke-dasharray="8 14"/>
+    <circle r="52" fill="none" stroke="#67e8f9" stroke-width="1.3" stroke-dasharray="3 9"/>
+    <path d="M-95 40 C-20 -35 30 90 95 -28" fill="none" stroke="#e0f2fe" opacity=".45"/>
+  </g>
+
+  <text x="72" y="58" class="label">PHYSICS FIELD DYNAMICS · RELATIVITY · QUANTUM WAVES · VECTOR FIELDS</text>
+</svg>

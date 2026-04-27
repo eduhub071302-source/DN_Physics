@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Advanced animated neon quantum flare background">
+  <defs>
+    <radialGradient id="core" cx="50%" cy="50%" r="62%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity=".9"/>
+      <stop offset="12%" stop-color="#00fff0" stop-opacity=".82"><animate attributeName="stop-color" values="#00fff0;#ff00ea;#ffe900;#00fff0" dur="8s" repeatCount="indefinite"/></stop>
+      <stop offset="42%" stop-color="#7000ff" stop-opacity=".38"><animate attributeName="stop-color" values="#7000ff;#00a2ff;#ff008c;#7000ff" dur="12s" repeatCount="indefinite"/></stop>
+      <stop offset="100%" stop-color="#000008" stop-opacity="1"/>
+    </radialGradient>
+    <linearGradient id="beam" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#00eaff" stop-opacity="0"/>
+      <stop offset="35%" stop-color="#00eaff" stop-opacity=".9"><animate attributeName="stop-color" values="#00eaff;#ff00e6;#baff00;#00eaff" dur="7s" repeatCount="indefinite"/></stop>
+      <stop offset="50%" stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="65%" stop-color="#ff00e6" stop-opacity=".9"><animate attributeName="stop-color" values="#ff00e6;#ffe600;#00ff95;#ff00e6" dur="7s" repeatCount="indefinite"/></stop>
+      <stop offset="100%" stop-color="#ff00e6" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="flareGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="10" result="a"/>
+      <feGaussianBlur stdDeviation="36" in="SourceGraphic" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="a"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="stars">
+      <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="2" seed="9"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 9 -5"/>
+    </filter>
+  </defs>
+  <rect width="1920" height="1080" fill="#000008"/>
+  <rect width="1920" height="1080" fill="url(#core)">
+    <animate attributeName="opacity" values=".9;1;.85;1;.9" dur="11s" repeatCount="indefinite"/>
+  </rect>
+  <rect width="1920" height="1080" filter="url(#stars)" opacity=".2"/>
+  <g transform="translate(960 540)" filter="url(#flareGlow)">
+    <g opacity=".9">
+      <rect x="-1120" y="-10" width="2240" height="20" fill="url(#beam)" rx="10">
+        <animateTransform attributeName="transform" type="rotate" values="0;360" dur="36s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="-1120" y="-7" width="2240" height="14" fill="url(#beam)" rx="7" opacity=".78">
+        <animateTransform attributeName="transform" type="rotate" values="60;420" dur="44s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="-1120" y="-6" width="2240" height="12" fill="url(#beam)" rx="6" opacity=".68">
+        <animateTransform attributeName="transform" type="rotate" values="125;485" dur="52s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <circle r="125" fill="none" stroke="url(#beam)" stroke-width="5" opacity=".95">
+      <animate attributeName="r" values="90;150;90" dur="9s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values=".55;1;.55" dur="9s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="235" fill="none" stroke="url(#beam)" stroke-width="2.5" opacity=".55">
+      <animate attributeName="r" values="180;285;180" dur="13s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values=".25;.75;.25" dur="13s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>

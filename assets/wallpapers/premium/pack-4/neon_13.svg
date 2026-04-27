@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Smooth animated neon color background">
+  <title>Smooth Animated Neon Background</title>
+  <desc>A responsive SVG background with ultra-smooth animated neon gradients for mobile and desktop screens.</desc>
+
+  <defs>
+    <linearGradient id="baseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f5ff">
+        <animate attributeName="stop-color" dur="18s" repeatCount="indefinite"
+          values="#00f5ff;#7c3cff;#ff2bd6;#00ff9d;#00f5ff"
+          calcMode="spline"
+          keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1" />
+      </stop>
+      <stop offset="50%" stop-color="#7c3cff">
+        <animate attributeName="stop-color" dur="22s" repeatCount="indefinite"
+          values="#7c3cff;#00ff9d;#ff8a00;#ff2bd6;#7c3cff"
+          calcMode="spline"
+          keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1" />
+      </stop>
+      <stop offset="100%" stop-color="#ff2bd6">
+        <animate attributeName="stop-color" dur="20s" repeatCount="indefinite"
+          values="#ff2bd6;#00f5ff;#00ff9d;#7c3cff;#ff2bd6"
+          calcMode="spline"
+          keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1" />
+      </stop>
+      <animateTransform attributeName="gradientTransform" type="rotate" from="0 0.5 0.5" to="360 0.5 0.5" dur="60s" repeatCount="indefinite" />
+    </linearGradient>
+
+    <radialGradient id="orbA" cx="30%" cy="35%" r="45%">
+      <stop offset="0%" stop-color="#00f5ff" stop-opacity="0.95" />
+      <stop offset="45%" stop-color="#00f5ff" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#00f5ff" stop-opacity="0" />
+    </radialGradient>
+
+    <radialGradient id="orbB" cx="70%" cy="60%" r="50%">
+      <stop offset="0%" stop-color="#ff2bd6" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#ff2bd6" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#ff2bd6" stop-opacity="0" />
+    </radialGradient>
+
+    <radialGradient id="orbC" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#00ff9d" stop-opacity="0.8" />
+      <stop offset="55%" stop-color="#00ff9d" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#00ff9d" stop-opacity="0" />
+    </radialGradient>
+
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="80" />
+    </filter>
+
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="2" stitchTiles="stitch" />
+      <feColorMatrix type="saturate" values="0" />
+      <feComponentTransfer>
+        <feFuncA type="table" tableValues="0 0.08" />
+      </feComponentTransfer>
+    </filter>
+
+    <style>
+      svg {
+        width: 100%;
+        height: 100%;
+        min-height: 100vh;
+        display: block;
+        background: #050311;
+      }
+
+      .blend {
+        mix-blend-mode: screen;
+      }
+
+      @media (max-width: 700px) {
+        .desktop-extra {
+          opacity: 0.65;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        animate,
+        animateTransform {
+          display: none;
+        }
+      }
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" fill="#050311" />
+  <rect width="1600" height="900" fill="url(#baseGradient)" opacity="0.9" />
+
+  <g filter="url(#softGlow)" class="blend">
+    <circle cx="430" cy="290" r="390" fill="url(#orbA)">
+      <animate attributeName="cx" dur="26s" repeatCount="indefinite"
+        values="380;680;1020;430;380"
+        calcMode="spline"
+        keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1" />
+      <animate attributeName="cy" dur="24s" repeatCount="indefinite"
+        values="240;180;520;680;240"
+        calcMode="spline"
+        keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1" />
+    </circle>
+
+    <circle cx="1080" cy="520" r="460" fill="url(#orbB)">
+      <animate attributeName="cx" dur="30s" repeatCount="indefinite"
+        values="1120;850;540;1260;1120"
+        calcMode="spline"
+        keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1" />
+      <animate attributeName="cy" dur="28s" repeatCount="indefinite"
+        values="560;720;360;210;560"
+        calcMode="spline"
+        keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1" />
+    </circle>
+
+    <circle class="desktop-extra" cx="800" cy="450" r="520" fill="url(#orbC)" opacity="0.7">
+      <animate attributeName="r" dur="25s" repeatCount="indefinite"
+        values="420;620;500;700;420"
+        calcMode="spline"
+        keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1" />
+      <animate attributeName="opacity" dur="18s" repeatCount="indefinite"
+        values="0.45;0.85;0.55;0.75;0.45"
+        calcMode="spline"
+        keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1" />
+    </circle>
+  </g>
+
+  <path d="M-120 720 C 260 520, 520 880, 900 620 S 1320 320, 1740 520" fill="none" stroke="#ffffff" stroke-width="3" opacity="0.18">
+    <animate attributeName="d" dur="34s" repeatCount="indefinite"
+      values="M-120 720 C 260 520, 520 880, 900 620 S 1320 320, 1740 520;M-120 500 C 280 780, 560 420, 920 650 S 1320 860, 1740 320;M-120 720 C 260 520, 520 880, 900 620 S 1320 320, 1740 520"
+      calcMode="spline"
+      keySplines="0.45 0 0.55 1;0.45 0 0.55 1" />
+  </path>
+
+  <rect width="1600" height="900" filter="url(#grain)" opacity="0.28" />
+  <rect width="1600" height="900" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="2" />
+</svg>

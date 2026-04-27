@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Animated neon liquid blobs background">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#050011"/>
+      <stop offset="45%" stop-color="#120033"/>
+      <stop offset="100%" stop-color="#001a27"/>
+      <animate attributeName="x1" values="0;1;0" dur="22s" repeatCount="indefinite"/>
+      <animate attributeName="y2" values="1;0;1" dur="22s" repeatCount="indefinite"/>
+    </linearGradient>
+    <filter id="soft">
+      <feGaussianBlur stdDeviation="52"/>
+    </filter>
+    <radialGradient id="cyan"><stop offset="0%" stop-color="#00fff0"/><stop offset="100%" stop-color="#00fff0" stop-opacity="0"/></radialGradient>
+    <radialGradient id="pink"><stop offset="0%" stop-color="#ff1ab3"/><stop offset="100%" stop-color="#ff1ab3" stop-opacity="0"/></radialGradient>
+    <radialGradient id="violet"><stop offset="0%" stop-color="#8a2bff"/><stop offset="100%" stop-color="#8a2bff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="lime"><stop offset="0%" stop-color="#b8ff00"/><stop offset="100%" stop-color="#b8ff00" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <g filter="url(#soft)" opacity="0.82">
+    <circle cx="330" cy="230" r="310" fill="url(#cyan)"><animate attributeName="cx" values="330;760;330" dur="26s" repeatCount="indefinite"/><animate attributeName="cy" values="230;390;230" dur="21s" repeatCount="indefinite"/></circle>
+    <circle cx="1420" cy="220" r="360" fill="url(#pink)"><animate attributeName="cx" values="1420;1100;1420" dur="24s" repeatCount="indefinite"/><animate attributeName="cy" values="220;520;220" dur="28s" repeatCount="indefinite"/></circle>
+    <circle cx="930" cy="810" r="430" fill="url(#violet)"><animate attributeName="cx" values="930;1250;700;930" dur="34s" repeatCount="indefinite"/><animate attributeName="cy" values="810;690;560;810" dur="30s" repeatCount="indefinite"/></circle>
+    <circle cx="1700" cy="870" r="260" fill="url(#lime)"><animate attributeName="cx" values="1700;1450;1700" dur="27s" repeatCount="indefinite"/><animate attributeName="cy" values="870;720;870" dur="19s" repeatCount="indefinite"/></circle>
+  </g>
+  <rect width="1920" height="1080" fill="#000" opacity="0.08"/>
+</svg>

@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Advanced animated neon plasma tunnel background">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="75%">
+      <stop offset="0%" stop-color="#22005f">
+        <animate attributeName="stop-color" values="#22005f;#001d58;#3b005f;#001d58;#22005f" dur="16s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="45%" stop-color="#070022">
+        <animate attributeName="stop-color" values="#070022;#00172c;#16002d;#000d26;#070022" dur="18s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="#000005"/>
+    </radialGradient>
+
+    <linearGradient id="ringStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00fff0">
+        <animate attributeName="stop-color" values="#00fff0;#ff00f7;#52ff00;#00a2ff;#00fff0" dur="10s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="50%" stop-color="#ff00f7">
+        <animate attributeName="stop-color" values="#ff00f7;#00a2ff;#ffe600;#00fff0;#ff00f7" dur="10s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="#ffe600">
+        <animate attributeName="stop-color" values="#ffe600;#52ff00;#00fff0;#ff00f7;#ffe600" dur="10s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+
+    <filter id="megaGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="8" result="blur1"/>
+      <feGaussianBlur stdDeviation="24" in="SourceGraphic" result="blur2"/>
+      <feColorMatrix in="blur2" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1.6 0 0  0 0 0 .75 0" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="softNoise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.008 0.015" numOctaves="3" seed="12" result="noise">
+        <animate attributeName="baseFrequency" values="0.008 0.015;0.014 0.01;0.008 0.015" dur="22s" repeatCount="indefinite"/>
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="38" xChannelSelector="R" yChannelSelector="B"/>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" opacity=".32" filter="url(#softNoise)" fill="url(#bg)"/>
+
+  <g transform="translate(960 540)" filter="url(#megaGlow)" fill="none" stroke="url(#ringStroke)" stroke-linecap="round">
+    <g opacity=".98">
+      <ellipse rx="110" ry="58" stroke-width="5"><animateTransform attributeName="transform" type="rotate" values="0;360" dur="30s" repeatCount="indefinite"/></ellipse>
+      <ellipse rx="210" ry="112" stroke-width="4" opacity=".9"><animateTransform attributeName="transform" type="rotate" values="18;378" dur="36s" repeatCount="indefinite"/></ellipse>
+      <ellipse rx="330" ry="176" stroke-width="4" opacity=".78"><animateTransform attributeName="transform" type="rotate" values="-22;338" dur="42s" repeatCount="indefinite"/></ellipse>
+      <ellipse rx="480" ry="255" stroke-width="3.5" opacity=".66"><animateTransform attributeName="transform" type="rotate" values="35;395" dur="48s" repeatCount="indefinite"/></ellipse>
+      <ellipse rx="650" ry="345" stroke-width="3" opacity=".54"><animateTransform attributeName="transform" type="rotate" values="-45;315" dur="56s" repeatCount="indefinite"/></ellipse>
+      <ellipse rx="840" ry="445" stroke-width="2.5" opacity=".44"><animateTransform attributeName="transform" type="rotate" values="62;422" dur="64s" repeatCount="indefinite"/></ellipse>
+    </g>
+  </g>
+
+  <g opacity=".5" filter="url(#megaGlow)">
+    <circle cx="250" cy="160" r="110" fill="#00fff0"><animate attributeName="fill" values="#00fff0;#ff00f7;#00a2ff;#00fff0" dur="12s" repeatCount="indefinite"/><animate attributeName="cx" values="250;360;250" dur="19s" repeatCount="indefinite"/></circle>
+    <circle cx="1650" cy="830" r="150" fill="#ff00f7"><animate attributeName="fill" values="#ff00f7;#ffe600;#52ff00;#ff00f7" dur="14s" repeatCount="indefinite"/><animate attributeName="cy" values="830;700;830" dur="21s" repeatCount="indefinite"/></circle>
+  </g>
+</svg>

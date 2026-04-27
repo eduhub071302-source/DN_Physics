@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Animated smooth neon silk vortex background">
+  <defs>
+    <filter id="blurGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="10" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <linearGradient id="dark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#090018"><animate attributeName="stop-color" values="#090018;#00142f;#17002d;#001f1c;#090018" dur="26s" repeatCount="indefinite"/></stop>
+      <stop offset="1" stop-color="#000"><animate attributeName="stop-color" values="#000;#030010;#001018;#100007;#000" dur="29s" repeatCount="indefinite"/></stop>
+    </linearGradient>
+    <linearGradient id="silk" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#00f7ff"><animate attributeName="stop-color" values="#00f7ff;#ff00c8;#fff000;#00f7ff" dur="15s" repeatCount="indefinite"/></stop>
+      <stop offset="30%" stop-color="#8a2cff"><animate attributeName="stop-color" values="#8a2cff;#00ff9d;#ff4a00;#8a2cff" dur="18s" repeatCount="indefinite"/></stop>
+      <stop offset="65%" stop-color="#00ff9d"><animate attributeName="stop-color" values="#00ff9d;#ffe600;#4d7cff;#00ff9d" dur="21s" repeatCount="indefinite"/></stop>
+      <stop offset="100%" stop-color="#ff007a"><animate attributeName="stop-color" values="#ff007a;#00d5ff;#baff00;#ff007a" dur="24s" repeatCount="indefinite"/></stop>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#dark)"/>
+  <g transform="translate(800 450)" filter="url(#blurGlow)" opacity=".86">
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="0;360" dur="90s" repeatCount="indefinite"/>
+      <path d="M-690 0 C-430-330,-150-300,0-50 C150 200,470 260,700 20" fill="none" stroke="url(#silk)" stroke-width="26" stroke-linecap="round" opacity=".95">
+        <animate attributeName="d" values="M-690 0 C-430-330,-150-300,0-50 C150 200,470 260,700 20;M-690 50 C-390 310,-100 220,60 10 C210-210,490-270,700-40;M-690 0 C-430-330,-150-300,0-50 C150 200,470 260,700 20" dur="25s" repeatCount="indefinite"/>
+      </path>
+      <path d="M-620 -120 C-390 40,-180 300,40 120 C260-60,390-300,620-110" fill="none" stroke="url(#silk)" stroke-width="18" stroke-linecap="round" opacity=".72">
+        <animate attributeName="d" values="M-620 -120 C-390 40,-180 300,40 120 C260-60,390-300,620-110;M-620 110 C-360-160,-160-290,70-80 C300 140,420 300,620 90;M-620 -120 C-390 40,-180 300,40 120 C260-60,390-300,620-110" dur="31s" repeatCount="indefinite"/>
+      </path>
+      <path d="M-520 190 C-250-20,-130-250,120-170 C360-90,430 150,560 230" fill="none" stroke="url(#silk)" stroke-width="12" stroke-linecap="round" opacity=".58">
+        <animate attributeName="d" values="M-520 190 C-250-20,-130-250,120-170 C360-90,430 150,560 230;M-560-210 C-280-60,-100 240,150 170 C380 100,450-130,570-220;M-520 190 C-250-20,-130-250,120-170 C360-90,430 150,560 230" dur="35s" repeatCount="indefinite"/>
+      </path>
+    </g>
+  </g>
+</svg>

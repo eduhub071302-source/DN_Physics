@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Ultra smooth animated organic chemistry synthesis board background">
+  <defs>
+    <linearGradient id="chalkBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101914"/><stop offset=".48" stop-color="#17352d"/><stop offset="1" stop-color="#06100d"/>
+      <animate attributeName="x1" values="0;.12;0" dur="30s" repeatCount="indefinite"/>
+      <animate attributeName="y2" values="1;.82;1" dur="34s" repeatCount="indefinite"/>
+    </linearGradient>
+    <filter id="softChalk"><feGaussianBlur stdDeviation=".55"/></filter>
+    <filter id="greenGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <pattern id="chalkDust" width="160" height="160" patternUnits="userSpaceOnUse">
+      <circle cx="18" cy="35" r="1" fill="#d8ffee" opacity=".08"/><circle cx="82" cy="14" r="1.2" fill="#d8ffee" opacity=".05"/><circle cx="135" cy="96" r="1" fill="#d8ffee" opacity=".07"/><circle cx="48" cy="128" r=".9" fill="#d8ffee" opacity=".06"/>
+    </pattern>
+    <style>
+      .chalk{fill:none;stroke:#d8ffee;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;opacity:.76;filter:url(#greenGlow);stroke-dasharray:900;stroke-dashoffset:900;animation: draw 18s ease-in-out infinite}
+      .chalk2{fill:none;stroke:#75ffd6;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:.62;stroke-dasharray:14 18;animation: dash 16s linear infinite}
+      .txt{font-family:'Times New Roman',serif;font-size:32px;fill:#e8fff7;opacity:.78;filter:url(#greenGlow);animation:breathe 7s ease-in-out infinite}
+      .small{font-family:ui-monospace,Menlo,monospace;font-size:17px;fill:#a4ffdf;opacity:.62}
+      .float1{animation:float1 20s ease-in-out infinite}.float2{animation:float2 24s ease-in-out infinite}.float3{animation:float3 28s ease-in-out infinite}.swing{transform-box:fill-box;transform-origin:center;animation:swing 12s ease-in-out infinite}
+      @keyframes draw{0%{stroke-dashoffset:900;opacity:.3}35%,70%{stroke-dashoffset:0;opacity:.85}100%{stroke-dashoffset:-900;opacity:.3}}
+      @keyframes dash{to{stroke-dashoffset:-280}}
+      @keyframes breathe{0%,100%{opacity:.55}50%{opacity:.95}}
+      @keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(22px,-18px)}}
+      @keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(-28px,20px)}}
+      @keyframes float3{0%,100%{transform:translate(0,0)}50%{transform:translate(18px,28px)}}
+      @keyframes swing{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+      @media(max-width:700px){.txt{font-size:24px}.small{font-size:13px}.chalk{stroke-width:3}}
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="url(#chalkBg)"/>
+  <rect width="1600" height="900" fill="url(#chalkDust)"><animateTransform attributeName="transform" type="translate" values="0 0;160 80;0 0" dur="40s" repeatCount="indefinite"/></rect>
+  <g opacity=".13" stroke="#d8ffee" stroke-width="1">
+    <path d="M0 140H1600M0 280H1600M0 420H1600M0 560H1600M0 700H1600"/><path d="M160 0V900M320 0V900M480 0V900M640 0V900M800 0V900M960 0V900M1120 0V900M1280 0V900M1440 0V900"/>
+  </g>
+  <g class="float1 swing">
+    <path class="chalk" d="M212 286 l88 -51 88 51 v102 l-88 51 -88 -51 z M388 286 l88 -51 88 51 v102 l-88 51 -88 -51"/>
+    <path class="chalk2" d="M300 235 v-74 M476 235 v-74 M564 388 l76 44"/>
+    <text class="txt" x="230" y="530">C₆H₆ + Br₂ → C₆H₅Br + HBr</text>
+    <text class="small" x="245" y="165">FeBr₃ catalyst</text>
+  </g>
+  <g class="float2">
+    <path class="chalk" d="M980 212 l72 -42 72 42 v84 l-72 42 -72 -42 z M1124 296 l94 54 M1218 350 l92 -54 M1310 296 v-90"/>
+    <path class="chalk2" d="M1052 170 l0 -65 M980 296 l-76 44 M1310 206 l70 -38"/>
+    <text class="txt" x="912" y="486">CH₃COOH ⇌ CH₃COO⁻ + H⁺</text>
+    <text class="small" x="1040" y="545">Kₐ = [H⁺][A⁻]/[HA]</text>
+  </g>
+  <g class="float3">
+    <path class="chalk" d="M590 706 C682 616 796 790 898 680 S1110 640 1200 720"/>
+    <path class="chalk2" d="M560 725 H1235 M650 625 V790 M800 625 V790 M950 625 V790 M1100 625 V790"/>
+    <text class="txt" x="610" y="626">k = A e^(−Eₐ/RT)</text>
+    <text class="small" x="1015" y="758">Arrhenius curve</text>
+  </g>
+  <g filter="url(#greenGlow)" opacity=".8">
+    <text class="txt" x="90" y="92">Nernst: E = E° − RT/nF ln Q</text>
+    <text class="txt" x="1040" y="92">Beer–Lambert: A = εlc</text>
+  </g>
+  <g opacity=".65">
+    <circle cx="140" cy="750" r="5" fill="#d8ffee"><animate attributeName="cy" values="750;690;750" dur="9s" repeatCount="indefinite"/></circle>
+    <circle cx="1480" cy="250" r="4" fill="#75ffd6"><animate attributeName="cy" values="250;310;250" dur="8s" repeatCount="indefinite"/></circle>
+    <circle cx="780" cy="120" r="3.5" fill="#d8ffee"><animate attributeName="cx" values="780;850;780" dur="10s" repeatCount="indefinite"/></circle>
+  </g>
+</svg>
