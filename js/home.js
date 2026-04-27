@@ -669,7 +669,17 @@ function setupCustomizeApp() {
     const activeWallpaper = getScopeTheme(currentScope).wallpaper || "";
     wallpaperGrid.innerHTML = "";
 
-    window.DN_THEME_WALLPAPERS.forEach((wallpaper) => {
+    const visibleWallpapers = window.DN_THEME_WALLPAPERS.filter((wallpaper) => {
+      if (!wallpaper.premium) return true;
+
+      if (typeof window.dnStoreIsWallpaperActive !== "function") {
+        return false;
+      }
+
+      return window.dnStoreIsWallpaperActive(wallpaper.id);
+    });
+
+    visibleWallpapers.forEach((wallpaper) => {
       const tile = document.createElement("button");
       tile.type = "button";
       tile.className = "wallpaper-tile";
