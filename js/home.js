@@ -807,6 +807,35 @@ function setupCustomizeApp() {
   window.dnThemeApplyToCurrentPage();
 }
 
+function showPaymentSuccessPopup() {
+  let type = "";
+  let tokens = "";
+  let days = "";
+
+  try {
+    type = localStorage.getItem("dn_payment_success_type") || "";
+    tokens = localStorage.getItem("dn_payment_success_tokens") || "";
+    days = localStorage.getItem("dn_payment_success_days") || "";
+
+    localStorage.removeItem("dn_payment_success_type");
+    localStorage.removeItem("dn_payment_success_tokens");
+    localStorage.removeItem("dn_payment_success_days");
+  } catch {
+    return;
+  }
+
+  if (!type) return;
+
+  if (type === "dn_tokens") {
+    showToast(`🪙 Success! You got ${tokens || "DN"} Tokens.`);
+    return;
+  }
+
+  if (type === "pro") {
+    showToast(`✨ DN Physics Pro activated. Notes and MCQs unlocked for ${days || "30"} days.`);
+  }
+}
+
 async function initPage() {
   applyPerformanceMode();
 
@@ -823,6 +852,7 @@ async function initPage() {
   await initProfileState();
   renderDashboard();
   await checkCatalogVersion();
+  showPaymentSuccessPopup();  
 
   setupSettingsModal();
   setupCustomizeApp();
