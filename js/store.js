@@ -38,10 +38,11 @@ async function getFirebaseToken() {
   const user = requireLogin();
   if (!user) return "";
 
-  const sdk = window.firebaseSdk;
-  if (!sdk?.getIdToken) return "";
+  if (typeof user.getIdToken === "function") {
+    return user.getIdToken(true);
+  }
 
-  return sdk.getIdToken(user, true);
+  return "";
 }
 
 function getSdkReady() {
@@ -219,7 +220,7 @@ async function buyPremiumWallpaper(wallpaperId) {
 
   const idToken = await getFirebaseToken();
   if (!idToken) {
-    showStoreMessage("Login token missing. Please log in again.");
+    showStoreMessage("Login token missing. Please refresh and log in again.");
     return;
   }
 
