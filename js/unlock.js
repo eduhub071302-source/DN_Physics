@@ -430,6 +430,8 @@ async function checkServerUnlockStatus(orderId = "") {
       paid: Boolean(data.paid),
       orderId: data.order_id || finalOrderId,
       expiresAt: Number(data.expiresAt) || 0,
+      productType: data.productType || "",
+      tokens: Number(data.tokens || 0),
     };
   } catch {
     return { ok: false, paid: false };
