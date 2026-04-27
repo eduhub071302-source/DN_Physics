@@ -331,13 +331,12 @@
       <div class="auth-box store-modal-box">
         <div class="customize-modal-top">
           <h2>DN Store</h2>
-          <p>Buy DN Tokens and unlock premium wallpapers for 30 days.</p>
+          <p>Buy premium wallpapers using DN Tokens.</p>
           <p id="dnTokenBalanceText" class="customize-help-text">DN Tokens: Loading...</p>
-        </div>
 
-        <div class="customize-section">
-          <p class="settings-title">Buy DN Tokens</p>
-          <div id="tokenPackageGrid" class="token-package-grid"></div>
+          <button id="openTopUpBtn" class="btn btn-primary" type="button">
+            🪙 Top Up
+          </button>
         </div>
 
         <div class="customize-section">
@@ -348,6 +347,24 @@
         <div class="customize-actions">
           <button id="refreshStoreBtn" class="btn" type="button">Refresh</button>
           <button id="closeStoreBtn" class="btn" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DN TOKEN TOP UP MODAL -->
+    <div id="topUpModal" class="auth-modal hidden" aria-hidden="true">
+      <div class="auth-box store-topup-box">
+        <div class="customize-modal-top">
+          <h2>Top Up DN Tokens</h2>
+          <p>Choose a package and continue with PayHere checkout.</p>
+        </div>
+
+        <div class="customize-section">
+          <div id="tokenPackageGrid" class="token-package-grid"></div>
+        </div>
+
+        <div class="customize-actions">
+          <button id="closeTopUpBtn" class="btn" type="button">Close</button>
         </div>
       </div>
     </div>
