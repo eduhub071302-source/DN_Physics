@@ -203,7 +203,18 @@ async function startTokenCheckout(packageId) {
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok || !data.ok) {
-      showStoreMessage(data.message || "Could not start token checkout.");
+
+      if (data.message && data.message.includes("Not enough")) {
+
+        showStoreMessage("❌ Not enough DN Tokens. Please top up!");
+
+        // open top-up modal automatically
+        setTopUpOpen(true);
+
+      } else {
+        showStoreMessage(data.message || "Could not buy wallpaper.");
+      }
+
       return;
     }
 
@@ -282,7 +293,7 @@ async function buyPremiumWallpaper(wallpaperId) {
     return;
   }
 
-  showStoreMessage("Premium wallpaper unlocked for 30 days.");
+  showStoreMessage("🎉 Wallpaper unlocked! 30 days access.");
   await loadStoreState();
 }
 
@@ -380,7 +391,7 @@ function renderPremiumWallpapers() {
 function renderStore() {
   const balanceText = getEl("dnTokenBalanceText");
   if (balanceText) {
-    balanceText.textContent = `DN Tokens: ${STORE_STATE.tokens}`;
+    balanceText.innerHTML = `🪙 ${STORE_STATE.tokens}`;
   }
 
   renderTokenPackages();
