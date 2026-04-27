@@ -333,6 +333,26 @@
             const result = await checkServerUnlockStatus(orderId);
 
             if (result && result.ok && result.paid) {
+              if (result.productType === "dn_tokens") {
+                setState(
+                  "pay-success",
+                  "✓",
+                  "DN Tokens added",
+                  `${result.tokens || 0} DN Tokens were added to your account. Redirecting you home...`,
+                  `Order ID: ${result.orderId || orderId}`
+                );
+
+                if (typeof clearPendingOrderId === "function") {
+                  clearPendingOrderId();
+                }
+
+                setTimeout(() => {
+                  window.location.href = "/index.html";
+                }, 1500);
+
+                return;
+              }
+
               applyServerUnlock(
                 result.orderId || orderId,
                 Number(result.expiresAt) || 0
