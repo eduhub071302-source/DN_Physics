@@ -124,6 +124,26 @@ function setStoreOpen(open) {
   }
 }
 
+function setTopUpOpen(open) {
+  const modal = getEl("topUpModal");
+  if (!modal) return;
+
+  if (open) {
+    modal.classList.remove("hidden");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    renderTokenPackages();
+  } else {
+    modal.classList.add("hidden");
+    modal.setAttribute("aria-hidden", "true");
+
+    const storeModal = getEl("storeModal");
+    if (!storeModal || storeModal.classList.contains("hidden")) {
+      document.body.style.overflow = "";
+    }
+  }
+}
+
 async function startTokenCheckout(packageId) {
   const user = requireLogin();
   if (!user) return;
@@ -323,6 +343,15 @@ function bindStore() {
   getEl("openStoreBtn")?.addEventListener("click", () => setStoreOpen(true));
   getEl("closeStoreBtn")?.addEventListener("click", () => setStoreOpen(false));
   getEl("refreshStoreBtn")?.addEventListener("click", loadStoreState);
+
+  getEl("openTopUpBtn")?.addEventListener("click", () => setTopUpOpen(true));
+  getEl("closeTopUpBtn")?.addEventListener("click", () => setTopUpOpen(false));
+
+  getEl("topUpModal")?.addEventListener("click", (event) => {
+    if (event.target?.id === "topUpModal") {
+      setTopUpOpen(false);
+    }
+  });
 
   getEl("storeModal")?.addEventListener("click", (event) => {
     if (event.target?.id === "storeModal") {
