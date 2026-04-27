@@ -664,6 +664,7 @@ window.openUnlockModal = openUnlockModal;
 window.closeUnlockModal = closeUnlockModal;
 window.lockAlert = lockAlert;
 window.showDnMessage = showDnMessage;
+window.showCheckoutLoading = showCheckoutLoading;
 
 // ----------------------------
 // INIT
