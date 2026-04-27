@@ -159,59 +159,96 @@ async function startTokenCheckout(packageId) {
   const user = requireLogin();
   if (!user) return;
 
-  const idToken = await getFirebaseToken();
-  if (!idToken) {
-    showStoreMessage("Login token missing. Please log in again.");
-    return;
+  const packageBtn = document.querySelector(`[data-package-id="${packageId}"]`);
+  const oldText = packageBtn ? packageBtn.innerHTML : "";
+
+  if (packageBtn) {
+    packageBtn.disabled = true;
+    packageBtn.classList.add("is-loading");
+    packageBtn.innerHTML = `
+      <strong>Opening PayHere...</strong>
+      <span>Please wait</span>
+      <small>Securing checkout</small>
+    `;
   }
 
-  const profile = JSON.parse(localStorage.getItem("dn_profile") || "{}");
-
-  const res = await fetch(
-    window.DN_CONFIG.BACKEND.API_BASE_URL + window.DN_CONFIG.BACKEND.CREATE_TOKEN_ORDER_URL,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${idToken}`,
-      },
-      body: JSON.stringify({
-        packageId,
-        uid: user.uid,
-        email: user.email || profile.email || "",
-        first_name: profile.name || "DN",
-        last_name: "User",
-        phone: profile.phone || "0770000000",
-      }),
+  try {
+    const idToken = await getFirebaseToken();
+    if (!idToken) {
+      showStoreMessage("Login token missing. Please refresh and log in again.");
+      return;
     }
-  );
 
-  const data = await res.json().catch(() => ({}));
+    const profile = JSON.parse(localStorage.getItem("dn_profile") || "{}");
 
-  if (!res.ok || !data.ok) {
-    showStoreMessage(data.message || "Could not start token checkout.");
-    return;
+    const res = await fetch(
+      window.DN_CONFIG.BACKEND.API_BASE_URL + window.DN_CONFIG.BACKEND.CREATE_TOKEN_ORDER_URL,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({
+          packageId,
+          uid: user.uid,
+          email: user.email || profile.email || "",
+          first_name: profile.name || "DN",
+          last_name: "User",
+          phone: profile.phone || "0770000000",
+        }),
+      }
+    );
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok || !data.ok) {
+      showStoreMessage(data.message || "Could not start token checkout.");
+      return;
+    }
+
+    const orderId = data.fields?.order_id || "";
+    const selectedPack = getTokenPackages().find((pack) => pack.id === packageId);
+
+    if (typeof window.setPendingOrderId === "function") {
+      window.setPendingOrderId(orderId);
+    }
+
+    try {
+      localStorage.setItem("dn_pending_payment_type", "dn_tokens");
+      localStorage.setItem("dn_pending_token_package_id", packageId);
+      localStorage.setItem("dn_pending_token_amount", String(selectedPack?.tokens || 0));
+    } catch {}
+
+    if (typeof window.showCheckoutLoading === "function") {
+      window.showCheckoutLoading();
+    }
+
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = data.checkout_url;
+    form.style.display = "none";
+
+    Object.entries(data.fields || {}).forEach(([key, value]) => {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = key;
+      input.value = String(value ?? "");
+      form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+  } catch (error) {
+    console.error("Token checkout error:", error);
+    showStoreMessage("Could not open PayHere. Please try again.");
+  } finally {
+    if (packageBtn) {
+      packageBtn.disabled = false;
+      packageBtn.classList.remove("is-loading");
+      packageBtn.innerHTML = oldText;
+    }
   }
-
-  if (typeof window.setPendingOrderId === "function") {
-    window.setPendingOrderId(data.fields?.order_id || "");
-  }
-
-  const form = document.createElement("form");
-  form.method = "POST";
-  form.action = data.checkout_url;
-  form.style.display = "none";
-
-  Object.entries(data.fields || {}).forEach(([key, value]) => {
-    const input = document.createElement("input");
-    input.type = "hidden";
-    input.name = key;
-    input.value = String(value ?? "");
-    form.appendChild(input);
-  });
-
-  document.body.appendChild(form);
-  form.submit();
 }
 
 async function buyPremiumWallpaper(wallpaperId) {
