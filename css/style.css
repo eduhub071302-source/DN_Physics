@@ -4717,3 +4717,15 @@ body[class*="wallpaper-pattern-"] .loading-box {
     font-size: 18px;
   }
 }
+
+.store-topup-box {
+  max-width: 720px;
+  width: min(94vw, 720px);
+  max-height: 88vh;
+  overflow-y: auto;
+}
+
+#openTopUpBtn {
+  margin-top: 14px;
+  min-width: 180px;
+}
