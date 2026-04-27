@@ -4740,3 +4740,25 @@ body[class*="wallpaper-pattern-"] .loading-box {
 .token-package-card.is-loading {
   border-color: rgba(255, 213, 74, 0.48);
 }
+
+/* =========================
+   DN TOKEN DISPLAY
+========================= */
+
+.dn-token-display {
+  font-size: 1.8rem;
+  font-weight: 900;
+  text-align: center;
+  padding: 10px 16px;
+  border-radius: 14px;
+
+  background: linear-gradient(135deg, #ffd54a, #ffb300);
+  color: #04101f;
+
+  box-shadow:
+    0 10px 30px rgba(255, 213, 74, 0.35),
+    inset 0 2px 6px rgba(255,255,255,0.4);
+
+  letter-spacing: 1px;
+  margin-top: 8px;
+}
