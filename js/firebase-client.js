@@ -8,6 +8,7 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   signOut,
+  getIdToken,
 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
 import {
   getDatabase,
@@ -42,6 +43,7 @@ window.firebaseSdk = {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   signOut,
+  getIdToken,  
   ref,
   get,
   set,
