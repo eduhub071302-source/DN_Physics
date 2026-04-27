@@ -326,6 +326,32 @@
       </div>
     </div>
 
+    <!-- DN STORE MODAL -->
+    <div id="storeModal" class="auth-modal hidden" aria-hidden="true">
+      <div class="auth-box store-modal-box">
+        <div class="customize-modal-top">
+          <h2>DN Store</h2>
+          <p>Buy DN Tokens and unlock premium wallpapers for 30 days.</p>
+          <p id="dnTokenBalanceText" class="customize-help-text">DN Tokens: Loading...</p>
+        </div>
+
+        <div class="customize-section">
+          <p class="settings-title">Buy DN Tokens</p>
+          <div id="tokenPackageGrid" class="token-package-grid"></div>
+        </div>
+
+        <div class="customize-section">
+          <p class="settings-title">Premium Wallpapers</p>
+          <div id="premiumWallpaperGrid" class="premium-wallpaper-grid"></div>
+        </div>
+
+        <div class="customize-actions">
+          <button id="refreshStoreBtn" class="btn" type="button">Refresh</button>
+          <button id="closeStoreBtn" class="btn" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+
     <!-- HEADER -->
     <header class="site-header">
       <div class="container nav">
@@ -353,6 +379,10 @@
               alt="Profile avatar"
             />
           </div>
+
+          <button id="openStoreBtn" class="btn store-top-btn" type="button">
+            🪙 Store
+          </button>
 
           <button id="loginBtn" class="btn" type="button">👤 Profile</button>
 
@@ -942,5 +972,6 @@
     <script type="module" src="/js/auth.js?v=1.0.51"></script>
     <script src="/js/music-player.js?v=1.0.51"></script>
     <script type="module" src="/js/home.js?v=1.0.51"></script>
+    <script type="module" src="/js/store.js"></script>
   </body>
 </html>
