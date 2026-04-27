@@ -371,6 +371,28 @@
       </div>
     </div>
 
+    <!-- TOKEN PURCHASE SUCCESS CARD -->
+    <div id="tokenPurchaseModal" class="auth-modal hidden" aria-hidden="true">
+      <div class="auth-box token-purchase-card">
+        <div class="token-purchase-orb">🎉</div>
+        <div class="token-purchase-badge">Premium Unlocked</div>
+
+        <h2 id="tokenPurchaseTitle">Item unlocked</h2>
+        <p id="tokenPurchaseText">Your premium item is ready.</p>
+
+        <div id="tokenPurchasePreview" class="token-purchase-preview"></div>
+
+        <div class="token-purchase-info">
+          <strong>Where can I use this?</strong>
+          <span id="tokenPurchaseUseText">Customize App → Wallpapers</span>
+        </div>
+
+        <button id="closeTokenPurchaseBtn" class="btn btn-primary" type="button">
+          Awesome
+        </button>
+      </div>
+    </div>
+
     <!-- HEADER -->
     <header class="site-header">
       <div class="container nav">
@@ -401,6 +423,10 @@
 
           <button id="openStoreBtn" class="btn store-top-btn" type="button">
             🪙 Store
+          </button>
+
+          <button id="topTokenBalanceBtn" class="top-token-balance" type="button" title="DN Tokens">
+            🪙 <span id="topTokenBalanceText">0</span>
           </button>
 
           <button id="loginBtn" class="btn" type="button">👤 Profile</button>
