@@ -151,13 +151,26 @@
       if (retryBtn) {
         retryBtn.addEventListener("click", async () => {
           try {
+            retryBtn.disabled = true;
+            retryBtn.textContent = "Starting...";
+
+            let pendingType = "";
+            let pendingPackageId = "";
+
+            try {
+              pendingType = localStorage.getItem("dn_pending_payment_type") || "";
+              pendingPackageId = localStorage.getItem("dn_pending_token_package_id") || "";
+            } catch {}
+
+            if (pendingType === "dn_tokens") {
+              window.location.href = "/index.html";
+              return;
+            }
+
             if (typeof startFullUnlockCheckout !== "function") {
               alert("Payment system is not ready yet. Please return home and try again.");
               return;
             }
-
-            retryBtn.disabled = true;
-            retryBtn.textContent = "Starting...";
 
             await startFullUnlockCheckout();
           } catch (e) {
