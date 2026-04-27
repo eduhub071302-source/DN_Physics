@@ -57,7 +57,48 @@ const DN_THEME_WALLPAPERS = [
   { id: "pattern-27", type: "image", src: "/assets/wallpapers/pattern-27.svg" },
   { id: "pattern-28", type: "image", src: "/assets/wallpapers/pattern-28.svg" },
   { id: "pattern-29", type: "image", src: "/assets/wallpapers/pattern-29.svg" },
-  { id: "pattern-30", type: "image", src: "/assets/wallpapers/pattern-30.svg" }
+  { id: "pattern-30", type: "image", src: "/assets/wallpapers/pattern-30.svg" },
+
+  { id: "premium-physics-1", type: "image", premium: true, pack: "Pack 1", price: 25, src: "/assets/wallpapers/premium/pack-1/physics_1.svg" },
+  { id: "premium-physics-2", type: "image", premium: true, pack: "Pack 1", price: 25, src: "/assets/wallpapers/premium/pack-1/physics_2.svg" },
+  { id: "premium-physics-3", type: "image", premium: true, pack: "Pack 1", price: 25, src: "/assets/wallpapers/premium/pack-1/physics_3.svg" },
+
+  { id: "premium-math-1", type: "image", premium: true, pack: "Pack 2", price: 25, src: "/assets/wallpapers/premium/pack-2/math_1.svg" },
+  { id: "premium-math-2", type: "image", premium: true, pack: "Pack 2", price: 25, src: "/assets/wallpapers/premium/pack-2/math_2.svg" },
+  { id: "premium-math-3", type: "image", premium: true, pack: "Pack 2", price: 25, src: "/assets/wallpapers/premium/pack-2/math_3.svg" },
+  { id: "premium-math-4", type: "image", premium: true, pack: "Pack 2", price: 25, src: "/assets/wallpapers/premium/pack-2/math_4.svg" },
+  { id: "premium-math-5", type: "image", premium: true, pack: "Pack 2", price: 25, src: "/assets/wallpapers/premium/pack-2/math_5.svg" },
+  { id: "premium-math-6", type: "image", premium: true, pack: "Pack 2", price: 25, src: "/assets/wallpapers/premium/pack-2/math_6.svg" },
+  { id: "premium-math-7", type: "image", premium: true, pack: "Pack 2", price: 25, src: "/assets/wallpapers/premium/pack-2/math_7.svg" },
+  { id: "premium-math-8", type: "image", premium: true, pack: "Pack 2", price: 25, src: "/assets/wallpapers/premium/pack-2/math_8.svg" },
+  { id: "premium-math-9", type: "image", premium: true, pack: "Pack 2", price: 25, src: "/assets/wallpapers/premium/pack-2/math_9.svg" },
+  { id: "premium-math-10", type: "image", premium: true, pack: "Pack 2", price: 25, src: "/assets/wallpapers/premium/pack-2/math_10.svg" },
+  { id: "premium-math-11", type: "image", premium: true, pack: "Pack 2", price: 25, src: "/assets/wallpapers/premium/pack-2/math_11.svg" },
+
+  { id: "premium-chemistry-1", type: "image", premium: true, pack: "Pack 3", price: 25, src: "/assets/wallpapers/premium/pack-3/chemistry_1.svg" },
+  { id: "premium-chemistry-2", type: "image", premium: true, pack: "Pack 3", price: 25, src: "/assets/wallpapers/premium/pack-3/chemistry_2.svg" },
+  { id: "premium-chemistry-3", type: "image", premium: true, pack: "Pack 3", price: 25, src: "/assets/wallpapers/premium/pack-3/chemistry_3.svg" },
+  { id: "premium-chemistry-4", type: "image", premium: true, pack: "Pack 3", price: 25, src: "/assets/wallpapers/premium/pack-3/chemistry_4.svg" },
+  { id: "premium-chemistry-5", type: "image", premium: true, pack: "Pack 3", price: 25, src: "/assets/wallpapers/premium/pack-3/chemistry_5.svg" },
+  { id: "premium-chemistry-6", type: "image", premium: true, pack: "Pack 3", price: 25, src: "/assets/wallpapers/premium/pack-3/chemistry_6.svg" },
+  { id: "premium-chemistry-7", type: "image", premium: true, pack: "Pack 3", price: 25, src: "/assets/wallpapers/premium/pack-3/chemistry_7.svg" },
+  { id: "premium-chemistry-8", type: "image", premium: true, pack: "Pack 3", price: 25, src: "/assets/wallpapers/premium/pack-3/chemistry_8.svg" },
+  { id: "premium-chemistry-9", type: "image", premium: true, pack: "Pack 3", price: 25, src: "/assets/wallpapers/premium/pack-3/chemistry_9.svg" },
+  { id: "premium-chemistry-10", type: "image", premium: true, pack: "Pack 3", price: 25, src: "/assets/wallpapers/premium/pack-3/chemistry_10.svg" },
+
+  { id: "premium-neon-1", type: "image", premium: true, pack: "Pack 4", price: 25, src: "/assets/wallpapers/premium/pack-4/neon_1.svg" },
+  { id: "premium-neon-2", type: "image", premium: true, pack: "Pack 4", price: 25, src: "/assets/wallpapers/premium/pack-4/neon_2.svg" },
+  { id: "premium-neon-3", type: "image", premium: true, pack: "Pack 4", price: 25, src: "/assets/wallpapers/premium/pack-4/neon_3.svg" },
+  { id: "premium-neon-4", type: "image", premium: true, pack: "Pack 4", price: 25, src: "/assets/wallpapers/premium/pack-4/neon_4.svg" },
+  { id: "premium-neon-5", type: "image", premium: true, pack: "Pack 4", price: 25, src: "/assets/wallpapers/premium/pack-4/neon_5.svg" },
+  { id: "premium-neon-6", type: "image", premium: true, pack: "Pack 4", price: 25, src: "/assets/wallpapers/premium/pack-4/neon_6.svg" },
+  { id: "premium-neon-7", type: "image", premium: true, pack: "Pack 4", price: 25, src: "/assets/wallpapers/premium/pack-4/neon_7.svg" },
+  { id: "premium-neon-8", type: "image", premium: true, pack: "Pack 4", price: 25, src: "/assets/wallpapers/premium/pack-4/neon_8.svg" },
+  { id: "premium-neon-9", type: "image", premium: true, pack: "Pack 4", price: 25, src: "/assets/wallpapers/premium/pack-4/neon_9.svg" },
+  { id: "premium-neon-10", type: "image", premium: true, pack: "Pack 4", price: 25, src: "/assets/wallpapers/premium/pack-4/neon_10.svg" },
+  { id: "premium-neon-11", type: "image", premium: true, pack: "Pack 4", price: 25, src: "/assets/wallpapers/premium/pack-4/neon_11.svg" },
+  { id: "premium-neon-12", type: "image", premium: true, pack: "Pack 4", price: 25, src: "/assets/wallpapers/premium/pack-4/neon_12.svg" },
+  { id: "premium-neon-13", type: "image", premium: true, pack: "Pack 4", price: 25, src: "/assets/wallpapers/premium/pack-4/neon_13.svg" }
 ];
 
 function dnThemeClone(value) {
@@ -233,6 +274,20 @@ function dnThemeClearAccentClasses() {
   );
 }
 
+function dnThemeGetPremiumCacheKey() {
+  return `dn_premium_wallpapers_${dnThemeGetCurrentUserId()}`;
+}
+
+function dnThemeIsPremiumWallpaperActive(wallpaperId) {
+  try {
+    const cache = JSON.parse(localStorage.getItem(dnThemeGetPremiumCacheKey()) || "{}");
+    const item = cache?.[wallpaperId];
+    return Boolean(item && Number(item.expiresAt || 0) > Date.now());
+  } catch {
+    return false;
+  }
+}
+
 function dnThemeApplyToCurrentPage() {
   const settings = dnThemeLoadSettings();
   const scope = dnThemeGetPageScope();
@@ -252,6 +307,9 @@ function dnThemeApplyToCurrentPage() {
   if (theme.wallpaper) {
     const wallpaperMeta = DN_THEME_WALLPAPERS.find((item) => item.id === theme.wallpaper);
 
+    if (wallpaperMeta?.premium && !dnThemeIsPremiumWallpaperActive(theme.wallpaper)) {
+      return;
+    }
     if (wallpaperMeta?.type === "image" && wallpaperMeta.src) {
       body.classList.add(`wallpaper-${theme.wallpaper}`);
       body.style.backgroundImage = `
@@ -329,5 +387,7 @@ window.dnThemeGetPageScope = dnThemeGetPageScope;
 window.dnThemeGetEffectiveTheme = dnThemeGetEffectiveTheme;
 window.dnThemeApplyToCurrentPage = dnThemeApplyToCurrentPage;
 window.dnThemeBuildWallpaperPreview = dnThemeBuildWallpaperPreview;
+window.dnThemeIsPremiumWallpaperActive = dnThemeIsPremiumWallpaperActive;
+window.dnThemeGetPremiumCacheKey = dnThemeGetPremiumCacheKey;
 
 dnThemeBootWatcher();
