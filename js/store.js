@@ -160,6 +160,31 @@ function getSdkReady() {
   );
 }
 
+function syncPremiumWallpapersToThemeCache() {
+  const user = getCurrentUser();
+  if (!user) return;
+
+  try {
+    const activePremium = {};
+    const now = Date.now();
+
+    Object.entries(STORE_STATE.premium || {}).forEach(([wallpaperId, item]) => {
+      const expiresAt = Number(item?.expiresAt || 0);
+
+      if (expiresAt > now) {
+        activePremium[wallpaperId] = item;
+      }
+    });
+
+    localStorage.setItem(
+      `dn_premium_wallpapers_${user.uid}`,
+      JSON.stringify(activePremium)
+    );
+  } catch (error) {
+    console.warn("Premium wallpaper theme cache sync failed:", error);
+  }
+}
+
 function getWallpaperPrice() {
   return Number(window.DN_CONFIG?.STORE?.WALLPAPER_PRICE || 25);
 }
@@ -190,6 +215,11 @@ async function loadStoreState() {
   if (!user || !getSdkReady()) {
     STORE_STATE.tokens = 0;
     STORE_STATE.premium = {};
+
+    try {
+      localStorage.removeItem("dn_premium_wallpapers_guest");
+    } catch {}
+
     renderStore();
     return;
   }
@@ -204,6 +234,12 @@ async function loadStoreState() {
 
   STORE_STATE.tokens = Number(tokenSnap.exists() ? tokenSnap.val()?.balance || 0 : 0);
   STORE_STATE.premium = premiumSnap.exists() ? premiumSnap.val() || {} : {};
+
+  syncPremiumWallpapersToThemeCache();
+
+  if (typeof window.dnThemeApplyToCurrentPage === "function") {
+    window.dnThemeApplyToCurrentPage();
+  }
 
   renderStore();
 }
