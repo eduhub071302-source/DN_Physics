@@ -132,7 +132,17 @@ function setTopUpOpen(open) {
     modal.classList.remove("hidden");
     modal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
+
     renderTokenPackages();
+
+    const grid = getEl("tokenPackageGrid");
+    if (grid && !grid.innerHTML.trim()) {
+      grid.innerHTML = `
+        <div class="empty-state">
+          Token packages could not load. Please refresh the app.
+        </div>
+      `;
+    }
   } else {
     modal.classList.add("hidden");
     modal.setAttribute("aria-hidden", "true");
