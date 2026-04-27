@@ -334,11 +334,21 @@
 
             if (result && result.ok && result.paid) {
               if (result.productType === "dn_tokens") {
+                const tokenAmount = Number(result.tokens || 0);
+
+                try {
+                  localStorage.setItem("dn_payment_success_type", "dn_tokens");
+                  localStorage.setItem("dn_payment_success_tokens", String(tokenAmount));
+                  localStorage.removeItem("dn_pending_payment_type");
+                  localStorage.removeItem("dn_pending_token_package_id");
+                  localStorage.removeItem("dn_pending_token_amount");
+                } catch {}
+
                 setState(
                   "pay-success",
                   "✓",
                   "DN Tokens added",
-                  `${result.tokens || 0} DN Tokens were added to your account. Redirecting you home...`,
+                  `${tokenAmount} DN Tokens were added to your account. Redirecting you home...`,
                   `Order ID: ${result.orderId || orderId}`
                 );
 
@@ -357,6 +367,11 @@
                 result.orderId || orderId,
                 Number(result.expiresAt) || 0
               );
+
+              try {
+                localStorage.setItem("dn_payment_success_type", "pro");
+                localStorage.setItem("dn_payment_success_days", "30");
+              } catch {}
 
               setState(
                 "pay-success",
