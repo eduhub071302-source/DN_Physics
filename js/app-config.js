@@ -26,48 +26,19 @@ const DN_CONFIG = {
   },
 
   STORE: {
-    TOKEN_PRODUCT_TYPE: "dn_tokens",
-    PREMIUM_WALLPAPER_COST: 25,
-    PREMIUM_WALLPAPER_DAYS: 30,
+    TOKEN_PRODUCT_ID: "dn-tokens",
+    TOKEN_PRODUCT_NAME: "DN Tokens",
+    WALLPAPER_PRICE: 25,
+    WALLPAPER_VALID_DAYS: 30,
 
     TOKEN_PACKAGES: [
-      {
-        id: "dn-tokens-100",
-        name: "100 DN Tokens",
-        tokens: 100,
-        price: "70.00",
-        currency: "LKR",
-      },
-      {
-        id: "dn-tokens-200",
-        name: "200 DN Tokens",
-        tokens: 200,
-        price: "130.00",
-        currency: "LKR",
-      },
-      {
-        id: "dn-tokens-300",
-        name: "300 DN Tokens",
-        tokens: 300,
-        price: "190.00",
-        currency: "LKR",
-      },
-      {
-        id: "dn-tokens-400",
-        name: "400 DN Tokens",
-        tokens: 400,
-        price: "250.00",
-        currency: "LKR",
-      },
-      {
-        id: "dn-tokens-500",
-        name: "500 DN Tokens",
-        tokens: 500,
-        price: "300.00",
-        currency: "LKR",
-      },
+      { id: "dn_tokens_100", label: "100 DN Tokens", tokens: 100, price: "70.00", currency: "LKR" },
+      { id: "dn_tokens_200", label: "200 DN Tokens", tokens: 200, price: "130.00", currency: "LKR" },
+      { id: "dn_tokens_300", label: "300 DN Tokens", tokens: 300, price: "190.00", currency: "LKR" },
+      { id: "dn_tokens_400", label: "400 DN Tokens", tokens: 400, price: "250.00", currency: "LKR" },
+      { id: "dn_tokens_500", label: "500 DN Tokens", tokens: 500, price: "300.00", currency: "LKR" }
     ],
-  },  
+  },
 
   FRONTEND: {
     SITE_URL: "https://dnphysics.com.lk",
@@ -101,6 +72,7 @@ const DN_CONFIG = {
     PROFILE_ME_URL: "/api/profile/me",
     PROFILE_UPDATE_URL: "/api/profile/me",
 
+    CREATE_TOKEN_ORDER_URL: "/api/store/create-token-order",
     BUY_WALLPAPER_URL: "/api/store/buy-wallpaper",
   },
 
