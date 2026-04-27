@@ -2793,7 +2793,14 @@ body:not(.quiz-playing):not(.quiz-reviewing) .quiz-nav-card {
 
 @media (max-width: 900px) and (orientation: landscape) {
   body.quiz-game-mode .quiz-shell {
-    grid-template-rows: 42px minmax(0, 1fr) 64px !important;
+    grid-template-rows: 42px minmax(0, calc(100dvh - 124px)) 64px !important;
+    gap: 6px !important;
+    padding: 6px !important;
+  }
+
+  body.quiz-game-mode .quiz-main-card {
+    height: calc(100dvh - 124px) !important;
+    max-height: calc(100dvh - 124px) !important;
   }
 
   body.quiz-game-mode .quiz-status-pill {
