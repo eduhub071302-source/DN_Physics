@@ -4729,3 +4729,14 @@ body[class*="wallpaper-pattern-"] .loading-box {
   margin-top: 14px;
   min-width: 180px;
 }
+
+.token-package-card:disabled,
+.token-package-card.is-loading {
+  opacity: 0.72;
+  cursor: wait;
+  pointer-events: none;
+}
+
+.token-package-card.is-loading {
+  border-color: rgba(255, 213, 74, 0.48);
+}
