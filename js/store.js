@@ -218,7 +218,61 @@ function getGlassCardPacks() {
 function isGlassPackActive(packId) {
   const item = STORE_STATE.glass?.[packId];
   const expiresAt = Number(item?.expiresAt || 0);
-  return Boolean(expiresAt && expiresAt > Date.now());
+
+  if (expiresAt && expiresAt > Date.now()) {
+    return true;
+  }
+
+  const packLevel = getGlassPackLevel(packId);
+  return Boolean(packLevel && getHighestActiveGlassLevel() >= packLevel);
+}
+
+function getGlassPackLevel(packId) {
+  const pack = getGlassCardPacks().find((item) => item.id === packId);
+  return Number(pack?.level || 0);
+}
+
+function getGlassPackCost(packId) {
+  const pack = getGlassCardPacks().find((item) => item.id === packId);
+  return Number(pack?.cost || 0);
+}
+
+function getHighestActiveGlassLevel() {
+  let highest = 0;
+
+  Object.entries(STORE_STATE.glass || {}).forEach(([packId, item]) => {
+    const expiresAt = Number(item?.expiresAt || 0);
+    const level = Number(item?.level || getGlassPackLevel(packId));
+
+    if (expiresAt > Date.now() && level > highest) {
+      highest = level;
+    }
+  });
+
+  return highest;
+}
+
+function getHighestActiveGlassCost() {
+  let highestCost = 0;
+
+  getGlassCardPacks().forEach((pack) => {
+    if (Number(pack.level || 0) <= getHighestActiveGlassLevel()) {
+      highestCost = Math.max(highestCost, Number(pack.cost || 0));
+    }
+  });
+
+  return highestCost;
+}
+
+function getGlassPackEffectivePrice(packId) {
+  const packLevel = getGlassPackLevel(packId);
+  const packCost = getGlassPackCost(packId);
+  const highestLevel = getHighestActiveGlassLevel();
+  const highestCost = getHighestActiveGlassCost();
+
+  if (highestLevel >= packLevel) return 0;
+
+  return Math.max(0, packCost - highestCost);
 }
 
 function getWallpaperPrice() {
@@ -561,9 +615,17 @@ async function buyGlassCardPack(packId) {
       return;
     }
 
+    if (data.alreadyOwned) {
+      showStoreMessage("Already unlocked. Use it in Customize App → Glass Cards.");
+      await loadStoreState();
+      return;
+    }
+
+    const upgradeCost = Number(data.upgradeCost || pack?.cost || 0);
+
     showTokenPurchaseCard({
       title: "Glass card pack unlocked",
-      text: `${pack?.label || "Glass Cards"} is now yours for 30 days.`,
+      text: `${pack?.label || "Glass Cards"} is now yours for 30 days. Cost: ${upgradeCost} DN Tokens.`,
       previewUrl: "",
       useText: "Customize App → Glass Cards",
     });
@@ -683,6 +745,9 @@ function renderGlassCardStore() {
     .map((pack) => {
       const active = isGlassPackActive(pack.id);
       const expiresAt = Number(STORE_STATE.glass?.[pack.id]?.expiresAt || 0);
+      const effectivePrice = getGlassPackEffectivePrice(pack.id);
+      const originalCost = Number(pack.cost || 0);
+      const hasDiscount = !active && effectivePrice > 0 && effectivePrice < originalCost;
 
       return `
         <article class="glass-store-card glass-store-card-${pack.level}">
@@ -695,7 +760,15 @@ function renderGlassCardStore() {
           <div class="premium-wallpaper-info">
             <strong>${pack.label}</strong>
             <span>${pack.description}</span>
-            <small>${active ? `Active until ${formatDate(expiresAt)}` : `${pack.cost} DN Tokens / 30 days`}</small>
+            <small>
+              ${
+                active
+                  ? `Active until ${formatDate(expiresAt)}`
+                  : hasDiscount
+                    ? `<span class="price-old">${originalCost}</span> <span class="price-new">${effectivePrice} DN Tokens</span> / 30 days`
+                    : `${originalCost} DN Tokens / 30 days`
+              }
+            </small>
           </div>
 
           <button
@@ -801,6 +874,8 @@ function bindStore() {
 window.dnStoreIsWallpaperActive = isWallpaperActive;
 window.dnStoreIsGlassPackActive = isGlassPackActive;
 window.dnStoreGetGlassCardPacks = getGlassCardPacks;
+window.dnStoreGetHighestActiveGlassLevel = getHighestActiveGlassLevel;
+window.dnStoreGetGlassPackEffectivePrice = getGlassPackEffectivePrice;
 window.dnStoreLoadState = loadStoreState;
 window.openDnStore = () => setStoreOpen(true);
 
