@@ -5314,3 +5314,97 @@ body.dn-glass-pack-3 .btn:not(.btn-primary) {
     );
   border-color: rgba(255, 255, 255, 0.16);
 }
+
+/* =========================
+   DN GLASS FINAL PATCH
+========================= */
+
+.glass-slider-section {
+  display: none !important;
+}
+
+body.dn-glass-pack-1 .settings-section {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body.dn-glass-pack-1 .card,
+body.dn-glass-pack-1 .topic-card,
+body.dn-glass-pack-1 .note-box,
+body.dn-glass-pack-1 .pdf-shell,
+body.dn-glass-pack-1 .pdf-card,
+body.dn-glass-pack-1 .auth-box,
+body.dn-glass-pack-1 .subject-modal-box,
+body.dn-glass-pack-1 .profile-card,
+body.dn-glass-pack-1 .profile-editor-section,
+body.dn-glass-pack-1 .store-category-card,
+body.dn-glass-pack-1 .token-package-card,
+body.dn-glass-pack-1 .premium-wallpaper-card,
+body.dn-glass-pack-1 .glass-store-card,
+body.dn-glass-pack-1 .glass-customize-card,
+body.dn-glass-pack-2 .card,
+body.dn-glass-pack-2 .topic-card,
+body.dn-glass-pack-2 .note-box,
+body.dn-glass-pack-2 .pdf-shell,
+body.dn-glass-pack-2 .pdf-card,
+body.dn-glass-pack-2 .auth-box,
+body.dn-glass-pack-2 .subject-modal-box,
+body.dn-glass-pack-2 .profile-card,
+body.dn-glass-pack-2 .profile-editor-section,
+body.dn-glass-pack-2 .store-category-card,
+body.dn-glass-pack-2 .token-package-card,
+body.dn-glass-pack-2 .premium-wallpaper-card,
+body.dn-glass-pack-2 .glass-store-card,
+body.dn-glass-pack-2 .glass-customize-card,
+body.dn-glass-pack-3 .card,
+body.dn-glass-pack-3 .topic-card,
+body.dn-glass-pack-3 .note-box,
+body.dn-glass-pack-3 .pdf-shell,
+body.dn-glass-pack-3 .pdf-card,
+body.dn-glass-pack-3 .auth-box,
+body.dn-glass-pack-3 .subject-modal-box,
+body.dn-glass-pack-3 .profile-card,
+body.dn-glass-pack-3 .profile-editor-section,
+body.dn-glass-pack-3 .store-category-card,
+body.dn-glass-pack-3 .token-package-card,
+body.dn-glass-pack-3 .premium-wallpaper-card,
+body.dn-glass-pack-3 .glass-store-card,
+body.dn-glass-pack-3 .glass-customize-card {
+  background:
+    radial-gradient(circle at top right, rgba(var(--dn-glass-rgb, 78, 161, 255), 0.22), transparent 36%),
+    linear-gradient(180deg, rgba(19, 31, 53, 0.58), rgba(8, 15, 28, 0.42)) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  box-shadow:
+    0 22px 60px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(22px) saturate(1.35) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(1.35) !important;
+}
+
+body.dn-glass-pack-2 .btn,
+body.dn-glass-pack-2 button,
+body.dn-glass-pack-2 a.btn,
+body.dn-glass-pack-3 .btn,
+body.dn-glass-pack-3 button,
+body.dn-glass-pack-3 a.btn {
+  background:
+    radial-gradient(circle at top right, rgba(var(--dn-glass-rgb, 78, 161, 255), 0.28), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.07)) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #eef7ff !important;
+  backdrop-filter: blur(18px) saturate(1.24) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.24) !important;
+}
+
+body.dn-glass-pack-2 .btn-primary,
+body.dn-glass-pack-2 .hero-action-btn.btn-primary,
+body.dn-glass-pack-3 .btn-primary,
+body.dn-glass-pack-3 .hero-action-btn.btn-primary {
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.3), transparent 34%),
+    linear-gradient(135deg, rgba(var(--dn-glass-rgb, 78, 161, 255), 0.95), rgba(124, 196, 255, 0.78)) !important;
+  color: #04101f !important;
+}
