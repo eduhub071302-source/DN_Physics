@@ -2843,7 +2843,7 @@ header,
 }
 
 @media (max-width: 768px) {
-  .unlock-modal-box,
+  .unlock-modal-box {
     width: 94vw;
     max-width: 94vw;
     max-height: 86vh;
