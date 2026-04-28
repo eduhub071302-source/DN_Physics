@@ -281,47 +281,91 @@
       <div class="auth-box customize-modal-box">
         <div class="customize-modal-top">
           <h2>Customize App</h2>
-          <p>Personalize wallpapers and colors for different app pages.</p>
+          <p>Choose what you want to customize.</p>
           <p class="customize-help-text">
-            Home and Entire App preview here instantly. Notes, Quiz, and Viewer themes appear when you open those pages.
+            Wallpapers and glass card styles can be applied per page.
           </p>
         </div>
 
-        <div class="customize-section">
-          <p class="settings-title">Apply To</p>
-          <div class="customize-tabs">
-            <button class="customize-tab-btn active" type="button" data-scope="global">Entire App</button>
-            <button class="customize-tab-btn" type="button" data-scope="home">Home</button>
-            <button class="customize-tab-btn" type="button" data-scope="notes">Notes</button>
-            <button class="customize-tab-btn" type="button" data-scope="quiz">Quiz</button>
-            <button class="customize-tab-btn" type="button" data-scope="viewer">Viewer</button>
+        <div id="customizeMenuPanel" class="customize-section">
+          <div class="store-category-grid">
+            <button id="customizeWallpaperBtn" class="store-category-card" type="button">
+              <span class="store-category-icon">🖼️</span>
+              <strong>Wallpapers</strong>
+              <small>Choose free or unlocked premium wallpapers.</small>
+            </button>
+
+            <button id="customizeGlassBtn" class="store-category-card" type="button">
+              <span class="store-category-icon">🪟</span>
+              <strong>Glass Cards</strong>
+              <small>Apply unlocked glass card styles.</small>
+            </button>
           </div>
         </div>
 
-        <div class="customize-section">
-          <div class="customize-section-head">
-            <p class="settings-title">Choose Wallpaper</p>
-            <button id="resetScopeThemeBtn" class="btn" type="button">Reset This Page</button>
+        <div id="customizeEditorPanel" class="hidden">
+          <div class="customize-section">
+            <p class="settings-title">Apply To</p>
+            <div class="customize-tabs">
+              <button class="customize-tab-btn active" type="button" data-scope="global">Entire App</button>
+              <button class="customize-tab-btn" type="button" data-scope="home">Home</button>
+              <button class="customize-tab-btn" type="button" data-scope="notes">Notes</button>
+              <button class="customize-tab-btn" type="button" data-scope="quiz">Quiz</button>
+              <button class="customize-tab-btn" type="button" data-scope="viewer">Viewer</button>
+            </div>
           </div>
-          <div id="wallpaperGrid" class="wallpaper-grid"></div>
+
+          <div id="customizeWallpaperPanel" class="customize-section hidden">
+            <div class="customize-section-head">
+              <p class="settings-title">Choose Wallpaper</p>
+              <button id="resetScopeThemeBtn" class="btn" type="button">Reset This Page</button>
+            </div>
+            <div id="wallpaperGrid" class="wallpaper-grid"></div>
+          </div>
+
+          <div id="customizeGlassPanel" class="customize-section hidden">
+            <div class="customize-section-head">
+              <p class="settings-title">Choose Glass Card Style</p>
+              <button id="resetScopeGlassBtn" class="btn" type="button">Reset Glass</button>
+            </div>
+
+            <div id="glassPackGrid" class="glass-pack-grid"></div>
+
+            <div id="glassColorSection" class="glass-color-section hidden">
+              <p class="settings-title">Glass Color</p>
+              <div id="glassColorGrid" class="glass-color-grid">
+                <button class="glass-color-swatch active" type="button" data-glass-color="blue" style="--glass-swatch: 78, 161, 255" aria-label="Blue"></button>
+                <button class="glass-color-swatch" type="button" data-glass-color="purple" style="--glass-swatch: 155, 92, 255" aria-label="Purple"></button>
+                <button class="glass-color-swatch" type="button" data-glass-color="pink" style="--glass-swatch: 255, 92, 168" aria-label="Pink"></button>
+                <button class="glass-color-swatch" type="button" data-glass-color="gold" style="--glass-swatch: 255, 213, 74" aria-label="Gold"></button>
+                <button class="glass-color-swatch" type="button" data-glass-color="green" style="--glass-swatch: 66, 200, 131" aria-label="Green"></button>
+                <button class="glass-color-swatch" type="button" data-glass-color="orange" style="--glass-swatch: 255, 155, 66" aria-label="Orange"></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="customize-section">
+            <p class="settings-title">Accent Color</p>
+            <div class="accent-grid">
+              <button class="accent-swatch active" type="button" data-accent="blue" style="--swatch:#4ea1ff" aria-label="Blue"></button>
+              <button class="accent-swatch" type="button" data-accent="purple" style="--swatch:#9b5cff" aria-label="Purple"></button>
+              <button class="accent-swatch" type="button" data-accent="pink" style="--swatch:#ff5ca8" aria-label="Pink"></button>
+              <button class="accent-swatch" type="button" data-accent="gold" style="--swatch:#ffd58a" aria-label="Gold"></button>
+              <button class="accent-swatch" type="button" data-accent="green" style="--swatch:#42c883" aria-label="Green"></button>
+              <button class="accent-swatch" type="button" data-accent="orange" style="--swatch:#ff9b42" aria-label="Orange"></button>
+            </div>
+          </div>
+
+          <div class="customize-actions">
+            <button id="backCustomizeMenuBtn" class="btn" type="button">Back</button>
+            <button id="resetAllThemesBtn" class="btn" type="button">Reset All</button>
+            <button id="saveCustomizeBtn" class="btn btn-primary" type="button">Save Changes</button>
+            <button id="closeCustomizeBtn" class="btn" type="button">Close</button>
+          </div>
         </div>
 
-        <div class="customize-section">
-          <p class="settings-title">Accent Color</p>
-          <div class="accent-grid">
-            <button class="accent-swatch active" type="button" data-accent="blue" style="--swatch:#4ea1ff" aria-label="Blue"></button>
-            <button class="accent-swatch" type="button" data-accent="purple" style="--swatch:#9b5cff" aria-label="Purple"></button>
-            <button class="accent-swatch" type="button" data-accent="pink" style="--swatch:#ff5ca8" aria-label="Pink"></button>
-            <button class="accent-swatch" type="button" data-accent="gold" style="--swatch:#ffd58a" aria-label="Gold"></button>
-            <button class="accent-swatch" type="button" data-accent="green" style="--swatch:#42c883" aria-label="Green"></button>
-            <button class="accent-swatch" type="button" data-accent="orange" style="--swatch:#ff9b42" aria-label="Orange"></button>
-          </div>
-        </div>
-
-        <div class="customize-actions">
-          <button id="resetAllThemesBtn" class="btn" type="button">Reset All</button>
-          <button id="saveCustomizeBtn" class="btn btn-primary" type="button">Save Changes</button>
-          <button id="closeCustomizeBtn" class="btn" type="button">Close</button>
+        <div id="customizeMenuActions" class="customize-actions">
+          <button id="closeCustomizeMenuBtn" class="btn" type="button">Close</button>
         </div>
       </div>
     </div>
@@ -331,7 +375,7 @@
       <div class="auth-box store-modal-box">
         <div class="customize-modal-top">
           <h2>DN Store</h2>
-          <p>Buy premium wallpapers using DN Tokens.</p>
+          <p>Choose what you want to buy using DN Tokens.</p>
           <div id="dnTokenBalanceText" class="dn-token-display">
             🪙 0
           </div>
@@ -342,13 +386,62 @@
         </div>
 
         <div class="customize-section">
-          <p class="settings-title">Premium Wallpapers</p>
-          <div id="premiumWallpaperGrid" class="premium-wallpaper-grid"></div>
+          <div class="store-category-grid">
+            <button id="openWallpaperStoreBtn" class="store-category-card" type="button">
+              <span class="store-category-icon">🖼️</span>
+              <strong>Wallpapers</strong>
+              <small>Premium wallpapers · 25 DN Tokens · 30 days</small>
+            </button>
+
+            <button id="openGlassStoreBtn" class="store-category-card" type="button">
+              <span class="store-category-icon">🪟</span>
+              <strong>Glass Cards</strong>
+              <small>Premium card styles · 20/30/40 DN Tokens · 30 days</small>
+            </button>
+          </div>
         </div>
 
         <div class="customize-actions">
           <button id="refreshStoreBtn" class="btn" type="button">Refresh</button>
           <button id="closeStoreBtn" class="btn" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- WALLPAPER STORE MODAL -->
+    <div id="wallpaperStoreModal" class="auth-modal hidden" aria-hidden="true">
+      <div class="auth-box store-modal-box">
+        <div class="customize-modal-top">
+          <h2>Premium Wallpapers</h2>
+          <p>Unlock wallpapers for 30 days.</p>
+        </div>
+
+        <div class="customize-section">
+          <div id="premiumWallpaperGrid" class="premium-wallpaper-grid"></div>
+        </div>
+
+        <div class="customize-actions">
+          <button id="backToStoreFromWallpaperBtn" class="btn" type="button">Back</button>
+          <button id="closeWallpaperStoreBtn" class="btn" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GLASS CARD STORE MODAL -->
+    <div id="glassStoreModal" class="auth-modal hidden" aria-hidden="true">
+      <div class="auth-box store-modal-box">
+        <div class="customize-modal-top">
+          <h2>Glass Cards</h2>
+          <p>Buy monthly glass card styles using DN Tokens.</p>
+        </div>
+
+        <div class="customize-section">
+          <div id="glassCardStoreGrid" class="glass-store-grid"></div>
+        </div>
+
+        <div class="customize-actions">
+          <button id="backToStoreFromGlassBtn" class="btn" type="button">Back</button>
+          <button id="closeGlassStoreBtn" class="btn" type="button">Close</button>
         </div>
       </div>
     </div>
