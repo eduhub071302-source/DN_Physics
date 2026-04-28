@@ -18,6 +18,19 @@ const DN_MUSIC_TRACKS = [
 (function () {
   "use strict";
 
+  if (window.__DN_MUSIC_PLAYER_INITIALIZED) {
+    return;
+  }
+
+  window.__DN_MUSIC_PLAYER_INITIALIZED = true;
+
+  const pageAudio = document.getElementById("bgMusic");
+  if (pageAudio) {
+    pageAudio.pause();
+    pageAudio.removeAttribute("src");
+    pageAudio.load();
+  }
+
   const STORAGE_KEYS = {
     TRACK_INDEX: "dnMusicTrack",
     VOLUME: "dnMusicVolume",
