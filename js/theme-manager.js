@@ -5,6 +5,10 @@ const DN_THEME_DEFAULT = {
   accent: "blue",
   glassPack: "",
   glassColor: "blue",
+  glassOpacity: 55,
+  glassQuality: 18,
+  buttonGlassOpacity: 55,
+  buttonGlassQuality: 14,
 };
 
 const DN_THEME_DEFAULT_SETTINGS = {
@@ -253,6 +257,10 @@ function dnThemeGetEffectiveTheme(scope, settings = dnThemeLoadSettings()) {
     accent: scoped.accent || global.accent || "blue",
     glassPack: scoped.glassPack || global.glassPack || "",
     glassColor: scoped.glassColor || global.glassColor || "blue",
+    glassOpacity: Number(scoped.glassOpacity || global.glassOpacity || 55),
+    glassQuality: Number(scoped.glassQuality || global.glassQuality || 18),
+    buttonGlassOpacity: Number(scoped.buttonGlassOpacity || global.buttonGlassOpacity || 55),
+    buttonGlassQuality: Number(scoped.buttonGlassQuality || global.buttonGlassQuality || 14),
   };
 }
 
@@ -329,6 +337,10 @@ function dnThemeClearGlassClasses() {
   );
 
   body.style.removeProperty("--dn-glass-rgb");
+  body.style.removeProperty("--dn-glass-opacity");
+  body.style.removeProperty("--dn-glass-blur");
+  body.style.removeProperty("--dn-button-glass-opacity");
+  body.style.removeProperty("--dn-button-glass-blur");
 }
 
 function dnThemeApplyToCurrentPage() {
@@ -373,6 +385,26 @@ function dnThemeApplyToCurrentPage() {
 
   if (theme.glassPack && dnThemeIsGlassPackActive(theme.glassPack)) {
     body.classList.add(`dn-${theme.glassPack.replace(/_/g, "-")}`);
+
+    body.style.setProperty(
+      "--dn-glass-opacity",
+      String(Math.min(0.92, Math.max(0.18, Number(theme.glassOpacity || 55) / 100)))
+    );
+
+    body.style.setProperty(
+      "--dn-glass-blur",
+      `${Math.min(34, Math.max(8, Number(theme.glassQuality || 18)))}px`
+    );
+
+    body.style.setProperty(
+      "--dn-button-glass-opacity",
+      String(Math.min(0.92, Math.max(0.18, Number(theme.buttonGlassOpacity || 55) / 100)))
+    );
+
+    body.style.setProperty(
+      "--dn-button-glass-blur",
+      `${Math.min(30, Math.max(8, Number(theme.buttonGlassQuality || 14)))}px`
+    );
 
     if (theme.glassPack === "glass_pack_3") {
       body.style.setProperty(
