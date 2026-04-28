@@ -625,6 +625,11 @@ function setupCustomizeApp() {
   const wallpaperGrid = document.getElementById("wallpaperGrid");
   const glassPackGrid = document.getElementById("glassPackGrid");
   const glassColorSection = document.getElementById("glassColorSection");
+  const glassSliderSection = document.getElementById("glassSliderSection");
+  const glassOpacityRange = document.getElementById("glassOpacityRange");
+  const glassQualityRange = document.getElementById("glassQualityRange");
+  const buttonGlassOpacityRange = document.getElementById("buttonGlassOpacityRange");
+  const buttonGlassQualityRange = document.getElementById("buttonGlassQualityRange");
   const glassColorGrid = document.getElementById("glassColorGrid");
   const saveBtn = document.getElementById("saveCustomizeBtn");
   const resetAllBtn = document.getElementById("resetAllThemesBtn");
@@ -652,6 +657,10 @@ function setupCustomizeApp() {
     accent: "blue",
     glassPack: "",
     glassColor: "blue",
+    glassOpacity: 55,
+    glassQuality: 18,
+    buttonGlassOpacity: 55,
+    buttonGlassQuality: 14,
   };
 
   let settings = window.dnThemeLoadSettings();
@@ -799,6 +808,28 @@ function setupCustomizeApp() {
       glassColorSection.classList.toggle("hidden", !canChangeColor);
     }
 
+    if (glassSliderSection) {
+      glassSliderSection.classList.toggle("hidden", !activePack);
+    }
+
+    if (glassOpacityRange) {
+      glassOpacityRange.value = String(scopeTheme.glassOpacity || 55);
+    }
+
+    if (glassQualityRange) {
+      glassQualityRange.value = String(scopeTheme.glassQuality || 18);
+    }
+
+    if (buttonGlassOpacityRange) {
+      buttonGlassOpacityRange.value = String(scopeTheme.buttonGlassOpacity || 55);
+      buttonGlassOpacityRange.disabled = activePack === "glass_pack_1";
+    }
+
+    if (buttonGlassQualityRange) {
+      buttonGlassQualityRange.value = String(scopeTheme.buttonGlassQuality || 14);
+      buttonGlassQualityRange.disabled = activePack === "glass_pack_1";
+    }
+
     const activeColor = scopeTheme.glassColor || "blue";
 
     glassColorButtons.forEach((btn) => {
@@ -806,6 +837,24 @@ function setupCustomizeApp() {
       btn.disabled = !canChangeColor;
     });
   }
+  
+  [
+    glassOpacityRange,
+    glassQualityRange,
+    buttonGlassOpacityRange,
+    buttonGlassQualityRange,
+  ].forEach((range) => {
+    range?.addEventListener("input", () => {
+      const scopeTheme = getScopeTheme(currentScope);
+
+      scopeTheme.glassOpacity = Number(glassOpacityRange?.value || 55);
+      scopeTheme.glassQuality = Number(glassQualityRange?.value || 18);
+      scopeTheme.buttonGlassOpacity = Number(buttonGlassOpacityRange?.value || 55);
+      scopeTheme.buttonGlassQuality = Number(buttonGlassQualityRange?.value || 14);
+
+      previewCurrentSelectionOnHome();
+    });
+  });
 
   function previewCurrentSelectionOnHome() {
     if (currentScope === "global" || currentScope === "home") {
@@ -939,6 +988,10 @@ function setupCustomizeApp() {
   resetScopeGlassBtn?.addEventListener("click", () => {
     getScopeTheme(currentScope).glassPack = "";
     getScopeTheme(currentScope).glassColor = "blue";
+    getScopeTheme(currentScope).glassOpacity = 55;
+    getScopeTheme(currentScope).glassQuality = 18;
+    getScopeTheme(currentScope).buttonGlassOpacity = 55;
+    getScopeTheme(currentScope).buttonGlassQuality = 14;
     renderCustomizeUi();
     previewCurrentSelectionOnHome();
   });
