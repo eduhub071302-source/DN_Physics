@@ -5582,3 +5582,94 @@ body.accent-orange { --dn-glass-rgb: 255,155,66; }
   max-height: 85vh;
   overflow-y: auto;
 }
+
+/* =========================
+   THEME APPLY FIX FOR STATIC PAGES
+   privacy / terms / contact / refund / invoice / payment / reset / admin
+========================= */
+
+body.dn-glass-pack-1 .topic-card,
+body.dn-glass-pack-1 .card,
+body.dn-glass-pack-1 .refund-panel,
+body.dn-glass-pack-1 .support-panel,
+body.dn-glass-pack-1 .contact-direct-box,
+body.dn-glass-pack-1 .history-dropdown,
+body.dn-glass-pack-1 .refund-history-item,
+body.dn-glass-pack-1 .ticket-history-item,
+body.dn-glass-pack-1 .admin-topbar,
+body.dn-glass-pack-1 .admin-panel,
+body.dn-glass-pack-1 .admin-stat-card,
+body.dn-glass-pack-1 .admin-ticket-card,
+body.dn-glass-pack-1 .admin-detail-card,
+body.dn-glass-pack-1 .reset-card,
+body.dn-glass-pack-1 .pay-status-card,
+body.dn-glass-pack-1 .cancel-card,
+body.dn-glass-pack-2 .topic-card,
+body.dn-glass-pack-2 .card,
+body.dn-glass-pack-2 .refund-panel,
+body.dn-glass-pack-2 .support-panel,
+body.dn-glass-pack-2 .contact-direct-box,
+body.dn-glass-pack-2 .history-dropdown,
+body.dn-glass-pack-2 .refund-history-item,
+body.dn-glass-pack-2 .ticket-history-item,
+body.dn-glass-pack-2 .admin-topbar,
+body.dn-glass-pack-2 .admin-panel,
+body.dn-glass-pack-2 .admin-stat-card,
+body.dn-glass-pack-2 .admin-ticket-card,
+body.dn-glass-pack-2 .admin-detail-card,
+body.dn-glass-pack-2 .reset-card,
+body.dn-glass-pack-2 .pay-status-card,
+body.dn-glass-pack-2 .cancel-card,
+body.dn-glass-pack-3 .topic-card,
+body.dn-glass-pack-3 .card,
+body.dn-glass-pack-3 .refund-panel,
+body.dn-glass-pack-3 .support-panel,
+body.dn-glass-pack-3 .contact-direct-box,
+body.dn-glass-pack-3 .history-dropdown,
+body.dn-glass-pack-3 .refund-history-item,
+body.dn-glass-pack-3 .ticket-history-item,
+body.dn-glass-pack-3 .admin-topbar,
+body.dn-glass-pack-3 .admin-panel,
+body.dn-glass-pack-3 .admin-stat-card,
+body.dn-glass-pack-3 .admin-ticket-card,
+body.dn-glass-pack-3 .admin-detail-card,
+body.dn-glass-pack-3 .reset-card,
+body.dn-glass-pack-3 .pay-status-card,
+body.dn-glass-pack-3 .cancel-card {
+  background:
+    radial-gradient(circle at top right, rgba(var(--dn-glass-rgb, 78, 161, 255), 0.22), transparent 38%),
+    linear-gradient(
+      180deg,
+      rgba(17, 26, 43, var(--dn-glass-opacity, 0.55)),
+      rgba(10, 16, 28, var(--dn-glass-opacity, 0.55))
+    ) !important;
+  border-color: rgba(var(--dn-glass-rgb, 78, 161, 255), 0.28) !important;
+  backdrop-filter: blur(var(--dn-glass-blur, 18px)) saturate(1.35) !important;
+  -webkit-backdrop-filter: blur(var(--dn-glass-blur, 18px)) saturate(1.35) !important;
+}
+
+body.dn-glass-pack-2 .btn,
+body.dn-glass-pack-3 .btn,
+body.dn-glass-pack-2 button,
+body.dn-glass-pack-3 button {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(var(--dn-glass-rgb, 78, 161, 255), 0.22),
+      rgba(255, 255, 255, var(--dn-button-glass-opacity, 0.55))
+    ) !important;
+  border-color: rgba(var(--dn-glass-rgb, 78, 161, 255), 0.32) !important;
+  backdrop-filter: blur(var(--dn-button-glass-blur, 14px)) saturate(1.35) !important;
+  -webkit-backdrop-filter: blur(var(--dn-button-glass-blur, 14px)) saturate(1.35) !important;
+}
+
+body.dn-glass-pack-2 .btn:hover,
+body.dn-glass-pack-3 .btn:hover,
+body.dn-glass-pack-2 button:hover,
+body.dn-glass-pack-3 button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.28),
+    0 0 18px rgba(var(--dn-glass-rgb, 78, 161, 255), 0.22);
+}
