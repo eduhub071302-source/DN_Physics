@@ -613,17 +613,32 @@ function setupCustomizeApp() {
   const settingsModal = document.getElementById("settingsModal");
   const modal = document.getElementById("customizeModal");
   const closeBtn = document.getElementById("closeCustomizeBtn");
+  const closeMenuBtn = document.getElementById("closeCustomizeMenuBtn");
+  const menuPanel = document.getElementById("customizeMenuPanel");
+  const menuActions = document.getElementById("customizeMenuActions");
+  const editorPanel = document.getElementById("customizeEditorPanel");
+  const wallpaperPanel = document.getElementById("customizeWallpaperPanel");
+  const glassPanel = document.getElementById("customizeGlassPanel");
+  const customizeWallpaperBtn = document.getElementById("customizeWallpaperBtn");
+  const customizeGlassBtn = document.getElementById("customizeGlassBtn");
+  const backCustomizeMenuBtn = document.getElementById("backCustomizeMenuBtn");
   const wallpaperGrid = document.getElementById("wallpaperGrid");
+  const glassPackGrid = document.getElementById("glassPackGrid");
+  const glassColorSection = document.getElementById("glassColorSection");
+  const glassColorGrid = document.getElementById("glassColorGrid");
   const saveBtn = document.getElementById("saveCustomizeBtn");
   const resetAllBtn = document.getElementById("resetAllThemesBtn");
   const resetScopeBtn = document.getElementById("resetScopeThemeBtn");
+  const resetScopeGlassBtn = document.getElementById("resetScopeGlassBtn");
   const scopeButtons = Array.from(document.querySelectorAll(".customize-tab-btn"));
   const accentButtons = Array.from(document.querySelectorAll(".accent-swatch"));
+  const glassColorButtons = Array.from(document.querySelectorAll(".glass-color-swatch"));
 
   if (
     !openBtn ||
     !modal ||
     !wallpaperGrid ||
+    !glassPackGrid ||
     typeof window.dnThemeLoadSettings !== "function" ||
     typeof window.dnThemeSaveSettings !== "function" ||
     typeof window.dnThemeApplyToCurrentPage !== "function" ||
@@ -635,10 +650,13 @@ function setupCustomizeApp() {
   const DEFAULT_SCOPE_THEME = {
     wallpaper: "",
     accent: "blue",
+    glassPack: "",
+    glassColor: "blue",
   };
 
   let settings = window.dnThemeLoadSettings();
   let currentScope = "global";
+  let currentPanel = "menu";
 
   function cloneThemeState(value) {
     return JSON.parse(JSON.stringify(value));
@@ -648,7 +666,33 @@ function setupCustomizeApp() {
     if (!settings[scope]) {
       settings[scope] = { ...DEFAULT_SCOPE_THEME };
     }
+
+    settings[scope] = {
+      ...DEFAULT_SCOPE_THEME,
+      ...settings[scope],
+    };
+
     return settings[scope];
+  }
+
+  function getGlassCardPacks() {
+    if (typeof window.dnStoreGetGlassCardPacks === "function") {
+      return window.dnStoreGetGlassCardPacks();
+    }
+
+    return window.DN_CONFIG?.STORE?.GLASS_CARD_PACKS || [];
+  }
+
+  function isGlassPackActive(packId) {
+    if (typeof window.dnStoreIsGlassPackActive === "function") {
+      return window.dnStoreIsGlassPackActive(packId);
+    }
+
+    if (typeof window.dnThemeIsGlassPackActive === "function") {
+      return window.dnThemeIsGlassPackActive(packId);
+    }
+
+    return false;
   }
 
   function renderScopeButtons() {
@@ -704,6 +748,65 @@ function setupCustomizeApp() {
     });
   }
 
+  function renderGlassPackGrid() {
+    const scopeTheme = getScopeTheme(currentScope);
+    const activePack = scopeTheme.glassPack || "";
+
+    glassPackGrid.innerHTML = getGlassCardPacks()
+      .map((pack) => {
+        const unlocked = isGlassPackActive(pack.id);
+        const selected = activePack === pack.id;
+
+        return `
+          <button
+            class="glass-customize-card ${selected ? "active" : ""} ${unlocked ? "" : "locked"}"
+            type="button"
+            data-glass-pack="${pack.id}"
+            ${unlocked ? "" : "disabled"}
+          >
+            <span class="glass-customize-icon">${unlocked ? "🪟" : "🔒"}</span>
+            <strong>${pack.label}</strong>
+            <small>${unlocked ? pack.description : `${pack.cost} DN Tokens · Buy from Store`}</small>
+          </button>
+        `;
+      })
+      .join("");
+
+    glassPackGrid.querySelectorAll("[data-glass-pack]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const packId = btn.dataset.glassPack;
+        if (!packId || !isGlassPackActive(packId)) return;
+
+        getScopeTheme(currentScope).glassPack = packId;
+
+        if (packId !== "glass_pack_3") {
+          getScopeTheme(currentScope).glassColor = "blue";
+        }
+
+        renderGlassPackGrid();
+        renderGlassColors();
+        previewCurrentSelectionOnHome();
+      });
+    });
+  }
+
+  function renderGlassColors() {
+    const scopeTheme = getScopeTheme(currentScope);
+    const activePack = scopeTheme.glassPack || "";
+    const canChangeColor = activePack === "glass_pack_3" && isGlassPackActive("glass_pack_3");
+
+    if (glassColorSection) {
+      glassColorSection.classList.toggle("hidden", !canChangeColor);
+    }
+
+    const activeColor = scopeTheme.glassColor || "blue";
+
+    glassColorButtons.forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.glassColor === activeColor);
+      btn.disabled = !canChangeColor;
+    });
+  }
+
   function previewCurrentSelectionOnHome() {
     if (currentScope === "global" || currentScope === "home") {
       window.dnThemeSaveSettings(cloneThemeState(settings));
@@ -711,14 +814,56 @@ function setupCustomizeApp() {
     }
   }
 
+  function showMenuPanel() {
+    currentPanel = "menu";
+
+    menuPanel?.classList.remove("hidden");
+    menuActions?.classList.remove("hidden");
+    editorPanel?.classList.add("hidden");
+    wallpaperPanel?.classList.add("hidden");
+    glassPanel?.classList.add("hidden");
+  }
+
+  function showWallpaperPanel() {
+    currentPanel = "wallpaper";
+
+    menuPanel?.classList.add("hidden");
+    menuActions?.classList.add("hidden");
+    editorPanel?.classList.remove("hidden");
+    wallpaperPanel?.classList.remove("hidden");
+    glassPanel?.classList.add("hidden");
+
+    renderCustomizeUi();
+  }
+
+  function showGlassPanel() {
+    currentPanel = "glass";
+
+    menuPanel?.classList.add("hidden");
+    menuActions?.classList.add("hidden");
+    editorPanel?.classList.remove("hidden");
+    wallpaperPanel?.classList.add("hidden");
+    glassPanel?.classList.remove("hidden");
+
+    renderCustomizeUi();
+  }
+
   function renderCustomizeUi() {
     renderScopeButtons();
     renderAccentButtons();
-    renderWallpaperGrid();
+
+    if (currentPanel === "wallpaper") {
+      renderWallpaperGrid();
+    }
+
+    if (currentPanel === "glass") {
+      renderGlassPackGrid();
+      renderGlassColors();
+    }
   }
 
   function openModal() {
-    renderCustomizeUi();
+    showMenuPanel();
     modal.classList.remove("hidden");
     modal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
@@ -746,6 +891,11 @@ function setupCustomizeApp() {
   });
 
   closeBtn?.addEventListener("click", closeModal);
+  closeMenuBtn?.addEventListener("click", closeModal);
+  backCustomizeMenuBtn?.addEventListener("click", showMenuPanel);
+
+  customizeWallpaperBtn?.addEventListener("click", showWallpaperPanel);
+  customizeGlassBtn?.addEventListener("click", showGlassPanel);
 
   modal.addEventListener("click", (e) => {
     if (e.target === modal) closeModal();
@@ -766,8 +916,29 @@ function setupCustomizeApp() {
     });
   });
 
+  glassColorButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const scopeTheme = getScopeTheme(currentScope);
+
+      if (scopeTheme.glassPack !== "glass_pack_3") return;
+      if (!isGlassPackActive("glass_pack_3")) return;
+
+      scopeTheme.glassColor = btn.dataset.glassColor || "blue";
+
+      renderGlassColors();
+      previewCurrentSelectionOnHome();
+    });
+  });
+
   resetScopeBtn?.addEventListener("click", () => {
-    settings[currentScope] = { ...DEFAULT_SCOPE_THEME };
+    getScopeTheme(currentScope).wallpaper = "";
+    renderCustomizeUi();
+    previewCurrentSelectionOnHome();
+  });
+
+  resetScopeGlassBtn?.addEventListener("click", () => {
+    getScopeTheme(currentScope).glassPack = "";
+    getScopeTheme(currentScope).glassColor = "blue";
     renderCustomizeUi();
     previewCurrentSelectionOnHome();
   });
@@ -801,7 +972,7 @@ function setupCustomizeApp() {
       window.showToast("🎨 Theme updated");
     }
 
-    closeModal(false);
+    closeModal();
   });
 
   window.dnThemeApplyToCurrentPage();
