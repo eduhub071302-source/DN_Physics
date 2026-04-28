@@ -5408,3 +5408,97 @@ body.dn-glass-pack-3 .hero-action-btn.btn-primary {
     linear-gradient(135deg, rgba(var(--dn-glass-rgb, 78, 161, 255), 0.95), rgba(124, 196, 255, 0.78)) !important;
   color: #04101f !important;
 }
+
+/* GLOBAL GLASS SYSTEM */
+:root {
+  --dn-glass-opacity: 0.55;
+  --dn-glass-blur: 18px;
+  --dn-glass-rgb: 78,161,255;
+
+  --dn-button-glass-opacity: 0.55;
+  --dn-button-glass-blur: 14px;
+}
+
+/* UNIVERSAL GLASS CARD */
+.glass,
+.info-card,
+.topic-card,
+.auth-box,
+.support-panel,
+.refund-panel,
+.pdf-shell,
+.note-box,
+.card {
+  background: rgba(var(--dn-glass-rgb), var(--dn-glass-opacity));
+  backdrop-filter: blur(var(--dn-glass-blur));
+  -webkit-backdrop-filter: blur(var(--dn-glass-blur));
+
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+}
+
+.btn {
+  background: rgba(var(--dn-glass-rgb), var(--dn-button-glass-opacity));
+  backdrop-filter: blur(var(--dn-button-glass-blur));
+  -webkit-backdrop-filter: blur(var(--dn-button-glass-blur));
+
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+
+  transition: all 0.25s ease;
+}
+
+/* HOVER */
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(var(--dn-glass-rgb), 0.35);
+}
+
+/* CLICK */
+.btn:active {
+  transform: scale(0.96);
+  box-shadow: 0 4px 12px rgba(var(--dn-glass-rgb), 0.25);
+}
+
+/* PRIMARY BUTTON */
+.btn-primary {
+  background: linear-gradient(
+    135deg,
+    rgba(var(--dn-glass-rgb), 0.8),
+    rgba(var(--dn-glass-rgb), 0.6)
+  );
+}
+
+.glass-color-swatch {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+
+  background: rgba(var(--glass-swatch), 0.9);
+  border: 2px solid rgba(255,255,255,0.2);
+
+  transition: transform 0.2s ease;
+}
+
+.glass-color-swatch:hover {
+  transform: scale(1.1);
+}
+
+.glass-color-swatch.active {
+  box-shadow: 0 0 12px rgba(var(--glass-swatch), 0.8);
+}
+
+body[class*="accent-"] {
+  --dn-glass-rgb: 78,161,255;
+}
+
+body.accent-purple { --dn-glass-rgb: 155,92,255; }
+body.accent-pink   { --dn-glass-rgb: 255,92,168; }
+body.accent-gold   { --dn-glass-rgb: 255,213,74; }
+body.accent-green  { --dn-glass-rgb: 66,200,131; }
+body.accent-orange { --dn-glass-rgb: 255,155,66; }
+
+.auth-box {
+  background: rgba(var(--dn-glass-rgb), var(--dn-glass-opacity));
+  backdrop-filter: blur(var(--dn-glass-blur));
+}
