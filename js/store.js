@@ -1,6 +1,7 @@
 const STORE_STATE = {
   tokens: 0,
   premium: {},
+  glass: {},
 };
 
 let LAST_RENDERED_TOKENS = null;
@@ -185,6 +186,41 @@ function syncPremiumWallpapersToThemeCache() {
   }
 }
 
+function syncGlassCardsToThemeCache() {
+  const user = getCurrentUser();
+  if (!user) return;
+
+  try {
+    const activeGlass = {};
+    const now = Date.now();
+
+    Object.entries(STORE_STATE.glass || {}).forEach(([packId, item]) => {
+      const expiresAt = Number(item?.expiresAt || 0);
+
+      if (expiresAt > now) {
+        activeGlass[packId] = item;
+      }
+    });
+
+    localStorage.setItem(
+      `dn_premium_glass_cards_${user.uid}`,
+      JSON.stringify(activeGlass)
+    );
+  } catch (error) {
+    console.warn("Glass card theme cache sync failed:", error);
+  }
+}
+
+function getGlassCardPacks() {
+  return window.DN_CONFIG?.STORE?.GLASS_CARD_PACKS || [];
+}
+
+function isGlassPackActive(packId) {
+  const item = STORE_STATE.glass?.[packId];
+  const expiresAt = Number(item?.expiresAt || 0);
+  return Boolean(expiresAt && expiresAt > Date.now());
+}
+
 function getWallpaperPrice() {
   return Number(window.DN_CONFIG?.STORE?.WALLPAPER_PRICE || 25);
 }
@@ -215,6 +251,7 @@ async function loadStoreState() {
   if (!user || !getSdkReady()) {
     STORE_STATE.tokens = 0;
     STORE_STATE.premium = {};
+    STORE_STATE.glass = {};    
 
     try {
       localStorage.removeItem("dn_premium_wallpapers_guest");
@@ -227,15 +264,18 @@ async function loadStoreState() {
   const sdk = window.firebaseSdk;
   const db = window.firebaseDb;
 
-  const [tokenSnap, premiumSnap] = await Promise.all([
+  const [tokenSnap, premiumSnap, glassSnap] = await Promise.all([
     sdk.get(sdk.ref(db, `dn_tokens/${user.uid}`)),
     sdk.get(sdk.ref(db, `premium_wallpapers/${user.uid}`)),
+    sdk.get(sdk.ref(db, `premium_glass_cards/${user.uid}`)),
   ]);
 
   STORE_STATE.tokens = Number(tokenSnap.exists() ? tokenSnap.val()?.balance || 0 : 0);
   STORE_STATE.premium = premiumSnap.exists() ? premiumSnap.val() || {} : {};
+  STORE_STATE.glass = glassSnap.exists() ? glassSnap.val() || {} : {};
 
   syncPremiumWallpapersToThemeCache();
+  syncGlassCardsToThemeCache();
 
   if (typeof window.dnThemeApplyToCurrentPage === "function") {
     window.dnThemeApplyToCurrentPage();
@@ -473,6 +513,77 @@ async function buyPremiumWallpaper(wallpaperId) {
     }
   }
 }
+
+async function buyGlassCardPack(packId) {
+  const user = requireLogin();
+  if (!user) return;
+
+  const pack = getGlassCardPacks().find((item) => item.id === packId);
+  const buyBtn = document.querySelector(`[data-glass-pack-id="${packId}"]`);
+  const oldText = buyBtn ? buyBtn.textContent : "";
+
+  if (buyBtn) {
+    buyBtn.disabled = true;
+    buyBtn.textContent = "Buying...";
+  }
+
+  try {
+    const idToken = await getFirebaseToken();
+    if (!idToken) {
+      showStoreMessage("Login token missing. Please refresh and log in again.");
+      return;
+    }
+
+    const res = await fetch(
+      window.DN_CONFIG.BACKEND.API_BASE_URL + window.DN_CONFIG.BACKEND.BUY_GLASS_CARD_URL,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({
+          packId,
+        }),
+      }
+    );
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok || !data.ok) {
+      if (data.message && data.message.includes("Not enough")) {
+        showStoreMessage("❌ Not enough DN Tokens. Please top up!");
+        setTopUpOpen(true);
+      } else {
+        showStoreMessage(data.message || "Could not buy glass card pack.");
+      }
+
+      return;
+    }
+
+    showTokenPurchaseCard({
+      title: "Glass card pack unlocked",
+      text: `${pack?.label || "Glass Cards"} is now yours for 30 days.`,
+      previewUrl: "",
+      useText: "Customize App → Glass Cards",
+    });
+
+    await loadStoreState();
+
+    try {
+      window.dispatchEvent(new Event("dnPremiumGlassChanged"));
+    } catch {}
+  } catch (error) {
+    console.error("Glass card purchase error:", error);
+    showStoreMessage("Could not buy glass card pack. Please try again.");
+  } finally {
+    if (buyBtn) {
+      buyBtn.disabled = false;
+      buyBtn.textContent = oldText || "Buy";
+    }
+  }
+}
+
 function applyWallpaper(wallpaperId) {
   const settings = window.dnThemeLoadSettings?.();
   if (!settings) return;
@@ -564,16 +675,101 @@ function renderPremiumWallpapers() {
   });
 }
 
+function renderGlassCardStore() {
+  const grid = getEl("glassCardStoreGrid");
+  if (!grid) return;
+
+  grid.innerHTML = getGlassCardPacks()
+    .map((pack) => {
+      const active = isGlassPackActive(pack.id);
+      const expiresAt = Number(STORE_STATE.glass?.[pack.id]?.expiresAt || 0);
+
+      return `
+        <article class="glass-store-card glass-store-card-${pack.level}">
+          <div class="glass-store-demo">
+            <div class="glass-demo-card">Card</div>
+            ${pack.level >= 2 ? `<div class="glass-demo-button">Button</div>` : ``}
+            ${pack.level >= 3 ? `<div class="glass-demo-colors"><span></span><span></span><span></span></div>` : ``}
+          </div>
+
+          <div class="premium-wallpaper-info">
+            <strong>${pack.label}</strong>
+            <span>${pack.description}</span>
+            <small>${active ? `Active until ${formatDate(expiresAt)}` : `${pack.cost} DN Tokens / 30 days`}</small>
+          </div>
+
+          <button
+            class="btn ${active ? "btn-primary" : ""}"
+            type="button"
+            data-glass-pack-id="${pack.id}"
+            data-glass-action="${active ? "owned" : "buy"}"
+          >
+            ${active ? "Unlocked" : "Buy"}
+          </button>
+        </article>
+      `;
+    })
+    .join("");
+
+  grid.querySelectorAll("[data-glass-pack-id]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const packId = btn.dataset.glassPackId;
+      const action = btn.dataset.glassAction;
+
+      if (action === "owned") {
+        showStoreMessage("Already unlocked. Use it in Customize App → Glass Cards.");
+      } else {
+        buyGlassCardPack(packId);
+      }
+    });
+  });
+}
+
 function renderStore() {
   updateTokenDisplays(STORE_STATE.tokens);
   renderTokenPackages();
   renderPremiumWallpapers();
+  renderGlassCardStore();
 }
 
 function bindStore() {
   getEl("openStoreBtn")?.addEventListener("click", () => setStoreOpen(true));
   getEl("closeStoreBtn")?.addEventListener("click", () => setStoreOpen(false));
   getEl("refreshStoreBtn")?.addEventListener("click", loadStoreState);
+
+  getEl("openWallpaperStoreBtn")?.addEventListener("click", () => {
+    getEl("storeModal")?.classList.add("hidden");
+    getEl("wallpaperStoreModal")?.classList.remove("hidden");
+    getEl("wallpaperStoreModal")?.setAttribute("aria-hidden", "false");
+    renderPremiumWallpapers();
+  });
+
+  getEl("openGlassStoreBtn")?.addEventListener("click", () => {
+    getEl("storeModal")?.classList.add("hidden");
+    getEl("glassStoreModal")?.classList.remove("hidden");
+    getEl("glassStoreModal")?.setAttribute("aria-hidden", "false");
+    renderGlassCardStore();
+  });
+
+  getEl("backToStoreFromWallpaperBtn")?.addEventListener("click", () => {
+    getEl("wallpaperStoreModal")?.classList.add("hidden");
+    setStoreOpen(true);
+  });
+
+  getEl("backToStoreFromGlassBtn")?.addEventListener("click", () => {
+    getEl("glassStoreModal")?.classList.add("hidden");
+    setStoreOpen(true);
+  });
+
+  getEl("closeWallpaperStoreBtn")?.addEventListener("click", () => {
+    getEl("wallpaperStoreModal")?.classList.add("hidden");
+    document.body.style.overflow = "";
+  });
+
+  getEl("closeGlassStoreBtn")?.addEventListener("click", () => {
+    getEl("glassStoreModal")?.classList.add("hidden");
+    document.body.style.overflow = "";
+  });  
 
   getEl("openTopUpBtn")?.addEventListener("click", () => setTopUpOpen(true));
   getEl("closeTopUpBtn")?.addEventListener("click", () => setTopUpOpen(false));
@@ -603,6 +799,8 @@ function bindStore() {
 }
 
 window.dnStoreIsWallpaperActive = isWallpaperActive;
+window.dnStoreIsGlassPackActive = isGlassPackActive;
+window.dnStoreGetGlassCardPacks = getGlassCardPacks;
 window.dnStoreLoadState = loadStoreState;
 window.openDnStore = () => setStoreOpen(true);
 
