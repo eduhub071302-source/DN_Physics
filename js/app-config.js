@@ -31,6 +31,32 @@ const DN_CONFIG = {
     WALLPAPER_PRICE: 25,
     WALLPAPER_VALID_DAYS: 30,
 
+    GLASS_VALID_DAYS: 30,
+
+    GLASS_CARD_PACKS: [
+      {
+        id: "glass_pack_1",
+        label: "Glass Cards",
+        level: 1,
+        cost: 20,
+        description: "Apply premium glass style to app cards."
+      },
+      {
+        id: "glass_pack_2",
+        label: "Glass Cards + Buttons",
+        level: 2,
+        cost: 30,
+        description: "Apply glass style to cards and buttons."
+      },
+      {
+        id: "glass_pack_3",
+        label: "Color Glass Cards + Buttons",
+        level: 3,
+        cost: 40,
+        description: "Glass cards, glass buttons, and custom glass colors per page."
+      }
+    ],    
+
     TOKEN_PACKAGES: [
       { id: "dn_tokens_100", label: "100 DN Tokens", tokens: 100, price: "70.00", currency: "LKR" },
       { id: "dn_tokens_200", label: "200 DN Tokens", tokens: 200, price: "130.00", currency: "LKR" },
@@ -74,6 +100,7 @@ const DN_CONFIG = {
 
     CREATE_TOKEN_ORDER_URL: "/api/store/create-token-order",
     BUY_WALLPAPER_URL: "/api/store/buy-wallpaper",
+    BUY_GLASS_CARD_URL: "/api/store/buy-glass-card",
   },
 
   STORAGE_KEYS: {
