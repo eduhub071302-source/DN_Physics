@@ -4973,3 +4973,234 @@ body[class*="wallpaper-pattern-"] .loading-box {
     right: 12px;
   }
 }
+
+/* =========================
+   STORE / CUSTOMIZE CATEGORIES
+========================= */
+
+.store-category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+}
+
+.store-category-card {
+  display: grid;
+  gap: 8px;
+  min-height: 150px;
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(124, 196, 255, 0.16);
+  background:
+    radial-gradient(circle at top right, rgba(124, 196, 255, 0.14), transparent 38%),
+    linear-gradient(180deg, rgba(17, 26, 43, 0.96), rgba(10, 16, 28, 0.98));
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.store-category-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(124, 196, 255, 0.34);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.28);
+}
+
+.store-category-icon {
+  font-size: 2rem;
+}
+
+.store-category-card strong {
+  font-size: 1.05rem;
+  color: #eef5ff;
+}
+
+.store-category-card small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+/* =========================
+   GLASS STORE
+========================= */
+
+.glass-store-grid,
+.glass-pack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+}
+
+.glass-store-card,
+.glass-customize-card {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(124, 196, 255, 0.16);
+  background:
+    radial-gradient(circle at top right, rgba(124, 196, 255, 0.12), transparent 34%),
+    linear-gradient(180deg, rgba(17, 26, 43, 0.92), rgba(10, 16, 28, 0.96));
+  color: var(--text);
+  box-shadow: var(--shadow-soft);
+}
+
+.glass-store-demo {
+  display: grid;
+  gap: 8px;
+  min-height: 116px;
+  padding: 12px;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 34%),
+    linear-gradient(135deg, rgba(78, 161, 255, 0.16), rgba(155, 92, 255, 0.12));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-demo-card,
+.glass-demo-button {
+  display: grid;
+  place-items: center;
+  min-height: 38px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  font-weight: 900;
+  color: #eef5ff;
+}
+
+.glass-demo-button {
+  border-radius: 999px;
+}
+
+.glass-demo-colors {
+  display: flex;
+  gap: 7px;
+}
+
+.glass-demo-colors span {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.glass-demo-colors span:nth-child(1) {
+  background: #4ea1ff;
+}
+
+.glass-demo-colors span:nth-child(2) {
+  background: #9b5cff;
+}
+
+.glass-demo-colors span:nth-child(3) {
+  background: #ffd54a;
+}
+
+.glass-customize-card {
+  cursor: pointer;
+  text-align: left;
+}
+
+.glass-customize-card.active {
+  border-color: rgba(255, 213, 74, 0.44);
+  box-shadow:
+    0 0 0 2px rgba(255, 213, 74, 0.12),
+    var(--shadow-soft);
+}
+
+.glass-customize-card.locked {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.glass-customize-icon {
+  font-size: 1.8rem;
+}
+
+.glass-color-section {
+  margin-top: 16px;
+}
+
+.glass-color-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.glass-color-swatch {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.16);
+  background: rgb(var(--glass-swatch));
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+}
+
+.glass-color-swatch.active {
+  border-color: #ffffff;
+  box-shadow:
+    0 0 0 4px rgba(var(--glass-swatch), 0.18),
+    var(--shadow-soft);
+}
+
+/* =========================
+   ACTIVE GLASS EFFECTS
+========================= */
+
+body.dn-glass-pack-1 .card,
+body.dn-glass-pack-1 .topic-card,
+body.dn-glass-pack-1 .note-box,
+body.dn-glass-pack-1 .pdf-shell,
+body.dn-glass-pack-1 .pdf-card,
+body.dn-glass-pack-1 .auth-box,
+body.dn-glass-pack-1 .subject-modal-box,
+body.dn-glass-pack-2 .card,
+body.dn-glass-pack-2 .topic-card,
+body.dn-glass-pack-2 .note-box,
+body.dn-glass-pack-2 .pdf-shell,
+body.dn-glass-pack-2 .pdf-card,
+body.dn-glass-pack-2 .auth-box,
+body.dn-glass-pack-2 .subject-modal-box,
+body.dn-glass-pack-3 .card,
+body.dn-glass-pack-3 .topic-card,
+body.dn-glass-pack-3 .note-box,
+body.dn-glass-pack-3 .pdf-shell,
+body.dn-glass-pack-3 .pdf-card,
+body.dn-glass-pack-3 .auth-box,
+body.dn-glass-pack-3 .subject-modal-box {
+  background:
+    radial-gradient(circle at top right, rgba(var(--dn-glass-rgb, 78, 161, 255), 0.16), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.095), rgba(255, 255, 255, 0.045));
+  border-color: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(18px) saturate(1.18);
+  -webkit-backdrop-filter: blur(18px) saturate(1.18);
+  box-shadow:
+    0 20px 55px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+body.dn-glass-pack-2 .btn,
+body.dn-glass-pack-3 .btn {
+  background:
+    radial-gradient(circle at top right, rgba(var(--dn-glass-rgb, 78, 161, 255), 0.2), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.055));
+  border-color: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+body.dn-glass-pack-2 .btn-primary,
+body.dn-glass-pack-3 .btn-primary {
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.22), transparent 34%),
+    linear-gradient(135deg, rgba(var(--dn-glass-rgb, 78, 161, 255), 0.95), rgba(124, 196, 255, 0.82));
+  color: #04101f;
+}
