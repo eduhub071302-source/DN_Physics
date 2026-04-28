@@ -1,8 +1,10 @@
-const DN_THEME_BASE_KEY = "dn_theme_settings_v3";
+const DN_THEME_BASE_KEY = "dn_theme_settings_v4";
 
 const DN_THEME_DEFAULT = {
   wallpaper: "",
   accent: "blue",
+  glassPack: "",
+  glassColor: "blue",
 };
 
 const DN_THEME_DEFAULT_SETTINGS = {
@@ -249,6 +251,8 @@ function dnThemeGetEffectiveTheme(scope, settings = dnThemeLoadSettings()) {
   return {
     wallpaper: scoped.wallpaper || global.wallpaper || "",
     accent: scoped.accent || global.accent || "blue",
+    glassPack: scoped.glassPack || global.glassPack || "",
+    glassColor: scoped.glassColor || global.glassColor || "blue",
   };
 }
 
@@ -288,6 +292,45 @@ function dnThemeIsPremiumWallpaperActive(wallpaperId) {
   }
 }
 
+function dnThemeGetGlassCacheKey() {
+  return `dn_premium_glass_cards_${dnThemeGetCurrentUserId()}`;
+}
+
+function dnThemeIsGlassPackActive(packId) {
+  try {
+    const cache = JSON.parse(localStorage.getItem(dnThemeGetGlassCacheKey()) || "{}");
+    const item = cache?.[packId];
+    return Boolean(item && Number(item.expiresAt || 0) > Date.now());
+  } catch {
+    return false;
+  }
+}
+
+function dnThemeGetGlassColorRgb(color = "blue") {
+  const colors = {
+    blue: "78, 161, 255",
+    purple: "155, 92, 255",
+    pink: "255, 92, 168",
+    gold: "255, 213, 74",
+    green: "66, 200, 131",
+    orange: "255, 155, 66",
+  };
+
+  return colors[color] || colors.blue;
+}
+
+function dnThemeClearGlassClasses() {
+  const body = document.body;
+
+  body.classList.remove(
+    "dn-glass-pack-1",
+    "dn-glass-pack-2",
+    "dn-glass-pack-3"
+  );
+
+  body.style.removeProperty("--dn-glass-rgb");
+}
+
 function dnThemeApplyToCurrentPage() {
   const settings = dnThemeLoadSettings();
   const scope = dnThemeGetPageScope();
@@ -296,6 +339,7 @@ function dnThemeApplyToCurrentPage() {
 
   dnThemeClearWallpaperClasses();
   dnThemeClearAccentClasses();
+  dnThemeClearGlassClasses();
 
   body.style.backgroundImage = "";
   body.style.backgroundSize = "";
@@ -324,6 +368,17 @@ function dnThemeApplyToCurrentPage() {
       body.style.backgroundColor = "#09101c";
     } else {
       body.classList.add(`wallpaper-${theme.wallpaper}`);
+    }
+  }
+
+  if (theme.glassPack && dnThemeIsGlassPackActive(theme.glassPack)) {
+    body.classList.add(`dn-${theme.glassPack.replace(/_/g, "-")}`);
+
+    if (theme.glassPack === "glass_pack_3") {
+      body.style.setProperty(
+        "--dn-glass-rgb",
+        dnThemeGetGlassColorRgb(theme.glassColor || "blue")
+      );
     }
   }
 
@@ -389,5 +444,7 @@ window.dnThemeApplyToCurrentPage = dnThemeApplyToCurrentPage;
 window.dnThemeBuildWallpaperPreview = dnThemeBuildWallpaperPreview;
 window.dnThemeIsPremiumWallpaperActive = dnThemeIsPremiumWallpaperActive;
 window.dnThemeGetPremiumCacheKey = dnThemeGetPremiumCacheKey;
+window.dnThemeIsGlassPackActive = dnThemeIsGlassPackActive;
+window.dnThemeGetGlassCacheKey = dnThemeGetGlassCacheKey;
 
 dnThemeBootWatcher();
