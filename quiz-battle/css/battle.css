@@ -4327,3 +4327,139 @@ body.stage5 .battle-character-platform::after {
   display: flex;
   align-items: flex-end;
 }
+
+/* =========================================================
+   FINAL START AREA FIX
+   Join/Create LEFT of Start button
+   Start card hidden, only image button visible
+   ========================================================= */
+
+.battle-bottom-strip {
+  position: fixed;
+  left: 115px;
+  right: 18px;
+  bottom: 18px;
+  z-index: 30;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+
+  pointer-events: none;
+}
+
+.battle-selection-card {
+  width: 250px;
+  height: 90px;
+  pointer-events: auto;
+}
+
+.battle-start-stack {
+  width: 470px;
+  display: grid;
+  grid-template-columns: 180px 270px;
+  grid-template-rows: 54px 54px;
+  gap: 10px 14px;
+  align-items: center;
+  justify-content: end;
+  pointer-events: auto;
+  transform: none !important;
+}
+
+.battle-start-stack .battle-floating-sub-btn {
+  width: 180px;
+  height: 54px;
+  min-height: 54px;
+  justify-self: stretch;
+  font-size: 18px;
+  border-radius: 999px;
+}
+
+#joinRoomBtn {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+#createRoomBtn {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.battle-start-card {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+
+  width: 270px;
+  height: 118px;
+  min-height: 118px;
+  padding: 0 !important;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.battle-start-main-btn {
+  width: 270px;
+  height: 118px;
+  min-height: 118px;
+
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0;
+  overflow: visible;
+}
+
+.battle-start-main-btn img {
+  width: 150%;
+  height: 150%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+.battle-start-subactions {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  .battle-bottom-strip {
+    left: 96px;
+    right: 10px;
+    bottom: 12px;
+  }
+
+  .battle-start-stack {
+    width: 390px;
+    grid-template-columns: 145px 230px;
+    grid-template-rows: 48px 48px;
+    gap: 8px 10px;
+  }
+
+  .battle-start-stack .battle-floating-sub-btn {
+    width: 145px;
+    height: 48px;
+    min-height: 48px;
+    font-size: 15px;
+  }
+
+  .battle-start-card,
+  .battle-start-main-btn {
+    width: 230px;
+    height: 104px;
+    min-height: 104px;
+  }
+
+  .battle-start-main-btn img {
+    width: 145%;
+    height: 145%;
+  }
+}
