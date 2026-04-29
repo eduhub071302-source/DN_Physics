@@ -109,9 +109,9 @@
           <span>Friends</span>
         </button>
 
-        <button id="battleNavCharsBtn" class="battle-side-nav" type="button">
-          <span class="battle-side-icon">🧍</span>
-          <span>Chars</span>
+        <button id="battleNavSummaryBtn" class="battle-side-nav" type="button">
+          <span class="battle-side-icon">📋</span>
+          <span>SC</span>
         </button>
 
         <button id="battleNavRewardsBtn" class="battle-side-nav" type="button">
@@ -892,6 +892,55 @@
               src="/assets/avatars/avatar-01.png"
               alt="Selected character"
             />
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div
+      id="battleSummaryOverlay"
+      class="battle-summary-overlay hidden"
+      aria-hidden="true"
+    >
+      <div class="battle-summary-backdrop"></div>
+
+      <section
+        class="battle-summary-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="battleSummaryTitle"
+      >
+        <div class="battle-summary-head">
+          <div>
+            <span class="battle-summary-badge">Room Summary</span>
+            <h2 id="battleSummaryTitle">Selected Battle Room</h2>
+            <p>Preview your selected room setup before creating or joining.</p>
+          </div>
+
+          <button id="battleSummaryCloseBtn" class="battle-icon-btn" type="button">
+            ✕
+          </button>
+        </div>
+
+        <div class="battle-summary-grid">
+          <div class="battle-summary-card">
+            <span>Mode</span>
+            <strong id="battleSummaryMode">Normal Duel</strong>
+          </div>
+
+          <div class="battle-summary-card">
+            <span>Subject</span>
+            <strong id="battleSummarySubject">Physics</strong>
+          </div>
+
+          <div class="battle-summary-card">
+            <span>Topic</span>
+            <strong id="battleSummaryTopic">Units</strong>
+          </div>
+
+          <div class="battle-summary-card">
+            <span>Subtopic</span>
+            <strong id="battleSummarySubtopic">Unit Dimensions</strong>
           </div>
         </div>
       </section>
