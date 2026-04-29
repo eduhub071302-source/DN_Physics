@@ -1182,6 +1182,7 @@ async function initPage() {
   setupOnboarding();
   setupSplash();
   setupSubjectChooser();
+  setupQuizBattleEntrance();
   setupUnlockButton();
 
   updateUnlockButton();
