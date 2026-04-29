@@ -877,23 +877,26 @@ function bindUi(els, state) {
   });
 
   els.battleNavLobbyBtn?.addEventListener("click", () => {
+    closeAllPopupsOnly(els);
     toggleRightPanel(els, "modes");
   });
 
   els.battleNavFriendsBtn?.addEventListener("click", () => {
+    closeAllPopupsOnly(els);
     toggleRightPanel(els, "friends");
   });
 
   els.battleFriendsBackBtn?.addEventListener("click", () => {
-    toggleRightPanel(els, "modes");
+    hideRightPanels(els);
   });
 
   els.battleNavHistoryBtn?.addEventListener("click", () => {
+    closeAllPopupsOnly(els);
     toggleRightPanel(els, "history");
   });
 
   els.battleHistoryBackBtn?.addEventListener("click", () => {
-    toggleRightPanel(els, "modes");
+    hideRightPanels(els);
   });
 
   els.battleOpenCustomizeBtn?.addEventListener("click", () => {
@@ -1362,10 +1365,20 @@ function showCustomizePane(els, paneName = "backgrounds") {
   }
 }
 
+function closeAllPopupsOnly(els) {
+  closeCreateRoomModal(els);
+  closeCharsOverlay(els);
+  closeSummaryOverlay(els);
+  closeRewardsOverlay(els);
+  closeCustomizeDrawer(els);
+}
+
 function showRightPanel(els, panelName = "modes") {
   const showModes = panelName === "modes";
   const showFriends = panelName === "friends";
   const showHistory = panelName === "history";
+
+  closeAllPopupsOnly(els);
 
   els.battleModePanel?.classList.toggle("is-active", showModes);
   els.battleModePanel?.classList.toggle("hidden-panel", !showModes);
@@ -1396,16 +1409,16 @@ function hideRightPanels(els) {
   els.battleNavHistoryBtn?.classList.remove("active");
 }
 
-function toggleRightPanel(els, panelName) {
+function toggleRightPanel(els, panelName = "modes") {
   const panelMap = {
     modes: els.battleModePanel,
     friends: els.battleFriendsPanel,
     history: els.battleHistoryPanel,
   };
 
-  const targetPanel = panelMap[panelName];
+  const panel = panelMap[panelName];
 
-  if (targetPanel?.classList.contains("is-active")) {
+  if (panel?.classList.contains("is-active")) {
     hideRightPanels(els);
     return;
   }
