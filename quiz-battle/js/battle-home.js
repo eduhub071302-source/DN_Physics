@@ -789,6 +789,11 @@ function getEls() {
     closeCreateRoomModalBtn: document.getElementById("closeCreateRoomModalBtn"),
     confirmCreateRoomBtn: document.getElementById("confirmCreateRoomBtn"),
 
+    joinRoomModal: document.getElementById("joinRoomModal"),
+    closeJoinRoomModalBtn: document.getElementById("closeJoinRoomModalBtn"),
+    confirmJoinRoomBtn: document.getElementById("confirmJoinRoomBtn"),
+    battleJoinRoomCodeInput: document.getElementById("battleJoinRoomCodeInput"),
+
     battleModeSelect: document.getElementById("battleModeSelect"),
     battleSubjectSelect: document.getElementById("battleSubjectSelect"),
     battleTopicSelect: document.getElementById("battleTopicSelect"),
@@ -869,11 +874,12 @@ function bindUi(els, state) {
   });
 
   els.openModePanelBtn?.addEventListener("click", () => {
-    showRightPanel(els, "modes");
+    closeAllPopupsOnly(els);
+    toggleRightPanel(els, "modes");
   });
 
   els.closeModePanelBtn?.addEventListener("click", () => {
-    showRightPanel(els, "modes");
+    hideRightPanels(els);
   });
 
   els.battleNavLobbyBtn?.addEventListener("click", () => {
@@ -1035,20 +1041,26 @@ function bindUi(els, state) {
   });
 
   els.joinRoomBtn?.addEventListener("click", () => {
-    const raw = window.prompt("Enter room code");
-    const roomCode = normalizeRoomCode(raw || "");
-
-    if (!roomCode) {
-      showBattleToast("Enter a valid room code.");
-      return;
-    }
-
-    safeLocalSet(BATTLE_LAST_ROOM_KEY, roomCode);
-    window.location.href = `${BATTLE_APP_PATH}/quiz-battle/lobby.html?room=${encodeURIComponent(roomCode)}`;
+    openJoinRoomModal(els);
   });
 
   els.closeCreateRoomModalBtn?.addEventListener("click", () => {
     closeCreateRoomModal(els);
+  });
+
+  els.closeJoinRoomModalBtn?.addEventListener("click", () => {
+    closeJoinRoomModal(els);
+  });
+
+  els.confirmJoinRoomBtn?.addEventListener("click", () => {
+    confirmJoinRoom(els);
+  });
+
+  els.battleJoinRoomCodeInput?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      confirmJoinRoom(els);
+    }
   });
 
   els.createRoomModal?.addEventListener("click", (event) => {
@@ -1057,6 +1069,15 @@ function bindUi(els, state) {
       event.target.classList.contains("battle-modal-backdrop")
     ) {
       closeCreateRoomModal(els);
+    }
+  });
+
+  els.joinRoomModal?.addEventListener("click", (event) => {
+    if (
+      event.target === els.joinRoomModal ||
+      event.target.classList.contains("battle-modal-backdrop")
+    ) {
+      closeJoinRoomModal(els);
     }
   });
 
@@ -1200,6 +1221,7 @@ function bindUi(els, state) {
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       closeCreateRoomModal(els);
+      closeJoinRoomModal(els);
       closeCharsOverlay(els);
       closeSummaryOverlay(els);
       closeRewardsOverlay(els);
@@ -1288,6 +1310,9 @@ function applyCustomizeStateToUi(els, state) {
 }
 
 function openSummaryOverlay(els, state) {
+  hideRightPanels(els);
+  closeCreateRoomModal(els);
+  closeJoinRoomModal(els);
   closeCharsOverlay(els);
   closeRewardsOverlay(els);
   closeCustomizeDrawer(els);
@@ -1320,15 +1345,21 @@ function openSummaryOverlay(els, state) {
 
   els.battleSummaryOverlay?.classList.remove("hidden");
   els.battleSummaryOverlay?.setAttribute("aria-hidden", "false");
+  els.battleNavSummaryBtn?.classList.add("active");
 }
 
 function closeSummaryOverlay(els) {
   els.battleSummaryOverlay?.classList.add("hidden");
   els.battleSummaryOverlay?.setAttribute("aria-hidden", "true");
+  els.battleNavSummaryBtn?.classList.remove("active");
 }
 
 function openCustomizeDrawer(els) {
+  hideRightPanels(els);
+  closeCreateRoomModal(els);
+  closeJoinRoomModal(els);
   closeCharsOverlay(els);
+  closeSummaryOverlay(els);
   closeRewardsOverlay(els);
 
   els.battleCustomizeDrawer?.classList.add("is-open");
@@ -1367,6 +1398,7 @@ function showCustomizePane(els, paneName = "backgrounds") {
 
 function closeAllPopupsOnly(els) {
   closeCreateRoomModal(els);
+  closeJoinRoomModal(els);
   closeCharsOverlay(els);
   closeSummaryOverlay(els);
   closeRewardsOverlay(els);
@@ -1735,7 +1767,12 @@ function renderRewardsHistory(els, state) {
 }
 
 function openRewardsOverlay(els, state) {
+  hideRightPanels(els);
+  closeCreateRoomModal(els);
+  closeJoinRoomModal(els);
   closeCharsOverlay(els);
+  closeSummaryOverlay(els);
+  closeCustomizeDrawer(els);
 
   els.battleRewardsOverlay?.classList.remove("hidden");
   els.battleRewardsOverlay?.setAttribute("aria-hidden", "false");
@@ -1964,9 +2001,20 @@ function hydrateCreateRoomSelectors(els, state) {
 }
 
 function applySelectionToUi(els, state) {
-  const subjectLabel = prettifySlug(state.selectedSubject || "physics");
-  const topicLabel = prettifySlug(state.selectedTopic || "mechanics");
-  const subtopicLabel = prettifySlug(state.selectedSubtopic || "newtons-laws");
+  const subjectLabel =
+    BATTLE_SUBJECT_DATA[state.selectedSubject]?.label ||
+    prettifySlug(state.selectedSubject || "physics");
+
+  const topicLabel =
+    getTopicData(state.selectedSubject, state.selectedTopic)?.title ||
+    prettifySlug(state.selectedTopic || "units");
+
+  const subtopicLabel =
+    getSubtopicData(
+      state.selectedSubject,
+      state.selectedTopic,
+      state.selectedSubtopic,
+    )?.title || prettifySlug(state.selectedSubtopic || "unit-dimensions");
 
   if (els.battleSelectedModeText) {
     els.battleSelectedModeText.textContent = state.selectedModeLabel;
@@ -1991,20 +2039,6 @@ function applySelectionToUi(els, state) {
     );
   }
 
-  const subjectLabel =
-    BATTLE_SUBJECT_DATA[state.selectedSubject]?.label ||
-    prettifySlug(state.selectedSubject);
-
-  const topicLabel =
-    getTopicData(state.selectedSubject, state.selectedTopic)?.title ||
-    prettifySlug(state.selectedTopic);
-
-  const subtopicLabel =
-    getSubtopicData(
-      state.selectedSubject,
-      state.selectedTopic,
-      state.selectedSubtopic,
-    )?.title || prettifySlug(state.selectedSubtopic);
 
   if (els.battleLiveSummaryTitle) {
     els.battleLiveSummaryTitle.textContent = state.selectedModeLabel || "Normal Duel";
@@ -2071,7 +2105,51 @@ async function tryLandscapeLock() {
   }
 }
 
+function openJoinRoomModal(els) {
+  hideRightPanels(els);
+  closeCreateRoomModal(els);
+  closeCharsOverlay(els);
+  closeSummaryOverlay(els);
+  closeRewardsOverlay(els);
+  closeCustomizeDrawer(els);
+
+  if (els.battleJoinRoomCodeInput) {
+    els.battleJoinRoomCodeInput.value = safeLocalGet(BATTLE_LAST_ROOM_KEY) || "";
+  }
+
+  els.joinRoomModal?.classList.remove("hidden");
+  els.joinRoomModal?.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+  setTimeout(() => els.battleJoinRoomCodeInput?.focus(), 60);
+}
+
+function closeJoinRoomModal(els) {
+  els.joinRoomModal?.classList.add("hidden");
+  els.joinRoomModal?.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+}
+
+function confirmJoinRoom(els) {
+  const roomCode = normalizeRoomCode(els.battleJoinRoomCodeInput?.value || "");
+
+  if (!roomCode) {
+    showBattleToast("Enter a valid room code.");
+    els.battleJoinRoomCodeInput?.focus();
+    return;
+  }
+
+  safeLocalSet(BATTLE_LAST_ROOM_KEY, roomCode);
+  window.location.href = `${BATTLE_APP_PATH}/quiz-battle/lobby.html?room=${encodeURIComponent(roomCode)}`;
+}
+
 function openCreateRoomModal(els) {
+  hideRightPanels(els);
+  closeJoinRoomModal(els);
+  closeCharsOverlay(els);
+  closeSummaryOverlay(els);
+  closeRewardsOverlay(els);
+  closeCustomizeDrawer(els);
+
   els.createRoomModal?.classList.remove("hidden");
   els.createRoomModal?.setAttribute("aria-hidden", "false");
   document.body.style.overflow = "hidden";
