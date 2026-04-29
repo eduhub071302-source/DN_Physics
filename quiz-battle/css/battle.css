@@ -4748,3 +4748,55 @@ body.stage5 .battle-character-platform::after {
   z-index: 46;
   pointer-events: auto;
 }
+
+/* =========================================================
+   FINAL LOBBY PANEL + POPUP STACK FIX
+========================================================= */
+
+.battle-right-panel-shell {
+  position: fixed !important;
+  top: 102px !important;
+  right: 12px !important;
+  bottom: 150px !important;
+  width: 330px !important;
+  z-index: 160 !important;
+  pointer-events: none;
+}
+
+.battle-right-panel-view {
+  pointer-events: none;
+}
+
+.battle-right-panel-view.is-active {
+  pointer-events: auto !important;
+  z-index: 161 !important;
+}
+
+.battle-bottom-strip {
+  z-index: 80 !important;
+}
+
+.battle-modal,
+.battle-summary-overlay,
+.battle-rewards-overlay,
+.battle-chars-overlay,
+.battle-customize-drawer {
+  z-index: 300 !important;
+}
+
+.battle-modal:not(.hidden),
+.battle-summary-overlay:not(.hidden),
+.battle-rewards-overlay:not(.hidden),
+.battle-chars-overlay:not(.hidden),
+.battle-customize-drawer.is-open {
+  pointer-events: auto !important;
+}
+
+.battle-modal-box,
+.battle-summary-panel,
+.battle-rewards-panel,
+.battle-chars-panel,
+.battle-customize-panel {
+  z-index: 301 !important;
+  pointer-events: auto !important;
+}
