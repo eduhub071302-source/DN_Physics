@@ -697,7 +697,13 @@ function getEls() {
     battleNavLobbyBtn: document.getElementById("battleNavLobbyBtn"),
     battleNavFriendsBtn: document.getElementById("battleNavFriendsBtn"),
     battleNavRewardsBtn: document.getElementById("battleNavRewardsBtn"),
-    battleNavCharsBtn: document.getElementById("battleNavCharsBtn"),
+    battleNavSummaryBtn: document.getElementById("battleNavSummaryBtn"),
+    battleSummaryOverlay: document.getElementById("battleSummaryOverlay"),
+    battleSummaryCloseBtn: document.getElementById("battleSummaryCloseBtn"),
+    battleSummaryMode: document.getElementById("battleSummaryMode"),
+    battleSummarySubject: document.getElementById("battleSummarySubject"),
+    battleSummaryTopic: document.getElementById("battleSummaryTopic"),
+    battleSummarySubtopic: document.getElementById("battleSummarySubtopic"),
     battleNavHistoryBtn: document.getElementById("battleNavHistoryBtn"),
 
     battleOpenCustomizeBtn: document.getElementById("battleOpenCustomizeBtn"),
@@ -917,8 +923,21 @@ function bindUi(els, state) {
     });
   });
 
-  els.battleNavCharsBtn?.addEventListener("click", () => {
-    openCharsOverlay(els);
+  els.battleNavSummaryBtn?.addEventListener("click", () => {
+    openSummaryOverlay(els, state);
+  });
+
+  els.battleSummaryCloseBtn?.addEventListener("click", () => {
+    closeSummaryOverlay(els);
+  });
+
+  els.battleSummaryOverlay?.addEventListener("click", (event) => {
+    if (
+      event.target === els.battleSummaryOverlay ||
+      event.target.classList.contains("battle-summary-backdrop")
+    ) {
+      closeSummaryOverlay(els);
+    }
   });
 
   els.battleCharsBackBtn?.addEventListener("click", () => {
@@ -1179,6 +1198,7 @@ function bindUi(els, state) {
     if (event.key === "Escape") {
       closeCreateRoomModal(els);
       closeCharsOverlay(els);
+      closeSummaryOverlay(els);
       closeRewardsOverlay(els);
       closeCustomizeDrawer(els);
       hideRotateNotice(els);
@@ -1262,6 +1282,46 @@ function applyCustomizeStateToUi(els, state) {
   );
 
   document.body.classList.add(state.customize.activeStageId);
+}
+
+function openSummaryOverlay(els, state) {
+  closeCharsOverlay(els);
+  closeRewardsOverlay(els);
+  closeCustomizeDrawer(els);
+
+  if (els.battleSummaryMode) {
+    els.battleSummaryMode.textContent = state.selectedModeLabel || "Normal Duel";
+  }
+
+  if (els.battleSummarySubject) {
+    els.battleSummarySubject.textContent =
+      BATTLE_SUBJECT_DATA[state.selectedSubject]?.label ||
+      prettifySlug(state.selectedSubject || "physics");
+  }
+
+  const topicData = getTopicData(state.selectedSubject, state.selectedTopic);
+
+  if (els.battleSummaryTopic) {
+    els.battleSummaryTopic.textContent =
+      topicData?.title || prettifySlug(state.selectedTopic || "units");
+  }
+
+  const subtopicData = (topicData?.subtopics || []).find(
+    (item) => item.slug === state.selectedSubtopic
+  );
+
+  if (els.battleSummarySubtopic) {
+    els.battleSummarySubtopic.textContent =
+      subtopicData?.title || prettifySlug(state.selectedSubtopic || "unit-dimensions");
+  }
+
+  els.battleSummaryOverlay?.classList.remove("hidden");
+  els.battleSummaryOverlay?.setAttribute("aria-hidden", "false");
+}
+
+function closeSummaryOverlay(els) {
+  els.battleSummaryOverlay?.classList.add("hidden");
+  els.battleSummaryOverlay?.setAttribute("aria-hidden", "true");
 }
 
 function openCustomizeDrawer(els) {
