@@ -671,12 +671,8 @@ body.battle-page {
 /* bottom strip */
 .battle-bottom-strip {
   display: grid;
-  grid-template-columns: minmax(190px, 0.9fr) minmax(220px, 1fr) minmax(
-      250px,
-      1.1fr
-    );
-  gap: 10px;
-  align-items: stretch;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
 .battle-player-info-card,
@@ -3255,8 +3251,8 @@ body.battle-page {
   }
 
   .battle-start-main-btn {
-    min-height: 44px;
-    height: 44px;
+    min-height: 90px;
+    height: 90px;
   }
 
   .battle-brand-text h1 {
@@ -3339,8 +3335,8 @@ body.battle-page {
   }
 
   .battle-start-main-btn {
-    min-height: 52px;
-    height: 52px;
+    min-height: 90px;
+    height: 90px;
   }
 
   .battle-selection-top strong {
@@ -4305,4 +4301,29 @@ body.stage5 .battle-character-platform::after {
   .battle-start-main-btn {
     width: 150px;
   }
+}
+
+/* ❌ REMOVE CENTER STAGE + CHARACTER */
+.battle-character-arena,
+.battle-center-character-zone,
+.battle-character-stand,
+.battle-main-character-img,
+.battle-character-platform,
+.battle-character-platform-glow {
+  display: none !important;
+}
+
+/* ❌ REMOVE YOU / HOST BADGE */
+.battle-you-badge {
+  display: none !important;
+}
+
+/* ❌ REMOVE JOIN + CREATE (bottom small buttons under start) */
+.battle-start-subactions {
+  display: none !important;
+}
+
+.battle-center-stage {
+  display: flex;
+  align-items: flex-end;
 }
