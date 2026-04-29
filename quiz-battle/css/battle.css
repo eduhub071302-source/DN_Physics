@@ -4672,3 +4672,79 @@ body.stage5 .battle-character-platform::after {
   visibility: hidden !important;
   pointer-events: none !important;
 }
+
+/* =========================================================
+   FINAL CLICK / TOUCH LAYER FIX
+   Keeps lobby buttons and modals touch-safe
+========================================================= */
+
+.battle-game-shell {
+  position: relative;
+  z-index: 10;
+}
+
+.battle-cinematic-bg,
+.battle-cinematic-overlay,
+.battle-particle-layer,
+.battle-light-glow,
+.battle-theme-fx {
+  pointer-events: none !important;
+}
+
+.battle-bottom-strip {
+  position: fixed;
+  left: 115px;
+  right: 18px;
+  bottom: 18px;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.battle-selection-card,
+.battle-start-stack,
+.battle-start-card,
+#joinRoomBtn,
+#createRoomBtn,
+#startSelectedBattleBtn {
+  pointer-events: auto !important;
+}
+
+#joinRoomBtn,
+#createRoomBtn,
+#startSelectedBattleBtn {
+  position: relative;
+  z-index: 35;
+  touch-action: manipulation;
+}
+
+.battle-modal,
+.battle-summary-overlay,
+.battle-rewards-overlay,
+.battle-chars-overlay {
+  z-index: 200 !important;
+}
+
+.battle-modal:not(.hidden),
+.battle-summary-overlay:not(.hidden),
+.battle-rewards-overlay:not(.hidden),
+.battle-chars-overlay:not(.hidden) {
+  pointer-events: auto !important;
+}
+
+.battle-modal-box,
+.battle-summary-panel,
+.battle-rewards-panel,
+.battle-chars-panel {
+  position: relative;
+  z-index: 201 !important;
+  pointer-events: auto !important;
+}
+
+.battle-right-panel-shell {
+  z-index: 45;
+}
+
+.battle-right-panel-view.is-active {
+  z-index: 46;
+  pointer-events: auto;
+}
