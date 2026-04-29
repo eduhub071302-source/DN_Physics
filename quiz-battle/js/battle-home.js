@@ -893,7 +893,7 @@ function bindUi(els, state) {
   });
 
   els.battleFriendsBackBtn?.addEventListener("click", () => {
-    hideRightPanels(els);
+    showRightPanel(els, "modes");
   });
 
   els.battleNavHistoryBtn?.addEventListener("click", () => {
@@ -902,13 +902,18 @@ function bindUi(els, state) {
   });
 
   els.battleHistoryBackBtn?.addEventListener("click", () => {
-    hideRightPanels(els);
+    showRightPanel(els, "modes");
   });
 
   els.battleOpenCustomizeBtn?.addEventListener("click", () => {
+    closeCreateRoomModal(els);
+    closeJoinRoomModal(els);
+    closeCharsOverlay(els);
+    closeSummaryOverlay(els);
+    closeRewardsOverlay(els);
     openCustomizeDrawer(els);
   });
-
+  
   els.battleCustomizeCloseBtn?.addEventListener("click", () => {
     closeCustomizeDrawer(els);
   });
@@ -933,6 +938,11 @@ function bindUi(els, state) {
   });
 
   els.battleNavSummaryBtn?.addEventListener("click", () => {
+    closeCreateRoomModal(els);
+    closeJoinRoomModal(els);
+    closeCharsOverlay(els);
+    closeRewardsOverlay(els);
+    closeCustomizeDrawer(els);
     openSummaryOverlay(els, state);
   });
 
@@ -1004,6 +1014,11 @@ function bindUi(els, state) {
   });
 
   els.battleNavRewardsBtn?.addEventListener("click", () => {
+    closeCreateRoomModal(els);
+    closeJoinRoomModal(els);
+    closeCharsOverlay(els);
+    closeSummaryOverlay(els);
+    closeCustomizeDrawer(els);
     openRewardsOverlay(els, state);
   });
 
@@ -1230,7 +1245,7 @@ function bindUi(els, state) {
     }
   });
 
-  hideRightPanels(els);
+  showRightPanel(els, "modes");
   showCustomizePane(els, "backgrounds");
 
   if (els.charCards?.length) {
