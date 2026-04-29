@@ -510,6 +510,23 @@
       </div>
     </div>
 
+    <!-- DN QUIZ BATTLE LOADING -->
+    <div id="quizBattleLoadingOverlay" class="quiz-battle-loading-overlay hidden" aria-hidden="true">
+      <div class="quiz-battle-loading-card">
+        <div class="quiz-battle-loading-orb">⚔️</div>
+        <div class="quiz-battle-loading-badge">DN Quiz Battle</div>
+
+        <h2>Entering Battle Lobby</h2>
+        <p id="quizBattleLoadingText">Preparing your arena...</p>
+
+        <div class="quiz-battle-loading-bar">
+          <div id="quizBattleLoadingFill" class="quiz-battle-loading-fill"></div>
+        </div>
+
+        <small>Loading lobby resources smoothly...</small>
+      </div>
+    </div>
+
     <!-- HEADER -->
     <header class="site-header">
       <div class="container nav">
@@ -603,6 +620,10 @@
             >
               📚 Explore Notes
             </a>
+
+            <button id="openQuizBattleBtn" class="btn btn-primary hero-action-btn quiz-battle-home-btn" type="button">
+              ⚔️ DN Quiz Battle
+            </button>
           </div>
         </div>
       </section>
