@@ -286,6 +286,118 @@ function setupPullToRefresh() {
   });
 }
 
+function setupQuizBattleEntrance() {
+  const battleBtn = getEl("openQuizBattleBtn");
+  const overlay = getEl("quizBattleLoadingOverlay");
+  const loadingText = getEl("quizBattleLoadingText");
+  const loadingFill = getEl("quizBattleLoadingFill");
+
+  if (!battleBtn) return;
+
+  const battleAssets = [
+    "/quiz-battle/css/battle.css",
+    "/quiz-battle/js/battle-home.js",
+    "/quiz-battle/assets/badge-normal.png",
+    "/quiz-battle/assets/badge-fast.png",
+    "/quiz-battle/assets/badge-survival.png",
+    "/assets/ui/dn-quiz-battle-logo.png",
+    "/assets/ui/dn-token.png",
+    "/assets/ui/premium-start-btn.png",
+  ];
+
+  function setBattleLoading(percent, text) {
+    if (loadingFill) {
+      loadingFill.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+    }
+
+    if (loadingText) {
+      loadingText.textContent = text;
+    }
+  }
+
+  function preloadImage(src) {
+    return new Promise((resolve) => {
+      const img = new Image();
+
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.src = src;
+    });
+  }
+
+  async function preloadBattleAssets() {
+    let completed = 0;
+
+    const tasks = battleAssets.map(async (src) => {
+      try {
+        if (/\.(png|jpg|jpeg|webp|gif|svg)$/i.test(src)) {
+          await preloadImage(src);
+        } else {
+          await fetch(src, { cache: "force-cache" }).catch(() => null);
+        }
+      } finally {
+        completed += 1;
+        const percent = Math.round((completed / battleAssets.length) * 82) + 8;
+        setBattleLoading(percent, "Loading battle resources...");
+      }
+    });
+
+    await Promise.all(tasks);
+  }
+
+  async function tryBattleLandscapeLock() {
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+
+    if (!isMobile) return;
+
+    try {
+      if (screen.orientation?.lock) {
+        await screen.orientation.lock("landscape").catch(() => null);
+      }
+    } catch (error) {
+      console.warn("Battle landscape lock skipped:", error);
+    }
+  }
+
+  battleBtn.addEventListener("click", async () => {
+    try {
+      battleBtn.disabled = true;
+
+      if (overlay) {
+        overlay.classList.remove("hidden");
+        overlay.setAttribute("aria-hidden", "false");
+      }
+
+      document.body.style.overflow = "hidden";
+
+      setBattleLoading(8, "Opening battle gate...");
+
+      await tryBattleLandscapeLock();
+      await preloadBattleAssets();
+
+      setBattleLoading(100, "Entering lobby...");
+
+      setTimeout(() => {
+        window.location.href = `${APP_PATH}/quiz-battle/index.html`;
+      }, 450);
+    } catch (error) {
+      console.error("Quiz Battle entrance failed:", error);
+
+      if (typeof window.showToast === "function") {
+        window.showToast("Could not open DN Quiz Battle. Please try again.");
+      }
+
+      if (overlay) {
+        overlay.classList.add("hidden");
+        overlay.setAttribute("aria-hidden", "true");
+      }
+
+      document.body.style.overflow = "";
+      battleBtn.disabled = false;
+    }
+  });
+}
+
 function setupSplash() {
   const appSplash = getEl("appSplash");
   const skipSplashBtn = getEl("skipSplashBtn");
