@@ -690,6 +690,12 @@ function getEls() {
     battleRoleLabel: document.getElementById("battleRoleLabel"),
 
     battleSelectedModeText: document.getElementById("battleSelectedModeText"),
+    battleLiveSummaryTitle: document.getElementById("battleLiveSummaryTitle"),
+    battleLiveSummarySubline: document.getElementById("battleLiveSummarySubline"),
+    battleLiveSummaryMode: document.getElementById("battleLiveSummaryMode"),
+    battleLiveSummarySubject: document.getElementById("battleLiveSummarySubject"),
+    battleLiveSummaryTopic: document.getElementById("battleLiveSummaryTopic"),
+    battleLiveSummarySubtopic: document.getElementById("battleLiveSummarySubtopic"),
     battleSelectedSubjectTag: document.getElementById(
       "battleSelectedSubjectTag",
     ),
@@ -1977,6 +1983,46 @@ function applySelectionToUi(els, state) {
       "",
     );
   }
+
+  const subjectLabel =
+    BATTLE_SUBJECT_DATA[state.selectedSubject]?.label ||
+    prettifySlug(state.selectedSubject);
+
+  const topicLabel =
+    getTopicData(state.selectedSubject, state.selectedTopic)?.title ||
+    prettifySlug(state.selectedTopic);
+
+  const subtopicLabel =
+    getSubtopicData(
+      state.selectedSubject,
+      state.selectedTopic,
+      state.selectedSubtopic,
+    )?.title || prettifySlug(state.selectedSubtopic);
+
+  if (els.battleLiveSummaryTitle) {
+    els.battleLiveSummaryTitle.textContent = state.selectedModeLabel || "Normal Duel";
+  }
+
+  if (els.battleLiveSummarySubline) {
+    els.battleLiveSummarySubline.textContent =
+      `${subjectLabel} • ${topicLabel} • ${subtopicLabel}`;
+  }
+
+  if (els.battleLiveSummaryMode) {
+    els.battleLiveSummaryMode.textContent = state.selectedModeLabel || "Normal Duel";
+  }
+
+  if (els.battleLiveSummarySubject) {
+    els.battleLiveSummarySubject.textContent = subjectLabel;
+  }
+
+  if (els.battleLiveSummaryTopic) {
+    els.battleLiveSummaryTopic.textContent = topicLabel;
+  }
+
+  if (els.battleLiveSummarySubtopic) {
+    els.battleLiveSummarySubtopic.textContent = subtopicLabel;
+  }   
 }
 
 function syncModeCardsFromState(els, state) {
