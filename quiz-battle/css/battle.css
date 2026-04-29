@@ -4626,3 +4626,49 @@ body.stage5 .battle-character-platform::after {
 .battle-right-panel-shell {
   z-index: 90 !important;
 }
+
+/* =========================================================
+   FINAL CLICK + POPUP VISIBILITY FIX
+========================================================= */
+
+.battle-live-summary-card,
+.battle-live-summary-card * {
+  pointer-events: none !important;
+}
+
+.battle-sidebar,
+.battle-topbar,
+.battle-bottom-strip,
+.battle-start-stack {
+  pointer-events: auto !important;
+}
+
+.battle-side-nav,
+.battle-side-link,
+.battle-topbar-customize-btn,
+.battle-floating-sub-btn,
+.battle-start-main-btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+.battle-summary-overlay,
+.battle-rewards-overlay,
+.battle-modal,
+.battle-customize-drawer {
+  z-index: 9999 !important;
+}
+
+.battle-right-panel-view.is-active {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: translateX(0) !important;
+  z-index: 100 !important;
+}
+
+.battle-right-panel-view.hidden-panel {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
