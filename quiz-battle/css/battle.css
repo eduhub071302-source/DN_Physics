@@ -4550,3 +4550,79 @@ body.stage5 .battle-character-platform::after {
 .battle-start-subactions {
   display: none !important;
 }
+
+/* =========================================================
+   EMERGENCY CLICK FIX - DO NOT REMOVE
+   Fixes left menu, customize, join/create/start buttons
+========================================================= */
+
+.battle-game-shell {
+  position: relative;
+  z-index: 10;
+}
+
+.battle-live-summary-card {
+  z-index: 3 !important;
+  pointer-events: none !important;
+}
+
+.battle-live-summary-card * {
+  pointer-events: none !important;
+}
+
+.battle-sidebar,
+.battle-sidebar * {
+  pointer-events: auto !important;
+}
+
+.battle-sidebar {
+  position: relative;
+  z-index: 120 !important;
+}
+
+.battle-side-nav,
+.battle-side-link {
+  position: relative;
+  z-index: 121 !important;
+  pointer-events: auto !important;
+}
+
+.battle-topbar {
+  position: relative;
+  z-index: 130 !important;
+  pointer-events: auto !important;
+}
+
+.battle-top-left-card,
+.battle-top-right-card,
+.battle-topbar-customize-btn {
+  position: relative;
+  z-index: 131 !important;
+  pointer-events: auto !important;
+}
+
+.battle-bottom-strip {
+  z-index: 140 !important;
+  pointer-events: none !important;
+}
+
+.battle-selection-card,
+.battle-start-stack,
+.battle-start-card,
+.battle-start-main-btn,
+.battle-floating-sub-btn,
+#joinRoomBtn,
+#createRoomBtn,
+#startSelectedBattleBtn {
+  position: relative;
+  z-index: 141 !important;
+  pointer-events: auto !important;
+}
+
+.battle-start-main-btn img {
+  pointer-events: none !important;
+}
+
+.battle-right-panel-shell {
+  z-index: 90 !important;
+}
