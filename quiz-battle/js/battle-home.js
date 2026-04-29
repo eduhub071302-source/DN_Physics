@@ -690,12 +690,6 @@ function getEls() {
     battleRoleLabel: document.getElementById("battleRoleLabel"),
 
     battleSelectedModeText: document.getElementById("battleSelectedModeText"),
-    battleLiveSummaryTitle: document.getElementById("battleLiveSummaryTitle"),
-    battleLiveSummarySubline: document.getElementById("battleLiveSummarySubline"),
-    battleLiveSummaryMode: document.getElementById("battleLiveSummaryMode"),
-    battleLiveSummarySubject: document.getElementById("battleLiveSummarySubject"),
-    battleLiveSummaryTopic: document.getElementById("battleLiveSummaryTopic"),
-    battleLiveSummarySubtopic: document.getElementById("battleLiveSummarySubtopic"),
     battleSelectedSubjectTag: document.getElementById(
       "battleSelectedSubjectTag",
     ),
