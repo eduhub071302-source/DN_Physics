@@ -1,0 +1,1110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>DN Quiz Battle</title>
+    <meta
+      name="description"
+      content="Enter the DN Quiz Battle premium gaming lobby and create or join a 1 vs 1 room."
+    />
+
+    <link rel="stylesheet" href="/css/style.css?v=1.0.24" />
+    <link rel="stylesheet" href="/quiz-battle/css/battle.css?v=13" />
+  </head>
+  <body class="battle-page battle-game-lobby-page">
+    <div id="rotateNotice" class="rotate-notice hidden" aria-hidden="true">
+      <div class="rotate-card">
+        <div class="rotate-icon">📱↔️</div>
+        <h2>Landscape Recommended</h2>
+        <p>
+          DN Quiz Battle lobby works best in landscape mode on mobile devices.
+        </p>
+        <button id="rotateContinueBtn" class="btn btn-primary" type="button">
+          Continue Anyway
+        </button>
+      </div>
+    </div>
+
+    <div
+      id="battleCinematicBg"
+      class="battle-cinematic-bg is-bg-geometry"
+      aria-hidden="true"
+    >
+      <div class="battle-cinematic-overlay"></div>
+
+      <div id="battleThemeFx" class="battle-theme-fx geometry-fx">
+        <div class="bg-blue-layer bg-blue-grid"></div>
+        <div class="bg-blue-layer bg-blue-glow-orbs"></div>
+      </div>
+
+      <div class="battle-particle-layer particle-layer-1"></div>
+      <div class="battle-particle-layer particle-layer-2"></div>
+      <div class="battle-light-glow left-glow"></div>
+      <div class="battle-light-glow right-glow"></div>
+    </div>
+
+    <main class="battle-game-shell">
+      <!-- Top bar -->
+      <header class="battle-topbar">
+        <div class="battle-top-left-card">
+          <button
+            id="battleOpenCustomizeBtn"
+            class="battle-topbar-customize-btn"
+            type="button"
+          >
+            Customize
+          </button>
+
+          <div class="battle-character-nameplate topbar-player-nameplate">
+            <div class="battle-character-title-line">
+              <span class="battle-level-badge" id="battlePlayerLevel">12</span>
+              <div class="battle-character-title-meta">
+                <strong id="battleHeroName">Guest Player</strong>
+                <span id="battleHeroSubline">LEVEL 12</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="battle-top-right-card">
+          <div class="battle-top-pill">
+            <img
+              src="/assets/ui/dn-token.png"
+              class="token-icon"
+              alt="DN Token"
+            />
+            <span id="battleTokenCount">3 DN Tokens</span>
+          </div>
+
+          <button class="battle-icon-btn" type="button" title="Settings">
+            ⚙️
+          </button>
+        </div>
+      </header>
+
+      <div class="battle-sidebar-logo-card">
+        <img
+          src="/assets/ui/dn-quiz-battle-logo.png"
+          alt="DN Quiz Battle Logo"
+        />
+      </div>
+
+      <!-- Left sidebar -->
+      <aside class="battle-sidebar">
+        <button
+          id="battleNavLobbyBtn"
+          class="battle-side-nav active"
+          type="button"
+        >
+          <span class="battle-side-icon">⚔️</span>
+          <span>Modes</span>
+        </button>
+
+        <button id="battleNavFriendsBtn" class="battle-side-nav" type="button">
+          <span class="battle-side-icon">👥</span>
+          <span>Friends</span>
+        </button>
+
+        <button id="battleNavCharsBtn" class="battle-side-nav" type="button">
+          <span class="battle-side-icon">🧍</span>
+          <span>Chars</span>
+        </button>
+
+        <button id="battleNavRewardsBtn" class="battle-side-nav" type="button">
+          <span class="battle-side-icon">🎁</span>
+          <span>Rewards</span>
+        </button>
+
+        <button id="battleNavHistoryBtn" class="battle-side-nav" type="button">
+          <span class="battle-side-icon">📜</span>
+          <span>History</span>
+        </button>
+
+        <a class="battle-side-nav battle-side-link" href="/index.html">
+          <span class="battle-side-icon">↩</span>
+          <span>Home</span>
+        </a>
+      </aside>
+
+      <!-- Center arena -->
+      <section class="battle-center-stage">
+        <div class="battle-character-arena">
+          <div class="battle-center-character-zone">
+            <div class="battle-banner battle-banner-blue"></div>
+            <div class="battle-banner battle-banner-red"></div>
+
+            <div class="battle-character-platform-glow"></div>
+
+            <div class="battle-character-platform">
+              <div class="battle-character-stand">
+                <img
+                  id="battleProfileAvatar"
+                  src="/assets/characters/char_01_sword_boy.png"
+                  alt="Battle character"
+                  class="battle-main-character-img"
+                />
+              </div>
+            </div>
+
+            <div class="battle-you-badge">
+              <strong>YOU</strong>
+              <span id="battleRoleLabel">HOST</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="battle-bottom-strip">
+          <div class="battle-selection-card compact-selection-card">
+            <div class="battle-selection-top compact-selection-top">
+              <span class="battle-selection-label">Selected</span>
+              <strong id="battleSelectedModeText">Normal Duel</strong>
+            </div>
+          </div>
+
+          <div class="battle-start-stack">
+            <button
+              id="joinRoomBtn"
+              class="battle-sub-btn battle-floating-sub-btn"
+              type="button"
+            >
+              Join by Code
+            </button>
+
+            <button
+              id="createRoomBtn"
+              class="battle-sub-btn battle-floating-sub-btn"
+              type="button"
+            >
+              Create Room
+            </button>
+
+            <div class="battle-start-card">
+              <button id="startSelectedBattleBtn" class="battle-start-main-btn">
+                <img src="/assets/ui/premium-start-btn.png" alt="Start" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right mode panel -->
+      <aside id="battleRightPanelShell" class="battle-right-panel-shell">
+        <!-- Mode panel -->
+        <section
+          id="battleModePanel"
+          class="battle-mode-sidebar battle-right-panel-view hidden-panel"
+        >
+          <div class="battle-mode-sidebar-head">
+            <h2>Select Battle Mode</h2>
+            <button
+              id="closeModePanelBtn"
+              class="battle-icon-btn battle-mode-mobile-close"
+              type="button"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div class="battle-mode-list">
+            <button
+              class="battle-mode-option active mode-normal"
+              type="button"
+              data-mode="normal-dual"
+              data-mode-label="Normal Duel"
+              data-timer-label="Timer: Match Based"
+            >
+              <div class="battle-mode-option-icon">
+                <img
+                  src="/quiz-battle/assets/badge-normal.png"
+                  alt="Normal Duel badge"
+                />
+              </div>
+
+              <div class="battle-mode-option-content">
+                <div class="battle-mode-option-top">
+                  <strong>Normal Duel</strong>
+                </div>
+
+                <p>Timed full match battle with balanced questions.</p>
+
+                <div class="battle-mode-option-tags">
+                  <span class="mode-tag">Strategy</span>
+                  <span class="mode-tag">Balanced</span>
+                  <span class="mode-tag">All Subjects</span>
+                </div>
+              </div>
+            </button>
+
+            <button
+              class="battle-mode-option mode-fast"
+              type="button"
+              data-mode="faster-thinker"
+              data-mode-label="Faster Thinker"
+              data-timer-label="Timer: Fast Reflex"
+            >
+              <div class="battle-mode-option-icon">
+                <img
+                  src="/quiz-battle/assets/badge-fast.png"
+                  alt="Faster Thinker badge"
+                />
+              </div>
+
+              <div class="battle-mode-option-content">
+                <div class="battle-mode-option-top">
+                  <strong>Faster Thinker</strong>
+                </div>
+
+                <p>Race for first correct answer. Fastest wins.</p>
+
+                <div class="battle-mode-option-tags">
+                  <span class="mode-tag">Speed</span>
+                  <span class="mode-tag">Reflex</span>
+                  <span class="mode-tag">High Intensity</span>
+                </div>
+              </div>
+            </button>
+
+            <button
+              class="battle-mode-option mode-survival"
+              type="button"
+              data-mode="survival-dual"
+              data-mode-label="Survival Duel"
+              data-timer-label="Timer: Pressure Based"
+            >
+              <div class="battle-mode-option-icon">
+                <img
+                  src="/quiz-battle/assets/badge-survival.png"
+                  alt="Survival Duel badge"
+                />
+              </div>
+
+              <div class="battle-mode-option-content">
+                <div class="battle-mode-option-top">
+                  <strong>Survival Duel</strong>
+                </div>
+
+                <p>Lives + pressure timer. Survive to win.</p>
+
+                <div class="battle-mode-option-tags">
+                  <span class="mode-tag">Lives</span>
+                  <span class="mode-tag">Pressure</span>
+                  <span class="mode-tag">Advanced</span>
+                </div>
+              </div>
+            </button>
+          </div>
+
+          <div class="battle-chat-strip">
+            <div class="battle-status-dot"></div>
+          </div>
+        </section>
+
+        <!-- Friends panel -->
+        <section
+          id="battleFriendsPanel"
+          class="battle-mode-sidebar battle-right-panel-view battle-friends-panel hidden-panel"
+        >
+          <div class="battle-mode-sidebar-head">
+            <h2>Friends</h2>
+            <button
+              id="battleFriendsBackBtn"
+              class="battle-icon-btn battle-mode-mobile-close"
+              type="button"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div class="battle-friends-panel-body">
+            <div class="battle-friends-top-strip">
+              <div class="battle-friends-count">
+                <strong>4</strong>
+                <span>Online Friends</span>
+              </div>
+            </div>
+
+            <div id="battleFriendsList" class="battle-friends-list">
+              <button class="battle-friend-card is-online" type="button">
+                <div class="battle-friend-rank">1</div>
+                <div class="battle-friend-avatar">
+                  <img
+                    src="/assets/avatars/avatar-01.png"
+                    alt="Friend avatar"
+                  />
+                </div>
+                <div class="battle-friend-meta">
+                  <strong>Player Clash</strong>
+                  <span>Online now</span>
+                </div>
+                <span class="battle-friend-action">Invite</span>
+              </button>
+
+              <button class="battle-friend-card is-online" type="button">
+                <div class="battle-friend-rank">2</div>
+                <div class="battle-friend-avatar">
+                  <img
+                    src="/assets/avatars/avatar-01.png"
+                    alt="Friend avatar"
+                  />
+                </div>
+                <div class="battle-friend-meta">
+                  <strong>Physics Boss</strong>
+                  <span>Ranked ready</span>
+                </div>
+                <span class="battle-friend-action">Invite</span>
+              </button>
+
+              <button class="battle-friend-card" type="button">
+                <div class="battle-friend-rank">3</div>
+                <div class="battle-friend-avatar">
+                  <img
+                    src="/assets/avatars/avatar-01.png"
+                    alt="Friend avatar"
+                  />
+                </div>
+                <div class="battle-friend-meta">
+                  <strong>Chem Master</strong>
+                  <span>Last seen 12m ago</span>
+                </div>
+                <span class="battle-friend-action">View</span>
+              </button>
+
+              <button class="battle-friend-card is-online" type="button">
+                <div class="battle-friend-rank">4</div>
+                <div class="battle-friend-avatar">
+                  <img
+                    src="/assets/avatars/avatar-01.png"
+                    alt="Friend avatar"
+                  />
+                </div>
+                <div class="battle-friend-meta">
+                  <strong>Quiz Titan</strong>
+                  <span>Online now</span>
+                </div>
+                <span class="battle-friend-action">Invite</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="battle-chat-strip">
+            <div class="battle-status-dot"></div>
+          </div>
+        </section>
+
+        <!-- History panel -->
+        <section
+          id="battleHistoryPanel"
+          class="battle-mode-sidebar battle-right-panel-view battle-history-panel hidden-panel"
+        >
+          <div class="battle-mode-sidebar-head">
+            <h2>History</h2>
+            <button
+              id="battleHistoryBackBtn"
+              class="battle-icon-btn battle-mode-mobile-close"
+              type="button"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div class="battle-history-panel-body">
+            <div class="battle-history-head-row">
+              <div class="battle-history-count">
+                <strong id="battleHistoryTotalCount">7</strong>
+                <span>Recent Battles</span>
+              </div>
+
+              <div class="battle-history-filter-pill">Latest</div>
+            </div>
+
+            <div id="battleHistoryList" class="battle-history-list">
+              <button class="battle-history-card win" type="button">
+                <div class="battle-history-rank">1</div>
+                <div class="battle-history-main">
+                  <div class="battle-history-top">
+                    <strong>Normal Duel</strong>
+                    <span class="battle-history-result win">Win</span>
+                  </div>
+                  <div class="battle-history-meta">
+                    <span>Physics</span>
+                    <span>•</span>
+                    <span>Unit Dimensions</span>
+                  </div>
+                </div>
+                <div class="battle-history-side">
+                  <strong>10 / 10</strong>
+                  <span>+18 pts</span>
+                </div>
+              </button>
+
+              <button class="battle-history-card lose" type="button">
+                <div class="battle-history-rank">2</div>
+                <div class="battle-history-main">
+                  <div class="battle-history-top">
+                    <strong>Faster Thinker</strong>
+                    <span class="battle-history-result lose">Lose</span>
+                  </div>
+                  <div class="battle-history-meta">
+                    <span>Physics</span>
+                    <span>•</span>
+                    <span>Mechanics</span>
+                  </div>
+                </div>
+                <div class="battle-history-side">
+                  <strong>7 / 10</strong>
+                  <span>-6 pts</span>
+                </div>
+              </button>
+
+              <button class="battle-history-card draw" type="button">
+                <div class="battle-history-rank">3</div>
+                <div class="battle-history-main">
+                  <div class="battle-history-top">
+                    <strong>Survival Duel</strong>
+                    <span class="battle-history-result draw">Draw</span>
+                  </div>
+                  <div class="battle-history-meta">
+                    <span>Chemistry</span>
+                    <span>•</span>
+                    <span>Atomic Structure</span>
+                  </div>
+                </div>
+                <div class="battle-history-side">
+                  <strong>8 / 10</strong>
+                  <span>+2 pts</span>
+                </div>
+              </button>
+
+              <button class="battle-history-card win" type="button">
+                <div class="battle-history-rank">4</div>
+                <div class="battle-history-main">
+                  <div class="battle-history-top">
+                    <strong>Normal Duel</strong>
+                    <span class="battle-history-result win">Win</span>
+                  </div>
+                  <div class="battle-history-meta">
+                    <span>Chemistry</span>
+                    <span>•</span>
+                    <span>Structure and Bonding</span>
+                  </div>
+                </div>
+                <div class="battle-history-side">
+                  <strong>9 / 10</strong>
+                  <span>+14 pts</span>
+                </div>
+              </button>
+
+              <button class="battle-history-card lose" type="button">
+                <div class="battle-history-rank">5</div>
+                <div class="battle-history-main">
+                  <div class="battle-history-top">
+                    <strong>Faster Thinker</strong>
+                    <span class="battle-history-result lose">Lose</span>
+                  </div>
+                  <div class="battle-history-meta">
+                    <span>Physics</span>
+                    <span>•</span>
+                    <span>Waves</span>
+                  </div>
+                </div>
+                <div class="battle-history-side">
+                  <strong>6 / 10</strong>
+                  <span>-4 pts</span>
+                </div>
+              </button>
+
+              <button class="battle-history-card win" type="button">
+                <div class="battle-history-rank">6</div>
+                <div class="battle-history-main">
+                  <div class="battle-history-top">
+                    <strong>Survival Duel</strong>
+                    <span class="battle-history-result win">Win</span>
+                  </div>
+                  <div class="battle-history-meta">
+                    <span>Physics</span>
+                    <span>•</span>
+                    <span>Current Electricity</span>
+                  </div>
+                </div>
+                <div class="battle-history-side">
+                  <strong>9 / 10</strong>
+                  <span>+16 pts</span>
+                </div>
+              </button>
+
+              <button class="battle-history-card win" type="button">
+                <div class="battle-history-rank">7</div>
+                <div class="battle-history-main">
+                  <div class="battle-history-top">
+                    <strong>Normal Duel</strong>
+                    <span class="battle-history-result win">Win</span>
+                  </div>
+                  <div class="battle-history-meta">
+                    <span>Chemistry</span>
+                    <span>•</span>
+                    <span>Energetic</span>
+                  </div>
+                </div>
+                <div class="battle-history-side">
+                  <strong>10 / 10</strong>
+                  <span>+21 pts</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div class="battle-chat-strip">
+            <div class="battle-status-dot"></div>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <div
+      id="battleCustomizeDrawer"
+      class="battle-customize-drawer"
+      aria-hidden="true"
+    >
+      <section
+        class="battle-customize-panel"
+        role="dialog"
+        aria-modal="false"
+        aria-labelledby="battleCustomizeTitle"
+      >
+        <div class="battle-customize-head">
+          <div class="battle-customize-head-copy">
+            <span class="battle-customize-badge">Live Preview</span>
+            <h2 id="battleCustomizeTitle">Customize Lobby</h2>
+            <p>
+              Pick animated backgrounds and stage styles. Your lobby preview
+              stays visible on the left.
+            </p>
+          </div>
+
+          <button
+            id="battleCustomizeCloseBtn"
+            class="battle-icon-btn battle-customize-close-btn"
+            type="button"
+            aria-label="Close customize panel"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div class="battle-customize-tabs">
+          <button
+            id="battleCustomizeTabBackgrounds"
+            class="battle-customize-tab is-active"
+            type="button"
+          >
+            Backgrounds
+          </button>
+
+          <button
+            id="battleCustomizeTabStages"
+            class="battle-customize-tab"
+            type="button"
+          >
+            Stages
+          </button>
+        </div>
+
+        <div class="battle-customize-body">
+          <section
+            id="battleCustomizeBackgroundsPane"
+            class="battle-customize-pane is-active"
+          >
+            <div class="battle-customize-section-head">
+              <strong>Animated Math Backgrounds</strong>
+              <span
+                >Step 1 panel only — backgrounds will be connected next.</span
+              >
+            </div>
+
+            <div
+              id="battleCustomizeBackgroundList"
+              class="battle-customize-card-list"
+            >
+              <button
+                class="battle-customize-item-card active"
+                type="button"
+                data-bg-id="bg1"
+              >
+                <div class="battle-customize-item-preview preview-bg-01"></div>
+                <div class="battle-customize-item-meta">
+                  <strong>Golden Study Girl</strong>
+                  <span>Warm study mood</span>
+                </div>
+              </button>
+
+              <button
+                class="battle-customize-item-card"
+                type="button"
+                data-bg-id="bg2"
+              >
+                <div class="battle-customize-item-preview preview-bg-02"></div>
+                <div class="battle-customize-item-meta">
+                  <strong>Classroom Focus Boy</strong>
+                  <span>Golden classroom focus</span>
+                </div>
+              </button>
+
+              <button
+                class="battle-customize-item-card"
+                type="button"
+                data-bg-id="bg3"
+              >
+                <div class="battle-customize-item-preview preview-bg-03"></div>
+                <div class="battle-customize-item-meta">
+                  <strong>Neon Math Boy</strong>
+                  <span>Blue neon formula room</span>
+                </div>
+              </button>
+
+              <button
+                class="battle-customize-item-card"
+                type="button"
+                data-bg-id="bg4"
+              >
+                <div class="battle-customize-item-preview preview-bg-04"></div>
+                <div class="battle-customize-item-meta">
+                  <strong>Night Math Girl</strong>
+                  <span>Night study atmosphere</span>
+                </div>
+              </button>
+
+              <button
+                class="battle-customize-item-card"
+                type="button"
+                data-bg-id="bg5"
+              >
+                <div class="battle-customize-item-preview preview-bg-05"></div>
+                <div class="battle-customize-item-meta">
+                  <strong>Deep Focus Boy</strong>
+                  <span>Dark blue intense focus</span>
+                </div>
+              </button>
+            </div>
+          </section>
+
+          <section
+            id="battleCustomizeStagesPane"
+            class="battle-customize-pane"
+            hidden
+          >
+            <div class="battle-customize-section-head">
+              <strong>Animated Stage Styles</strong>
+              <span
+                >Choose the platform style around your battle character.</span
+              >
+            </div>
+
+            <div
+              id="battleCustomizeStageList"
+              class="battle-customize-card-list"
+            >
+              <button
+                class="battle-customize-item-card active"
+                type="button"
+                data-stage-id="stage1"
+              >
+                <div
+                  class="battle-customize-item-preview preview-stage-01"
+                ></div>
+                <div class="battle-customize-item-meta">
+                  <strong>Royal Glow</strong>
+                  <span>Golden animated champion platform</span>
+                </div>
+              </button>
+
+              <button
+                class="battle-customize-item-card"
+                type="button"
+                data-stage-id="stage2"
+              >
+                <div
+                  class="battle-customize-item-preview preview-stage-02"
+                ></div>
+                <div class="battle-customize-item-meta">
+                  <strong>Neon Energy</strong>
+                  <span>Blue cyber glowing quiz stage</span>
+                </div>
+              </button>
+
+              <button
+                class="battle-customize-item-card"
+                type="button"
+                data-stage-id="stage3"
+              >
+                <div
+                  class="battle-customize-item-preview preview-stage-03"
+                ></div>
+                <div class="battle-customize-item-meta">
+                  <strong>Golden Arena</strong>
+                  <span>Premium warm royal stage</span>
+                </div>
+              </button>
+
+              <button
+                class="battle-customize-item-card"
+                type="button"
+                data-stage-id="stage4"
+              >
+                <div
+                  class="battle-customize-item-preview preview-stage-04"
+                ></div>
+                <div class="battle-customize-item-meta">
+                  <strong>Cosmic Duel</strong>
+                  <span>Purple rotating space energy</span>
+                </div>
+              </button>
+
+              <button
+                class="battle-customize-item-card"
+                type="button"
+                data-stage-id="stage5"
+              >
+                <div
+                  class="battle-customize-item-preview preview-stage-05"
+                ></div>
+                <div class="battle-customize-item-meta">
+                  <strong>Dark Champion</strong>
+                  <span>Red shadow boss platform</span>
+                </div>
+              </button>
+            </div>
+          </section>
+        </div>
+      </section>
+    </div>
+
+    <div
+      id="battleCharsOverlay"
+      class="battle-chars-overlay hidden"
+      aria-hidden="true"
+    >
+      <div class="battle-chars-backdrop"></div>
+
+      <section
+        class="battle-chars-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="battleCharsTitle"
+      >
+        <div class="battle-chars-sidebar">
+          <div class="battle-chars-sidebar-top">
+            <div class="battle-chars-mini-brand">Chars</div>
+            <button
+              id="battleCharsBackBtn"
+              class="battle-chars-back-btn"
+              type="button"
+            >
+              ← Back
+            </button>
+          </div>
+
+          <div id="battleCharsGrid" class="battle-chars-grid">
+            <button
+              class="battle-char-card active"
+              type="button"
+              data-char-name="Joseph"
+              data-char-role="Silver Spawn"
+              data-char-bio="A balanced battle character with sharp presence and a premium lobby look."
+              data-char-image="/assets/avatars/avatar-01.png"
+            >
+              <img
+                src="/assets/characters/char_01_sword_boy.png"
+                alt="Joseph"
+              />
+              <span>Joseph</span>
+            </button>
+
+            <button
+              class="battle-char-card"
+              type="button"
+              data-char-name="Nova"
+              data-char-role="Battle Scholar"
+              data-char-bio="A fast-thinking premium fighter designed for quiz reflex and duel confidence."
+              data-char-image="/assets/avatars/avatar-01.png"
+            >
+              <img src="/assets/avatars/avatar-01.png" alt="Nova" />
+              <span>Nova</span>
+            </button>
+
+            <button
+              class="battle-char-card"
+              type="button"
+              data-char-name="Titan"
+              data-char-role="Arena Guardian"
+              data-char-bio="A strong survival-focused character for pressure battles and endurance."
+              data-char-image="/assets/avatars/avatar-01.png"
+            >
+              <img src="/assets/avatars/avatar-01.png" alt="Titan" />
+              <span>Titan</span>
+            </button>
+
+            <button
+              class="battle-char-card"
+              type="button"
+              data-char-name="Spark"
+              data-char-role="Reflex Runner"
+              data-char-bio="A lightning-fast character built for faster-thinker mode and quick answers."
+              data-char-image="/assets/avatars/avatar-01.png"
+            >
+              <img src="/assets/avatars/avatar-01.png" alt="Spark" />
+              <span>Spark</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="battle-chars-stage">
+          <div class="battle-chars-stage-top">
+            <div class="battle-chars-stage-head">
+              <span class="battle-chars-role-badge" id="battleCharsRoleBadge"
+                >Silver Spawn</span
+              >
+              <h2 id="battleCharsTitle">Joseph</h2>
+              <p id="battleCharsBio">
+                A balanced battle character with sharp presence and a premium
+                lobby look.
+              </p>
+            </div>
+
+            <button
+              id="battleCharsUseBtn"
+              class="battle-chars-use-btn"
+              type="button"
+            >
+              Use Character
+            </button>
+          </div>
+
+          <div class="battle-chars-preview-wrap">
+            <div class="battle-chars-preview-glow"></div>
+            <div class="battle-chars-preview-platform"></div>
+            <img
+              id="battleCharsPreviewImage"
+              class="battle-chars-preview-image"
+              src="/assets/avatars/avatar-01.png"
+              alt="Selected character"
+            />
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div
+      id="battleRewardsOverlay"
+      class="battle-rewards-overlay hidden"
+      aria-hidden="true"
+    >
+      <div class="battle-rewards-backdrop"></div>
+
+      <section
+        class="battle-rewards-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="battleRewardsTitle"
+      >
+        <aside class="battle-rewards-sidebar">
+          <div class="battle-rewards-sidebar-top">
+            <div class="battle-rewards-mini-brand">Rewards Royale</div>
+            <button
+              id="battleRewardsBackBtn"
+              class="battle-rewards-back-btn"
+              type="button"
+            >
+              ← Back
+            </button>
+          </div>
+
+          <div
+            id="battleRewardsTypeList"
+            class="battle-rewards-type-list"
+          ></div>
+        </aside>
+
+        <div class="battle-rewards-stage">
+          <div class="battle-rewards-stage-top">
+            <div class="battle-rewards-stage-head">
+              <span id="battleRewardsTag" class="battle-rewards-role-badge"
+                >Premium Backgrounds</span
+              >
+              <h2 id="battleRewardsTitle">Background Royale</h2>
+              <p id="battleRewardsDesc">
+                Spin for premium lobby backgrounds using DN Tokens.
+              </p>
+            </div>
+
+            <div class="battle-rewards-balance-card">
+              <span>Main Balance</span>
+              <strong id="battleRewardsMainTokenText">3 DN Tokens</strong>
+            </div>
+          </div>
+
+          <div class="battle-rewards-main-grid">
+            <div class="battle-rewards-wheel-card">
+              <div class="battle-rewards-wheel-top">
+                <div class="battle-rewards-wheel-title-wrap">
+                  <strong id="battleRewardsWheelTitle">Spin Wheel</strong>
+                  <span id="battleRewardsCostText">Cost: 1 DN Token</span>
+                </div>
+
+                <button
+                  id="battleRewardsSpinBtn"
+                  class="battle-rewards-spin-btn"
+                  type="button"
+                >
+                  Spin
+                </button>
+              </div>
+
+              <div class="battle-rewards-wheel-wrap">
+                <div class="battle-rewards-wheel-pointer"></div>
+                <div id="battleRewardsWheel" class="battle-rewards-wheel"></div>
+              </div>
+            </div>
+
+            <div class="battle-rewards-info-card">
+              <div class="battle-rewards-preview-box">
+                <div
+                  id="battleRewardsPreviewGlow"
+                  class="battle-rewards-preview-glow"
+                ></div>
+                <div
+                  id="battleRewardsPreviewName"
+                  class="battle-rewards-preview-name"
+                >
+                  Royal Blue Nebula
+                </div>
+              </div>
+
+              <div class="battle-rewards-meta-list">
+                <div class="battle-rewards-meta-row">
+                  <span>Selected Royale</span>
+                  <strong id="battleRewardsSelectedRoyaleName"
+                    >Background Royale</strong
+                  >
+                </div>
+                <div class="battle-rewards-meta-row">
+                  <span>Reward Count</span>
+                  <strong id="battleRewardsPoolCount">8 Rewards</strong>
+                </div>
+                <div class="battle-rewards-meta-row">
+                  <span>Your Royale Tokens</span>
+                  <strong id="battleRewardsRoyaleTokenText">0</strong>
+                </div>
+              </div>
+
+              <div class="battle-rewards-action-row">
+                <button
+                  id="battleRewardsBuyBundleBtn"
+                  class="battle-rewards-sub-btn"
+                  type="button"
+                >
+                  Buy Bundle
+                </button>
+
+                <button
+                  id="battleRewardsEquipBtn"
+                  class="battle-rewards-sub-btn alt"
+                  type="button"
+                >
+                  Equip Last Reward
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="battle-rewards-bottom">
+            <div class="battle-rewards-history-head">
+              <strong>Recent Rewards</strong>
+            </div>
+            <div id="battleRewardsHistory" class="battle-rewards-history"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Create Room Modal -->
+    <div id="createRoomModal" class="battle-modal hidden" aria-hidden="true">
+      <div class="battle-modal-backdrop"></div>
+
+      <div
+        class="battle-modal-box battle-create-room-box"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="createRoomTitle"
+      >
+        <div class="battle-modal-top">
+          <div class="battle-badge">Create Battle Room</div>
+          <h2 id="createRoomTitle">Set Up Your Match</h2>
+          <p>Select the battle mode and quiz area for this room.</p>
+        </div>
+
+        <div class="battle-form-grid">
+          <div class="battle-form-group">
+            <label for="battleModeSelect">Battle Mode</label>
+            <select id="battleModeSelect">
+              <option value="normal-dual">Normal Duel</option>
+              <option value="faster-thinker">Faster Thinker</option>
+              <option value="survival-dual">Survival Duel</option>
+            </select>
+          </div>
+
+          <div class="battle-form-group">
+            <label for="battleSubjectSelect">Subject</label>
+            <select id="battleSubjectSelect">
+              <option value="">Select subject</option>
+              <option value="physics">Physics</option>
+              <option value="chemistry">Chemistry</option>
+            </select>
+          </div>
+
+          <div class="battle-form-group">
+            <label for="battleTopicSelect">Topic</label>
+            <select id="battleTopicSelect">
+              <option value="">Select topic</option>
+            </select>
+          </div>
+
+          <div class="battle-form-group">
+            <label for="battleSubtopicSelect">Subtopic</label>
+            <select id="battleSubtopicSelect">
+              <option value="">Select subtopic</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="battle-modal-actions">
+          <button
+            id="confirmCreateRoomBtn"
+            class="btn btn-primary"
+            type="button"
+          >
+            Create Room
+          </button>
+          <button id="closeCreateRoomModalBtn" class="btn" type="button">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="/js/app-config.js?v=1.0.24"></script>
+    <script src="/js/theme-manager.js"></script>
+    <script>
+      window.dnThemeApplyToCurrentPage?.();
+    </script>
+    <script type="module" src="/js/firebase-client.js?v=1.0.24"></script>
+    <script type="module" src="/js/auth.js?v=1.0.24"></script>
+    <script
+      type="module"
+      src="/quiz-battle/js/battle-home.js?v=1.0.27"
+    ></script>
+  </body>
+</html>
