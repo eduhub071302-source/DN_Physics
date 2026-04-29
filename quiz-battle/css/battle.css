@@ -4552,111 +4552,89 @@ body.stage5 .battle-character-platform::after {
 }
 
 /* =========================================================
-   EMERGENCY CLICK FIX - DO NOT REMOVE
-   Fixes left menu, customize, join/create/start buttons
+
+/* =========================================================
+   DN BATTLE CLEAN PANEL / POPUP / TOUCH STACK FIX v82
+   Purpose:
+   - Side buttons toggle right panels.
+   - SC, Rewards, Customize, Create Room, Join Room open as popups/drawers.
+   - Right panels always stay above bottom buttons.
+   - Background/summary layers never block touches.
 ========================================================= */
+
+.battle-cinematic-bg,
+.battle-cinematic-bg::before,
+.battle-cinematic-bg::after,
+.battle-cinematic-overlay,
+.battle-theme-fx,
+.battle-theme-fx::before,
+.battle-theme-fx::after,
+.battle-particle-layer,
+.battle-particle-layer::before,
+.battle-particle-layer::after,
+.battle-light-glow,
+.battle-live-summary-card,
+.battle-live-summary-card * {
+  pointer-events: none !important;
+}
 
 .battle-game-shell {
   position: relative;
   z-index: 10;
 }
 
-.battle-live-summary-card {
-  z-index: 3 !important;
-  pointer-events: none !important;
-}
-
-.battle-live-summary-card * {
-  pointer-events: none !important;
-}
-
-.battle-sidebar,
-.battle-sidebar * {
-  pointer-events: auto !important;
-}
-
 .battle-sidebar {
   position: relative;
-  z-index: 120 !important;
+  z-index: 180 !important;
+  pointer-events: auto !important;
 }
 
 .battle-side-nav,
 .battle-side-link {
   position: relative;
-  z-index: 121 !important;
+  z-index: 181 !important;
   pointer-events: auto !important;
+  touch-action: manipulation;
 }
 
 .battle-topbar {
   position: relative;
-  z-index: 130 !important;
+  z-index: 170 !important;
   pointer-events: auto !important;
 }
 
 .battle-top-left-card,
 .battle-top-right-card,
-.battle-topbar-customize-btn {
+.battle-topbar-customize-btn,
+.battle-icon-btn {
   position: relative;
-  z-index: 131 !important;
+  z-index: 171 !important;
   pointer-events: auto !important;
-}
-
-.battle-bottom-strip {
-  z-index: 140 !important;
-  pointer-events: none !important;
-}
-
-.battle-selection-card,
-.battle-start-stack,
-.battle-start-card,
-.battle-start-main-btn,
-.battle-floating-sub-btn,
-#joinRoomBtn,
-#createRoomBtn,
-#startSelectedBattleBtn {
-  position: relative;
-  z-index: 141 !important;
-  pointer-events: auto !important;
-}
-
-.battle-start-main-btn img {
-  pointer-events: none !important;
+  touch-action: manipulation;
 }
 
 .battle-right-panel-shell {
-  z-index: 90 !important;
-}
-
-/* =========================================================
-   FINAL CLICK + POPUP VISIBILITY FIX
-========================================================= */
-
-.battle-live-summary-card,
-.battle-live-summary-card * {
+  position: fixed !important;
+  top: 102px !important;
+  right: 12px !important;
+  bottom: 128px !important;
+  width: min(340px, calc(100vw - 120px)) !important;
+  height: auto !important;
+  z-index: 220 !important;
   pointer-events: none !important;
 }
 
-.battle-sidebar,
-.battle-topbar,
-.battle-bottom-strip,
-.battle-start-stack {
-  pointer-events: auto !important;
-}
-
-.battle-side-nav,
-.battle-side-link,
-.battle-topbar-customize-btn,
-.battle-floating-sub-btn,
-.battle-start-main-btn {
-  pointer-events: auto !important;
-  cursor: pointer !important;
-}
-
-.battle-summary-overlay,
-.battle-rewards-overlay,
-.battle-modal,
-.battle-customize-drawer {
-  z-index: 9999 !important;
+.battle-right-panel-view {
+  position: absolute !important;
+  inset: 0 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateX(26px) !important;
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease,
+    visibility 0.22s ease;
 }
 
 .battle-right-panel-view.is-active {
@@ -4664,64 +4642,46 @@ body.stage5 .battle-character-platform::after {
   visibility: visible !important;
   pointer-events: auto !important;
   transform: translateX(0) !important;
-  z-index: 100 !important;
+  z-index: 221 !important;
 }
 
 .battle-right-panel-view.hidden-panel {
   opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;
-}
-
-/* =========================================================
-   FINAL CLICK / TOUCH LAYER FIX
-   Keeps lobby buttons and modals touch-safe
-========================================================= */
-
-.battle-game-shell {
-  position: relative;
-  z-index: 10;
-}
-
-.battle-cinematic-bg,
-.battle-cinematic-overlay,
-.battle-particle-layer,
-.battle-light-glow,
-.battle-theme-fx {
-  pointer-events: none !important;
+  transform: translateX(26px) !important;
 }
 
 .battle-bottom-strip {
-  position: fixed;
-  left: 115px;
-  right: 18px;
-  bottom: 18px;
-  z-index: 30;
-  pointer-events: none;
+  position: fixed !important;
+  left: 115px !important;
+  right: 18px !important;
+  bottom: 18px !important;
+  z-index: 120 !important;
+  pointer-events: none !important;
 }
 
 .battle-selection-card,
 .battle-start-stack,
 .battle-start-card,
+.battle-floating-sub-btn,
+.battle-start-main-btn,
 #joinRoomBtn,
 #createRoomBtn,
 #startSelectedBattleBtn {
   pointer-events: auto !important;
+  touch-action: manipulation;
 }
 
-#joinRoomBtn,
-#createRoomBtn,
-#startSelectedBattleBtn {
-  position: relative;
-  z-index: 35;
-  touch-action: manipulation;
+.battle-start-main-btn img {
+  pointer-events: none !important;
 }
 
 .battle-modal,
 .battle-summary-overlay,
 .battle-rewards-overlay,
 .battle-chars-overlay {
-  z-index: 200 !important;
+  z-index: 500 !important;
 }
 
 .battle-modal:not(.hidden),
@@ -4736,67 +4696,84 @@ body.stage5 .battle-character-platform::after {
 .battle-rewards-panel,
 .battle-chars-panel {
   position: relative;
-  z-index: 201 !important;
+  z-index: 501 !important;
   pointer-events: auto !important;
 }
 
-.battle-right-panel-shell {
-  z-index: 45;
-}
-
-.battle-right-panel-view.is-active {
-  z-index: 46;
-  pointer-events: auto;
-}
-
-/* =========================================================
-   FINAL LOBBY PANEL + POPUP STACK FIX
-========================================================= */
-
-.battle-right-panel-shell {
-  position: fixed !important;
-  top: 102px !important;
-  right: 12px !important;
-  bottom: 150px !important;
-  width: 330px !important;
-  z-index: 160 !important;
-  pointer-events: none;
-}
-
-.battle-right-panel-view {
-  pointer-events: none;
-}
-
-.battle-right-panel-view.is-active {
-  pointer-events: auto !important;
-  z-index: 161 !important;
-}
-
-.battle-bottom-strip {
-  z-index: 80 !important;
-}
-
-.battle-modal,
-.battle-summary-overlay,
-.battle-rewards-overlay,
-.battle-chars-overlay,
 .battle-customize-drawer {
-  z-index: 300 !important;
+  z-index: 480 !important;
 }
 
-.battle-modal:not(.hidden),
-.battle-summary-overlay:not(.hidden),
-.battle-rewards-overlay:not(.hidden),
-.battle-chars-overlay:not(.hidden),
 .battle-customize-drawer.is-open {
   pointer-events: auto !important;
 }
 
-.battle-modal-box,
-.battle-summary-panel,
-.battle-rewards-panel,
-.battle-chars-panel,
 .battle-customize-panel {
-  z-index: 301 !important;
+  position: relative;
+  z-index: 481 !important;
   pointer-events: auto !important;
+}
+
+.battle-side-nav.active {
+  border-color: rgba(255, 202, 69, 0.32) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 202, 69, 0.12),
+    0 0 18px rgba(255, 202, 69, 0.08) !important;
+}
+
+.battle-join-form-grid {
+  grid-template-columns: 1fr !important;
+}
+
+.battle-form-group-full {
+  grid-column: 1 / -1;
+}
+
+.battle-room-code-input {
+  width: 100%;
+  min-height: 52px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  padding: 12px 14px;
+  outline: none;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.battle-room-code-input::placeholder {
+  color: rgba(220, 231, 251, 0.45);
+}
+
+.battle-room-code-input:focus {
+  border-color: rgba(255, 202, 69, 0.36);
+  box-shadow: 0 0 0 4px rgba(255, 202, 69, 0.08);
+}
+
+@media (max-width: 900px) {
+  .battle-right-panel-shell {
+    top: 92px !important;
+    right: 10px !important;
+    bottom: 120px !important;
+    width: min(360px, calc(100vw - 108px)) !important;
+  }
+
+  .battle-bottom-strip {
+    left: 104px !important;
+    right: 10px !important;
+    bottom: 12px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .battle-right-panel-shell {
+    top: 86px !important;
+    left: 94px !important;
+    right: 10px !important;
+    width: auto !important;
+    bottom: 118px !important;
+  }
 }
