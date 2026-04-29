@@ -12,8 +12,8 @@
       content="Enter the DN Quiz Battle premium gaming lobby and create or join a 1 vs 1 room."
     />
 
-    <link rel="stylesheet" href="/css/style.css?v=1.0.81" />
-    <link rel="stylesheet" href="/quiz-battle/css/battle.css?v=81" />
+    <link rel="stylesheet" href="/css/style.css?v=1.0.82" />
+    <link rel="stylesheet" href="/quiz-battle/css/battle.css?v=82" />
   </head>
   <body class="battle-page battle-game-lobby-page">
     <div id="rotateNotice" class="rotate-notice hidden" aria-hidden="true">
@@ -1174,16 +1174,62 @@
       </div>
     </div>
 
-    <script src="/js/app-config.js?v=1.0.81"></script>
+    <!-- Join Room Modal -->
+    <div id="joinRoomModal" class="battle-modal hidden" aria-hidden="true">
+      <div class="battle-modal-backdrop"></div>
+
+      <div
+        class="battle-modal-box battle-join-room-box"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="joinRoomTitle"
+      >
+        <div class="battle-modal-top">
+          <div class="battle-badge">Join Battle Room</div>
+          <h2 id="joinRoomTitle">Enter Room Code</h2>
+          <p>Type the room code shared by your friend to enter the battle lobby.</p>
+        </div>
+
+        <div class="battle-form-grid battle-join-form-grid">
+          <div class="battle-form-group battle-form-group-full">
+            <label for="battleJoinRoomCodeInput">Room Code</label>
+            <input
+              id="battleJoinRoomCodeInput"
+              class="battle-room-code-input"
+              type="text"
+              inputmode="text"
+              autocomplete="off"
+              placeholder="Example: DN7K2Q"
+              maxlength="12"
+            />
+          </div>
+        </div>
+
+        <div class="battle-modal-actions">
+          <button
+            id="confirmJoinRoomBtn"
+            class="btn btn-primary"
+            type="button"
+          >
+            Join Room
+          </button>
+          <button id="closeJoinRoomModalBtn" class="btn" type="button">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="/js/app-config.js?v=1.0.82"></script>
     <script src="/js/theme-manager.js"></script>
     <script>
       window.dnThemeApplyToCurrentPage?.();
     </script>
-    <script type="module" src="/js/firebase-client.js?v=1.0.81"></script>
-    <script type="module" src="/js/auth.js?v=1.0.81"></script>
+    <script type="module" src="/js/firebase-client.js?v=1.0.82"></script>
+    <script type="module" src="/js/auth.js?v=1.0.82"></script>
     <script
       type="module"
-      src="/quiz-battle/js/battle-home.js?v=1.0.81"
+      src="/quiz-battle/js/battle-home.js?v=1.0.82"
     ></script>
   </body>
 </html>
